@@ -57,7 +57,7 @@
     "build": "tsup",
     "dev": "tsup --watch src",
     "build:fix": "esno scripts/postbuild.ts",
-    "lint": "eslint .",
+    "lint": "prettier -c src/**/*.ts",
     "play": "npm -C playground run dev",
     "prepublishOnly": "npm run build",
     "release": "bumpp --commit --push --tag && pnpm publish",
@@ -68,13 +68,12 @@
     "unplugin": "^0.7.0"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^0.25.1",
     "@types/node": "^17.0.34",
     "bumpp": "^8.1.0",
-    "eslint": "^8.15.0",
     "esno": "^0.16.3",
     "fast-glob": "^3.2.11",
     "nodemon": "^2.0.16",
+    "prettier": "^2.7.1",
     "rimraf": "^3.0.2",
     "rollup": "^2.74.0",
     "tsup": "^6.1.2",
