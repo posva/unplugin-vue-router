@@ -1,7 +1,7 @@
 {
-  "name": "unplugin-starter",
-  "version": "0.1.0",
-  "packageManager": "pnpm@7.1.1",
+  "name": "unplugin-vue-router",
+  "version": "0.0.0",
+  "packageManager": "pnpm@7.1.7",
   "description": "Register global imports on demand for Vite and Webpack",
   "keywords": [
     "unplugin",
@@ -10,14 +10,14 @@
     "rollup",
     "transform"
   ],
-  "homepage": "https://github.com/antfu/unplugin-starter#readme",
+  "homepage": "https://github.com/antfu/unplugin-vue-router#readme",
   "bugs": {
-    "url": "https://github.com/antfu/unplugin-starter/issues"
+    "url": "https://github.com/antfu/unplugin-vue-router/issues"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/antfu/unplugin-starter.git"
+    "url": "git+https://github.com/antfu/unplugin-vue-router.git"
   },
   "main": "dist/index.js",
   "module": "dist/index.mjs",
