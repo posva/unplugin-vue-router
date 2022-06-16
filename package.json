@@ -1,6 +1,6 @@
 {
   "name": "unplugin-vue-router",
-  "version": "0.0.0-beta.0",
+  "version": "0.0.0",
   "packageManager": "pnpm@7.1.7",
   "description": "Register global imports on demand for Vite and Webpack",
   "keywords": [
