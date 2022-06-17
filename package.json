@@ -65,6 +65,7 @@
     "test": "vitest"
   },
   "dependencies": {
+    "chokidar": "^3.5.3",
     "unplugin": "^0.7.0"
   },
   "devDependencies": {
