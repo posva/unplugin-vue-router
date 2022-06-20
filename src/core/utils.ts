@@ -60,3 +60,15 @@ export function logTree(tree: TreeLeaf) {
   const log = new LogTree()
   console.log(log.parse(tree))
 }
+
+/**
+ * Typesafe alternative to Array.isArray
+ * https://github.com/microsoft/TypeScript/pull/48228
+ */
+export const isArray: (arg: ArrayLike<any> | any) => arg is ReadonlyArray<any> =
+  Array.isArray
+
+export function trimExtension(path: string) {
+  const lastDot = path.lastIndexOf('.')
+  return lastDot < 0 ? path : path.slice(0, lastDot)
+}
