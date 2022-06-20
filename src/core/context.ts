@@ -1,5 +1,7 @@
 import { FSWatcher, watch as chokidar } from 'chokidar'
 import { resolve } from 'path'
+import { createPrefixTree, TreeLeaf } from './tree'
+import { logTree } from './utils'
 
 export interface RoutesContextOptions {
   extensions?: string[]
@@ -32,6 +34,8 @@ export function createRoutesContext(opt?: RoutesContextOptions) {
   const options: Required<RoutesContextOptions> = { ...DEFAULT_OPTIONS, ...opt }
   let serverWatcher: FSWatcher | null = null
 
+  const root = createPrefixTree()
+
   function setupWatcher(watcher?: FSWatcher) {
     // already setup
     if (serverWatcher) return
@@ -54,6 +58,24 @@ export function createRoutesContext(opt?: RoutesContextOptions) {
       })
       .on('add', (path) => {
         console.log('add', path)
+        if (!root.children.size) {
+          // TODO: parse
+          root.insert('index.vue')
+          root.insert('users/index.vue')
+          root.insert('users/[id].vue')
+          root.insert('articles/[id]+.vue')
+          root.insert('articles/id-[id]-the-rest.vue')
+          root.insert('users.vue')
+          root.insert('very/deep/file/is/complicated.vue')
+          root.insert('very/deep/other/file.vue')
+          root.insert('very/deep/file.vue')
+          root.insert('very/deep/file.vue')
+
+          // console.log(root.toString())
+          logTree(root)
+        }
+        root.insert(path.slice(options.routesFolder.length + 1))
+        logTree(root)
       })
       .on('unlink', (path) => {
         console.log('remove', path)
