@@ -78,7 +78,6 @@ export class TreeLeaf {
   /**
    * Does the node has a component at the given path. e.g having `routes/users/index.vue` and `routes/users.vue`
    */
-  hasComponent = false
   filePath?: string
 
   constructor(value: string, parentPath: string) {
@@ -110,7 +109,6 @@ export class TreeLeaf {
     const child = this.children.get(segment)!
 
     if (isComponent) {
-      child.hasComponent = true
       child.filePath = filePath
     }
 
@@ -119,13 +117,82 @@ export class TreeLeaf {
     }
   }
 
+  // remove(path: string) {
+  //   let slashPos = -1
+  //   let head = ''
+  //   let tail = path
+  //   let segment: string
+
+  //   let current: TreeLeaf | null | undefined = this
+  //   let parent: TreeLeaf
+  //   do {
+  //     slashPos = tail.indexOf('/')
+  //     head = slashPos < 0 ? tail : tail.slice(0, slashPos)
+  //     tail = slashPos < 0 ? '' : tail.slice(slashPos + 1)
+  //     console.log({ slashPos, head, tail })
+  //     segment = trimExtension(head)
+  //     parent = current
+  //     current = current.children.get(segment)
+  //     // repeat until we went deep enough
+  //   } while (tail && current)
+
+  //   if (!current) {
+  //     throw new Error(
+  //       `Cannot Delete "${path}". "${head}" not found at "${this.path}".`
+  //     )
+  //   }
+
+  //   const isComponent = segment !== head
+  //   if (isComponent) {
+  //     current.filePath = undefined
+  //     if (current.children.size === 0) {
+  //       parent.children.delete(segment)
+  //     }
+  //   } else {
+  //     parent.children.delete(segment)
+  //   }
+  // }
+
+  remove(path: string) {
+    const slashPos = path.indexOf('/')
+    const head = slashPos < 0 ? path : path.slice(0, slashPos)
+    const tail = slashPos < 0 ? '' : path.slice(slashPos + 1)
+
+    const segment = trimExtension(head)
+    const isComponent = segment !== head
+
+    const child = this.children.get(segment)
+    if (!child) {
+      throw new Error(
+        `Cannot Delete "${path}". "${head}" not found at "${this.path}".`
+      )
+    }
+    if (tail) {
+      child.remove(tail)
+      // if the child doesn't create any route
+      if (child.children.size === 0 && !child.filePath) {
+        this.children.delete(segment)
+      }
+    } else {
+      // it can only be component because we only listen for removed files, not folders
+      if (isComponent) {
+        child.filePath = undefined
+      }
+      // this is the file we wanted to remove
+      if (child.children.size === 0) {
+        this.children.delete(segment)
+      }
+    }
+  }
+
   toString(): string {
-    return `${this.value}${this.hasComponent ? ' 📄' : ''}`
+    return `${this.value}${this.filePath ? ' 📄' : ''}`
     // return `[${this.value._type}|"${this.value.value}", [${Array.from(
     //   this.children.values()
     // ).join(', ')}] ]`
   }
 
+  // TODO: move to a separate file
   toRouteRecordString(
     indent = 0,
     parent: TreeLeaf | null = null,
@@ -147,9 +214,9 @@ ${Array.from(this.children.values())
 
     return `${startIndent}{
 ${indentStr}path: "${(parent ? '' : '/') + this.value.pathSegment}",
-${indentStr}${this.hasComponent ? `name: "${name}",` : '/* no name */'}
+${indentStr}${this.filePath ? `name: "${name}",` : '/* no name */'}
 ${indentStr}${
-      this.hasComponent
+      this.filePath
         ? `component: () => import('${this.filePath}'),`
         : '/* no component */'
     }

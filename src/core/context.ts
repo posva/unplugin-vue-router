@@ -3,7 +3,7 @@ import { resolve } from 'path'
 import { Options } from '../types'
 import { createPrefixTree, TreeLeaf } from './tree'
 import { promises as fs } from 'fs'
-import { throttle } from './utils'
+import { logTree, throttle } from './utils'
 
 export function createRoutesContext(options: Required<Options>) {
   const { dts: preferDTS, root } = options
@@ -26,6 +26,10 @@ export function createRoutesContext(options: Required<Options>) {
     // TODO: allow user options
   })
 
+  function stripRouteFolder(path: string) {
+    return path.slice(resolvedRoutesFolder.length + 1)
+  }
+
   function setupWatcher() {
     serverWatcher
       .on('change', (path) => {
@@ -34,9 +38,9 @@ export function createRoutesContext(options: Required<Options>) {
         writeConfigFiles()
       })
       .on('add', (path) => {
-        console.log('add', path)
+        console.log('added', path)
         routeTree.insert(
-          path.slice(resolvedRoutesFolder.length + 1),
+          stripRouteFolder(path),
           // './' + path
           resolve(root, path)
         )
@@ -44,6 +48,7 @@ export function createRoutesContext(options: Required<Options>) {
       })
       .on('unlink', (path) => {
         console.log('remove', path)
+        routeTree.remove(stripRouteFolder(path))
         writeConfigFiles()
       })
   }
@@ -67,7 +72,7 @@ export function createRoutesContext(options: Required<Options>) {
   let lastDTS: string | undefined
   async function _writeConfigFiles() {
     console.log('writing')
-    console.log('watching', resolvedRoutesFolder)
+    logTree(routeTree)
     if (dts) {
       const content = generateDTS()
       if (lastDTS !== content) {
