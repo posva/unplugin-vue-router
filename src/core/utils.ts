@@ -72,3 +72,24 @@ export function trimExtension(path: string) {
   const lastDot = path.lastIndexOf('.')
   return lastDot < 0 ? path : path.slice(0, lastDot)
 }
+
+export function throttle(fn: () => void, wait: number) {
+  let timeout: ReturnType<typeof setTimeout> | null = null
+  let pendingExecution = false
+
+  return () => {
+    if (!timeout) {
+      timeout = setTimeout(() => {
+        timeout = null
+        if (pendingExecution) {
+          pendingExecution = false
+          fn()
+        }
+      }, wait)
+      fn()
+    } else {
+      // we run the function recently, so we can skip it and add a pending execution
+      pendingExecution = true
+    }
+  }
+}

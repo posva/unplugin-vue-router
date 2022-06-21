@@ -66,6 +66,7 @@
   },
   "dependencies": {
     "chokidar": "^3.5.3",
+    "local-pkg": "^0.4.1",
     "unplugin": "^0.7.0"
   },
   "devDependencies": {

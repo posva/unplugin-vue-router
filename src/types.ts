@@ -1,3 +1,5 @@
+import { isPackageExists } from 'local-pkg'
+
 export interface Options {
   extensions?: string[]
   routesFolder?: string
@@ -15,6 +17,11 @@ export interface Options {
   root?: string
 
   /**
+   * Should generate d.ts files. Defaults to `true` if `typescript` is installed.
+   */
+  dts?: boolean
+
+  /**
    * Allows inspection by vite-plugin-inspect by not adding the leading `\0` to the id of virtual modules.
    * @internal
    */
@@ -29,5 +36,6 @@ export const DEFAULT_OPTIONS: Required<Options> = {
   routeStyle: 'nuxt',
   routesModuleId: '@routes',
   root: process.cwd(),
+  dts: isPackageExists('typescript'),
   _inspect: false,
 }

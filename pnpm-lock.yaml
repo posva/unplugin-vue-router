@@ -9,6 +9,7 @@ importers:
       chokidar: ^3.5.3
       esno: ^0.16.3
       fast-glob: ^3.2.11
+      local-pkg: ^0.4.1
       nodemon: ^2.0.16
       prettier: ^2.7.1
       rimraf: ^3.0.2
@@ -23,6 +24,7 @@ importers:
       webpack: ^5.72.1
     dependencies:
       chokidar: 3.5.3
+      local-pkg: 0.4.1
       unplugin: 0.7.0_hkbj3q5x4yf6mrrlsspksagami
     devDependencies:
       '@types/node': 17.0.44
@@ -1617,7 +1619,6 @@ packages:
   /local-pkg/0.4.1:
     resolution: {integrity: sha512-lL87ytIGP2FU5PWwNDo0w3WhIo2gopIAxPg9RxDYF7m4rr5ahuZxP22xnJHIvaLTe4Z9P6uKKY2UHiwyB4pcrw==}
     engines: {node: '>=14'}
-    dev: true
 
   /lodash.sortby/4.7.0:
     resolution: {integrity: sha512-HDWXG8isMntAyRF5vZ7xKuEvOhT4AhlRt/3czTSjvGUxjYCBVRQY48ViDHyfYz9VIoBkW4TMGQNapx+l3RUwdA==}

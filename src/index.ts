@@ -1,7 +1,6 @@
 import { resolve } from 'path'
 import { createUnplugin } from 'unplugin'
 import { createRoutesContext } from './core/context'
-import { isArray } from './core/utils'
 import { DEFAULT_OPTIONS, Options } from './types'
 
 const VIRTUAL_PREFIX = 'virtual:'
@@ -39,7 +38,6 @@ export default createUnplugin<Options>((opt) => {
     buildStart() {
       // TODO: detect watch or build to not create
       // stop watcher
-      ctx.start()
     },
 
     load(id) {
@@ -50,26 +48,6 @@ export default createUnplugin<Options>((opt) => {
 
       // fallback
       return null
-    },
-
-    vite: {
-      async config(config) {
-        // TODO: do we need to use a vite util to merge the config?
-        config.resolve ??= {}
-        config.resolve.alias ??= {}
-        // TODO: ensure this can be done in all versions (rollup and webpack)
-        if (isArray(config.resolve.alias)) {
-          config.resolve.alias = config.resolve.alias.concat({
-            find: '~routerPages',
-            replacement: resolve(root, options.routesFolder),
-          })
-        } else {
-          config.resolve.alias['~routerPages'] = resolve(
-            root,
-            options.routesFolder
-          )
-        }
-      },
     },
   }
 })
