@@ -36,7 +36,7 @@ function createLeafValueStatic(value: string): TreeLeafValueStatic {
   }
 }
 
-const FORMAT_PARAM_RE = /\[(?:\.\.\.)?(.+?)\](?:[?+*]?)/g
+const FORMAT_PARAM_RE = /\[(?:.+?)\]([?+*]?)/g
 function createLeafValueParam(
   name: string,
   value: string,
@@ -47,7 +47,7 @@ function createLeafValueParam(
   const isRepeatable = modifier === '*' || modifier === '+'
   const pathSegment = value.replace(
     FORMAT_PARAM_RE,
-    `:$1${isSplat ? '(.*)' : ''}${modifier || ''}`
+    `:${name}${isSplat ? '(.*)' : ''}$1`
   )
   return {
     _type:
