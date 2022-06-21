@@ -47,4 +47,42 @@ describe('Tree', () => {
     })
     expect(child.children.size).toBe(0)
   })
+
+  it('removes nodes', () => {
+    const tree = createPrefixTree()
+    tree.insert('foo.vue')
+    tree.insert('[id].vue')
+    tree.remove('foo.vue')
+    expect(tree.children.size).toBe(1)
+    const child = tree.children.get('[id]')!
+    expect(child).toBeDefined()
+    expect(child.value).toMatchObject({
+      value: '[id]',
+      name: 'id',
+    })
+    expect(child.children.size).toBe(0)
+  })
+
+  it('removes empty folders', () => {
+    const tree = createPrefixTree()
+    tree.insert('a/b/c/d.vue')
+    expect(tree.children.size).toBe(1)
+    tree.remove('a/b/c/d.vue')
+    expect(tree.children.size).toBe(0)
+  })
+
+  it('keeps parent with file but no children', () => {
+    const tree = createPrefixTree()
+    tree.insert('a/b/c/d.vue')
+    tree.insert('a/b.vue')
+    expect(tree.children.size).toBe(1)
+    const child = tree.children.get('a')!.children.get('b')!
+    expect(child).toBeDefined()
+    expect(child.children.size).toBe(1)
+
+    tree.remove('a/b/c/d.vue')
+    expect(tree.children.size).toBe(1)
+    expect(tree.children.get('a')!.children.size).toBe(1)
+    expect(child.children.size).toBe(0)
+  })
 })

@@ -1,18 +1,17 @@
-import { expect } from 'chai'
-import { describe, it } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { routePathToName } from './tree'
 
 describe('routePathToName', () => {
   it('works with simple path', () => {
-    expect(routePathToName('/foo')).to.equal('Foo')
-    expect(routePathToName('/foo/')).to.equal('Foo')
+    expect(routePathToName('/foo')).toBe('Foo')
+    expect(routePathToName('/foo/')).toBe('Foo')
   })
 
   it('empty path', () => {
-    expect(routePathToName('/')).to.equal('Index')
+    expect(routePathToName('/')).toBe('Index')
   })
 
   it('empty path', () => {
-    expect(routePathToName('/')).to.equal('Index')
+    expect(routePathToName('/')).toBe('Index')
   })
 })
