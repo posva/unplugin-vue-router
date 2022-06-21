@@ -5,7 +5,7 @@ import VueRouter from '../src/vite'
 import Vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
-  plugins: [Vue(), VueRouter(), Inspect()],
+  plugins: [Vue(), VueRouter({ _inspect: false }), Inspect()],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
