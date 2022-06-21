@@ -13,6 +13,12 @@ export interface Options {
   routesModuleId?: string
 
   root?: string
+
+  /**
+   * Allows inspection by vite-plugin-inspect by not adding the leading `\0` to the id of virtual modules.
+   * @internal
+   */
+  _inspect?: boolean
 }
 
 export const DEFAULT_OPTIONS: Required<Options> = {
@@ -23,4 +29,5 @@ export const DEFAULT_OPTIONS: Required<Options> = {
   routeStyle: 'nuxt',
   routesModuleId: '@routes',
   root: process.cwd(),
+  _inspect: false,
 }

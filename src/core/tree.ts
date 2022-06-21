@@ -10,6 +10,7 @@ export const enum TreeLeafType {
 
 interface _TreeLeafValueBase {
   _type: TreeLeafType
+  pathSegment: string
   toString(): string
 }
 
@@ -29,30 +30,38 @@ type TreeLeafValue = TreeLeafValueStatic | TreeLeafValueParam
 function createLeafValueStatic(value: string): TreeLeafValueStatic {
   return {
     _type: TreeLeafType.static,
+    pathSegment: value,
     value,
     toString: () => value,
   }
 }
 
+const FORMAT_PARAM_RE = /\[(?:\.\.\.)?(.+?)\](?:[?+*]?)/g
 function createLeafValueParam(
   name: string,
   value: string,
-  modifier: string | null
+  modifier: string | null,
+  isSplat: boolean
 ): TreeLeafValueParam {
   const isOptional = modifier === '?' || modifier === '*'
   const isRepeatable = modifier === '*' || modifier === '+'
+  const pathSegment = value.replace(
+    FORMAT_PARAM_RE,
+    `:$1${isSplat ? '(.*)' : ''}${modifier || ''}`
+  )
   return {
     _type:
       TreeLeafType.param |
       (isOptional ? TreeLeafType.optional : 0) |
       (isRepeatable ? TreeLeafType.repeatable : 0),
     name,
+    pathSegment,
     value,
-    toString: () => `:${name}${modifier} (${value})`,
+    toString: () => pathSegment,
   }
 }
 
-export class TreeLeaf<Path extends string = string> {
+export class TreeLeaf {
   /**
    * value of the node
    */
@@ -60,7 +69,7 @@ export class TreeLeaf<Path extends string = string> {
   /**
    * full path of the node
    */
-  path: Path
+  path: string
   /**
    * children of the node
    */
@@ -72,9 +81,13 @@ export class TreeLeaf<Path extends string = string> {
   hasComponent = false
   filePath?: string
 
-  constructor(value: string, path: Path) {
+  constructor(value: string, parentPath: string) {
     this.value = createTreeLeafValue(value)
-    this.path = path
+    if (!parentPath && this.value.pathSegment === '') {
+      this.path = '/'
+    } else {
+      this.path = joinPath(parentPath, this.value.pathSegment)
+    }
   }
 
   /**
@@ -92,7 +105,7 @@ export class TreeLeaf<Path extends string = string> {
     const isComponent = segment !== head
 
     if (!this.children.has(segment)) {
-      this.children.set(segment, new TreeLeaf(head, `${this.path}/${head}`))
+      this.children.set(segment, new TreeLeaf(head, this.path))
     }
     const child = this.children.get(segment)!
 
@@ -113,12 +126,16 @@ export class TreeLeaf<Path extends string = string> {
     // ).join(', ')}] ]`
   }
 
-  roRouteRecordString(indent = 0): string {
+  toRouteRecordString(
+    indent = 0,
+    parent: TreeLeaf | null = null,
+    parentName = ''
+  ): string {
     // root
-    if (this.path === '' && indent === 0) {
+    if (this.path === '/' && indent === 0) {
       return `[
 ${Array.from(this.children.values())
-  .map((child) => child.roRouteRecordString(indent + 1))
+  .map((child) => child.toRouteRecordString(indent + 1))
   .join(',\n')}
 ]`
     }
@@ -126,8 +143,11 @@ ${Array.from(this.children.values())
     const startIndent = ' '.repeat(indent * 2)
     const indentStr = ' '.repeat((indent + 1) * 2)
 
+    const name = parentName + '/' + this.value.value
+
     return `${startIndent}{
-${indentStr}path: "${this.path}",
+${indentStr}path: "${(parent ? '' : '/') + this.value.pathSegment}",
+${indentStr}${this.hasComponent ? `name: "${name}",` : '/* no name */'}
 ${indentStr}${
       this.hasComponent
         ? `component: () => import('${this.filePath}'),`
@@ -137,7 +157,7 @@ ${indentStr}${
       this.children.size > 0
         ? `children: [
 ${Array.from(this.children.values())
-  .map((child) => child.roRouteRecordString(indent + 2))
+  .map((child) => child.toRouteRecordString(indent + 2, this, name))
   .join(',\n')}
 ${indentStr}],`
         : '/* no children */'
@@ -155,21 +175,51 @@ export function createPrefixTree() {
 // TODO: multiple params
 // TODO: splat
 // TODO: Nuxt syntax [[id]] -> [id]?
-const SEGMENT_PARAM_RE = /\[(.+?)\]([?+*]?)/
+const SEGMENT_PARAM_RE = /\[(\.\.\.)?(.+?)\]([?+*]?)/
 
 function createTreeLeafValue(segment: string): TreeLeafValue {
   // TODO: other extensions
   const trimmedSegment = trimExtension(segment)
-  if (trimmedSegment === 'index') {
+  if (!trimmedSegment || trimmedSegment === 'index') {
     return createLeafValueStatic('')
   }
 
   const paramMatch = SEGMENT_PARAM_RE.exec(segment)
   // console.log({ paramMatch, segment })
   if (paramMatch) {
-    const [, paramName, modifier] = paramMatch
-    return createLeafValueParam(paramName, trimmedSegment, modifier)
+    const [, isSplat, paramName, modifier] = paramMatch
+    return createLeafValueParam(paramName, trimmedSegment, modifier, !!isSplat)
   }
 
   return createLeafValueStatic(trimmedSegment)
+}
+
+const PATH_TO_NAME_SLASH = /\/([\w\d])/g
+const LEADING_SLASH_RE = /^\//
+const TRAILING_SLASH_RE = /\/$/
+
+export function routePathToName(path: string): string {
+  const noSlashes = path
+    .replace(LEADING_SLASH_RE, '')
+    .replace(TRAILING_SLASH_RE, '')
+
+  // capitalize
+  return noSlashes.length > 0
+    ? (noSlashes[0].toUpperCase() + noSlashes.slice(1)).replace(
+        // replace inner slashes
+        PATH_TO_NAME_SLASH,
+        (match, p1) => p1.toUpperCase()
+      )
+    : 'Index'
+}
+
+export function joinPath(...paths: string[]): string {
+  let result = ''
+  for (const path of paths) {
+    result =
+      result.replace(TRAILING_SLASH_RE, '') +
+      '/' +
+      path.replace(LEADING_SLASH_RE, '')
+  }
+  return result
 }

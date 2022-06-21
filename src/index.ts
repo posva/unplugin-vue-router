@@ -4,44 +4,52 @@ import { createRoutesContext } from './core/context'
 import { isArray } from './core/utils'
 import { DEFAULT_OPTIONS, Options } from './types'
 
+const VIRTUAL_PREFIX = 'virtual:'
+
 export default createUnplugin<Options>((opt) => {
   const options: Required<Options> = { ...DEFAULT_OPTIONS, ...opt }
   const ctx = createRoutesContext(options)
   const root = process.cwd()
 
+  function getVirtualId(id: string) {
+    if (options._inspect) return id
+    return id.startsWith(VIRTUAL_PREFIX)
+      ? id.slice(VIRTUAL_PREFIX.length)
+      : null
+  }
+
+  function asVirtualId(id: string) {
+    // for inspection
+    if (options._inspect) return id
+    return VIRTUAL_PREFIX + id
+  }
+
   return {
     name: 'unplugin-vue-router',
     enforce: 'pre',
 
-    transformInclude(id) {
-      return id === '~routes' || id === '~router'
-    },
-    resolveId(id, importer?) {
+    resolveId(id) {
       if (id === '~routes' || id === '~router') {
-        return id
+        // virtual module
+        return asVirtualId(id)
       }
       return null
     },
 
     buildStart() {
+      // TODO: detect watch or build to not create
       // stop watcher
       ctx.start()
     },
 
     load(id) {
-      if (id === '~routes') {
+      const resolvedId = getVirtualId(id)
+      if (resolvedId === '~routes') {
         return ctx.generateRoutes()
       }
 
       // fallback
       return null
-    },
-
-    transform(code) {
-      return code.replace(
-        '__UNPLUGIN__',
-        `Hello Unplugin! ${options || 'no options'}`
-      )
     },
 
     vite: {

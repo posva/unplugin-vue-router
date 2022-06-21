@@ -40,7 +40,7 @@ export function createRoutesContext(options: Required<Options>) {
   }
 
   function generateRoutes() {
-    return `export const routes = ${root.roRouteRecordString()}`
+    return `export const routes = ${root.toRouteRecordString()}`
   }
 
   setupWatcher()
