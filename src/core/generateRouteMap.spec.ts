@@ -50,13 +50,4 @@ describe('toRouteRecordSTring', () => {
       }"
     `)
   })
-
-  // it('adds children and name when folder and component exist', () => {
-  //   const t1 = createPrefixTree()
-  //   t1.insert('a/c.vue')
-  //   t1.insert('b/c.vue')
-  //   t1.insert('a.vue')
-  //   t1.insert('d.vue')
-  //   expect(t1.toRouteRecordString()).toMatchSnapshot()
-  // })
 })
