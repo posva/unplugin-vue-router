@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { createPrefixTree, TreeLeafType } from './tree'
+import { createPrefixTree } from './tree'
+import { TreeLeafType } from './treeLeafValue'
 
 describe('Tree', () => {
   it('creates an empty tree', () => {

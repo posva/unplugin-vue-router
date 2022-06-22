@@ -1,109 +1,10 @@
-import { resolve } from 'path'
+import { generateRouteRecord } from './generateRouteRecords'
+import {
+  TreeLeafValue,
+  TreeLeafValueParam,
+  TreeLeafValueStatic,
+} from './treeLeafValue'
 import { trimExtension } from './utils'
-
-export const enum TreeLeafType {
-  static = 0,
-  param = 0b1,
-  repeatable = 0b10,
-  optional = 0b100,
-}
-
-class _TreeLeafValueBase {
-  /**
-   * flag based on the type of the segment
-   */
-  _type: TreeLeafType
-  /**
-   * segment as defined by the file structure
-   */
-  rawSegment: string
-  /**
-   * transformed version of the segment into a vue-router path
-   */
-  pathSegment: string
-  /**
-   * name of the route
-   */
-  routeName: string
-  /**
-   * fullpath of the node based on parent nodes
-   */
-  path: string
-
-  /**
-   * Does the node has a component at the given path. e.g having `routes/users/index.vue` and `routes/users.vue`
-   */
-  filePath?: string
-
-  constructor(
-    rawSegment: string,
-    parent: _TreeLeafValueBase | undefined,
-    pathSegment: string = rawSegment
-  ) {
-    // type should be defined in child
-    this._type = 0
-    this.rawSegment = rawSegment
-    this.pathSegment = pathSegment
-    // the root has an empty rawSegment and should have an empty name too so children do not start with an extra /
-    this.routeName = rawSegment
-      ? (parent?.routeName ?? '') + '/' + rawSegment
-      : ''
-    this.path =
-      !parent?.path && this.pathSegment === ''
-        ? '/'
-        : joinPath(parent?.path || '', this.pathSegment)
-  }
-
-  toString(): string {
-    return this.pathSegment
-  }
-
-  isParam(): this is TreeLeafValueParam {
-    return !!(this._type & TreeLeafType.param)
-  }
-
-  isStatic(): this is TreeLeafValueStatic {
-    return this._type === TreeLeafType.static
-  }
-}
-
-class TreeLeafValueStatic extends _TreeLeafValueBase {
-  _type: TreeLeafType.static = TreeLeafType.static
-
-  constructor(rawSegment: string, parent: _TreeLeafValueBase | undefined) {
-    super(rawSegment, parent)
-    this.pathSegment = this.rawSegment = rawSegment
-  }
-}
-
-const FORMAT_PARAM_RE = /\[(?:.+?)\]([?+*]?)/g
-
-class TreeLeafValueParam extends _TreeLeafValueBase {
-  paramName: string
-
-  constructor(
-    rawSegment: string,
-    parent: _TreeLeafValueBase | undefined,
-    paramName: string,
-    modifier: string | null,
-    isSplat: boolean
-  ) {
-    const pathSegment = rawSegment.replace(
-      FORMAT_PARAM_RE,
-      `:${paramName}${isSplat ? '(.*)' : ''}$1`
-    )
-    super(rawSegment, parent, pathSegment)
-    const isOptional = modifier === '?' || modifier === '*'
-    const isRepeatable = modifier === '*' || modifier === '+'
-    this._type =
-      TreeLeafType.param |
-      (isOptional ? TreeLeafType.optional : 0) |
-      (isRepeatable ? TreeLeafType.repeatable : 0)
-    this.paramName = paramName
-  }
-}
-
-type TreeLeafValue = TreeLeafValueStatic | TreeLeafValueParam
 
 export class TreeLeaf {
   /**
@@ -186,45 +87,8 @@ export class TreeLeaf {
     // ).join(', ')}] ]`
   }
 
-  // TODO: move to a separate file
-  toRouteRecordString(
-    indent = 0,
-    parent: TreeLeaf | null = null,
-    parentName = ''
-  ): string {
-    // root
-    if (this.value.path === '/' && indent === 0) {
-      return `[
-${Array.from(this.children.values())
-  .map((child) => child.toRouteRecordString(indent + 1))
-  .join(',\n')}
-]`
-    }
-
-    const startIndent = ' '.repeat(indent * 2)
-    const indentStr = ' '.repeat((indent + 1) * 2)
-
-    // const name = parentName + '/' + this.value.rawSegment
-    const name = this.value.routeName
-
-    return `${startIndent}{
-${indentStr}path: "${(parent ? '' : '/') + this.value.pathSegment}",
-${indentStr}${this.value.filePath ? `name: "${name}",` : '/* no name */'}
-${indentStr}${
-      this.value.filePath
-        ? `component: () => import('${this.value.filePath}'),`
-        : '/* no component */'
-    }
-${indentStr}${
-      this.children.size > 0
-        ? `children: [
-${Array.from(this.children.values())
-  .map((child) => child.toRouteRecordString(indent + 2, this, name))
-  .join(',\n')}
-${indentStr}],`
-        : '/* no children */'
-    }
-${startIndent}}`
+  toRouteRecordString(): string {
+    return generateRouteRecord(this)
   }
 }
 
@@ -262,34 +126,4 @@ function createTreeLeafValue(
   }
 
   return new TreeLeafValueStatic(trimmedSegment, parent)
-}
-
-const PATH_TO_NAME_SLASH = /\/([\w\d])/g
-const LEADING_SLASH_RE = /^\//
-const TRAILING_SLASH_RE = /\/$/
-
-export function routePathToName(path: string): string {
-  const noSlashes = path
-    .replace(LEADING_SLASH_RE, '')
-    .replace(TRAILING_SLASH_RE, '')
-
-  // capitalize
-  return noSlashes.length > 0
-    ? (noSlashes[0].toUpperCase() + noSlashes.slice(1)).replace(
-        // replace inner slashes
-        PATH_TO_NAME_SLASH,
-        (match, p1) => p1.toUpperCase()
-      )
-    : 'Index'
-}
-
-export function joinPath(...paths: string[]): string {
-  let result = ''
-  for (const path of paths) {
-    result =
-      result.replace(TRAILING_SLASH_RE, '') +
-      '/' +
-      path.replace(LEADING_SLASH_RE, '')
-  }
-  return result
 }

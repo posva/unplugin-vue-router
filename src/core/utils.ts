@@ -93,3 +93,16 @@ export function throttle(fn: () => void, wait: number) {
     }
   }
 }
+
+const LEADING_SLASH_RE = /^\//
+const TRAILING_SLASH_RE = /\/$/
+export function joinPath(...paths: string[]): string {
+  let result = ''
+  for (const path of paths) {
+    result =
+      result.replace(TRAILING_SLASH_RE, '') +
+      '/' +
+      path.replace(LEADING_SLASH_RE, '')
+  }
+  return result
+}
