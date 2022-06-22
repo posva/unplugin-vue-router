@@ -48,6 +48,7 @@ importers:
       '@vitejs/plugin-vue': ^2.3.3
       '@vue/compiler-sfc': ^3.2.37
       '@vue/tsconfig': ^0.1.3
+      unplugin-vue-router: workspace:*
       vite: ^2.9.9
       vite-plugin-inspect: ^0.5.0
       vue: ^3.2.37
@@ -55,6 +56,7 @@ importers:
       '@vitejs/plugin-vue': 2.3.3_vite@2.9.12+vue@3.2.37
       '@vue/compiler-sfc': 3.2.37
       '@vue/tsconfig': 0.1.3
+      unplugin-vue-router: link:..
       vite: 2.9.12
       vite-plugin-inspect: 0.5.0_vite@2.9.12
       vue: 3.2.37

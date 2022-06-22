@@ -1,4 +1,3 @@
-import { resolve } from 'path'
 import { createUnplugin } from 'unplugin'
 import { createRoutesContext } from './core/context'
 import { DEFAULT_OPTIONS, Options } from './types'
@@ -31,6 +30,10 @@ export default createUnplugin<Options>((opt) => {
       if (id === '~routes' || id === '~router') {
         // virtual module
         return asVirtualId(id)
+      }
+      // NOTE: it wasn't possible to override or add new exports to vue-router
+      if (id === '@vue-router') {
+        return 'unplugin-vue-router/@vue-router/index.js'
       }
       return null
     },
