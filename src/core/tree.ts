@@ -8,58 +8,102 @@ export const enum TreeLeafType {
   optional = 0b100,
 }
 
-interface _TreeLeafValueBase {
+class _TreeLeafValueBase {
+  /**
+   * flag based on the type of the segment
+   */
   _type: TreeLeafType
+  /**
+   * segment as defined by the file structure
+   */
+  rawSegment: string
+  /**
+   * transformed version of the segment into a vue-router path
+   */
   pathSegment: string
-  toString(): string
+  /**
+   * name of the route
+   */
+  routeName: string
+  /**
+   * fullpath of the node based on parent nodes
+   */
+  path: string
+
+  /**
+   * Does the node has a component at the given path. e.g having `routes/users/index.vue` and `routes/users.vue`
+   */
+  filePath?: string
+
+  constructor(
+    rawSegment: string,
+    parent: _TreeLeafValueBase | undefined,
+    pathSegment: string = rawSegment
+  ) {
+    // type should be defined in child
+    this._type = 0
+    this.rawSegment = rawSegment
+    this.pathSegment = pathSegment
+    // the root has an empty rawSegment and should have an empty name too so children do not start with an extra /
+    this.routeName = rawSegment
+      ? (parent?.routeName ?? '') + '/' + rawSegment
+      : ''
+    this.path =
+      !parent?.path && this.pathSegment === ''
+        ? '/'
+        : joinPath(parent?.path || '', this.pathSegment)
+  }
+
+  toString(): string {
+    return this.pathSegment
+  }
+
+  isParam(): this is TreeLeafValueParam {
+    return !!(this._type & TreeLeafType.param)
+  }
+
+  isStatic(): this is TreeLeafValueStatic {
+    return this._type === TreeLeafType.static
+  }
 }
 
-interface TreeLeafValueStatic extends _TreeLeafValueBase {
-  _type: TreeLeafType.static
-  value: string
-}
+class TreeLeafValueStatic extends _TreeLeafValueBase {
+  _type: TreeLeafType.static = TreeLeafType.static
 
-interface TreeLeafValueParam extends _TreeLeafValueBase {
-  _type: number
-  name: string
-  value: string
-}
-
-type TreeLeafValue = TreeLeafValueStatic | TreeLeafValueParam
-
-function createLeafValueStatic(value: string): TreeLeafValueStatic {
-  return {
-    _type: TreeLeafType.static,
-    pathSegment: value,
-    value,
-    toString: () => value,
+  constructor(rawSegment: string, parent: _TreeLeafValueBase | undefined) {
+    super(rawSegment, parent)
+    this.pathSegment = this.rawSegment = rawSegment
   }
 }
 
 const FORMAT_PARAM_RE = /\[(?:.+?)\]([?+*]?)/g
-function createLeafValueParam(
-  name: string,
-  value: string,
-  modifier: string | null,
-  isSplat: boolean
-): TreeLeafValueParam {
-  const isOptional = modifier === '?' || modifier === '*'
-  const isRepeatable = modifier === '*' || modifier === '+'
-  const pathSegment = value.replace(
-    FORMAT_PARAM_RE,
-    `:${name}${isSplat ? '(.*)' : ''}$1`
-  )
-  return {
-    _type:
+
+class TreeLeafValueParam extends _TreeLeafValueBase {
+  paramName: string
+
+  constructor(
+    rawSegment: string,
+    parent: _TreeLeafValueBase | undefined,
+    paramName: string,
+    modifier: string | null,
+    isSplat: boolean
+  ) {
+    const pathSegment = rawSegment.replace(
+      FORMAT_PARAM_RE,
+      `:${paramName}${isSplat ? '(.*)' : ''}$1`
+    )
+    super(rawSegment, parent, pathSegment)
+    const isOptional = modifier === '?' || modifier === '*'
+    const isRepeatable = modifier === '*' || modifier === '+'
+    this._type =
       TreeLeafType.param |
       (isOptional ? TreeLeafType.optional : 0) |
-      (isRepeatable ? TreeLeafType.repeatable : 0),
-    name,
-    pathSegment,
-    value,
-    toString: () => pathSegment,
+      (isRepeatable ? TreeLeafType.repeatable : 0)
+    this.paramName = paramName
   }
 }
+
+type TreeLeafValue = TreeLeafValueStatic | TreeLeafValueParam
 
 export class TreeLeaf {
   /**
@@ -67,26 +111,12 @@ export class TreeLeaf {
    */
   value: TreeLeafValue
   /**
-   * full path of the node
-   */
-  path: string
-  /**
    * children of the node
    */
   children: Map<string, TreeLeaf> = new Map()
 
-  /**
-   * Does the node has a component at the given path. e.g having `routes/users/index.vue` and `routes/users.vue`
-   */
-  filePath?: string
-
-  constructor(value: string, parentPath: string) {
-    this.value = createTreeLeafValue(value)
-    if (!parentPath && this.value.pathSegment === '') {
-      this.path = '/'
-    } else {
-      this.path = joinPath(parentPath, this.value.pathSegment)
-    }
+  constructor(value: string, parent?: TreeLeaf) {
+    this.value = createTreeLeafValue(value, parent?.value)
   }
 
   /**
@@ -104,54 +134,18 @@ export class TreeLeaf {
     const isComponent = segment !== head
 
     if (!this.children.has(segment)) {
-      this.children.set(segment, new TreeLeaf(head, this.path))
+      this.children.set(segment, new TreeLeaf(head, this))
     }
     const child = this.children.get(segment)!
 
     if (isComponent) {
-      child.filePath = filePath
+      child.value.filePath = filePath
     }
 
     if (tail) {
       child.insert(tail, filePath)
     }
   }
-
-  // remove(path: string) {
-  //   let slashPos = -1
-  //   let head = ''
-  //   let tail = path
-  //   let segment: string
-
-  //   let current: TreeLeaf | null | undefined = this
-  //   let parent: TreeLeaf
-  //   do {
-  //     slashPos = tail.indexOf('/')
-  //     head = slashPos < 0 ? tail : tail.slice(0, slashPos)
-  //     tail = slashPos < 0 ? '' : tail.slice(slashPos + 1)
-  //     console.log({ slashPos, head, tail })
-  //     segment = trimExtension(head)
-  //     parent = current
-  //     current = current.children.get(segment)
-  //     // repeat until we went deep enough
-  //   } while (tail && current)
-
-  //   if (!current) {
-  //     throw new Error(
-  //       `Cannot Delete "${path}". "${head}" not found at "${this.path}".`
-  //     )
-  //   }
-
-  //   const isComponent = segment !== head
-  //   if (isComponent) {
-  //     current.filePath = undefined
-  //     if (current.children.size === 0) {
-  //       parent.children.delete(segment)
-  //     }
-  //   } else {
-  //     parent.children.delete(segment)
-  //   }
-  // }
 
   remove(path: string) {
     const slashPos = path.indexOf('/')
@@ -164,19 +158,19 @@ export class TreeLeaf {
     const child = this.children.get(segment)
     if (!child) {
       throw new Error(
-        `Cannot Delete "${path}". "${head}" not found at "${this.path}".`
+        `Cannot Delete "${path}". "${head}" not found at "${this.value.path}".`
       )
     }
     if (tail) {
       child.remove(tail)
       // if the child doesn't create any route
-      if (child.children.size === 0 && !child.filePath) {
+      if (child.children.size === 0 && !child.value.filePath) {
         this.children.delete(segment)
       }
     } else {
       // it can only be component because we only listen for removed files, not folders
       if (isComponent) {
-        child.filePath = undefined
+        child.value.filePath = undefined
       }
       // this is the file we wanted to remove
       if (child.children.size === 0) {
@@ -186,7 +180,7 @@ export class TreeLeaf {
   }
 
   toString(): string {
-    return `${this.value}${this.filePath ? ' 📄' : ''}`
+    return `${this.value}${this.value.filePath ? ' 📄' : ''}`
     // return `[${this.value._type}|"${this.value.value}", [${Array.from(
     //   this.children.values()
     // ).join(', ')}] ]`
@@ -199,7 +193,7 @@ export class TreeLeaf {
     parentName = ''
   ): string {
     // root
-    if (this.path === '/' && indent === 0) {
+    if (this.value.path === '/' && indent === 0) {
       return `[
 ${Array.from(this.children.values())
   .map((child) => child.toRouteRecordString(indent + 1))
@@ -210,14 +204,15 @@ ${Array.from(this.children.values())
     const startIndent = ' '.repeat(indent * 2)
     const indentStr = ' '.repeat((indent + 1) * 2)
 
-    const name = parentName + '/' + this.value.value
+    // const name = parentName + '/' + this.value.rawSegment
+    const name = this.value.routeName
 
     return `${startIndent}{
 ${indentStr}path: "${(parent ? '' : '/') + this.value.pathSegment}",
-${indentStr}${this.filePath ? `name: "${name}",` : '/* no name */'}
+${indentStr}${this.value.filePath ? `name: "${name}",` : '/* no name */'}
 ${indentStr}${
-      this.filePath
-        ? `component: () => import('${this.filePath}'),`
+      this.value.filePath
+        ? `component: () => import('${this.value.filePath}'),`
         : '/* no component */'
     }
 ${indentStr}${
@@ -234,31 +229,39 @@ ${startIndent}}`
 }
 
 export function createPrefixTree() {
-  const tree = new TreeLeaf('', '')
+  const tree = new TreeLeaf('')
   return tree
 }
 
 // TODO: handle sub segments like sub-[param]-other-[param2]
 // TODO: multiple params
-// TODO: splat
 // TODO: Nuxt syntax [[id]] -> [id]?
 const SEGMENT_PARAM_RE = /\[(\.\.\.)?(.+?)\]([?+*]?)/
 
-function createTreeLeafValue(segment: string): TreeLeafValue {
+function createTreeLeafValue(
+  segment: string,
+  parent?: TreeLeafValue
+): TreeLeafValue {
   // TODO: other extensions
   const trimmedSegment = trimExtension(segment)
   if (!trimmedSegment || trimmedSegment === 'index') {
-    return createLeafValueStatic('')
+    return new TreeLeafValueStatic('', parent)
   }
 
   const paramMatch = SEGMENT_PARAM_RE.exec(segment)
   // console.log({ paramMatch, segment })
   if (paramMatch) {
     const [, isSplat, paramName, modifier] = paramMatch
-    return createLeafValueParam(paramName, trimmedSegment, modifier, !!isSplat)
+    return new TreeLeafValueParam(
+      trimmedSegment,
+      parent,
+      paramName,
+      modifier,
+      !!isSplat
+    )
   }
 
-  return createLeafValueStatic(trimmedSegment)
+  return new TreeLeafValueStatic(trimmedSegment, parent)
 }
 
 const PATH_TO_NAME_SLASH = /\/([\w\d])/g

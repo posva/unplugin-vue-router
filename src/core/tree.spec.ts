@@ -14,7 +14,7 @@ describe('Tree', () => {
     const child = tree.children.get('foo')!
     expect(child).toBeDefined()
     expect(child.value).toMatchObject({
-      value: 'foo',
+      rawSegment: 'foo',
       _type: TreeLeafType.static,
     })
     expect(child.children.size).toBe(0)
@@ -27,8 +27,8 @@ describe('Tree', () => {
     const child = tree.children.get('[id]')!
     expect(child).toBeDefined()
     expect(child.value).toMatchObject({
-      value: '[id]',
-      name: 'id',
+      rawSegment: '[id]',
+      paramName: 'id',
       _type: TreeLeafType.param,
     })
     expect(child.children.size).toBe(0)
@@ -41,8 +41,8 @@ describe('Tree', () => {
     const child = tree.children.get('[id]+')!
     expect(child).toBeDefined()
     expect(child.value).toMatchObject({
-      value: '[id]+',
-      name: 'id',
+      rawSegment: '[id]+',
+      paramName: 'id',
       _type: TreeLeafType.param | TreeLeafType.repeatable,
     })
     expect(child.children.size).toBe(0)
@@ -57,8 +57,8 @@ describe('Tree', () => {
     const child = tree.children.get('[id]')!
     expect(child).toBeDefined()
     expect(child.value).toMatchObject({
-      value: '[id]',
-      name: 'id',
+      rawSegment: '[id]',
+      paramName: 'id',
     })
     expect(child.children.size).toBe(0)
   })
