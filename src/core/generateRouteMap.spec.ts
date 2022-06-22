@@ -8,11 +8,16 @@ describe('toRouteRecordSTring', () => {
     tree.insert('a.vue')
     tree.insert('b.vue')
     tree.insert('c.vue')
-    expect(generateRouteNamedMap(tree)).toMatchInlineSnapshot(`
+    expect(
+      generateRouteNamedMap(tree)
+        .split('\n')
+        .filter((line) => line)
+        .join('\n')
+    ).toMatchInlineSnapshot(`
       "export interface RouteNamedMap {
-        \\"/a\\": RouteRecordInfo<\\"/a\\", \\"/a\\">,
-        \\"/b\\": RouteRecordInfo<\\"/b\\", \\"/b\\">,
-        \\"/c\\": RouteRecordInfo<\\"/c\\", \\"/c\\">,
+        '/a': RouteRecordInfo<'/a', '/a'>,
+        '/b': RouteRecordInfo<'/b', '/b'>,
+        '/c': RouteRecordInfo<'/c', '/c'>,
       }"
     `)
   })
@@ -27,20 +32,21 @@ describe('toRouteRecordSTring', () => {
     tree.insert('b/d.vue')
     tree.insert('c.vue')
     tree.insert('d.vue')
-    expect(generateRouteNamedMap(tree)).toMatchInlineSnapshot(`
+    expect(
+      generateRouteNamedMap(tree)
+        .split('\n')
+        .filter((line) => line)
+        .join('\n')
+    ).toMatchInlineSnapshot(`
       "export interface RouteNamedMap {
-        \\"/a/a\\": RouteRecordInfo<\\"/a/a\\", \\"/a/a\\">,
-
-        \\"/a/b\\": RouteRecordInfo<\\"/a/b\\", \\"/a/b\\">,
-
-        \\"/a/c\\": RouteRecordInfo<\\"/a/c\\", \\"/a/c\\">,
-        \\"/b/b\\": RouteRecordInfo<\\"/b/b\\", \\"/b/b\\">,
-
-        \\"/b/c\\": RouteRecordInfo<\\"/b/c\\", \\"/b/c\\">,
-
-        \\"/b/d\\": RouteRecordInfo<\\"/b/d\\", \\"/b/d\\">,
-        \\"/c\\": RouteRecordInfo<\\"/c\\", \\"/c\\">,
-        \\"/d\\": RouteRecordInfo<\\"/d\\", \\"/d\\">,
+        '/a/a': RouteRecordInfo<'/a/a', '/a/a'>,
+        '/a/b': RouteRecordInfo<'/a/b', '/a/b'>,
+        '/a/c': RouteRecordInfo<'/a/c', '/a/c'>,
+        '/b/b': RouteRecordInfo<'/b/b', '/b/b'>,
+        '/b/c': RouteRecordInfo<'/b/c', '/b/c'>,
+        '/b/d': RouteRecordInfo<'/b/d', '/b/d'>,
+        '/c': RouteRecordInfo<'/c', '/c'>,
+        '/d': RouteRecordInfo<'/d', '/d'>,
       }"
     `)
   })

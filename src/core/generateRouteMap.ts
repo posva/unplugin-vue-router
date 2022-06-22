@@ -3,7 +3,6 @@ import { TreeLeaf } from './tree'
 export function generateRouteNamedMap(node: TreeLeaf): string {
   // root
   if (node.isRoot()) {
-    console.log('is ROOOt')
     return `export interface RouteNamedMap {
 ${Array.from(node.children.values()).map(generateRouteNamedMap).join('')}}`
   }
