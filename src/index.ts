@@ -54,3 +54,5 @@ export default createUnplugin<Options>((opt) => {
     },
   }
 })
+
+export type { RouteRecordInfo } from './core/generateRouteMap'

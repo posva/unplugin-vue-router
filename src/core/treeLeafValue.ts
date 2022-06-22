@@ -30,7 +30,7 @@ class _TreeLeafValueBase {
   path: string
 
   /**
-   * Does the node has a component at the given path. e.g having `routes/users/index.vue` and `routes/users.vue`
+   * Does the node has a component at the given path. e.g having `routes/users/index.vue` and `routes/users.vue`.
    */
   filePath?: string
 
@@ -43,14 +43,12 @@ class _TreeLeafValueBase {
     this._type = 0
     this.rawSegment = rawSegment
     this.pathSegment = pathSegment
-    // the root has an empty rawSegment and should have an empty name too so children do not start with an extra /
-    this.routeName = rawSegment
-      ? (parent?.routeName ?? '') + '/' + rawSegment
-      : ''
     this.path =
       !parent?.path && this.pathSegment === ''
         ? '/'
         : joinPath(parent?.path || '', this.pathSegment)
+    // the root has an empty rawSegment and should have an empty name too so children do not start with an extra /
+    this.routeName = parent ? parent.routeName + '/' + rawSegment : ''
   }
 
   toString(): string {

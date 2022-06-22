@@ -80,6 +80,10 @@ export class TreeLeaf {
     }
   }
 
+  isRoot() {
+    return this.value.path === '/' && !this.value.filePath
+  }
+
   toString(): string {
     return `${this.value}${this.value.filePath ? ' 📄' : ''}`
     // return `[${this.value._type}|"${this.value.value}", [${Array.from(
@@ -106,7 +110,6 @@ function createTreeLeafValue(
   segment: string,
   parent?: TreeLeafValue
 ): TreeLeafValue {
-  // TODO: other extensions
   const trimmedSegment = trimExtension(segment)
   if (!trimmedSegment || trimmedSegment === 'index') {
     return new TreeLeafValueStatic('', parent)

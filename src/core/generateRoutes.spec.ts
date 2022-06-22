@@ -41,4 +41,11 @@ describe('toRouteRecordSTring', () => {
     t1.insert('d.vue')
     expect(t1.toRouteRecordString()).toMatchSnapshot()
   })
+
+  it('correctly names index.vue files', () => {
+    const tree = createPrefixTree()
+    tree.insert('index.vue')
+    tree.insert('b/index.vue')
+    expect(tree.toRouteRecordString()).toMatchSnapshot()
+  })
 })

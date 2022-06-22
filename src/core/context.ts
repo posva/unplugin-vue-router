@@ -1,9 +1,10 @@
 import chokidar from 'chokidar'
 import { resolve } from 'path'
 import { Options } from '../types'
-import { createPrefixTree, TreeLeaf } from './tree'
+import { createPrefixTree } from './tree'
 import { promises as fs } from 'fs'
 import { logTree, throttle } from './utils'
+import { generateRouteNamedMap } from './generateRouteMap'
 
 export function createRoutesContext(options: Required<Options>) {
   const { dts: preferDTS, root } = options
@@ -68,6 +69,16 @@ export function createRoutesContext(options: Required<Options>) {
 // Make sure to add this file to your tsconfig.json file as an "includes" or "files" entry.
 
 /// <reference types="unplugin-vue-router/client" />
+
+import type { RouteRecordInfo } from 'unplugin-vue-router'
+
+declare module '~routes' {
+${generateRouteNamedMap(routeTree)
+  .split('\n')
+  .filter((line) => line)
+  .map((line) => line.padStart(2))
+  .join('\n')}
+}
 
 `
   }

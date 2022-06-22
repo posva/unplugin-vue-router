@@ -37,6 +37,30 @@ exports[`toRouteRecordSTring > adds children and name when folder and component 
 ]"
 `;
 
+exports[`toRouteRecordSTring > correctly names index.vue files 1`] = `
+"[
+  {
+    path: \\"/\\",
+    name: \\"/\\",
+    component: () => import('index.vue'),
+    /* no children */
+  },
+  {
+    path: \\"/b\\",
+    /* no name */
+    /* no component */
+    children: [
+      {
+        path: \\"\\",
+        name: \\"/b/\\",
+        component: () => import('b/index.vue'),
+        /* no children */
+      }
+    ],
+  }
+]"
+`;
+
 exports[`toRouteRecordSTring > nested children 1`] = `
 "[
   {

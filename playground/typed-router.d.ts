@@ -5,3 +5,24 @@
 
 /// <reference types="unplugin-vue-router/client" />
 
+import type { RouteRecordInfo } from 'unplugin-vue-router'
+
+declare module '~routes' {
+export interface RouteNamedMap {
+  '/[...path]': RouteRecordInfo<'/[...path]', '/:path(.*)'>,
+  '/[name]': RouteRecordInfo<'/[name]', '/:name'>,
+  '/about': RouteRecordInfo<'/about', '/about'>,
+  '/articles': RouteRecordInfo<'/articles', '/articles'>,
+  '/articles/[id]+': RouteRecordInfo<'/articles/[id]+', '/articles/:id+'>,
+  '/articles/[id]': RouteRecordInfo<'/articles/[id]', '/articles/:id'>,
+  '/articles/': RouteRecordInfo<'/articles/', '/articles/'>,
+  '/': RouteRecordInfo<'/', '/'>,
+  '/partial-[name]': RouteRecordInfo<'/partial-[name]', '/partial-:name'>,
+  '/users/[id]': RouteRecordInfo<'/users/[id]', '/users/:id'>,
+  '/users/edit': RouteRecordInfo<'/users/edit', '/users/edit'>,
+  '/users/': RouteRecordInfo<'/users/', '/users/'>,
+  '/haha/oeuoe': RouteRecordInfo<'/haha/oeuoe', '/haha/oeuoe'>,
+  '/deep/nesting/works/too': RouteRecordInfo<'/deep/nesting/works/too', '/deep/nesting/works/too'>,
+ }
+}
+

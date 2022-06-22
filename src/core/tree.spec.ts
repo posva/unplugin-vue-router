@@ -16,6 +16,8 @@ describe('Tree', () => {
     expect(child).toBeDefined()
     expect(child.value).toMatchObject({
       rawSegment: 'foo',
+      routeName: '/foo',
+      path: '/foo',
       _type: TreeLeafType.static,
     })
     expect(child.children.size).toBe(0)
@@ -29,10 +31,34 @@ describe('Tree', () => {
     expect(child).toBeDefined()
     expect(child.value).toMatchObject({
       rawSegment: '[id]',
+      routeName: '/[id]',
       paramName: 'id',
+      path: '/:id',
       _type: TreeLeafType.param,
     })
     expect(child.children.size).toBe(0)
+  })
+
+  it('creates a tree of nested routes', () => {
+    const tree = createPrefixTree()
+    tree.insert('index.vue')
+    tree.insert('a/index.vue')
+    tree.insert('a/b/index.vue')
+    expect(Array.from(tree.children.keys())).toEqual(['index', 'a'])
+    const index = tree.children.get('index')!
+    expect(index.value).toMatchObject({
+      rawSegment: '',
+      routeName: '/',
+      path: '/',
+    })
+    expect(index).toBeDefined()
+    const aIndex = tree.children.get('a')!.children.get('index')!
+    expect(aIndex).toBeDefined()
+    expect(aIndex.value).toMatchObject({
+      rawSegment: '',
+      routeName: '/a/',
+      path: '/a/',
+    })
   })
 
   it('handles a modifier for single params', () => {
@@ -43,7 +69,9 @@ describe('Tree', () => {
     expect(child).toBeDefined()
     expect(child.value).toMatchObject({
       rawSegment: '[id]+',
+      routeName: '/[id]+',
       paramName: 'id',
+      path: '/:id+',
       _type: TreeLeafType.param | TreeLeafType.repeatable,
     })
     expect(child.children.size).toBe(0)
@@ -60,6 +88,7 @@ describe('Tree', () => {
     expect(child.value).toMatchObject({
       rawSegment: '[id]',
       paramName: 'id',
+      path: '/:id',
     })
     expect(child.children.size).toBe(0)
   })
