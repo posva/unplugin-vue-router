@@ -4,9 +4,9 @@ import type {
   RouteMeta,
   RouteParams,
   RouteParamsRaw,
-  RouteParamValueRaw,
 } from 'vue-router'
 import type { TreeLeaf } from '../core/tree'
+import { generateRouteParams } from './generateRouteParams'
 
 export function generateRouteNamedMap(node: TreeLeaf): string {
   // root
@@ -33,25 +33,6 @@ export function generateRouteRecordInfo(node: TreeLeaf) {
   }', ${generateRouteParams(node, true)}, ${generateRouteParams(node, false)}>`
 }
 
-export function generateRouteParams(node: TreeLeaf, isRaw: boolean): string {
-  return node.value.isParam()
-    ? `{ ${node.value.params
-        .map(
-          (param) =>
-            `${param.paramName}${param.optional ? '?' : ''}: ` +
-            (param.modifier === '+'
-              ? `_ParamValueOneOrMore<${isRaw}>`
-              : param.modifier === '*'
-              ? `_ParamValueZeroOrMore<${isRaw}>`
-              : param.modifier === '?'
-              ? `_ParamValueZeroOrOne<${isRaw}>`
-              : `_ParamValue<${isRaw}>`)
-        )
-        .join(', ')} }`
-    : // no params allowed
-      'Record<any, never>'
-}
-
 export interface RouteRecordInfo<
   Name extends string = string,
   Path extends string = string,
@@ -72,7 +53,7 @@ export interface RouteLocationNormalizedTyped<
     string,
     RouteRecordInfo
   >,
-  Name extends keyof RouteMap = string
+  Name extends keyof RouteMap = keyof RouteMap
 > extends RouteLocationNormalized {
   name: RouteMap[Name]['name']
   // we don't override path because it could contain params and in practice it's just not useful
@@ -91,38 +72,12 @@ export interface RouteLocationNormalizedLoadedTyped<
   params: RouteMap[Name]['params']
 }
 
-/**
- * Utility type for raw and non raw params like :id+
- *
- * @internal
- */
-export type _ParamValueOneOrMore<isRaw extends boolean> = true extends isRaw
-  ? readonly [string | number, ...(string | number)[]]
-  : readonly [string, ...string[]]
-
-/**
- * Utility type for raw and non raw params like :id*
- *
- * @internal
- */
-export type _ParamValueZeroOrMore<isRaw extends boolean> = true extends isRaw
-  ? readonly (string | number)[] | undefined | null
-  : readonly string[] | undefined | null
-
-/**
- * Utility type for raw and non raw params like :id?
- *
- * @internal
- */
-export type _ParamValueZeroOrOne<isRaw extends boolean> = true extends isRaw
-  ? RouteParamValueRaw
-  : string
-
-/**
- * Utility type for raw and non raw params like :id
- *
- * @internal
- */
-export type _ParamValue<isRaw extends boolean> = true extends isRaw
-  ? string | number
-  : string
+export type RouteLocationNormalizedLoadedTypedList<
+  RouteMap extends Record<string, RouteRecordInfo> = Record<
+    string,
+    RouteRecordInfo
+  >
+> = string extends keyof RouteMap
+  ? // simplify the resulting type
+    { [name: string]: RouteLocationNormalizedLoaded }
+  : { [N in keyof RouteMap]: RouteLocationNormalizedLoadedTyped<RouteMap, N> }

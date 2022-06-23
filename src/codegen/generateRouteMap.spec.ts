@@ -17,9 +17,9 @@ describe('toRouteRecordSTring', () => {
     tree.insert('c.vue')
     expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
       "export interface RouteNamedMap {
-        '/a': RouteRecordInfo<'/a', '/a', Record<any, never>, Record<any, never>>,
-        '/b': RouteRecordInfo<'/b', '/b', Record<any, never>, Record<any, never>>,
-        '/c': RouteRecordInfo<'/c', '/c', Record<any, never>, Record<any, never>>,
+        '/a': RouteRecordInfo<'/a', '/a', Record<never, never>, Record<never, never>>,
+        '/b': RouteRecordInfo<'/b', '/b', Record<never, never>, Record<never, never>>,
+        '/c': RouteRecordInfo<'/c', '/c', Record<never, never>, Record<never, never>>,
       }"
     `)
   })
@@ -56,14 +56,14 @@ describe('toRouteRecordSTring', () => {
     tree.insert('d.vue')
     expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
       "export interface RouteNamedMap {
-        '/a/a': RouteRecordInfo<'/a/a', '/a/a', Record<any, never>, Record<any, never>>,
-        '/a/b': RouteRecordInfo<'/a/b', '/a/b', Record<any, never>, Record<any, never>>,
-        '/a/c': RouteRecordInfo<'/a/c', '/a/c', Record<any, never>, Record<any, never>>,
-        '/b/b': RouteRecordInfo<'/b/b', '/b/b', Record<any, never>, Record<any, never>>,
-        '/b/c': RouteRecordInfo<'/b/c', '/b/c', Record<any, never>, Record<any, never>>,
-        '/b/d': RouteRecordInfo<'/b/d', '/b/d', Record<any, never>, Record<any, never>>,
-        '/c': RouteRecordInfo<'/c', '/c', Record<any, never>, Record<any, never>>,
-        '/d': RouteRecordInfo<'/d', '/d', Record<any, never>, Record<any, never>>,
+        '/a/a': RouteRecordInfo<'/a/a', '/a/a', Record<never, never>, Record<never, never>>,
+        '/a/b': RouteRecordInfo<'/a/b', '/a/b', Record<never, never>, Record<never, never>>,
+        '/a/c': RouteRecordInfo<'/a/c', '/a/c', Record<never, never>, Record<never, never>>,
+        '/b/b': RouteRecordInfo<'/b/b', '/b/b', Record<never, never>, Record<never, never>>,
+        '/b/c': RouteRecordInfo<'/b/c', '/b/c', Record<never, never>, Record<never, never>>,
+        '/b/d': RouteRecordInfo<'/b/d', '/b/d', Record<never, never>, Record<never, never>>,
+        '/c': RouteRecordInfo<'/c', '/c', Record<never, never>, Record<never, never>>,
+        '/d': RouteRecordInfo<'/d', '/d', Record<never, never>, Record<never, never>>,
       }"
     `)
   })

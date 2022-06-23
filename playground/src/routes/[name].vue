@@ -6,7 +6,10 @@
 import { useRoute } from '@vue-router'
 
 const route = useRoute()
-useRoute('/multiple-[a]-[b]-params')
+if (route.name == '/articles/[id]+') {
+  console.log('route.params', route.params.id)
+}
+useRoute('/multiple-[a]-[b]-params').params
 useRoute<'/about'>('/about')
 </script>
 

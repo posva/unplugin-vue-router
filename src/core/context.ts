@@ -5,7 +5,7 @@ import { createPrefixTree } from './tree'
 import { promises as fs } from 'fs'
 import { logTree, throttle } from './utils'
 import { generateRouteNamedMap } from '../codegen/generateRouteMap'
-import { MODULE_ROUTES_PATH } from './moduleConstants'
+import { MODULE_ROUTES_PATH, MODULE_VUE_ROUTER } from './moduleConstants'
 
 export function createRoutesContext(options: Required<Options>) {
   const { dts: preferDTS, root } = options
@@ -73,6 +73,9 @@ export function createRoutesContext(options: Required<Options>) {
 
 import type {
   RouteRecordInfo,
+  RouteLocationNormalizedTyped,
+  RouteLocationNormalizedLoadedTyped,
+  RouteLocationNormalizedLoadedTypedList,
   _ParamValue,
   _ParamValueOneOrMore,
   _ParamValueZeroOrMore,
@@ -83,10 +86,14 @@ declare module '${MODULE_ROUTES_PATH}' {
 ${generateRouteNamedMap(routeTree)
   .split('\n')
   .filter((line) => line)
-  .map((line) => line.padStart(2))
+  .map((line) => '  ' + line) // not the same as padStart(2)
   .join('\n')}
 }
 
+declare module '${MODULE_VUE_ROUTER}' {
+  import type { RouteNamedMap } from '${MODULE_ROUTES_PATH}'
+  export function useRoute<Name extends keyof RouteNamedMap = keyof RouteNamedMap>(name?: Name): RouteLocationNormalizedLoadedTypedList<RouteNamedMap>[Name]
+}
 `
   }
 

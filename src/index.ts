@@ -62,8 +62,11 @@ export type {
   RouteRecordInfo,
   RouteLocationNormalizedTyped,
   RouteLocationNormalizedLoadedTyped,
+  RouteLocationNormalizedLoadedTypedList,
+} from './codegen/generateRouteMap'
+export type {
   _ParamValue,
   _ParamValueOneOrMore,
   _ParamValueZeroOrMore,
   _ParamValueZeroOrOne,
-} from './codegen/generateRouteMap'
+} from './codegen/generateRouteParams'
