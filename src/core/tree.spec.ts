@@ -39,6 +39,18 @@ describe('Tree', () => {
     expect(child.children.size).toBe(0)
   })
 
+  it('handles multiple params', () => {
+    const tree = createPrefixTree()
+    tree.insert('[a]-[b].vue')
+    tree.insert('o[a]-[b]c.vue')
+    tree.insert('o[a][b]c.vue')
+    tree.insert('nested/o[a][b]c.vue')
+    expect(tree.children.size).toBe(4)
+    expect(tree.children.get('[a]-[b]')!.value).toMatchObject({
+      pathSegment: ':a-:b',
+    })
+  })
+
   it('creates a tree of nested routes', () => {
     const tree = createPrefixTree()
     tree.insert('index.vue')

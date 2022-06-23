@@ -1,9 +1,5 @@
 import { generateRouteRecord } from './generateRouteRecords'
-import {
-  TreeLeafValue,
-  TreeLeafValueParam,
-  TreeLeafValueStatic,
-} from './treeLeafValue'
+import { createTreeLeafValue, TreeLeafValue } from './treeLeafValue'
 import { trimExtension } from './utils'
 
 export class TreeLeaf {
@@ -99,34 +95,4 @@ export class TreeLeaf {
 export function createPrefixTree() {
   const tree = new TreeLeaf('')
   return tree
-}
-
-// TODO: handle sub segments like sub-[param]-other-[param2]
-// TODO: multiple params
-// TODO: Nuxt syntax [[id]] -> [id]?
-const SEGMENT_PARAM_RE = /\[(\.\.\.)?(.+?)\]([?+*]?)/
-
-function createTreeLeafValue(
-  segment: string,
-  parent?: TreeLeafValue
-): TreeLeafValue {
-  const trimmedSegment = trimExtension(segment)
-  if (!trimmedSegment || trimmedSegment === 'index') {
-    return new TreeLeafValueStatic('', parent)
-  }
-
-  const paramMatch = SEGMENT_PARAM_RE.exec(segment)
-  // console.log({ paramMatch, segment })
-  if (paramMatch) {
-    const [, isSplat, paramName, modifier] = paramMatch
-    return new TreeLeafValueParam(
-      trimmedSegment,
-      parent,
-      paramName,
-      modifier,
-      !!isSplat
-    )
-  }
-
-  return new TreeLeafValueStatic(trimmedSegment, parent)
 }

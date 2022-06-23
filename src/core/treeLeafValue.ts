@@ -1,4 +1,4 @@
-import { joinPath } from './utils'
+import { joinPath, trimExtension } from './utils'
 
 export const enum TreeLeafType {
   static = 0,
@@ -75,29 +75,68 @@ export class TreeLeafValueStatic extends _TreeLeafValueBase {
 
 const FORMAT_PARAM_RE = /\[(?:.+?)\]([?+*]?)/g
 
-export class TreeLeafValueParam extends _TreeLeafValueBase {
+export interface TreeRouteParam {
   paramName: string
+  modifier: string | null
+  optional: boolean
+  repeatable: boolean
+  isSplat: boolean
+}
+
+export class TreeLeafValueParam extends _TreeLeafValueBase {
+  params: TreeRouteParam[]
+  _type: TreeLeafType.param = TreeLeafType.param
 
   constructor(
     rawSegment: string,
     parent: _TreeLeafValueBase | undefined,
-    paramName: string,
-    modifier: string | null,
-    isSplat: boolean
+    params: TreeRouteParam[]
   ) {
-    const pathSegment = rawSegment.replace(
-      FORMAT_PARAM_RE,
-      `:${paramName}${isSplat ? '(.*)' : ''}$1`
-    )
+    let pathSegment = rawSegment
+    for (const param of params) {
+      pathSegment = pathSegment.replace(
+        new RegExp(`\\[${param.paramName}\\][?+*]?`),
+        `:${param.paramName}${param.isSplat ? '(.*)' : ''}${
+          param.modifier || ''
+        }`
+      )
+    }
+
     super(rawSegment, parent, pathSegment)
-    const isOptional = modifier === '?' || modifier === '*'
-    const isRepeatable = modifier === '*' || modifier === '+'
-    this._type =
-      TreeLeafType.param |
-      (isOptional ? TreeLeafType.optional : 0) |
-      (isRepeatable ? TreeLeafType.repeatable : 0)
-    this.paramName = paramName
+    // this._type = TreeLeafType.param
+
+    this.params = params
   }
 }
 
 export type TreeLeafValue = TreeLeafValueStatic | TreeLeafValueParam
+
+// TODO: handle sub segments like sub-[param]-other-[param2]
+// TODO: multiple params
+// TODO: Nuxt syntax [[id]] -> [id]?
+const SEGMENT_PARAM_RE = /\[(\.\.\.)?(.+?)\]([?+*]?)/g
+
+export function createTreeLeafValue(
+  segment: string,
+  parent?: TreeLeafValue
+): TreeLeafValue {
+  const trimmedSegment = trimExtension(segment)
+  if (!trimmedSegment || trimmedSegment === 'index') {
+    return new TreeLeafValueStatic('', parent)
+  }
+
+  const params: TreeRouteParam[] = Array.from(
+    segment.matchAll(SEGMENT_PARAM_RE)
+  ).map(([, isSplat, paramName, modifier]) => ({
+    modifier,
+    paramName,
+    optional: modifier === '?' || modifier === '*',
+    repeatable: modifier === '*' || modifier === '+',
+    isSplat: !!isSplat,
+  }))
+  if (params.length) {
+    return new TreeLeafValueParam(trimmedSegment, parent, params)
+  }
+
+  return new TreeLeafValueStatic(trimmedSegment, parent)
+}

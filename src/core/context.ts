@@ -70,7 +70,13 @@ export function createRoutesContext(options: Required<Options>) {
 
 /// <reference types="unplugin-vue-router/client" />
 
-import type { RouteRecordInfo } from 'unplugin-vue-router'
+import type {
+  RouteRecordInfo,
+  _ParamValue,
+  _ParamValueOneOrMore,
+  _ParamValueZeroOrMore,
+  _ParamValueZeroOrOne,
+} from 'unplugin-vue-router'
 
 declare module '~routes' {
 ${generateRouteNamedMap(routeTree)
