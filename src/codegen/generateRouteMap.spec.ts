@@ -9,7 +9,7 @@ function formatExports(exports: string) {
     .join('\n')
 }
 
-describe('toRouteRecordSTring', () => {
+describe('generateRouteNamedMap', () => {
   it('works with some paths at root', () => {
     const tree = createPrefixTree()
     tree.insert('a.vue')

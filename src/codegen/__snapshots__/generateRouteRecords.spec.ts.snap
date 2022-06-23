@@ -1,6 +1,6 @@
 // Vitest Snapshot v1
 
-exports[`toRouteRecordSTring > adds children and name when folder and component exist 1`] = `
+exports[`generateRouteRecord > adds children and name when folder and component exist 1`] = `
 "[
   {
     path: \\"/a\\",
@@ -37,7 +37,7 @@ exports[`toRouteRecordSTring > adds children and name when folder and component 
 ]"
 `;
 
-exports[`toRouteRecordSTring > correctly names index.vue files 1`] = `
+exports[`generateRouteRecord > correctly names index.vue files 1`] = `
 "[
   {
     path: \\"/\\",
@@ -61,7 +61,7 @@ exports[`toRouteRecordSTring > correctly names index.vue files 1`] = `
 ]"
 `;
 
-exports[`toRouteRecordSTring > nested children 1`] = `
+exports[`generateRouteRecord > nested children 1`] = `
 "[
   {
     path: \\"/a\\",
@@ -116,7 +116,7 @@ exports[`toRouteRecordSTring > nested children 1`] = `
 ]"
 `;
 
-exports[`toRouteRecordSTring > nested children 2`] = `
+exports[`generateRouteRecord > nested children 2`] = `
 "[
   {
     path: \\"/a\\",
@@ -183,7 +183,7 @@ exports[`toRouteRecordSTring > nested children 2`] = `
 ]"
 `;
 
-exports[`toRouteRecordSTring > works with some paths at root 1`] = `
+exports[`generateRouteRecord > works with some paths at root 1`] = `
 "[
   {
     path: \\"/a\\",

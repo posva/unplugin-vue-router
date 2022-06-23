@@ -86,14 +86,6 @@ export class TreeLeaf {
     //   this.children.values()
     // ).join(', ')}] ]`
   }
-
-  /**
-   * @deprecated: use generateRouteRecords instead
-   * @returns a string representation of the tree
-   */
-  toRouteRecordString(): string {
-    return generateRouteRecord(this)
-  }
 }
 
 export function createPrefixTree() {

@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { createPrefixTree } from '../core/tree'
+import { generateRouteRecord } from './generateRouteRecords'
 
-describe('toRouteRecordSTring', () => {
+describe('generateRouteRecord', () => {
   it('works with an empty tree', () => {
     const tree = createPrefixTree()
-    expect(tree.toRouteRecordString()).toMatchInlineSnapshot(`
+
+    expect(generateRouteRecord(tree)).toMatchInlineSnapshot(`
       "[
 
       ]"
@@ -16,36 +18,36 @@ describe('toRouteRecordSTring', () => {
     tree.insert('a.vue')
     tree.insert('b.vue')
     tree.insert('c.vue')
-    expect(tree.toRouteRecordString()).toMatchSnapshot()
+    expect(generateRouteRecord(tree)).toMatchSnapshot()
   })
 
   it('nested children', () => {
-    const t1 = createPrefixTree()
-    t1.insert('a/a.vue')
-    t1.insert('a/b.vue')
-    t1.insert('a/c.vue')
-    t1.insert('b/b.vue')
-    t1.insert('b/c.vue')
-    t1.insert('b/d.vue')
-    expect(t1.toRouteRecordString()).toMatchSnapshot()
-    t1.insert('c.vue')
-    t1.insert('d.vue')
-    expect(t1.toRouteRecordString()).toMatchSnapshot()
+    const tree = createPrefixTree()
+    tree.insert('a/a.vue')
+    tree.insert('a/b.vue')
+    tree.insert('a/c.vue')
+    tree.insert('b/b.vue')
+    tree.insert('b/c.vue')
+    tree.insert('b/d.vue')
+    expect(generateRouteRecord(tree)).toMatchSnapshot()
+    tree.insert('c.vue')
+    tree.insert('d.vue')
+    expect(generateRouteRecord(tree)).toMatchSnapshot()
   })
 
   it('adds children and name when folder and component exist', () => {
-    const t1 = createPrefixTree()
-    t1.insert('a/c.vue')
-    t1.insert('b/c.vue')
-    t1.insert('a.vue')
-    t1.insert('d.vue')
-    expect(t1.toRouteRecordString()).toMatchSnapshot()
+    const tree = createPrefixTree()
+    tree.insert('a/c.vue')
+    tree.insert('b/c.vue')
+    tree.insert('a.vue')
+    tree.insert('d.vue')
+    expect(generateRouteRecord(tree)).toMatchSnapshot()
   })
 
   it('correctly names index.vue files', () => {
     const tree = createPrefixTree()
     tree.insert('index.vue')
     tree.insert('b/index.vue')
-    expect(tree.toRouteRecordString()).toMatchSnapshot()
+    expect(generateRouteRecord(tree)).toMatchSnapshot()
   })
 })
