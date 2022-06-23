@@ -81,24 +81,6 @@ export interface RouteLocationNormalizedLoadedTyped<
 }
 
 /**
- * Gets the possible type of a param based on its modifier M.
- *
- * @internal
- */
-export type _ModifierParamValue<
-  M extends _ParamModifier | '' = _ParamModifier | '',
-  isRaw extends boolean = false
-> = '' extends M
-  ? _ParamValue<isRaw>
-  : '+' extends M
-  ? _ParamValueOneOrMore<isRaw>
-  : '*' extends M
-  ? _ParamValueZeroOrMore<isRaw>
-  : '?' extends M
-  ? _ParamValueZeroOrOne<isRaw>
-  : never
-
-/**
  * Utility type for raw and non raw params like :id+
  *
  * @internal
@@ -133,22 +115,3 @@ export type _ParamValueZeroOrOne<isRaw extends boolean> = true extends isRaw
 export type _ParamValue<isRaw extends boolean> = true extends isRaw
   ? string | number
   : string
-
-/**
- * Given a param name N and its modifier M, creates a param object for the pair.
- *
- * @internal
- */
-export type _ParamToObject<
-  N extends string,
-  M extends _ParamModifier | '',
-  isRaw extends boolean
-> = M extends '?' | '*'
-  ? {
-      [K in N]?: _ModifierParamValue<M, isRaw>
-    }
-  : {
-      [K in N]: _ModifierParamValue<M, isRaw>
-    }
-
-export type _ParamModifier = '+' | '?' | '*'
