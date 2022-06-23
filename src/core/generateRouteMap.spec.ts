@@ -2,22 +2,44 @@ import { describe, expect, it } from 'vitest'
 import { generateRouteNamedMap } from './generateRouteMap'
 import { createPrefixTree } from './tree'
 
+function formatExports(exports: string) {
+  return exports
+    .split('\n')
+    .filter((line) => line.length > 0)
+    .join('\n')
+}
+
 describe('toRouteRecordSTring', () => {
   it('works with some paths at root', () => {
     const tree = createPrefixTree()
     tree.insert('a.vue')
     tree.insert('b.vue')
     tree.insert('c.vue')
-    expect(
-      generateRouteNamedMap(tree)
-        .split('\n')
-        .filter((line) => line)
-        .join('\n')
-    ).toMatchInlineSnapshot(`
+    expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
       "export interface RouteNamedMap {
-        '/a': RouteRecordInfo<'/a', '/a'>,
-        '/b': RouteRecordInfo<'/b', '/b'>,
-        '/c': RouteRecordInfo<'/c', '/c'>,
+        '/a': RouteRecordInfo<'/a', '/a', Record<any, never>>,
+        '/b': RouteRecordInfo<'/b', '/b', Record<any, never>>,
+        '/c': RouteRecordInfo<'/c', '/c', Record<any, never>>,
+      }"
+    `)
+  })
+
+  it('adds params', () => {
+    const tree = createPrefixTree()
+    tree.insert('[a].vue')
+    tree.insert('nested/[a].vue')
+    tree.insert('partial-[a].vue')
+    tree.insert('n/[a]?.vue')
+    tree.insert('n/[a]*.vue')
+    tree.insert('n/[a]+.vue')
+    expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
+      "export interface RouteNamedMap {
+        '/[a]': RouteRecordInfo<'/[a]', '/:a', { a: _ParamValue<true> }>,
+        '/nested/[a]': RouteRecordInfo<'/nested/[a]', '/nested/:a', { a: _ParamValue<true> }>,
+        '/partial-[a]': RouteRecordInfo<'/partial-[a]', '/partial-:a', { a: _ParamValue<true> }>,
+        '/n/[a]?': RouteRecordInfo<'/n/[a]?', '/n/:a?', { a?: _ParamValueZeroOrOne<true> }>,
+        '/n/[a]*': RouteRecordInfo<'/n/[a]*', '/n/:a*', { a?: _ParamValueZeroOrMore<true> }>,
+        '/n/[a]+': RouteRecordInfo<'/n/[a]+', '/n/:a+', { a: _ParamValueOneOrMore<true> }>,
       }"
     `)
   })
@@ -32,21 +54,16 @@ describe('toRouteRecordSTring', () => {
     tree.insert('b/d.vue')
     tree.insert('c.vue')
     tree.insert('d.vue')
-    expect(
-      generateRouteNamedMap(tree)
-        .split('\n')
-        .filter((line) => line)
-        .join('\n')
-    ).toMatchInlineSnapshot(`
+    expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
       "export interface RouteNamedMap {
-        '/a/a': RouteRecordInfo<'/a/a', '/a/a'>,
-        '/a/b': RouteRecordInfo<'/a/b', '/a/b'>,
-        '/a/c': RouteRecordInfo<'/a/c', '/a/c'>,
-        '/b/b': RouteRecordInfo<'/b/b', '/b/b'>,
-        '/b/c': RouteRecordInfo<'/b/c', '/b/c'>,
-        '/b/d': RouteRecordInfo<'/b/d', '/b/d'>,
-        '/c': RouteRecordInfo<'/c', '/c'>,
-        '/d': RouteRecordInfo<'/d', '/d'>,
+        '/a/a': RouteRecordInfo<'/a/a', '/a/a', Record<any, never>>,
+        '/a/b': RouteRecordInfo<'/a/b', '/a/b', Record<any, never>>,
+        '/a/c': RouteRecordInfo<'/a/c', '/a/c', Record<any, never>>,
+        '/b/b': RouteRecordInfo<'/b/b', '/b/b', Record<any, never>>,
+        '/b/c': RouteRecordInfo<'/b/c', '/b/c', Record<any, never>>,
+        '/b/d': RouteRecordInfo<'/b/d', '/b/d', Record<any, never>>,
+        '/c': RouteRecordInfo<'/c', '/c', Record<any, never>>,
+        '/d': RouteRecordInfo<'/d', '/d', Record<any, never>>,
       }"
     `)
   })

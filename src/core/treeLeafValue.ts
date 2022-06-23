@@ -111,8 +111,6 @@ export class TreeLeafValueParam extends _TreeLeafValueBase {
 
 export type TreeLeafValue = TreeLeafValueStatic | TreeLeafValueParam
 
-// TODO: handle sub segments like sub-[param]-other-[param2]
-// TODO: multiple params
 // TODO: Nuxt syntax [[id]] -> [id]?
 const SEGMENT_PARAM_RE = /\[(\.\.\.)?(.+?)\]([?+*]?)/g
 

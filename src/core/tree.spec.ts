@@ -32,7 +32,7 @@ describe('Tree', () => {
     expect(child.value).toMatchObject({
       rawSegment: '[id]',
       routeName: '/[id]',
-      paramName: 'id',
+      params: [{ paramName: 'id' }],
       path: '/:id',
       _type: TreeLeafType.param,
     })
@@ -82,9 +82,10 @@ describe('Tree', () => {
     expect(child.value).toMatchObject({
       rawSegment: '[id]+',
       routeName: '/[id]+',
-      paramName: 'id',
+      params: [{ paramName: 'id', modifier: '+' }],
       path: '/:id+',
-      _type: TreeLeafType.param | TreeLeafType.repeatable,
+      pathSegment: ':id+',
+      _type: TreeLeafType.param,
     })
     expect(child.children.size).toBe(0)
   })
@@ -99,8 +100,9 @@ describe('Tree', () => {
     expect(child).toBeDefined()
     expect(child.value).toMatchObject({
       rawSegment: '[id]',
-      paramName: 'id',
+      params: [{ paramName: 'id' }],
       path: '/:id',
+      pathSegment: ':id',
     })
     expect(child.children.size).toBe(0)
   })

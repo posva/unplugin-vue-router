@@ -1,8 +1,11 @@
 import { createUnplugin } from 'unplugin'
 import { createRoutesContext } from './core/context'
+import {
+  MODULE_ROUTES_PATH,
+  MODULE_VUE_ROUTER,
+  VIRTUAL_PREFIX,
+} from './core/moduleConstants'
 import { DEFAULT_OPTIONS, Options } from './types'
-
-const VIRTUAL_PREFIX = 'virtual:'
 
 export default createUnplugin<Options>((opt) => {
   const options: Required<Options> = { ...DEFAULT_OPTIONS, ...opt }
@@ -27,12 +30,12 @@ export default createUnplugin<Options>((opt) => {
     enforce: 'pre',
 
     resolveId(id) {
-      if (id === '~routes' || id === '~router') {
+      if (id === MODULE_ROUTES_PATH) {
         // virtual module
         return asVirtualId(id)
       }
       // NOTE: it wasn't possible to override or add new exports to vue-router
-      if (id === '@vue-router') {
+      if (id === MODULE_VUE_ROUTER) {
         return 'unplugin-vue-router/@vue-router/index.js'
       }
       return null
@@ -45,7 +48,7 @@ export default createUnplugin<Options>((opt) => {
 
     load(id) {
       const resolvedId = getVirtualId(id)
-      if (resolvedId === '~routes') {
+      if (resolvedId === MODULE_ROUTES_PATH) {
         return ctx.generateRoutes()
       }
 
@@ -58,6 +61,7 @@ export default createUnplugin<Options>((opt) => {
 export type {
   RouteRecordInfo,
   RouteLocationNormalizedTyped,
+  RouteLocationNormalizedLoadedTyped,
   _ParamValue,
   _ParamValueOneOrMore,
   _ParamValueZeroOrMore,
