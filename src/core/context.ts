@@ -5,6 +5,7 @@ import { createPrefixTree } from './tree'
 import { promises as fs } from 'fs'
 import { logTree, throttle } from './utils'
 import { generateRouteNamedMap } from '../codegen/generateRouteMap'
+import { MODULE_ROUTES_PATH } from './moduleConstants'
 
 export function createRoutesContext(options: Required<Options>) {
   const { dts: preferDTS, root } = options
@@ -78,7 +79,7 @@ import type {
   _ParamValueZeroOrOne,
 } from 'unplugin-vue-router'
 
-declare module '~routes' {
+declare module '${MODULE_ROUTES_PATH}' {
 ${generateRouteNamedMap(routeTree)
   .split('\n')
   .filter((line) => line)
