@@ -1,4 +1,4 @@
-import type { TreeLeaf } from './tree'
+import type { TreeLeaf } from '../core/tree'
 
 export function generateRouteRecord(
   node: TreeLeaf,

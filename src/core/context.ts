@@ -4,7 +4,7 @@ import { Options } from '../types'
 import { createPrefixTree } from './tree'
 import { promises as fs } from 'fs'
 import { logTree, throttle } from './utils'
-import { generateRouteNamedMap } from './generateRouteMap'
+import { generateRouteNamedMap } from '../codegen/generateRouteMap'
 
 export function createRoutesContext(options: Required<Options>) {
   const { dts: preferDTS, root } = options

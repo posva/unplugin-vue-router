@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createPrefixTree } from './tree'
+import { createPrefixTree } from '../core/tree'
 
 describe('toRouteRecordSTring', () => {
   it('works with an empty tree', () => {

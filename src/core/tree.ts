@@ -1,4 +1,4 @@
-import { generateRouteRecord } from './generateRouteRecords'
+import { generateRouteRecord } from '../codegen/generateRouteRecords'
 import { createTreeLeafValue, TreeLeafValue } from './treeLeafValue'
 import { trimExtension } from './utils'
 
@@ -87,6 +87,10 @@ export class TreeLeaf {
     // ).join(', ')}] ]`
   }
 
+  /**
+   * @deprecated: use generateRouteRecords instead
+   * @returns a string representation of the tree
+   */
   toRouteRecordString(): string {
     return generateRouteRecord(this)
   }

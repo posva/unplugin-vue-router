@@ -1,11 +1,12 @@
 import type {
   RouteLocationNormalized,
   RouteLocationNormalizedLoaded,
+  RouteMeta,
+  RouteParams,
   RouteParamsRaw,
   RouteParamValueRaw,
-  RouteRecordName,
 } from 'vue-router'
-import { TreeLeaf } from './tree'
+import type { TreeLeaf } from '../core/tree'
 
 export function generateRouteNamedMap(node: TreeLeaf): string {
   // root
@@ -29,7 +30,7 @@ ${Array.from(node.children.values()).map(generateRouteNamedMap).join('')}}`
 export function generateRouteRecordInfo(node: TreeLeaf) {
   return `RouteRecordInfo<'${node.value.routeName}', '${
     node.value.path
-  }', ${generateRouteParams(node, true)}>`
+  }', ${generateRouteParams(node, true)}, ${generateRouteParams(node, false)}>`
 }
 
 export function generateRouteParams(node: TreeLeaf, isRaw: boolean): string {
@@ -54,30 +55,40 @@ export function generateRouteParams(node: TreeLeaf, isRaw: boolean): string {
 export interface RouteRecordInfo<
   Name extends string = string,
   Path extends string = string,
-  ParamsRaw extends RouteParamsRaw = RouteParamsRaw
+  ParamsRaw extends RouteParamsRaw = RouteParamsRaw,
+  Params extends RouteParams = RouteParams,
+  Meta extends RouteMeta = RouteMeta
 > {
   name: Name
   path: Path
   paramsRaw: ParamsRaw
-  // TODO:
-  // params: Params
-  // TODO: meta
+  params: Params
+  // TODO: implement meta with a defineRoute macro
+  meta: Meta
 }
 
 export interface RouteLocationNormalizedTyped<
-  Name extends RouteRecordName = RouteRecordName,
-  Path extends string = string
+  RouteMap extends Record<string, RouteRecordInfo> = Record<
+    string,
+    RouteRecordInfo
+  >,
+  Name extends keyof RouteMap = string
 > extends RouteLocationNormalized {
-  path: Path
-  name: Name
+  name: RouteMap[Name]['name']
+  // we don't override path because it could contain params and in practice it's just not useful
+  params: RouteMap[Name]['params']
 }
 
 export interface RouteLocationNormalizedLoadedTyped<
-  Name extends RouteRecordName = RouteRecordName,
-  Path extends string = string
+  RouteMap extends Record<string, RouteRecordInfo> = Record<
+    string,
+    RouteRecordInfo
+  >,
+  Name extends keyof RouteMap = string
 > extends RouteLocationNormalizedLoaded {
-  path: Path
-  name: Name
+  name: RouteMap[Name]['name']
+  // we don't override path because it could contain params and in practice it's just not useful
+  params: RouteMap[Name]['params']
 }
 
 /**

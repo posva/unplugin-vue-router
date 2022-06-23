@@ -66,4 +66,4 @@ export type {
   _ParamValueOneOrMore,
   _ParamValueZeroOrMore,
   _ParamValueZeroOrOne,
-} from './core/generateRouteMap'
+} from './codegen/generateRouteMap'
