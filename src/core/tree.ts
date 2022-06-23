@@ -82,9 +82,6 @@ export class TreeLeaf {
 
   toString(): string {
     return `${this.value}${this.value.filePath ? ' 📄' : ''}`
-    // return `[${this.value._type}|"${this.value.value}", [${Array.from(
-    //   this.children.values()
-    // ).join(', ')}] ]`
   }
 }
 

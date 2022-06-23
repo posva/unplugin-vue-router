@@ -1,10 +1,8 @@
 import { joinPath, trimExtension } from './utils'
 
 export const enum TreeLeafType {
-  static = 0,
-  param = 0b1,
-  repeatable = 0b10,
-  optional = 0b100,
+  static,
+  param,
 }
 
 class _TreeLeafValueBase {
@@ -52,7 +50,7 @@ class _TreeLeafValueBase {
   }
 
   toString(): string {
-    return this.pathSegment
+    return this.pathSegment || '<index>'
   }
 
   isParam(): this is TreeLeafValueParam {
@@ -69,15 +67,12 @@ export class TreeLeafValueStatic extends _TreeLeafValueBase {
 
   constructor(rawSegment: string, parent: _TreeLeafValueBase | undefined) {
     super(rawSegment, parent)
-    this.pathSegment = this.rawSegment = rawSegment
   }
 }
 
-const FORMAT_PARAM_RE = /\[(?:.+?)\]([?+*]?)/g
-
 export interface TreeRouteParam {
   paramName: string
-  modifier: string | null
+  modifier: string
   optional: boolean
   repeatable: boolean
   isSplat: boolean
@@ -90,29 +85,15 @@ export class TreeLeafValueParam extends _TreeLeafValueBase {
   constructor(
     rawSegment: string,
     parent: _TreeLeafValueBase | undefined,
-    params: TreeRouteParam[]
+    params: TreeRouteParam[],
+    pathSegment: string
   ) {
-    let pathSegment = rawSegment
-    for (const param of params) {
-      pathSegment = pathSegment.replace(
-        new RegExp(`\\[${param.paramName}\\][?+*]?`),
-        `:${param.paramName}${param.isSplat ? '(.*)' : ''}${
-          param.modifier || ''
-        }`
-      )
-    }
-
     super(rawSegment, parent, pathSegment)
-    // this._type = TreeLeafType.param
-
     this.params = params
   }
 }
 
 export type TreeLeafValue = TreeLeafValueStatic | TreeLeafValueParam
-
-// TODO: Nuxt syntax [[id]] -> [id]?
-const SEGMENT_PARAM_RE = /\[(\.\.\.)?(.+?)\]([?+*]?)/g
 
 export function createTreeLeafValue(
   segment: string,
@@ -123,18 +104,126 @@ export function createTreeLeafValue(
     return new TreeLeafValueStatic('', parent)
   }
 
-  const params: TreeRouteParam[] = Array.from(
-    segment.matchAll(SEGMENT_PARAM_RE)
-  ).map(([, isSplat, paramName, modifier]) => ({
-    modifier,
-    paramName,
-    optional: modifier === '?' || modifier === '*',
-    repeatable: modifier === '*' || modifier === '+',
-    isSplat: !!isSplat,
-  }))
+  const [pathSegment, params] = parseSegment(trimmedSegment)
+
   if (params.length) {
-    return new TreeLeafValueParam(trimmedSegment, parent, params)
+    return new TreeLeafValueParam(trimmedSegment, parent, params, pathSegment)
   }
 
   return new TreeLeafValueStatic(trimmedSegment, parent)
+}
+
+const enum ParseSegmentState {
+  static,
+  paramOptional, // within [[]] or []
+  param, // within []
+  modifier, // after the ]
+}
+
+/**
+ * Parses a segment into the route path segment and the extracted params.
+ *
+ * @param segment - segment to parse without the extension
+ * @returns - the pathSegment and the params
+ */
+function parseSegment(segment: string): [string, TreeRouteParam[]] {
+  let buffer = ''
+  let state: ParseSegmentState = ParseSegmentState.static
+  const params: TreeRouteParam[] = []
+  let pathSegment = ''
+  let currentTreeRouteParam: TreeRouteParam = createEmptyRouteParam()
+
+  function consumeBuffer() {
+    if (state === ParseSegmentState.static) {
+      // add the buffer to the path segment as is
+      pathSegment += buffer
+    } else if (state === ParseSegmentState.modifier) {
+      currentTreeRouteParam.paramName = buffer
+      currentTreeRouteParam.modifier = currentTreeRouteParam.optional
+        ? currentTreeRouteParam.repeatable
+          ? '*'
+          : '?'
+        : currentTreeRouteParam.repeatable
+        ? '+'
+        : ''
+      buffer = ''
+      pathSegment += `:${currentTreeRouteParam.paramName}${
+        currentTreeRouteParam.isSplat ? '(.*)' : ''
+      }${currentTreeRouteParam.modifier}`
+      params.push(currentTreeRouteParam)
+      currentTreeRouteParam = createEmptyRouteParam()
+    }
+    buffer = ''
+  }
+
+  for (let pos = 0; pos < segment.length; pos++) {
+    const c = segment[pos]
+
+    if (state === ParseSegmentState.static) {
+      if (c === '[') {
+        consumeBuffer()
+        // check if it's an optional param or not
+        state = ParseSegmentState.paramOptional
+      } else {
+        buffer += c
+      }
+    } else if (state === ParseSegmentState.paramOptional) {
+      if (c === '[') {
+        currentTreeRouteParam.optional = true
+      } else if (c === '.') {
+        currentTreeRouteParam.isSplat = true
+        pos += 2 // skip the other 2 dots
+      } else {
+        // keep it for the param
+        buffer += c
+      }
+      state = ParseSegmentState.param
+    } else if (state === ParseSegmentState.param) {
+      if (c === ']') {
+        if (currentTreeRouteParam.optional) {
+          // skip the next ]
+          pos++
+        }
+        state = ParseSegmentState.modifier
+      } else if (c === '.') {
+        currentTreeRouteParam.isSplat = true
+        pos += 2 // skip the other 2 dots
+      } else {
+        buffer += c
+      }
+    } else if (state === ParseSegmentState.modifier) {
+      if (c === '+') {
+        currentTreeRouteParam.repeatable = true
+      } else {
+        // parse this character again
+        pos--
+      }
+      consumeBuffer()
+      // start again
+      state = ParseSegmentState.static
+    }
+  }
+
+  if (
+    state === ParseSegmentState.param ||
+    state === ParseSegmentState.paramOptional
+  ) {
+    throw new Error(`Invalid segment: "${segment}"`)
+  }
+
+  if (buffer) {
+    consumeBuffer()
+  }
+
+  return [pathSegment, params]
+}
+
+function createEmptyRouteParam(): TreeRouteParam {
+  return {
+    paramName: '',
+    modifier: '',
+    optional: false,
+    repeatable: false,
+    isSplat: false,
+  }
 }

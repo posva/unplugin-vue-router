@@ -27,19 +27,40 @@ describe('generateRouteNamedMap', () => {
   it('adds params', () => {
     const tree = createPrefixTree()
     tree.insert('[a].vue')
-    tree.insert('nested/[a].vue')
     tree.insert('partial-[a].vue')
-    tree.insert('n/[a]?.vue')
-    tree.insert('n/[a]*.vue')
-    tree.insert('n/[a]+.vue')
+    tree.insert('[[a]].vue') // optional
+    tree.insert('partial-[[a]].vue') // partial-optional
+    tree.insert('[a]+.vue') // repeated
+    tree.insert('[[a]]+.vue') // optional repeated
+    tree.insert('[...a].vue') // splat
     expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
       "export interface RouteNamedMap {
         '/[a]': RouteRecordInfo<'/[a]', '/:a', { a: _ParamValue<true> }, { a: _ParamValue<false> }>,
-        '/nested/[a]': RouteRecordInfo<'/nested/[a]', '/nested/:a', { a: _ParamValue<true> }, { a: _ParamValue<false> }>,
         '/partial-[a]': RouteRecordInfo<'/partial-[a]', '/partial-:a', { a: _ParamValue<true> }, { a: _ParamValue<false> }>,
-        '/n/[a]?': RouteRecordInfo<'/n/[a]?', '/n/:a?', { a?: _ParamValueZeroOrOne<true> }, { a?: _ParamValueZeroOrOne<false> }>,
-        '/n/[a]*': RouteRecordInfo<'/n/[a]*', '/n/:a*', { a?: _ParamValueZeroOrMore<true> }, { a?: _ParamValueZeroOrMore<false> }>,
+        '/[[a]]': RouteRecordInfo<'/[[a]]', '/:a?', { a?: _ParamValueZeroOrOne<true> }, { a?: _ParamValueZeroOrOne<false> }>,
+        '/partial-[[a]]': RouteRecordInfo<'/partial-[[a]]', '/partial-:a?', { a?: _ParamValueZeroOrOne<true> }, { a?: _ParamValueZeroOrOne<false> }>,
+        '/[a]+': RouteRecordInfo<'/[a]+', '/:a+', { a: _ParamValueOneOrMore<true> }, { a: _ParamValueOneOrMore<false> }>,
+        '/[[a]]+': RouteRecordInfo<'/[[a]]+', '/:a*', { a?: _ParamValueZeroOrMore<true> }, { a?: _ParamValueZeroOrMore<false> }>,
+        '/[...a]': RouteRecordInfo<'/[...a]', '/:a(.*)', { a: _ParamValue<true> }, { a: _ParamValue<false> }>,
+      }"
+    `)
+  })
+
+  it('adds nested params', () => {
+    const tree = createPrefixTree()
+    tree.insert('n/[a].vue') // normal
+    // tree.insert('n/partial-[a].vue') // partial
+    tree.insert('n/[[a]].vue') // optional
+    tree.insert('n/[a]+.vue') // repeated
+    tree.insert('n/[[a]]+.vue') // optional repeated
+    tree.insert('n/[...a].vue') // splat
+    expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
+      "export interface RouteNamedMap {
+        '/n/[a]': RouteRecordInfo<'/n/[a]', '/n/:a', { a: _ParamValue<true> }, { a: _ParamValue<false> }>,
+        '/n/[[a]]': RouteRecordInfo<'/n/[[a]]', '/n/:a?', { a?: _ParamValueZeroOrOne<true> }, { a?: _ParamValueZeroOrOne<false> }>,
         '/n/[a]+': RouteRecordInfo<'/n/[a]+', '/n/:a+', { a: _ParamValueOneOrMore<true> }, { a: _ParamValueOneOrMore<false> }>,
+        '/n/[[a]]+': RouteRecordInfo<'/n/[[a]]+', '/n/:a*', { a?: _ParamValueZeroOrMore<true> }, { a?: _ParamValueZeroOrMore<false> }>,
+        '/n/[...a]': RouteRecordInfo<'/n/[...a]', '/n/:a(.*)', { a: _ParamValue<true> }, { a: _ParamValue<false> }>,
       }"
     `)
   })
@@ -68,3 +89,15 @@ describe('generateRouteNamedMap', () => {
     `)
   })
 })
+
+/**
+ * /static.vue -> /static
+ * /static/[param].vue -> /static/:param
+ * /static/pre-[param].vue -> /static/pre-:param
+ * /static/pre-[param].vue -> /static/pre-:param
+ * /static/pre-[[param]].vue -> /static/pre-:param?
+ * /static/[...param].vue -> /static/:param(.*)
+ * /static/...[param].vue -> /static/:param+
+ * /static/...[[param]].vue -> /static/:param*
+ * /static/...[[...param]].vue -> /static/:param(.*)*
+ */
