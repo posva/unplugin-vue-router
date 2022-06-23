@@ -1,5 +1,24 @@
 <script lang="ts" setup>
-import { useRoute } from '@vue-router'
+import { useRoute, useRouter } from '@vue-router'
+import type { RouterTyped } from '@vue-router'
+
+
+const router = useRouter()
+if (router.currentRoute.value.name === '/[name]') {
+  router.currentRoute.value.params.name
+  // @ts-expect-error: does not exist
+  router.currentRoute.value.params.id
+}
+
+router.resolve({ name: '/[name]' })
+router.resolve({ path: '/articles' })
+router.resolve({name: '/[name]', params: {name: 2}}).params.name
+const routeLocation = router.resolve('/articles/id')
+if (routeLocation.name === '/[name]') {
+  routeLocation.params.name
+  // @ts-expect-error: does not exist
+  routeLocation.params.id
+}
 
 const route = useRoute()
 if (route.name == '/articles/[id]') {

@@ -1,12 +1,19 @@
 import type {
+  RouteLocation,
+  RouteQueryAndHash,
+  RouteLocationOptions,
   RouteLocationNormalized,
   RouteLocationNormalizedLoaded,
   RouteMeta,
   RouteParams,
   RouteParamsRaw,
+  Router,
 } from 'vue-router'
+import type { Ref } from 'vue'
 import type { TreeLeaf } from '../core/tree'
 import { generateRouteParams } from './generateRouteParams'
+import type { LiteralStringUnion } from '../core/utils'
+import { RouteRecordName } from '@vue-router'
 
 export function generateRouteNamedMap(node: TreeLeaf): string {
   // root
@@ -55,7 +62,7 @@ export interface RouteLocationNormalizedTyped<
   >,
   Name extends keyof RouteMap = keyof RouteMap
 > extends RouteLocationNormalized {
-  name: RouteMap[Name]['name']
+  name: Extract<Name, RouteRecordName>
   // we don't override path because it could contain params and in practice it's just not useful
   params: RouteMap[Name]['params']
 }
@@ -65,9 +72,9 @@ export interface RouteLocationNormalizedLoadedTyped<
     string,
     RouteRecordInfo
   >,
-  Name extends keyof RouteMap = string
+  Name extends keyof RouteMap = keyof RouteMap
 > extends RouteLocationNormalizedLoaded {
-  name: RouteMap[Name]['name']
+  name: Extract<Name, RouteRecordName>
   // we don't override path because it could contain params and in practice it's just not useful
   params: RouteMap[Name]['params']
 }
@@ -77,7 +84,101 @@ export type RouteLocationNormalizedLoadedTypedList<
     string,
     RouteRecordInfo
   >
-> = string extends keyof RouteMap
-  ? // simplify the resulting type
-    { [name: string]: RouteLocationNormalizedLoaded }
-  : { [N in keyof RouteMap]: RouteLocationNormalizedLoadedTyped<RouteMap, N> }
+> = { [N in keyof RouteMap]: RouteLocationNormalizedLoadedTyped<RouteMap, N> }
+
+export interface RouteLocationAsRelativeTyped<
+  RouteMap extends Record<string, RouteRecordInfo> = Record<
+    string,
+    RouteRecordInfo
+  >,
+  Name extends keyof RouteMap = keyof RouteMap
+> extends RouteQueryAndHash,
+    RouteLocationOptions {
+  name?: Name
+  params?: RouteMap[Name]['paramsRaw']
+}
+
+export type RouteLocationAsRelativeTypedList<
+  RouteMap extends Record<string, RouteRecordInfo> = Record<
+    string,
+    RouteRecordInfo
+  >
+> = { [N in keyof RouteMap]: RouteLocationAsRelativeTyped<RouteMap, N> }
+
+export interface RouteLocationAsPathTyped<
+  RouteMap extends Record<string, RouteRecordInfo> = Record<
+    string,
+    RouteRecordInfo
+  >,
+  Name extends keyof RouteMap = keyof RouteMap
+> extends RouteQueryAndHash,
+    RouteLocationOptions {
+  path: LiteralStringUnion<RouteMap[Name]['path']>
+}
+
+export type RouteLocationAsPathTypedList<
+  RouteMap extends Record<string, RouteRecordInfo> = Record<
+    string,
+    RouteRecordInfo
+  >
+> = { [N in keyof RouteMap]: RouteLocationAsPathTyped<RouteMap, N> }
+
+export type RouteLocationAsString<
+  RouteMap extends Record<string, RouteRecordInfo> = Record<
+    string,
+    RouteRecordInfo
+  >
+> = LiteralStringUnion<RouteMap[keyof RouteMap]['path'], string>
+
+export interface RouteLocationTyped<
+  RouteMap extends Record<string, RouteRecordInfo>,
+  Name extends keyof RouteMap
+> extends RouteLocation {
+  name: Extract<Name, RouteRecordName>
+  params: RouteMap[Name]['params']
+}
+
+export interface RouteLocationResolvedTyped<
+  RouteMap extends Record<string, RouteRecordInfo>,
+  Name extends keyof RouteMap
+> extends RouteLocationTyped<RouteMap, Name> {
+  href: string
+}
+
+export type RouteLocationResolvedTypedList<
+  RouteMap extends Record<string, RouteRecordInfo> = Record<
+    string,
+    RouteRecordInfo
+  >
+> = { [N in keyof RouteMap]: RouteLocationResolvedTyped<RouteMap, N> }
+
+export interface _RouterTyped<
+  RouteMap extends Record<string, RouteRecordInfo> = Record<
+    string,
+    RouteRecordInfo
+  >
+> extends Router {
+  currentRoute: Ref<
+    RouteLocationNormalizedLoadedTypedList<RouteMap>[keyof RouteMap]
+  >
+
+  resolve(
+    to: RouteLocationAsString<RouteMap>,
+    currentLocation?: RouteLocationNormalizedLoaded
+  ): RouteLocationResolvedTypedList<RouteMap>[keyof RouteMap]
+  resolve(
+    to: RouteLocationAsPathTyped<RouteMap>,
+    currentLocation?: RouteLocationNormalizedLoaded
+  ): RouteLocationResolvedTypedList<RouteMap>[keyof RouteMap]
+  resolve<L extends RouteLocationAsRelativeTypedList<RouteMap>[keyof RouteMap]>(
+    to: L,
+    currentLocation?: RouteLocationNormalizedLoaded
+  ): L extends RouteLocationAsRelativeTyped<RouteMap, infer Name>
+    ? //
+      RouteLocationResolvedTyped<RouteMap, Name>
+    : RouteLocationResolvedTypedList<RouteMap>[keyof RouteMap]
+}
+
+// export function useRoute
+//   Name extends keyof RouteNamedMap = keyof RouteNamedMap
+// >(name?: Name): RouteLocationNormalizedLoadedTypedList<RouteNamedMap>[Name]

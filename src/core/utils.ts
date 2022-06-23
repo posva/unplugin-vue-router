@@ -2,6 +2,10 @@ import { TreeLeaf } from './tree'
 
 export type Awaitable<T> = T | PromiseLike<T>
 
+export type LiteralStringUnion<LiteralType, BaseType extends string = string> =
+  | LiteralType
+  | (BaseType & Record<never, never>)
+
 const MAX_LEVEL = 1000
 export class LogTree {
   setPre(hasNext: boolean, parentPre = '') {

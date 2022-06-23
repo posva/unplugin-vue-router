@@ -59,10 +59,17 @@ export default createUnplugin<Options>((opt) => {
 })
 
 export type {
+  _RouterTyped,
   RouteRecordInfo,
   RouteLocationNormalizedTyped,
+  // RouteLocationNormalizedTypedList,
   RouteLocationNormalizedLoadedTyped,
   RouteLocationNormalizedLoadedTypedList,
+  RouteLocationAsRelativeTyped,
+  RouteLocationAsRelativeTypedList,
+  RouteLocationAsPathTyped,
+  RouteLocationAsPathTypedList,
+  RouteLocationAsString,
 } from './codegen/generateRouteMap'
 export type {
   _ParamValue,

@@ -73,10 +73,12 @@ export function createRoutesContext(options: Required<Options>) {
 /// <reference types="unplugin-vue-router/client" />
 
 import type {
+  _RouterTyped,
   RouteRecordInfo,
-  RouteLocationNormalizedTyped,
-  RouteLocationNormalizedLoadedTyped,
   RouteLocationNormalizedLoadedTypedList,
+  RouteLocationAsRelativeTypedList,
+  RouteLocationAsPathTypedList,
+  RouteLocationAsString,
   _ParamValue,
   _ParamValueOneOrMore,
   _ParamValueZeroOrMore,
@@ -93,7 +95,11 @@ ${generateRouteNamedMap(routeTree)
 
 declare module '${MODULE_VUE_ROUTER}' {
   import type { RouteNamedMap } from '${MODULE_ROUTES_PATH}'
+
   export function useRoute<Name extends keyof RouteNamedMap = keyof RouteNamedMap>(name?: Name): RouteLocationNormalizedLoadedTypedList<RouteNamedMap>[Name]
+
+  export type RouterTyped = _RouterTyped<RouteNamedMap>
+  export function useRouter(): RouterTyped
 }
 `
   }

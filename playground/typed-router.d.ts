@@ -6,10 +6,12 @@
 /// <reference types="unplugin-vue-router/client" />
 
 import type {
+  _RouterTyped,
   RouteRecordInfo,
-  RouteLocationNormalizedTyped,
-  RouteLocationNormalizedLoadedTyped,
   RouteLocationNormalizedLoadedTypedList,
+  RouteLocationAsRelativeTypedList,
+  RouteLocationAsPathTypedList,
+  RouteLocationAsString,
   _ParamValue,
   _ParamValueOneOrMore,
   _ParamValueZeroOrMore,
@@ -42,5 +44,9 @@ declare module '@vue-router/routes' {
 
 declare module '@vue-router' {
   import type { RouteNamedMap } from '@vue-router/routes'
+
   export function useRoute<Name extends keyof RouteNamedMap = keyof RouteNamedMap>(name?: Name): RouteLocationNormalizedLoadedTypedList<RouteNamedMap>[Name]
+
+  export type RouterTyped = _RouterTyped<RouteNamedMap>
+  export function useRouter(): RouterTyped
 }
