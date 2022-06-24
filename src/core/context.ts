@@ -1,6 +1,6 @@
 import chokidar from 'chokidar'
 import { resolve } from 'path'
-import { Options } from '../types'
+import { Options } from '../options'
 import { createPrefixTree } from './tree'
 import { promises as fs } from 'fs'
 import { logTree, throttle } from './utils'

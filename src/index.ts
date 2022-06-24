@@ -5,7 +5,7 @@ import {
   MODULE_VUE_ROUTER,
   VIRTUAL_PREFIX,
 } from './core/moduleConstants'
-import { DEFAULT_OPTIONS, Options } from './types'
+import { DEFAULT_OPTIONS, Options } from './options'
 
 export default createUnplugin<Options>((opt) => {
   const options: Required<Options> = { ...DEFAULT_OPTIONS, ...opt }
