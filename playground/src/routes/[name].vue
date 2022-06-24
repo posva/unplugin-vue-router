@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useRoute, useRouter } from '@vue-router'
+import { useRoute, useRouter, onBeforeRouteLeave, onBeforeRouteUpdate } from '@vue-router'
 import type { RouterTyped } from '@vue-router'
 
 
@@ -9,6 +9,12 @@ if (router.currentRoute.value.name === '/[name]') {
   // @ts-expect-error: does not exist
   router.currentRoute.value.params.id
 }
+
+onBeforeRouteUpdate(to => {
+  if (to.name === '/articles/[id]' && to.params.id === '2') {
+    to.params.id
+  }
+})
 
 
 router.resolve({ path: ''})
