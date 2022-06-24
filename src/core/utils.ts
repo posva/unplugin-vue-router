@@ -77,21 +77,25 @@ export function trimExtension(path: string) {
   return lastDot < 0 ? path : path.slice(0, lastDot)
 }
 
-export function throttle(fn: () => void, wait: number) {
-  let timeout: ReturnType<typeof setTimeout> | null = null
+export function throttle(fn: () => void, wait: number, initialWait: number) {
+  let pendingExecutionTimeout: ReturnType<typeof setTimeout> | null = null
   let pendingExecution = false
+  let executionTimeout: ReturnType<typeof setTimeout> | null = null
 
   return () => {
-    if (!timeout) {
-      timeout = setTimeout(() => {
-        timeout = null
+    if (pendingExecutionTimeout == null) {
+      pendingExecutionTimeout = setTimeout(() => {
+        pendingExecutionTimeout = null
         if (pendingExecution) {
           pendingExecution = false
           fn()
         }
       }, wait)
-      fn()
-    } else {
+      executionTimeout = setTimeout(() => {
+        executionTimeout = null
+        fn()
+      }, initialWait)
+    } else if (executionTimeout == null) {
       // we run the function recently, so we can skip it and add a pending execution
       pendingExecution = true
     }

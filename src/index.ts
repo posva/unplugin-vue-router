@@ -42,8 +42,7 @@ export default createUnplugin<Options>((opt) => {
     },
 
     buildStart() {
-      // TODO: detect watch or build to not create
-      // stop watcher
+      return ctx.scanPages()
     },
 
     load(id) {
@@ -55,9 +54,16 @@ export default createUnplugin<Options>((opt) => {
       // fallback
       return null
     },
+
+    vite: {
+      configureServer(server) {},
+    },
+
+    rollup: {},
   }
 })
 
+// TODO: normalize the naming: _Name for internals that should never be used by the users or to avoid conflicts (e.g. the _RouterTyped typ is used in the generated d.ts to create a typed instance of the router)
 export type {
   _RouteMapGeneric,
   RouteRecordInfo,

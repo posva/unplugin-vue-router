@@ -7,6 +7,7 @@ import { logTree, throttle } from './utils'
 import { generateRouteNamedMap } from '../codegen/generateRouteMap'
 import { MODULE_ROUTES_PATH, MODULE_VUE_ROUTER } from './moduleConstants'
 import { generateRouteRecord } from '../codegen/generateRouteRecords'
+import fg from 'fast-glob'
 
 export function createRoutesContext(options: Required<Options>) {
   const { dts: preferDTS, root } = options
@@ -21,8 +22,7 @@ export function createRoutesContext(options: Required<Options>) {
 
   const resolvedRoutesFolder = resolve(root, options.routesFolder)
   const serverWatcher = chokidar.watch(resolvedRoutesFolder, {
-    // TODO: create a scanRouteFolders() function that also works for build
-    // ignoreInitial: true,
+    ignoreInitial: true,
     disableGlobbing: true,
     ignorePermissionErrors: true,
     // useFsEvents: true,
@@ -33,6 +33,40 @@ export function createRoutesContext(options: Required<Options>) {
     return path.slice(resolvedRoutesFolder.length + 1)
   }
 
+  async function scanPages() {
+    const routeFolders: string[] = [resolvedRoutesFolder]
+    const pattern = `**/*.{${options.extensions.join(',').replaceAll('.', '')}}`
+    const files = (
+      await Promise.all(
+        routeFolders.map((folder) =>
+          fg(pattern, { cwd: folder, followSymbolicLinks: true }).then(
+            (files) => files.flatMap((file) => resolve(folder, file))
+          )
+        )
+      )
+    ).flat()
+    // TODO: filter out excluded files
+
+    for (const file of files) {
+      addPage(file)
+    }
+    await _writeConfigFiles()
+  }
+
+  function addPage(path: string) {
+    console.log('added', path)
+    routeTree.insert(
+      stripRouteFolder(path),
+      // './' + path
+      resolve(root, path)
+    )
+  }
+
+  function removePage(path: string) {
+    console.log('remove', path)
+    routeTree.remove(stripRouteFolder(path))
+  }
+
   function setupWatcher() {
     serverWatcher
       .on('change', (path) => {
@@ -41,23 +75,13 @@ export function createRoutesContext(options: Required<Options>) {
         writeConfigFiles()
       })
       .on('add', (path) => {
-        console.log('added', path)
-        routeTree.insert(
-          stripRouteFolder(path),
-          // './' + path
-          resolve(root, path)
-        )
+        addPage(path)
         writeConfigFiles()
       })
       .on('unlink', (path) => {
-        console.log('remove', path)
-        routeTree.remove(stripRouteFolder(path))
+        removePage(path)
         writeConfigFiles()
       })
-  }
-
-  function stop() {
-    serverWatcher.close()
   }
 
   function generateRoutes() {
@@ -140,12 +164,16 @@ declare module 'vue' {
       }
     }
   }
-  const writeConfigFiles = throttle(_writeConfigFiles, 500)
+
+  // debounce of 100ms + throttle of 500ms
+  // => Initially wait 100ms (renames are actually remove and add but we rather write once) (debounce)
+  // subsequent calls after the first execution will wait 500ms-100ms to execute (throttling)
+  const writeConfigFiles = throttle(_writeConfigFiles, 500, 100)
 
   setupWatcher()
 
   return {
-    stop,
+    scanPages,
     writeConfigFiles,
 
     generateRoutes,

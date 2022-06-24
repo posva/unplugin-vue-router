@@ -2,6 +2,11 @@ import { isPackageExists } from 'local-pkg'
 
 export interface Options {
   extensions?: string[]
+  /**
+   * Folder containing the components that should be used for routes.
+   *
+   * @default "src/routes"
+   */
   routesFolder?: string
   importMode?:
     | 'sync'
