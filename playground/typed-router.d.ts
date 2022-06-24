@@ -8,9 +8,8 @@
 import type {
   _RouterTyped,
   RouteRecordInfo,
+  RouterLinkTyped,
   RouteLocationNormalizedLoadedTypedList,
-  RouteLocationAsRelativeTypedList,
-  RouteLocationAsPathTypedList,
   RouteLocationAsString,
   _ParamValue,
   _ParamValueOneOrMore,
@@ -49,4 +48,12 @@ declare module '@vue-router' {
 
   export type RouterTyped = _RouterTyped<RouteNamedMap>
   export function useRouter(): RouterTyped
+}
+
+declare module 'vue' {
+  import type { RouteNamedMap } from '@vue-router/routes'
+
+  export interface GlobalComponents {
+    RouterLink: RouterLinkTyped<RouteNamedMap>
+  }
 }

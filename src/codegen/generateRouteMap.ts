@@ -11,8 +11,15 @@ import type {
   RouteParams,
   NavigationGuardNext,
   NavigationFailure,
+  RouterLinkProps as _RouterLinkProps,
 } from 'vue-router'
-import type { Ref } from 'vue'
+import type {
+  AllowedComponentProps,
+  ComponentCustomProps,
+  Ref,
+  VNode,
+  VNodeProps,
+} from 'vue'
 import type { TreeLeaf } from '../core/tree'
 import { generateRouteParams } from './generateRouteParams'
 import type { LiteralStringUnion } from '../core/utils'
@@ -212,3 +219,28 @@ export interface _RouterTyped<
     guard: NavigationHookAfter<RouteMap>
   ): ReturnType<Router['beforeEach']>
 }
+
+// TODO: could this have a name generic to type the slot? is it
+
+export interface RouterLinkProps<RouteMap extends _RouteMapGeneric>
+  extends Omit<_RouterLinkProps, 'to'> {
+  to:
+    | RouteLocationAsString<RouteMap>
+    | RouteLocationAsRelativeTypedList<RouteMap>[keyof RouteMap]
+    | RouteLocationAsPathTypedList<RouteMap>[keyof RouteMap]
+}
+export interface RouterLinkTyped<RouteMap extends _RouteMapGeneric> {
+  new (): {
+    $props: AllowedComponentProps &
+      ComponentCustomProps &
+      VNodeProps &
+      RouterLinkProps<RouteMap>
+
+    $slots: {
+      // TODO: is it correct to use the resolve tip?
+      default: (arg: ReturnType<_RouterTyped<RouteMap>['resolve']>) => VNode[]
+    }
+  }
+}
+
+// TODO: typed useLink()

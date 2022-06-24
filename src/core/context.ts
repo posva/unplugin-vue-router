@@ -75,9 +75,8 @@ export function createRoutesContext(options: Required<Options>) {
 import type {
   _RouterTyped,
   RouteRecordInfo,
+  RouterLinkTyped,
   RouteLocationNormalizedLoadedTypedList,
-  RouteLocationAsRelativeTypedList,
-  RouteLocationAsPathTypedList,
   RouteLocationAsString,
   _ParamValue,
   _ParamValueOneOrMore,
@@ -100,6 +99,14 @@ declare module '${MODULE_VUE_ROUTER}' {
 
   export type RouterTyped = _RouterTyped<RouteNamedMap>
   export function useRouter(): RouterTyped
+}
+
+declare module 'vue' {
+  import type { RouteNamedMap } from '${MODULE_ROUTES_PATH}'
+
+  export interface GlobalComponents {
+    RouterLink: RouterLinkTyped<RouteNamedMap>
+  }
 }
 `
   }

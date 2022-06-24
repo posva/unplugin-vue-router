@@ -60,6 +60,8 @@ export default createUnplugin<Options>((opt) => {
 
 export type {
   _RouterTyped,
+  _RouteMapGeneric,
+  RouterLinkTyped,
   RouteRecordInfo,
   RouteLocationNormalizedTyped,
   // RouteLocationNormalizedTypedList,
