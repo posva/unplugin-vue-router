@@ -9,6 +9,8 @@ import type {
   Router,
   RouteParamsRaw,
   RouteParams,
+  NavigationGuardNext,
+  NavigationFailure,
 } from 'vue-router'
 import type { Ref } from 'vue'
 import type { TreeLeaf } from '../core/tree'
@@ -65,6 +67,10 @@ export interface RouteLocationNormalizedTyped<
   // we don't override path because it could contain params and in practice it's just not useful
   params: RouteMap[Name]['params']
 }
+
+export type RouteLocationNormalizedTypedList<
+  RouteMap extends _RouteMapGeneric = Record<string, RouteRecordInfo>
+> = { [N in keyof RouteMap]: RouteLocationNormalizedTyped<RouteMap, N> }
 
 export interface RouteLocationNormalizedLoadedTyped<
   RouteMap extends _RouteMapGeneric = Record<string, RouteRecordInfo>,
@@ -127,9 +133,49 @@ export type RouteLocationResolvedTypedList<
   RouteMap extends _RouteMapGeneric = Record<string, RouteRecordInfo>
 > = { [N in keyof RouteMap]: RouteLocationResolvedTyped<RouteMap, N> }
 
+// original is
+// type NavigationGuardReturn = void | Error | RouteLocationRaw | boolean | NavigationGuardNextCallback;
+type NavigationGuardReturn<RouteMap extends _RouteMapGeneric> =
+  | void
+  // | Error
+  | boolean
+  | RouteLocationAsString<RouteMap>
+  // | RouteLocationAsRelativeTyped<RouteMap, Name>
+  | RouteLocationAsRelativeTypedList<RouteMap>[keyof RouteMap]
+  | RouteLocationAsPathTypedList<RouteMap>[keyof RouteMap]
+// type NavigationGuardReturn = Exclude<ReturnType<NavigationGuard>, Promise<any> | RouteLocationRaw>
+
+export interface NavigationGuardWithThis<T, RouteMap extends _RouteMapGeneric> {
+  <Name extends keyof RouteMap>(
+    this: T,
+    to: RouteLocationNormalizedTypedList<RouteMap>[keyof RouteMap],
+    from: RouteLocationNormalizedLoadedTypedList<RouteMap>[keyof RouteMap],
+    // intentionally not typed to make people use the other version
+    next: NavigationGuardNext
+  ): NavigationGuardReturn<RouteMap> | Promise<NavigationGuardReturn<RouteMap>>
+}
+
+export interface NavigationHookAfter<
+  RouteMap extends _RouteMapGeneric = _RouteMapGeneric
+> {
+  (
+    to: RouteLocationNormalizedTypedList<RouteMap>[keyof RouteMap],
+    from: RouteLocationNormalizedLoadedTypedList<RouteMap>[keyof RouteMap],
+    failure?: NavigationFailure | void
+  ): any
+}
+
 export interface _RouterTyped<
   RouteMap extends _RouteMapGeneric = _RouteMapGeneric
-> extends Omit<Router, 'resolve' | 'push' | 'replace'> {
+> extends Omit<
+    Router,
+    | 'resolve'
+    | 'push'
+    | 'replace'
+    | 'beforeEach'
+    | 'beforeResolve'
+    | 'afterEach'
+  > {
   currentRoute: Ref<
     RouteLocationNormalizedLoadedTypedList<RouteMap>[keyof RouteMap]
   >
@@ -155,8 +201,14 @@ export interface _RouterTyped<
       | RouteLocationAsPathTyped<RouteMap, Name>,
     currentLocation?: RouteLocationNormalizedLoaded
   ): RouteLocationResolvedTypedList<RouteMap>[Name]
-}
 
-// export function useRoute
-//   Name extends keyof RouteNamedMap = keyof RouteNamedMap
-// >(name?: Name): RouteLocationNormalizedLoadedTypedList<RouteNamedMap>[Name]
+  beforeEach(
+    guard: NavigationGuardWithThis<undefined, RouteMap>
+  ): ReturnType<Router['beforeEach']>
+  beforeResolve(
+    guard: NavigationGuardWithThis<undefined, RouteMap>
+  ): ReturnType<Router['beforeEach']>
+  afterEach(
+    guard: NavigationHookAfter<RouteMap>
+  ): ReturnType<Router['beforeEach']>
+}
