@@ -1,17 +1,17 @@
 import { describe, it } from 'vitest'
 import { expectType } from 'ts-expect'
 import type {
-  RouteLocationTyped,
   RouteRecordInfo,
   _RouteMapGeneric,
-  _RouterTyped as RouterTyped,
-} from './generateRouteMap'
+} from '../codegen/generateRouteMap'
 import type {
   _ParamValue,
   _ParamValueOneOrMore,
   _ParamValueZeroOrOne,
   _ParamValueZeroOrMore,
-} from './generateRouteParams'
+} from '../codegen/generateRouteParams'
+import type { _RouterTyped as RouterTyped } from './router'
+import { RouteLocationTyped } from './routeLocation'
 
 function defineRouter<RM extends _RouteMapGeneric>(): RouterTyped<RM> {
   return {} as RouterTyped<RM>
