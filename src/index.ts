@@ -1,7 +1,7 @@
 import { createUnplugin } from 'unplugin'
 import { createRoutesContext } from './core/context'
 import {
-  MODULE_ROUTES_PATH,
+  MODULE_ROUTES_ID,
   MODULE_VUE_ROUTER,
   VIRTUAL_PREFIX,
 } from './core/moduleConstants'
@@ -30,7 +30,7 @@ export default createUnplugin<Options>((opt) => {
     enforce: 'pre',
 
     resolveId(id) {
-      if (id === MODULE_ROUTES_PATH) {
+      if (id === MODULE_ROUTES_ID) {
         // virtual module
         return asVirtualId(id)
       }
@@ -47,19 +47,13 @@ export default createUnplugin<Options>((opt) => {
 
     load(id) {
       const resolvedId = getVirtualId(id)
-      if (resolvedId === MODULE_ROUTES_PATH) {
+      if (resolvedId === MODULE_ROUTES_ID) {
         return ctx.generateRoutes()
       }
 
       // fallback
       return null
     },
-
-    vite: {
-      configureServer(server) {},
-    },
-
-    rollup: {},
   }
 })
 
