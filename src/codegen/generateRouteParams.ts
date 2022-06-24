@@ -1,4 +1,3 @@
-import type { RouteParamValueRaw } from 'vue-router'
 import { TreeLeaf } from '../core/tree'
 
 export function generateRouteParams(node: TreeLeaf, isRaw: boolean): string {
@@ -26,8 +25,8 @@ export function generateRouteParams(node: TreeLeaf, isRaw: boolean): string {
  * @internal
  */
 export type _ParamValueOneOrMore<isRaw extends boolean> = true extends isRaw
-  ? readonly [string | number, ...(string | number)[]]
-  : readonly [string, ...string[]]
+  ? [string | number, ...(string | number)[]]
+  : [string, ...string[]]
 
 /**
  * Utility type for raw and non raw params like :id*
@@ -35,8 +34,8 @@ export type _ParamValueOneOrMore<isRaw extends boolean> = true extends isRaw
  * @internal
  */
 export type _ParamValueZeroOrMore<isRaw extends boolean> = true extends isRaw
-  ? readonly (string | number)[] | undefined | null
-  : readonly string[] | undefined | null
+  ? (string | number)[] | undefined | null
+  : string[] | undefined | null
 
 /**
  * Utility type for raw and non raw params like :id?
@@ -44,7 +43,7 @@ export type _ParamValueZeroOrMore<isRaw extends boolean> = true extends isRaw
  * @internal
  */
 export type _ParamValueZeroOrOne<isRaw extends boolean> = true extends isRaw
-  ? RouteParamValueRaw
+  ? string | number | null | undefined
   : string
 
 /**

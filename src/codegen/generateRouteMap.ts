@@ -5,15 +5,15 @@ import type {
   RouteLocationNormalized,
   RouteLocationNormalizedLoaded,
   RouteMeta,
-  RouteParams,
-  RouteParamsRaw,
+  RouteRecordName,
   Router,
+  RouteParamsRaw,
+  RouteParams,
 } from 'vue-router'
 import type { Ref } from 'vue'
 import type { TreeLeaf } from '../core/tree'
 import { generateRouteParams } from './generateRouteParams'
 import type { LiteralStringUnion } from '../core/utils'
-import { RouteRecordName } from '@vue-router'
 
 export function generateRouteNamedMap(node: TreeLeaf): string {
   // root
@@ -55,11 +55,10 @@ export interface RouteRecordInfo<
   meta: Meta
 }
 
+export type _RouteMapGeneric = Record<string, RouteRecordInfo>
+
 export interface RouteLocationNormalizedTyped<
-  RouteMap extends Record<string, RouteRecordInfo> = Record<
-    string,
-    RouteRecordInfo
-  >,
+  RouteMap extends _RouteMapGeneric = Record<string, RouteRecordInfo>,
   Name extends keyof RouteMap = keyof RouteMap
 > extends RouteLocationNormalized {
   name: Extract<Name, RouteRecordName>
@@ -68,10 +67,7 @@ export interface RouteLocationNormalizedTyped<
 }
 
 export interface RouteLocationNormalizedLoadedTyped<
-  RouteMap extends Record<string, RouteRecordInfo> = Record<
-    string,
-    RouteRecordInfo
-  >,
+  RouteMap extends _RouteMapGeneric = Record<string, RouteRecordInfo>,
   Name extends keyof RouteMap = keyof RouteMap
 > extends RouteLocationNormalizedLoaded {
   name: Extract<Name, RouteRecordName>
@@ -80,17 +76,11 @@ export interface RouteLocationNormalizedLoadedTyped<
 }
 
 export type RouteLocationNormalizedLoadedTypedList<
-  RouteMap extends Record<string, RouteRecordInfo> = Record<
-    string,
-    RouteRecordInfo
-  >
+  RouteMap extends _RouteMapGeneric = Record<string, RouteRecordInfo>
 > = { [N in keyof RouteMap]: RouteLocationNormalizedLoadedTyped<RouteMap, N> }
 
 export interface RouteLocationAsRelativeTyped<
-  RouteMap extends Record<string, RouteRecordInfo> = Record<
-    string,
-    RouteRecordInfo
-  >,
+  RouteMap extends _RouteMapGeneric = Record<string, RouteRecordInfo>,
   Name extends keyof RouteMap = keyof RouteMap
 > extends RouteQueryAndHash,
     RouteLocationOptions {
@@ -99,17 +89,11 @@ export interface RouteLocationAsRelativeTyped<
 }
 
 export type RouteLocationAsRelativeTypedList<
-  RouteMap extends Record<string, RouteRecordInfo> = Record<
-    string,
-    RouteRecordInfo
-  >
+  RouteMap extends _RouteMapGeneric = Record<string, RouteRecordInfo>
 > = { [N in keyof RouteMap]: RouteLocationAsRelativeTyped<RouteMap, N> }
 
 export interface RouteLocationAsPathTyped<
-  RouteMap extends Record<string, RouteRecordInfo> = Record<
-    string,
-    RouteRecordInfo
-  >,
+  RouteMap extends _RouteMapGeneric = Record<string, RouteRecordInfo>,
   Name extends keyof RouteMap = keyof RouteMap
 > extends RouteQueryAndHash,
     RouteLocationOptions {
@@ -117,21 +101,15 @@ export interface RouteLocationAsPathTyped<
 }
 
 export type RouteLocationAsPathTypedList<
-  RouteMap extends Record<string, RouteRecordInfo> = Record<
-    string,
-    RouteRecordInfo
-  >
+  RouteMap extends _RouteMapGeneric = Record<string, RouteRecordInfo>
 > = { [N in keyof RouteMap]: RouteLocationAsPathTyped<RouteMap, N> }
 
 export type RouteLocationAsString<
-  RouteMap extends Record<string, RouteRecordInfo> = Record<
-    string,
-    RouteRecordInfo
-  >
+  RouteMap extends _RouteMapGeneric = Record<string, RouteRecordInfo>
 > = LiteralStringUnion<RouteMap[keyof RouteMap]['path'], string>
 
 export interface RouteLocationTyped<
-  RouteMap extends Record<string, RouteRecordInfo>,
+  RouteMap extends _RouteMapGeneric,
   Name extends keyof RouteMap
 > extends RouteLocation {
   name: Extract<Name, RouteRecordName>
@@ -139,44 +117,44 @@ export interface RouteLocationTyped<
 }
 
 export interface RouteLocationResolvedTyped<
-  RouteMap extends Record<string, RouteRecordInfo>,
+  RouteMap extends _RouteMapGeneric,
   Name extends keyof RouteMap
 > extends RouteLocationTyped<RouteMap, Name> {
   href: string
 }
 
 export type RouteLocationResolvedTypedList<
-  RouteMap extends Record<string, RouteRecordInfo> = Record<
-    string,
-    RouteRecordInfo
-  >
+  RouteMap extends _RouteMapGeneric = Record<string, RouteRecordInfo>
 > = { [N in keyof RouteMap]: RouteLocationResolvedTyped<RouteMap, N> }
 
 export interface _RouterTyped<
-  RouteMap extends Record<string, RouteRecordInfo> = Record<
-    string,
-    RouteRecordInfo
-  >
-> extends Router {
+  RouteMap extends _RouteMapGeneric = _RouteMapGeneric
+> extends Omit<Router, 'resolve' | 'push' | 'replace'> {
   currentRoute: Ref<
     RouteLocationNormalizedLoadedTypedList<RouteMap>[keyof RouteMap]
   >
 
-  resolve(
-    to: RouteLocationAsString<RouteMap>,
+  push<Name extends keyof RouteMap = keyof RouteMap>(
+    to:
+      | RouteLocationAsString<RouteMap>
+      | RouteLocationAsRelativeTyped<RouteMap, Name>
+      | RouteLocationAsPathTyped<RouteMap, Name>
+  ): ReturnType<Router['push']>
+
+  replace<Name extends keyof RouteMap = keyof RouteMap>(
+    to:
+      | RouteLocationAsString<RouteMap>
+      | RouteLocationAsRelativeTyped<RouteMap, Name>
+      | RouteLocationAsPathTyped<RouteMap, Name>
+  ): ReturnType<Router['replace']>
+
+  resolve<Name extends keyof RouteMap = keyof RouteMap>(
+    to:
+      | RouteLocationAsString<RouteMap>
+      | RouteLocationAsRelativeTyped<RouteMap, Name>
+      | RouteLocationAsPathTyped<RouteMap, Name>,
     currentLocation?: RouteLocationNormalizedLoaded
-  ): RouteLocationResolvedTypedList<RouteMap>[keyof RouteMap]
-  resolve(
-    to: RouteLocationAsPathTyped<RouteMap>,
-    currentLocation?: RouteLocationNormalizedLoaded
-  ): RouteLocationResolvedTypedList<RouteMap>[keyof RouteMap]
-  resolve<L extends RouteLocationAsRelativeTypedList<RouteMap>[keyof RouteMap]>(
-    to: L,
-    currentLocation?: RouteLocationNormalizedLoaded
-  ): L extends RouteLocationAsRelativeTyped<RouteMap, infer Name>
-    ? //
-      RouteLocationResolvedTyped<RouteMap, Name>
-    : RouteLocationResolvedTypedList<RouteMap>[keyof RouteMap]
+  ): RouteLocationResolvedTypedList<RouteMap>[Name]
 }
 
 // export function useRoute
