@@ -6,7 +6,7 @@
 
 This build-time plugin simplifies your routing setup **and** makes it safer and easier to use thanks to TypeScript.
 
-⚠️ This package is still experimental. If you found any issue, flow, or have ideas to improve it, please, [open an issue](/posva/unplugin-vue-router/issue/new).
+⚠️ This package is still experimental. If you found any issue, flow, or have ideas to improve it, please, [open an issue](https://github.com/posva/unplugin-vue-router/issues/new/choose).
 
 ## Install
 

@@ -14,4 +14,5 @@ export function createRouter(options) {
   })
 }
 
+// TODO: is there any case where this is necessary?
 export { createRouter as createSmartRouter }

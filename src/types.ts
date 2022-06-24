@@ -8,9 +8,7 @@ export interface Options {
     | 'async'
     | ((path: string, resolvedOptions: Options) => 'sync' | 'async')
 
-  ignore?: string[]
-
-  moduleId?: string
+  exclude?: string[]
 
   root?: string
 
@@ -28,10 +26,9 @@ export interface Options {
 
 export const DEFAULT_OPTIONS: Required<Options> = {
   extensions: ['.vue', '.js', '.jsx', '.ts', '.tsx'],
-  ignore: [],
+  exclude: [],
   routesFolder: 'src/routes',
   importMode: 'async',
-  moduleId: '@vue-router',
   root: process.cwd(),
   dts: isPackageExists('typescript'),
   _inspect: false,
