@@ -4,13 +4,13 @@
   <header>
     <div class="wrapper">
       <nav>
-        <!-- <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink> -->
-        <RouterLink to="/articles/2"></RouterLink>
-        <RouterLink
-          :to="{ name: '/[name]', params: { name: 'euuoea' } }"
-        ></RouterLink>
-        <RouterLink :to="{ path: '/articles/' }"></RouterLink>
+        <RouterLink to="/about">About</RouterLink>
+        <RouterLink :to="{ name: '/articles/[id]', params: { id: 2 } }"
+          >About</RouterLink
+        >
+        <RouterLink :to="{ path: '/articles', query: { test: 'query', n: 2 } }"
+          >About</RouterLink
+        >
       </nav>
     </div>
   </header>

@@ -78,6 +78,7 @@ import type {
   RouterLinkTyped,
   RouteLocationNormalizedLoadedTypedList,
   RouteLocationAsString,
+  NavigationGuard,
   _ParamValue,
   _ParamValueOneOrMore,
   _ParamValueZeroOrMore,
@@ -112,6 +113,9 @@ declare module '${MODULE_VUE_ROUTER}' {
   export type RouteParamsRaw<Name extends keyof RouteNamedMap> = RouteNamedMap[Name]['paramsRaw']
 
   export function useRouter(): RouterTyped
+
+  export function onBeforeRouteLeave(guard: NavigationGuard<RouteMap>): void
+  export function onBeforeRouteUpdate(guard: NavigationGuard<RouteMap>): void
 }
 
 declare module 'vue' {

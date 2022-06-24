@@ -1,23 +1,12 @@
 # unplugin-vue-router
 
-[![NPM version](https://img.shields.io/npm/v/unplugin-vue-router?color=a1b858&label=)](https://www.npmjs.com/package/unplugin-vue-router)
+[![NPM version](https://img.shields.io/npm/v/unplugin-vue-router?color=black&label=)](https://www.npmjs.com/package/unplugin-vue-router)
 
-Starter template for [unplugin](https://github.com/unjs/unplugin).
+> Zero-config File based type safe Routing
 
-## Template Usage
+This build-time plugin simplifies your routing setup **and** makes it safer and easier to use thanks to TypeScript.
 
-To use this template, clone it down using:
-
-```bash
-npx degit antfu/unplugin-vue-router my-unplugin
-```
-
-And do a global replace of `unplugin-vue-router` with your plugin name.
-
-Then you can start developing your unplugin 🔥
-
-To test your plugin, run: `pnpm run dev`
-To release a new version, run: `pnpm run release`
+⚠️ This package is still experimental. If you found any issue, flow, or have ideas to improve it, please, [open an issue](/posva/unplugin-vue-router/issue/new).
 
 ## Install
 
@@ -30,11 +19,13 @@ npm i unplugin-vue-router
 
 ```ts
 // vite.config.ts
-import Starter from 'unplugin-vue-router/vite'
+import VueRouter from 'unplugin-vue-router/vite'
 
 export default defineConfig({
   plugins: [
-    Starter({ /* options */ }),
+    VueRouter({
+      /* options */
+    }),
   ],
 })
 ```
@@ -48,17 +39,18 @@ Example: [`playground/`](./playground/)
 
 ```ts
 // rollup.config.js
-import Starter from 'unplugin-vue-router/rollup'
+import VueRouter from 'unplugin-vue-router/rollup'
 
 export default {
   plugins: [
-    Starter({ /* options */ }),
+    VueRouter({
+      /* options */
+    }),
   ],
 }
 ```
 
 <br></details>
-
 
 <details>
 <summary>Webpack</summary><br>
@@ -68,8 +60,10 @@ export default {
 module.exports = {
   /* ... */
   plugins: [
-    require('unplugin-vue-router/webpack')({ /* options */ })
-  ]
+    require('unplugin-vue-router/webpack')({
+      /* options */
+    }),
+  ],
 }
 ```
 
@@ -82,7 +76,12 @@ module.exports = {
 // nuxt.config.js
 export default {
   buildModules: [
-    ['unplugin-vue-router/nuxt', { /* options */ }],
+    [
+      'unplugin-vue-router/nuxt',
+      {
+        /* options */
+      },
+    ],
   ],
 }
 ```
@@ -99,10 +98,24 @@ export default {
 module.exports = {
   configureWebpack: {
     plugins: [
-      require('unplugin-vue-router/webpack')({ /* options */ }),
+      require('unplugin-vue-router/webpack')({
+        /* options */
+      }),
     ],
   },
 }
 ```
 
 <br></details>
+
+## Rationale
+
+This project idea came from trying to [type the router directly using Typescript](https://github.com/vuejs/router/pull/1397/commits/c577998f3edaa6a1eb9474c27ab6c58f6e2d7c8a), finding it out it's not fast enough to be pleasant to use and recurring to build-based tools, taking some Inspiration from other projects like:
+
+- [Nuxt](https://nuxtjs.org/) - The Vue.js Framework
+- [vite-plugin-pages](https://github.com/hannoeru/vite-plugin-pages) - Framework agnostic file based routing
+- [Typed Router for Nuxt](https://github.com/victorgarciaesgi/nuxt-typed-router) - A module to add typed routing to Nuxt
+
+## License
+
+[MIT](http://opensource.org/licenses/MIT)

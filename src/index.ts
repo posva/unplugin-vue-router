@@ -72,6 +72,7 @@ export type {
   RouteLocationAsPathTyped,
   RouteLocationAsPathTypedList,
   RouteLocationAsString,
+  NavigationGuard,
 } from './codegen/generateRouteMap'
 export type {
   _ParamValue,

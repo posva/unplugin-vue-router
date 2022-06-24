@@ -153,8 +153,17 @@ type NavigationGuardReturn<RouteMap extends _RouteMapGeneric> =
 // type NavigationGuardReturn = Exclude<ReturnType<NavigationGuard>, Promise<any> | RouteLocationRaw>
 
 export interface NavigationGuardWithThis<T, RouteMap extends _RouteMapGeneric> {
-  <Name extends keyof RouteMap>(
+  (
     this: T,
+    to: RouteLocationNormalizedTypedList<RouteMap>[keyof RouteMap],
+    from: RouteLocationNormalizedLoadedTypedList<RouteMap>[keyof RouteMap],
+    // intentionally not typed to make people use the other version
+    next: NavigationGuardNext
+  ): NavigationGuardReturn<RouteMap> | Promise<NavigationGuardReturn<RouteMap>>
+}
+
+export interface NavigationGuard<RouteMap extends _RouteMapGeneric> {
+  (
     to: RouteLocationNormalizedTypedList<RouteMap>[keyof RouteMap],
     from: RouteLocationNormalizedLoadedTypedList<RouteMap>[keyof RouteMap],
     // intentionally not typed to make people use the other version

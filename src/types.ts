@@ -6,13 +6,11 @@ export interface Options {
   importMode?:
     | 'sync'
     | 'async'
-    | ((path: string, resolvedOptions: any) => 'sync' | 'async')
+    | ((path: string, resolvedOptions: Options) => 'sync' | 'async')
 
   ignore?: string[]
 
-  routeStyle?: 'nuxt' | 'remix'
-
-  routesModuleId?: string
+  moduleId?: string
 
   root?: string
 
@@ -33,8 +31,7 @@ export const DEFAULT_OPTIONS: Required<Options> = {
   ignore: [],
   routesFolder: 'src/routes',
   importMode: 'async',
-  routeStyle: 'nuxt',
-  routesModuleId: '@routes',
+  moduleId: '@vue-router',
   root: process.cwd(),
   dts: isPackageExists('typescript'),
   _inspect: false,
