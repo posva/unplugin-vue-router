@@ -98,6 +98,19 @@ declare module '${MODULE_VUE_ROUTER}' {
   export function useRoute<Name extends keyof RouteNamedMap = keyof RouteNamedMap>(name?: Name): RouteLocationNormalizedLoadedTypedList<RouteNamedMap>[Name]
 
   export type RouterTyped = _RouterTyped<RouteNamedMap>
+  /**
+   * Generate a type safe route location. Requires the name of the route to be passed as a generic.
+   */
+  export type Route<Name extends keyof RouteNamedMap> = RouteLocationNormalizedLoadedTypedList<RouteNamedMap>[Name]
+  /**
+   * Generate a type safe params for a route location. Requires the name of the route to be passed as a generic.
+   */
+  export type RouteParams<Name extends keyof RouteNamedMap> = RouteNamedMap[Name]['params']
+  /**
+   * Generate a type safe raw params for a route location. Requires the name of the route to be passed as a generic.
+   */
+  export type RouteParamsRaw<Name extends keyof RouteNamedMap> = RouteNamedMap[Name]['paramsRaw']
+
   export function useRouter(): RouterTyped
 }
 
