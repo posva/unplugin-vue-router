@@ -51,7 +51,6 @@
   },
   "files": [
     "dist",
-    "@vue-router",
     "*.d.ts"
   ],
   "scripts": {

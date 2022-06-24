@@ -1,7 +1,7 @@
 import { createUnplugin } from 'unplugin'
 import { createRoutesContext } from './core/context'
 import {
-  MODULE_ROUTES_ID,
+  MODULE_ROUTES_PATH,
   MODULE_VUE_ROUTER,
   VIRTUAL_PREFIX,
 } from './core/moduleConstants'
@@ -30,13 +30,14 @@ export default createUnplugin<Options>((opt) => {
     enforce: 'pre',
 
     resolveId(id) {
-      if (id === MODULE_ROUTES_ID) {
+      if (id === MODULE_ROUTES_PATH) {
         // virtual module
         return asVirtualId(id)
       }
       // NOTE: it wasn't possible to override or add new exports to vue-router
+      // so we need to override it with a different package name
       if (id === MODULE_VUE_ROUTER) {
-        return 'unplugin-vue-router/@vue-router/index.js'
+        return asVirtualId(id)
       }
       return null
     },
@@ -45,10 +46,20 @@ export default createUnplugin<Options>((opt) => {
       return ctx.scanPages()
     },
 
+    buildEnd() {
+      ctx.stopWatcher()
+    },
+
     load(id) {
       const resolvedId = getVirtualId(id)
-      if (resolvedId === MODULE_ROUTES_ID) {
+      if (resolvedId === MODULE_ROUTES_PATH) {
         return ctx.generateRoutes()
+      }
+
+      // we need to use a virtual module so that vite resolves the @vue-router/routes
+      // dependency correctly
+      if (resolvedId === MODULE_VUE_ROUTER) {
+        return ctx.generateVueRouterProxy()
       }
 
       // fallback

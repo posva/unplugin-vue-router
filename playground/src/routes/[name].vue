@@ -1,7 +1,11 @@
 <script lang="ts" setup>
-import { useRoute, useRouter, onBeforeRouteLeave, onBeforeRouteUpdate } from '@vue-router'
+import {
+  useRoute,
+  useRouter,
+  onBeforeRouteLeave,
+  onBeforeRouteUpdate,
+} from '@vue-router'
 import type { RouterTyped } from '@vue-router'
-
 
 const router = useRouter()
 if (router.currentRoute.value.name === '/[name]') {
@@ -10,16 +14,15 @@ if (router.currentRoute.value.name === '/[name]') {
   router.currentRoute.value.params.id
 }
 
-onBeforeRouteUpdate(to => {
+onBeforeRouteUpdate((to) => {
   if (to.name === '/articles/[id]' && to.params.id === '2') {
     to.params.id
   }
 })
 
-
-router.resolve({ path: ''})
+router.resolve({ path: '' })
 router.resolve({ path: '/articles/:id' })
-router.resolve({name: '/[name]', params: {name: 2}}).params.name
+router.resolve({ name: '/[name]', params: { name: 2 } }).params.name
 const routeLocation = router.resolve('/articles/id')
 if (routeLocation.name === '/[name]') {
   routeLocation.params.name
@@ -34,7 +37,7 @@ if (route.name == '/articles/[id]') {
 useRoute('/multiple-[a]-[b]-params').params
 useRoute<'/[name]'>().params.name
 // @ts-expect-error: /about doesn't have params
-useRoute<'/about'>('/about').params.never}
+useRoute<'/about'>('/about').params.never
 </script>
 
 <template>

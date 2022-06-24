@@ -152,6 +152,22 @@ declare module 'vue' {
 `
   }
 
+  function generateVueRouterProxy() {
+    return `
+import { routes } from '@vue-router/routes'
+import { createRouter as _createRouter } from 'vue-router'
+
+export * from 'vue-router'
+
+export function createRouter(options) {
+  return _createRouter({
+    routes,
+    ...options,
+  })
+}
+`
+  }
+
   let lastDTS: string | undefined
   async function _writeConfigFiles() {
     console.log('writing')
@@ -172,10 +188,17 @@ declare module 'vue' {
 
   setupWatcher()
 
+  function stopWatcher() {
+    serverWatcher.close()
+  }
+
   return {
     scanPages,
     writeConfigFiles,
 
+    stopWatcher,
+
     generateRoutes,
+    generateVueRouterProxy,
   }
 }
