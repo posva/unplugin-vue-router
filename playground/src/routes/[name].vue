@@ -10,10 +10,9 @@ if (router.currentRoute.value.name === '/[name]') {
   router.currentRoute.value.params.id
 }
 
-router.myResolve({ name: '/about'})
 
-router.resolve({ name: '/[name]' })
-router.resolve({ path: '/articles/eoueo' })
+router.resolve({ path: ''})
+router.resolve({ path: '/articles/:id' })
 router.resolve({name: '/[name]', params: {name: 2}}).params.name
 const routeLocation = router.resolve('/articles/id')
 if (routeLocation.name === '/[name]') {

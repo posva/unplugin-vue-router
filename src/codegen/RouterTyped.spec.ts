@@ -63,6 +63,18 @@ describe('RouterTyped', () => {
         router.resolve({ path: '/a' }).name
       )
       expectType<keyof RouteMap>(router.resolve({ path: '/a' }).name)
+
+      router.push({ name: '/a', params: { a: 2 } })
+      // @ts-expect-error
+      router.push({ name: '/[a]', params: {} })
+      // still allow relative params
+      router.push({ name: '/[a]' })
+      // @ts-expect-error
+      router.push({ name: '/[a]', params: { a: [2] } })
+      router.push({ name: '/[id]+', params: { id: [2] } })
+      router.push({ name: '/[id]+', params: { id: [2, '3'] } })
+      // @ts-expect-error
+      router.push({ name: '/[id]+', params: { id: 2 } })
     }
   })
 })
