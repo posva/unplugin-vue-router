@@ -6,7 +6,7 @@
 
 This build-time plugin simplifies your routing setup **and** makes it safer and easier to use thanks to TypeScript.
 
-⚠️ This package is still experimental. If you found any issue, flow, or have ideas to improve it, please, [open an issue](https://github.com/posva/unplugin-vue-router/issues/new/choose).
+⚠️ This package is still experimental. If you found any issue, design flaw, or have ideas to improve it, please, open an [issue](https://github.com/posva/unplugin-vue-router/issues/new/choose) or a [Discussion](https://github.com/posva/unplugin-vue-router/discussions).
 
 ## Install
 
@@ -107,6 +107,24 @@ module.exports = {
 ```
 
 <br></details>
+
+Make sure to also check [the TypeScript section](#typescript) below if you are using TypeScript.
+
+## Configuration
+
+Have a glimpse of all the existing configuration options with their corresponding **default values**:
+
+```ts
+VueRouter({
+  // Folder(s) to scan for vue components and generate routes. Can be a string or an array of strings.
+  routesFolder: 'src/routes'
+  // Path for the generated types. Defaults to `./typed-router.d.ts` if typescript
+  // is installed. Can be disabled by passing `false`.
+  dts: './typed-router.d.ts',
+})
+```
+
+## TypeScript
 
 ## Rationale
 
