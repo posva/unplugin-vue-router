@@ -67,10 +67,10 @@
   "dependencies": {
     "chokidar": "^3.5.3",
     "local-pkg": "^0.4.1",
+    "scule": "^0.2.1",
     "unplugin": "^0.7.0"
   },
   "devDependencies": {
-    "@types/node": "^17.0.34",
     "bumpp": "^8.1.0",
     "esno": "^0.16.3",
     "fast-glob": "^3.2.11",

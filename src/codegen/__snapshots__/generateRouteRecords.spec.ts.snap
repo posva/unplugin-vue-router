@@ -4,12 +4,12 @@ exports[`generateRouteRecord > adds children and name when folder and component 
 "[
   {
     path: \\"/a\\",
-    name: \\"/a\\",
+    name: \\"A\\",
     component: () => import('a.vue'),
     children: [
       {
         path: \\"c\\",
-        name: \\"/a/c\\",
+        name: \\"AC\\",
         component: () => import('a/c.vue'),
         /* no children */
       }
@@ -22,7 +22,7 @@ exports[`generateRouteRecord > adds children and name when folder and component 
     children: [
       {
         path: \\"c\\",
-        name: \\"/b/c\\",
+        name: \\"BC\\",
         component: () => import('b/c.vue'),
         /* no children */
       }
@@ -30,7 +30,7 @@ exports[`generateRouteRecord > adds children and name when folder and component 
   },
   {
     path: \\"/d\\",
-    name: \\"/d\\",
+    name: \\"D\\",
     component: () => import('d.vue'),
     /* no children */
   }
@@ -41,7 +41,7 @@ exports[`generateRouteRecord > correctly names index.vue files 1`] = `
 "[
   {
     path: \\"/\\",
-    name: \\"/\\",
+    name: \\"Root\\",
     component: () => import('index.vue'),
     /* no children */
   },
@@ -52,9 +52,95 @@ exports[`generateRouteRecord > correctly names index.vue files 1`] = `
     children: [
       {
         path: \\"\\",
-        name: \\"/b/\\",
+        name: \\"B\\",
         component: () => import('b/index.vue'),
         /* no children */
+      }
+    ],
+  }
+]"
+`;
+
+exports[`generateRouteRecord > names > creates single word names 1`] = `
+"[
+  {
+    path: \\"/\\",
+    name: \\"Root\\",
+    component: () => import('index.vue'),
+    /* no children */
+  },
+  {
+    path: \\"/about\\",
+    name: \\"About\\",
+    component: () => import('about.vue'),
+    /* no children */
+  },
+  {
+    path: \\"/users\\",
+    /* no name */
+    /* no component */
+    children: [
+      {
+        path: \\"\\",
+        name: \\"Users\\",
+        component: () => import('users/index.vue'),
+        /* no children */
+      },
+      {
+        path: \\":id\\",
+        name: \\"Users$id\\",
+        component: () => import('users/[id].vue'),
+        children: [
+          {
+            path: \\"edit\\",
+            name: \\"Users$idEdit\\",
+            component: () => import('users/[id]/edit.vue'),
+            /* no children */
+          }
+        ],
+      },
+      {
+        path: \\"new\\",
+        name: \\"UsersNew\\",
+        component: () => import('users/new.vue'),
+        /* no children */
+      }
+    ],
+  }
+]"
+`;
+
+exports[`generateRouteRecord > names > works with nested views 1`] = `
+"[
+  {
+    path: \\"/\\",
+    name: \\"Root\\",
+    component: () => import('index.vue'),
+    /* no children */
+  },
+  {
+    path: \\"/users\\",
+    name: \\"UsersParent\\",
+    component: () => import('users.vue'),
+    children: [
+      {
+        path: \\"\\",
+        name: \\"Users\\",
+        component: () => import('users/index.vue'),
+        /* no children */
+      },
+      {
+        path: \\":id\\",
+        name: \\"Users$id\\",
+        component: () => import('users/[id].vue'),
+        children: [
+          {
+            path: \\"edit\\",
+            name: \\"Users$idEdit\\",
+            component: () => import('users/[id]/edit.vue'),
+            /* no children */
+          }
+        ],
       }
     ],
   }
@@ -70,19 +156,19 @@ exports[`generateRouteRecord > nested children 1`] = `
     children: [
       {
         path: \\"a\\",
-        name: \\"/a/a\\",
+        name: \\"AA\\",
         component: () => import('a/a.vue'),
         /* no children */
       },
       {
         path: \\"b\\",
-        name: \\"/a/b\\",
+        name: \\"AB\\",
         component: () => import('a/b.vue'),
         /* no children */
       },
       {
         path: \\"c\\",
-        name: \\"/a/c\\",
+        name: \\"AC\\",
         component: () => import('a/c.vue'),
         /* no children */
       }
@@ -95,19 +181,19 @@ exports[`generateRouteRecord > nested children 1`] = `
     children: [
       {
         path: \\"b\\",
-        name: \\"/b/b\\",
+        name: \\"BB\\",
         component: () => import('b/b.vue'),
         /* no children */
       },
       {
         path: \\"c\\",
-        name: \\"/b/c\\",
+        name: \\"BC\\",
         component: () => import('b/c.vue'),
         /* no children */
       },
       {
         path: \\"d\\",
-        name: \\"/b/d\\",
+        name: \\"BD\\",
         component: () => import('b/d.vue'),
         /* no children */
       }
@@ -125,19 +211,19 @@ exports[`generateRouteRecord > nested children 2`] = `
     children: [
       {
         path: \\"a\\",
-        name: \\"/a/a\\",
+        name: \\"AA\\",
         component: () => import('a/a.vue'),
         /* no children */
       },
       {
         path: \\"b\\",
-        name: \\"/a/b\\",
+        name: \\"AB\\",
         component: () => import('a/b.vue'),
         /* no children */
       },
       {
         path: \\"c\\",
-        name: \\"/a/c\\",
+        name: \\"AC\\",
         component: () => import('a/c.vue'),
         /* no children */
       }
@@ -150,19 +236,19 @@ exports[`generateRouteRecord > nested children 2`] = `
     children: [
       {
         path: \\"b\\",
-        name: \\"/b/b\\",
+        name: \\"BB\\",
         component: () => import('b/b.vue'),
         /* no children */
       },
       {
         path: \\"c\\",
-        name: \\"/b/c\\",
+        name: \\"BC\\",
         component: () => import('b/c.vue'),
         /* no children */
       },
       {
         path: \\"d\\",
-        name: \\"/b/d\\",
+        name: \\"BD\\",
         component: () => import('b/d.vue'),
         /* no children */
       }
@@ -170,13 +256,13 @@ exports[`generateRouteRecord > nested children 2`] = `
   },
   {
     path: \\"/c\\",
-    name: \\"/c\\",
+    name: \\"C\\",
     component: () => import('c.vue'),
     /* no children */
   },
   {
     path: \\"/d\\",
-    name: \\"/d\\",
+    name: \\"D\\",
     component: () => import('d.vue'),
     /* no children */
   }
@@ -187,19 +273,19 @@ exports[`generateRouteRecord > works with some paths at root 1`] = `
 "[
   {
     path: \\"/a\\",
-    name: \\"/a\\",
+    name: \\"A\\",
     component: () => import('a.vue'),
     /* no children */
   },
   {
     path: \\"/b\\",
-    name: \\"/b\\",
+    name: \\"B\\",
     component: () => import('b.vue'),
     /* no children */
   },
   {
     path: \\"/c\\",
-    name: \\"/c\\",
+    name: \\"C\\",
     component: () => import('c.vue'),
     /* no children */
   }

@@ -1,10 +1,11 @@
-import type { Options } from '../options'
 import { joinPath, trimExtension } from './utils'
 
 export const enum TreeLeafType {
   static,
   param,
 }
+
+export type SubSegment = string | TreeRouteParam
 
 class _TreeLeafValueBase {
   /**
@@ -19,10 +20,12 @@ class _TreeLeafValueBase {
    * transformed version of the segment into a vue-router path
    */
   pathSegment: string
+
   /**
-   * name of the route
+   * Array of sub segments. This is usually one single elements but can have more for paths like `prefix-[param]-end.vue`
    */
-  routeName: string
+  subSegments: SubSegment[]
+
   /**
    * fullPath of the node based on parent nodes
    */
@@ -36,18 +39,18 @@ class _TreeLeafValueBase {
   constructor(
     rawSegment: string,
     parent: TreeLeafValue | undefined,
-    options: Options,
-    pathSegment: string = rawSegment
+    pathSegment: string = rawSegment,
+    subSegments: SubSegment[] = [rawSegment]
   ) {
     // type should be defined in child
     this._type = 0
     this.rawSegment = rawSegment
     this.pathSegment = pathSegment
+    this.subSegments = subSegments
     this.path =
       !parent?.path && this.pathSegment === ''
         ? '/'
         : joinPath(parent?.path || '', this.pathSegment)
-    this.routeName = options.getRouteName(this as TreeLeafValue, parent)
   }
 
   toString(): string {
@@ -66,12 +69,8 @@ class _TreeLeafValueBase {
 export class TreeLeafValueStatic extends _TreeLeafValueBase {
   _type: TreeLeafType.static = TreeLeafType.static
 
-  constructor(
-    rawSegment: string,
-    parent: TreeLeafValue | undefined,
-    options: Options
-  ) {
-    super(rawSegment, parent, options)
+  constructor(rawSegment: string, parent: TreeLeafValue | undefined) {
+    super(rawSegment, parent)
   }
 }
 
@@ -92,9 +91,9 @@ export class TreeLeafValueParam extends _TreeLeafValueBase {
     parent: TreeLeafValue | undefined,
     params: TreeRouteParam[],
     pathSegment: string,
-    options: Options
+    subSegments: SubSegment[]
   ) {
-    super(rawSegment, parent, options, pathSegment)
+    super(rawSegment, parent, pathSegment, subSegments)
     this.params = params
   }
 }
@@ -102,16 +101,15 @@ export class TreeLeafValueParam extends _TreeLeafValueBase {
 export type TreeLeafValue = TreeLeafValueStatic | TreeLeafValueParam
 
 export function createTreeLeafValue(
-  options: Options,
   segment: string,
   parent?: TreeLeafValue
 ): TreeLeafValue {
   const trimmedSegment = trimExtension(segment)
   if (!trimmedSegment || trimmedSegment === 'index') {
-    return new TreeLeafValueStatic('', parent, options)
+    return new TreeLeafValueStatic('', parent)
   }
 
-  const [pathSegment, params] = parseSegment(trimmedSegment)
+  const [pathSegment, params, subSegments] = parseSegment(trimmedSegment)
 
   if (params.length) {
     return new TreeLeafValueParam(
@@ -119,11 +117,11 @@ export function createTreeLeafValue(
       parent,
       params,
       pathSegment,
-      options
+      subSegments
     )
   }
 
-  return new TreeLeafValueStatic(trimmedSegment, parent, options)
+  return new TreeLeafValueStatic(trimmedSegment, parent)
 }
 
 const enum ParseSegmentState {
@@ -139,17 +137,21 @@ const enum ParseSegmentState {
  * @param segment - segment to parse without the extension
  * @returns - the pathSegment and the params
  */
-function parseSegment(segment: string): [string, TreeRouteParam[]] {
+function parseSegment(
+  segment: string
+): [string, TreeRouteParam[], SubSegment[]] {
   let buffer = ''
   let state: ParseSegmentState = ParseSegmentState.static
   const params: TreeRouteParam[] = []
   let pathSegment = ''
+  const subSegments: SubSegment[] = []
   let currentTreeRouteParam: TreeRouteParam = createEmptyRouteParam()
 
   function consumeBuffer() {
     if (state === ParseSegmentState.static) {
       // add the buffer to the path segment as is
       pathSegment += buffer
+      subSegments.push(buffer)
     } else if (state === ParseSegmentState.modifier) {
       currentTreeRouteParam.paramName = buffer
       currentTreeRouteParam.modifier = currentTreeRouteParam.optional
@@ -164,6 +166,7 @@ function parseSegment(segment: string): [string, TreeRouteParam[]] {
         currentTreeRouteParam.isSplat ? '(.*)' : ''
       }${currentTreeRouteParam.modifier}`
       params.push(currentTreeRouteParam)
+      subSegments.push(currentTreeRouteParam)
       currentTreeRouteParam = createEmptyRouteParam()
     }
     buffer = ''
@@ -228,7 +231,7 @@ function parseSegment(segment: string): [string, TreeRouteParam[]] {
     consumeBuffer()
   }
 
-  return [pathSegment, params]
+  return [pathSegment, params, subSegments]
 }
 
 function createEmptyRouteParam(): TreeRouteParam {

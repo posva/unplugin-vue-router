@@ -17,7 +17,7 @@ ${Array.from(node.children.values())
   const startIndent = ' '.repeat(indent * 2)
   const indentStr = ' '.repeat((indent + 1) * 2)
 
-  const name = node.value.routeName
+  const name = node.options.getRouteName(node)
 
   return `${startIndent}{
 ${indentStr}path: "${(parent ? '' : '/') + node.value.pathSegment}",

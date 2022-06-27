@@ -14,13 +14,19 @@ export class TreeLeaf {
   children: Map<string, TreeLeaf> = new Map()
 
   /**
+   * Parent node.
+   */
+  parent?: TreeLeaf
+
+  /**
    * Plugin options taken into account by the tree.
    */
   options: Options
 
   constructor(options: Options, value: string, parent?: TreeLeaf) {
     this.options = options
-    this.value = createTreeLeafValue(options, value, parent?.value)
+    this.parent = parent
+    this.value = createTreeLeafValue(value, parent?.value)
   }
 
   /**
@@ -93,6 +99,5 @@ export class TreeLeaf {
 }
 
 export function createPrefixTree(options: Options) {
-  const tree = new TreeLeaf(options, '')
-  return tree
+  return new TreeLeaf(options, '')
 }

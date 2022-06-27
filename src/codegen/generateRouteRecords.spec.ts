@@ -51,4 +51,73 @@ describe('generateRouteRecord', () => {
     tree.insert('b/index.vue')
     expect(generateRouteRecord(tree)).toMatchSnapshot()
   })
+
+  describe('names', () => {
+    it('creates single word names', () => {
+      const tree = createPrefixTree(DEFAULT_OPTIONS)
+      tree.insert('index.vue')
+      tree.insert('about.vue')
+      tree.insert('users/index.vue')
+      tree.insert('users/[id].vue')
+      tree.insert('users/[id]/edit.vue')
+      tree.insert('users/new.vue')
+
+      expect(generateRouteRecord(tree)).toMatchSnapshot()
+    })
+
+    it('creates multi word names', () => {
+      const tree = createPrefixTree(DEFAULT_OPTIONS)
+      tree.insert('index.vue')
+      tree.insert('my-users.vue')
+      tree.insert('MyPascalCaseUsers.vue')
+      tree.insert('some-nested/file-with-[id]-in-the-middle.vue')
+
+      expect(generateRouteRecord(tree)).toMatchInlineSnapshot(`
+        "[
+          {
+            path: \\"/\\",
+            name: \\"Root\\",
+            component: () => import('index.vue'),
+            /* no children */
+          },
+          {
+            path: \\"/my-users\\",
+            name: \\"MyUsers\\",
+            component: () => import('my-users.vue'),
+            /* no children */
+          },
+          {
+            path: \\"/MyPascalCaseUsers\\",
+            name: \\"MyPascalCaseUsers\\",
+            component: () => import('MyPascalCaseUsers.vue'),
+            /* no children */
+          },
+          {
+            path: \\"/some-nested\\",
+            /* no name */
+            /* no component */
+            children: [
+              {
+                path: \\"file-with-:id-in-the-middle\\",
+                name: \\"SomeNestedFileWith$idInTheMiddle\\",
+                component: () => import('some-nested/file-with-[id]-in-the-middle.vue'),
+                /* no children */
+              }
+            ],
+          }
+        ]"
+      `)
+    })
+
+    it('works with nested views', () => {
+      const tree = createPrefixTree(DEFAULT_OPTIONS)
+      tree.insert('index.vue')
+      tree.insert('users.vue')
+      tree.insert('users/index.vue')
+      tree.insert('users/[id]/edit.vue')
+      tree.insert('users/[id].vue')
+
+      expect(generateRouteRecord(tree)).toMatchSnapshot()
+    })
+  })
 })

@@ -1,5 +1,6 @@
 import { isPackageExists } from 'local-pkg'
-import { getRouteName } from './core/utils'
+import type { TreeLeaf } from './core/tree'
+import { getRouteName, getFileBasedRouteName } from './core/utils'
 
 export interface Options {
   extensions?: string[]
@@ -13,7 +14,7 @@ export interface Options {
   /**
    * Method to generate the name of a route.
    */
-  getRouteName: typeof getRouteName
+  getRouteName: (node: TreeLeaf) => string
 
   importMode?:
     | 'sync'
@@ -40,7 +41,7 @@ export const DEFAULT_OPTIONS: Required<Options> = {
   extensions: ['.vue', '.js', '.jsx', '.ts', '.tsx'],
   exclude: [],
   routesFolder: 'src/routes',
-  getRouteName,
+  getRouteName: getFileBasedRouteName,
   importMode: 'async',
   root: process.cwd(),
   dts: isPackageExists('typescript'),

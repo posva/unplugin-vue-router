@@ -17,7 +17,6 @@ describe('Tree', () => {
     expect(child).toBeDefined()
     expect(child.value).toMatchObject({
       rawSegment: 'foo',
-      routeName: '/foo',
       path: '/foo',
       _type: TreeLeafType.static,
     })
@@ -32,7 +31,6 @@ describe('Tree', () => {
     expect(child).toBeDefined()
     expect(child.value).toMatchObject({
       rawSegment: '[id]',
-      routeName: '/[id]',
       params: [{ paramName: 'id' }],
       path: '/:id',
       _type: TreeLeafType.param,
@@ -61,16 +59,30 @@ describe('Tree', () => {
     const index = tree.children.get('index')!
     expect(index.value).toMatchObject({
       rawSegment: '',
-      routeName: '/',
       path: '/',
     })
     expect(index).toBeDefined()
-    const aIndex = tree.children.get('a')!.children.get('index')!
+    const a = tree.children.get('a')!
+    expect(a).toBeDefined()
+    expect(a.value.filePath).toBeUndefined()
+    expect(a.value).toMatchObject({
+      rawSegment: 'a',
+      path: '/a',
+    })
+    expect(Array.from(a.children.keys())).toEqual(['index', 'b'])
+    const aIndex = a.children.get('index')!
     expect(aIndex).toBeDefined()
+    expect(Array.from(aIndex.children.keys())).toEqual([])
     expect(aIndex.value).toMatchObject({
       rawSegment: '',
-      routeName: '/a/',
       path: '/a/',
+    })
+
+    tree.insert('a.vue')
+    expect(a.value.filePath).toBe('a.vue')
+    expect(a.value).toMatchObject({
+      rawSegment: 'a',
+      path: '/a',
     })
   })
 
@@ -82,7 +94,6 @@ describe('Tree', () => {
     expect(child).toBeDefined()
     expect(child.value).toMatchObject({
       rawSegment: '[id]+',
-      routeName: '/[id]+',
       params: [{ paramName: 'id', modifier: '+' }],
       path: '/:id+',
       pathSegment: ':id+',

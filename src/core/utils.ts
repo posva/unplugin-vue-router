@@ -1,5 +1,6 @@
 import { TreeLeaf } from './tree'
-import { TreeLeafValue } from './treeLeafValue'
+import type { TreeRouteParam } from './treeLeafValue'
+import { pascalCase } from 'scule'
 
 export type Awaitable<T> = T | PromiseLike<T>
 
@@ -99,10 +100,52 @@ export function joinPath(...paths: string[]): string {
   return result
 }
 
-export function getRouteName(
-  node: TreeLeafValue,
-  parent: TreeLeafValue | undefined | null
-) {
-  // the root has an empty rawSegment and should have an empty name too so children do not start with an extra /
-  return parent ? parent.routeName + '/' + node.rawSegment : ''
+function paramToName({ paramName, modifier, isSplat }: TreeRouteParam) {
+  return `${isSplat ? '$$' : '$'}${paramName}${
+    modifier
+    // ? modifier === '+'
+    //   ? 'OneOrMore'
+    //   : modifier === '?'
+    //   ? 'ZeroOrOne'
+    //   : 'ZeroOrMore'
+    // : ''
+  }`
+}
+
+/**
+ * Creates a name based of the node path segments.
+ *
+ * @param node - the node to get the path from
+ * @param parent - the parent node
+ * @returns a route name
+ */
+export function getRouteName(node: TreeLeaf): string {
+  if (node.parent?.isRoot() && node.value.pathSegment === '') return 'Root'
+
+  let name = node.value.subSegments
+    .map((segment) => {
+      if (typeof segment === 'string') {
+        return pascalCase(segment)
+      }
+      // else it's a param
+      return paramToName(segment)
+    })
+    .join('')
+
+  if (node.value.filePath && node.children.has('index')) {
+    name += 'Parent'
+  }
+
+  const parent = node.parent
+
+  return (
+    (parent && !parent.isRoot()
+      ? getRouteName(parent).replace(/Parent$/, '')
+      : '') + name
+  )
+}
+
+export function getFileBasedRouteName(node: TreeLeaf): string {
+  if (!node.parent) return ''
+  return getFileBasedRouteName(node.parent) + '/' + node.value.rawSegment
 }
