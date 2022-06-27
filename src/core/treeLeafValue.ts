@@ -1,3 +1,4 @@
+import type { Options } from '../options'
 import { joinPath, trimExtension } from './utils'
 
 export const enum TreeLeafType {
@@ -34,7 +35,8 @@ class _TreeLeafValueBase {
 
   constructor(
     rawSegment: string,
-    parent: _TreeLeafValueBase | undefined,
+    parent: TreeLeafValue | undefined,
+    options: Options,
     pathSegment: string = rawSegment
   ) {
     // type should be defined in child
@@ -45,8 +47,7 @@ class _TreeLeafValueBase {
       !parent?.path && this.pathSegment === ''
         ? '/'
         : joinPath(parent?.path || '', this.pathSegment)
-    // the root has an empty rawSegment and should have an empty name too so children do not start with an extra /
-    this.routeName = parent ? parent.routeName + '/' + rawSegment : ''
+    this.routeName = options.getRouteName(this as TreeLeafValue, parent)
   }
 
   toString(): string {
@@ -65,8 +66,12 @@ class _TreeLeafValueBase {
 export class TreeLeafValueStatic extends _TreeLeafValueBase {
   _type: TreeLeafType.static = TreeLeafType.static
 
-  constructor(rawSegment: string, parent: _TreeLeafValueBase | undefined) {
-    super(rawSegment, parent)
+  constructor(
+    rawSegment: string,
+    parent: TreeLeafValue | undefined,
+    options: Options
+  ) {
+    super(rawSegment, parent, options)
   }
 }
 
@@ -84,11 +89,12 @@ export class TreeLeafValueParam extends _TreeLeafValueBase {
 
   constructor(
     rawSegment: string,
-    parent: _TreeLeafValueBase | undefined,
+    parent: TreeLeafValue | undefined,
     params: TreeRouteParam[],
-    pathSegment: string
+    pathSegment: string,
+    options: Options
   ) {
-    super(rawSegment, parent, pathSegment)
+    super(rawSegment, parent, options, pathSegment)
     this.params = params
   }
 }
@@ -96,21 +102,28 @@ export class TreeLeafValueParam extends _TreeLeafValueBase {
 export type TreeLeafValue = TreeLeafValueStatic | TreeLeafValueParam
 
 export function createTreeLeafValue(
+  options: Options,
   segment: string,
   parent?: TreeLeafValue
 ): TreeLeafValue {
   const trimmedSegment = trimExtension(segment)
   if (!trimmedSegment || trimmedSegment === 'index') {
-    return new TreeLeafValueStatic('', parent)
+    return new TreeLeafValueStatic('', parent, options)
   }
 
   const [pathSegment, params] = parseSegment(trimmedSegment)
 
   if (params.length) {
-    return new TreeLeafValueParam(trimmedSegment, parent, params, pathSegment)
+    return new TreeLeafValueParam(
+      trimmedSegment,
+      parent,
+      params,
+      pathSegment,
+      options
+    )
   }
 
-  return new TreeLeafValueStatic(trimmedSegment, parent)
+  return new TreeLeafValueStatic(trimmedSegment, parent, options)
 }
 
 const enum ParseSegmentState {

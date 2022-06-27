@@ -18,7 +18,7 @@ export function createRoutesContext(options: Required<Options>) {
       ? resolve(root, 'typed-router.d.ts')
       : resolve(root, preferDTS)
 
-  const routeTree = createPrefixTree()
+  const routeTree = createPrefixTree(options)
 
   const resolvedRoutesFolder = resolve(root, options.routesFolder)
   const serverWatcher = chokidar.watch(resolvedRoutesFolder, {

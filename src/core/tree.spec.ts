@@ -1,15 +1,16 @@
 import { describe, expect, it } from 'vitest'
+import { DEFAULT_OPTIONS } from '../options'
 import { createPrefixTree } from './tree'
 import { TreeLeafType } from './treeLeafValue'
 
 describe('Tree', () => {
   it('creates an empty tree', () => {
-    const tree = createPrefixTree()
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
     expect(tree.children.size).toBe(0)
   })
 
   it('creates a tree with a single static path', () => {
-    const tree = createPrefixTree()
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
     tree.insert('foo.vue')
     expect(tree.children.size).toBe(1)
     const child = tree.children.get('foo')!
@@ -24,7 +25,7 @@ describe('Tree', () => {
   })
 
   it('creates a tree with a single param', () => {
-    const tree = createPrefixTree()
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
     tree.insert('[id].vue')
     expect(tree.children.size).toBe(1)
     const child = tree.children.get('[id]')!
@@ -40,7 +41,7 @@ describe('Tree', () => {
   })
 
   it('handles multiple params', () => {
-    const tree = createPrefixTree()
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
     tree.insert('[a]-[b].vue')
     tree.insert('o[a]-[b]c.vue')
     tree.insert('o[a][b]c.vue')
@@ -52,7 +53,7 @@ describe('Tree', () => {
   })
 
   it('creates a tree of nested routes', () => {
-    const tree = createPrefixTree()
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
     tree.insert('index.vue')
     tree.insert('a/index.vue')
     tree.insert('a/b/index.vue')
@@ -74,7 +75,7 @@ describe('Tree', () => {
   })
 
   it('handles a modifier for single params', () => {
-    const tree = createPrefixTree()
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
     tree.insert('[id]+.vue')
     expect(tree.children.size).toBe(1)
     const child = tree.children.get('[id]+')!
@@ -91,7 +92,7 @@ describe('Tree', () => {
   })
 
   it('removes nodes', () => {
-    const tree = createPrefixTree()
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
     tree.insert('foo.vue')
     tree.insert('[id].vue')
     tree.remove('foo.vue')
@@ -108,7 +109,7 @@ describe('Tree', () => {
   })
 
   it('removes empty folders', () => {
-    const tree = createPrefixTree()
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
     tree.insert('a/b/c/d.vue')
     expect(tree.children.size).toBe(1)
     tree.remove('a/b/c/d.vue')
@@ -116,7 +117,7 @@ describe('Tree', () => {
   })
 
   it('keeps parent with file but no children', () => {
-    const tree = createPrefixTree()
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
     tree.insert('a/b/c/d.vue')
     tree.insert('a/b.vue')
     expect(tree.children.size).toBe(1)

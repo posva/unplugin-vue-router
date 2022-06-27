@@ -101,7 +101,7 @@ export function joinPath(...paths: string[]): string {
 
 export function getRouteName(
   node: TreeLeafValue,
-  parent: TreeLeafValue | undefined
+  parent: TreeLeafValue | undefined | null
 ) {
   // the root has an empty rawSegment and should have an empty name too so children do not start with an extra /
   return parent ? parent.routeName + '/' + node.rawSegment : ''

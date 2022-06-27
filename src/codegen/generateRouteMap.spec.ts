@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { generateRouteNamedMap } from './generateRouteMap'
 import { createPrefixTree } from '../core/tree'
+import { DEFAULT_OPTIONS } from '../options'
 
 function formatExports(exports: string) {
   return exports
@@ -11,7 +12,7 @@ function formatExports(exports: string) {
 
 describe('generateRouteNamedMap', () => {
   it('works with some paths at root', () => {
-    const tree = createPrefixTree()
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
     tree.insert('a.vue')
     tree.insert('b.vue')
     tree.insert('c.vue')
@@ -25,7 +26,7 @@ describe('generateRouteNamedMap', () => {
   })
 
   it('adds params', () => {
-    const tree = createPrefixTree()
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
     tree.insert('[a].vue')
     tree.insert('partial-[a].vue')
     tree.insert('[[a]].vue') // optional
@@ -47,7 +48,7 @@ describe('generateRouteNamedMap', () => {
   })
 
   it('adds nested params', () => {
-    const tree = createPrefixTree()
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
     tree.insert('n/[a].vue') // normal
     // tree.insert('n/partial-[a].vue') // partial
     tree.insert('n/[[a]].vue') // optional
@@ -66,7 +67,7 @@ describe('generateRouteNamedMap', () => {
   })
 
   it('nested children', () => {
-    const tree = createPrefixTree()
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
     tree.insert('a/a.vue')
     tree.insert('a/b.vue')
     tree.insert('a/c.vue')

@@ -1,4 +1,5 @@
 import { isPackageExists } from 'local-pkg'
+import { getRouteName } from './core/utils'
 
 export interface Options {
   extensions?: string[]
@@ -8,6 +9,12 @@ export interface Options {
    * @default "src/routes"
    */
   routesFolder?: string
+
+  /**
+   * Method to generate the name of a route.
+   */
+  getRouteName: typeof getRouteName
+
   importMode?:
     | 'sync'
     | 'async'
@@ -33,6 +40,7 @@ export const DEFAULT_OPTIONS: Required<Options> = {
   extensions: ['.vue', '.js', '.jsx', '.ts', '.tsx'],
   exclude: [],
   routesFolder: 'src/routes',
+  getRouteName,
   importMode: 'async',
   root: process.cwd(),
   dts: isPackageExists('typescript'),
