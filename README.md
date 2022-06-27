@@ -70,27 +70,6 @@ module.exports = {
 <br></details>
 
 <details>
-<summary>Nuxt</summary><br>
-
-```ts
-// nuxt.config.js
-export default {
-  buildModules: [
-    [
-      'unplugin-vue-router/nuxt',
-      {
-        /* options */
-      },
-    ],
-  ],
-}
-```
-
-> This module works for both Nuxt 2 and [Nuxt Vite](https://github.com/nuxt/vite)
-
-<br></details>
-
-<details>
 <summary>Vue CLI</summary><br>
 
 ```ts

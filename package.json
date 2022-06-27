@@ -39,10 +39,6 @@
       "require": "./dist/rollup.js",
       "import": "./dist/rollup.mjs"
     },
-    "./nuxt": {
-      "require": "./dist/nuxt.js",
-      "import": "./dist/nuxt.mjs"
-    },
     "./types": {
       "require": "./dist/types.js",
       "import": "./dist/types.mjs"
