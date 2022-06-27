@@ -1,4 +1,5 @@
 import { TreeLeaf } from './tree'
+import { TreeLeafValue } from './treeLeafValue'
 
 export type Awaitable<T> = T | PromiseLike<T>
 
@@ -6,63 +7,46 @@ export type LiteralStringUnion<LiteralType, BaseType extends string = string> =
   | LiteralType
   | (BaseType & Record<never, never>)
 
-const MAX_LEVEL = 1000
-export class LogTree {
-  setPre(hasNext: boolean, parentPre = '') {
-    return `${parentPre}${hasNext ? '├' : '└'}── `
-  }
-
-  setTransferPre(parentPre: string, hasNext: boolean) {
-    return `${parentPre}${hasNext ? '│' : ' '}   `
-  }
-
-  parse(
-    tree: TreeLeaf | TreeLeaf['children'],
-    level = 0,
-    parentPre = '',
-    treeStr = ''
-  ) {
-    if (!this.check(tree, level)) return ''
-
-    if (tree instanceof Map) {
-      const total = tree.size
-      let index = 0
-      for (const [key, child] of tree) {
-        const hasNext = index++ < total - 1
-        const { children } = child
-
-        treeStr += `${this.setPre(hasNext, parentPre)}${child}\n`
-
-        if (children) {
-          treeStr += this.parse(
-            children,
-            level + 1,
-            this.setTransferPre(parentPre, hasNext)
-          )
-        }
-      }
-    } else {
-      const children = tree.children
-      treeStr = `${tree}\n`
-      if (children) {
-        treeStr += this.parse(children, level + 1)
-      }
-    }
-
-    return treeStr
-  }
-
-  check(tree: TreeLeaf | TreeLeaf['children'], level = 0) {
-    if (typeof tree !== 'object') return false
-    if (level >= MAX_LEVEL) return false
-
-    return true
-  }
+export function logTree(tree: TreeLeaf) {
+  console.log(printTree(tree))
 }
 
-export function logTree(tree: TreeLeaf) {
-  const log = new LogTree()
-  console.log(log.parse(tree))
+const MAX_LEVEL = 1000
+function printTree(
+  tree: TreeLeaf | TreeLeaf['children'],
+  level = 0,
+  parentPre = '',
+  treeStr = ''
+): string {
+  // end of recursion
+  if (typeof tree !== 'object' || level >= MAX_LEVEL) return ''
+
+  if (tree instanceof Map) {
+    const total = tree.size
+    let index = 0
+    for (const [_key, child] of tree) {
+      const hasNext = index++ < total - 1
+      const { children } = child
+
+      treeStr += `${`${parentPre}${hasNext ? '├' : '└'}── `}${child}\n`
+
+      if (children) {
+        treeStr += printTree(
+          children,
+          level + 1,
+          `${parentPre}${hasNext ? '│' : ' '}   `
+        )
+      }
+    }
+  } else {
+    const children = tree.children
+    treeStr = `${tree}\n`
+    if (children) {
+      treeStr += printTree(children, level + 1)
+    }
+  }
+
+  return treeStr
 }
 
 /**
@@ -113,4 +97,12 @@ export function joinPath(...paths: string[]): string {
       path.replace(LEADING_SLASH_RE, '')
   }
   return result
+}
+
+export function getRouteName(
+  node: TreeLeafValue,
+  parent: TreeLeafValue | undefined
+) {
+  // the root has an empty rawSegment and should have an empty name too so children do not start with an extra /
+  return parent ? parent.routeName + '/' + node.rawSegment : ''
 }
