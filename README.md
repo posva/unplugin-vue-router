@@ -128,7 +128,7 @@ VueRouter({
 
 ## Rationale
 
-This project idea came from trying to [type the router directly using Typescript](https://github.com/vuejs/router/pull/1397/commits/c577998f3edaa6a1eb9474c27ab6c58f6e2d7c8a), finding it out it's not fast enough to be pleasant to use and recurring to build-based tools, taking some Inspiration from other projects like:
+This project idea came from trying [to type the router directly using Typescript](https://github.com/vuejs/router/pull/1397/commits/c577998f3edaa6a1eb9474c27ab6c58f6e2d7c8a), finding out it's not fast enough to be pleasant to use and, ending up using build-based tools, taking some inspiration from other projects like:
 
 - [Nuxt](https://nuxtjs.org/) - The Vue.js Framework
 - [vite-plugin-pages](https://github.com/hannoeru/vite-plugin-pages) - Framework agnostic file based routing
