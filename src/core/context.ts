@@ -120,8 +120,6 @@ ${generateRouteNamedMap(routeTree)
 declare module '${MODULE_VUE_ROUTER}' {
   import type { RouteNamedMap } from '${MODULE_ROUTES_PATH}'
 
-  export function useRoute<Name extends keyof RouteNamedMap = keyof RouteNamedMap>(name?: Name): RouteLocationNormalizedLoadedTypedList<RouteNamedMap>[Name]
-
   export type RouterTyped = _RouterTyped<RouteNamedMap>
   /**
    * Generate a type safe route location. Requires the name of the route to be passed as a generic.
@@ -137,6 +135,7 @@ declare module '${MODULE_VUE_ROUTER}' {
   export type RouteParamsRaw<Name extends keyof RouteNamedMap> = RouteNamedMap[Name]['paramsRaw']
 
   export function useRouter(): RouterTyped
+  export function useRoute<Name extends keyof RouteNamedMap = keyof RouteNamedMap>(name?: Name): RouteLocationNormalizedLoadedTypedList<RouteNamedMap>[Name]
 
   export function onBeforeRouteLeave(guard: NavigationGuard<RouteMap>): void
   export function onBeforeRouteUpdate(guard: NavigationGuard<RouteMap>): void
