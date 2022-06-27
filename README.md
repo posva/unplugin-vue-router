@@ -108,6 +108,19 @@ module.exports = {
 
 <br></details>
 
+Then you can replace your imports from `vue-router` to `@vue-router`:
+
+```diff
+-import { createRouter, createWebHistory } from 'vue-router'
++import { createRouter, createWebHistory } from '@vue-router'
+
+createRouter({
+  history: createWebHistory(),
+  // You don't need to pass the routes anymore,
+  // the plugin writes it for you 🤖
+})
+```
+
 Make sure to also check [the TypeScript section](#typescript) below if you are using TypeScript.
 
 ## Configuration
@@ -125,6 +138,18 @@ VueRouter({
 ```
 
 ## TypeScript
+
+This plugin generates a `d.ts` file with all the typing overrides. Make sure to include it in your `tsconfig.json`'s `include` or `files` property:
+
+```json
+{
+  // ...
+  "include": [/* ... */ "typed-router.d.ts"]
+  // ...
+}
+```
+
+Make sure to import from `@vue-router` to get access to the typed APIs instead of `vue-router`. You can commit the `typed-router.d.ts` file to your repository to make your life easier.
 
 ## Rationale
 
