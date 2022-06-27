@@ -68,6 +68,8 @@ export default createUnplugin<Options>((opt) => {
   }
 })
 
+export { getFileBasedRouteName, getPascalCaseRouteName } from './core/utils'
+
 // TODO: normalize the naming: _Name for internals that should never be used by the users or to avoid conflicts (e.g. the _RouterTyped typ is used in the generated d.ts to create a typed instance of the router)
 export type {
   _RouteMapGeneric,

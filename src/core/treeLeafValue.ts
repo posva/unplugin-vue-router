@@ -181,7 +181,8 @@ function parseSegment(
         // check if it's an optional param or not
         state = ParseSegmentState.paramOptional
       } else {
-        buffer += c
+        // allows for nested paths without nesting the views
+        buffer += c === '.' ? '/' : c
       }
     } else if (state === ParseSegmentState.paramOptional) {
       if (c === '[') {

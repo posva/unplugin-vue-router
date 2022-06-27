@@ -101,7 +101,9 @@ export function joinPath(...paths: string[]): string {
 }
 
 function paramToName({ paramName, modifier, isSplat }: TreeRouteParam) {
-  return `${isSplat ? '$$' : '$'}${paramName}${
+  return `${isSplat ? '$' : ''}${
+    paramName.charAt(0).toUpperCase() + paramName.slice(1)
+  }${
     modifier
     // ? modifier === '+'
     //   ? 'OneOrMore'
@@ -119,7 +121,7 @@ function paramToName({ paramName, modifier, isSplat }: TreeRouteParam) {
  * @param parent - the parent node
  * @returns a route name
  */
-export function getRouteName(node: TreeLeaf): string {
+export function getPascalCaseRouteName(node: TreeLeaf): string {
   if (node.parent?.isRoot() && node.value.pathSegment === '') return 'Root'
 
   let name = node.value.subSegments
@@ -140,11 +142,17 @@ export function getRouteName(node: TreeLeaf): string {
 
   return (
     (parent && !parent.isRoot()
-      ? getRouteName(parent).replace(/Parent$/, '')
+      ? getPascalCaseRouteName(parent).replace(/Parent$/, '')
       : '') + name
   )
 }
 
+/**
+ * Joins the path segments of a node into a name that corresponds to the filepath represented by the node.
+ *
+ * @param node - the node to get the path from
+ * @returns a route name
+ */
 export function getFileBasedRouteName(node: TreeLeaf): string {
   if (!node.parent) return ''
   return getFileBasedRouteName(node.parent) + '/' + node.value.rawSegment

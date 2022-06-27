@@ -34,8 +34,8 @@ declare module '@vue-router/routes' {
     '/n-[[n]]/': RouteRecordInfo<'/n-[[n]]/', '/n-:n?/', Record<never, never>, Record<never, never>>,
     '/n-[[n]]/[[more]]+/[final]': RouteRecordInfo<'/n-[[n]]/[[more]]+/[final]', '/n-:n?/:more*/:final', { final: _ParamValue<true> }, { final: _ParamValue<false> }>,
     '/n-[[n]]/[[more]]+/': RouteRecordInfo<'/n-[[n]]/[[more]]+/', '/n-:n?/:more*/', Record<never, never>, Record<never, never>>,
+    '/users/[id].edit': RouteRecordInfo<'/users/[id].edit', '/users/:id/edit', { id: _ParamValue<true> }, { id: _ParamValue<false> }>,
     '/users/[id]': RouteRecordInfo<'/users/[id]', '/users/:id', { id: _ParamValue<true> }, { id: _ParamValue<false> }>,
-    '/users/edit': RouteRecordInfo<'/users/edit', '/users/edit', Record<never, never>, Record<never, never>>,
     '/users/': RouteRecordInfo<'/users/', '/users/', Record<never, never>, Record<never, never>>,
     '/deep/nesting/works/[[files]]+': RouteRecordInfo<'/deep/nesting/works/[[files]]+', '/deep/nesting/works/:files*', { files?: _ParamValueZeroOrMore<true> }, { files?: _ParamValueZeroOrMore<false> }>,
     '/deep/nesting/works/too': RouteRecordInfo<'/deep/nesting/works/too', '/deep/nesting/works/too', Record<never, never>, Record<never, never>>,
@@ -44,8 +44,6 @@ declare module '@vue-router/routes' {
 
 declare module '@vue-router' {
   import type { RouteNamedMap } from '@vue-router/routes'
-
-  export function useRoute<Name extends keyof RouteNamedMap = keyof RouteNamedMap>(name?: Name): RouteLocationNormalizedLoadedTypedList<RouteNamedMap>[Name]
 
   export type RouterTyped = _RouterTyped<RouteNamedMap>
   /**
@@ -62,13 +60,24 @@ declare module '@vue-router' {
   export type RouteParamsRaw<Name extends keyof RouteNamedMap> = RouteNamedMap[Name]['paramsRaw']
 
   export function useRouter(): RouterTyped
+  export function useRoute<Name extends keyof RouteNamedMap = keyof RouteNamedMap>(name?: Name): RouteLocationNormalizedLoadedTypedList<RouteNamedMap>[Name]
 
-  export function onBeforeRouteLeave(guard: NavigationGuard<RouteMap>): void
-  export function onBeforeRouteUpdate(guard: NavigationGuard<RouteMap>): void
+  export function onBeforeRouteLeave(guard: NavigationGuard<RouteNamedMap>): void
+  export function onBeforeRouteUpdate(guard: NavigationGuard<RouteNamedMap>): void
 }
 
-declare module 'vue' {
+declare module '@vue/runtime-core' {
   import type { RouteNamedMap } from '@vue-router/routes'
+
+  export interface ComponentCustomOptions {
+    beforeRouteUpdate?: NavigationGuard<RouteNamedMap>
+    beforeRouteLeave?: NavigationGuard<RouteNamedMap>
+  }
+
+  export interface ComponentCustomProperties {
+    $route: RouteLocationNormalizedLoadedTypedList<RouteNamedMap>[keyof RouteNamedMap]
+    $router: _RouterTyped<RouteNamedMap>
+  }
 
   export interface GlobalComponents {
     RouterLink: RouterLinkTyped<RouteNamedMap>

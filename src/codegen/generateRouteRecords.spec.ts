@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createPrefixTree } from '../core/tree'
 import { DEFAULT_OPTIONS } from '../options'
+import { RouteRecordRaw } from 'vue-router'
 import { generateRouteRecord } from './generateRouteRecords'
 
 describe('generateRouteRecord', () => {
@@ -52,6 +53,20 @@ describe('generateRouteRecord', () => {
     expect(generateRouteRecord(tree)).toMatchSnapshot()
   })
 
+  it('handles non nested routes', () => {
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    tree.insert('users.vue')
+    tree.insert('users/index.vue')
+    tree.insert('users/other.vue')
+    tree.insert('users.not-nested.vue')
+    tree.insert('users/[id]/index.vue')
+    tree.insert('users/[id]/other.vue')
+    tree.insert('users/[id].vue')
+    tree.insert('users/[id].not-nested.vue')
+    tree.insert('users.[id].also-not-nested.vue')
+    expect(generateRouteRecord(tree)).toMatchSnapshot()
+  })
+
   describe('names', () => {
     it('creates single word names', () => {
       const tree = createPrefixTree(DEFAULT_OPTIONS)
@@ -72,41 +87,7 @@ describe('generateRouteRecord', () => {
       tree.insert('MyPascalCaseUsers.vue')
       tree.insert('some-nested/file-with-[id]-in-the-middle.vue')
 
-      expect(generateRouteRecord(tree)).toMatchInlineSnapshot(`
-        "[
-          {
-            path: \\"/\\",
-            name: \\"Root\\",
-            component: () => import('index.vue'),
-            /* no children */
-          },
-          {
-            path: \\"/my-users\\",
-            name: \\"MyUsers\\",
-            component: () => import('my-users.vue'),
-            /* no children */
-          },
-          {
-            path: \\"/MyPascalCaseUsers\\",
-            name: \\"MyPascalCaseUsers\\",
-            component: () => import('MyPascalCaseUsers.vue'),
-            /* no children */
-          },
-          {
-            path: \\"/some-nested\\",
-            /* no name */
-            /* no component */
-            children: [
-              {
-                path: \\"file-with-:id-in-the-middle\\",
-                name: \\"SomeNestedFileWith$idInTheMiddle\\",
-                component: () => import('some-nested/file-with-[id]-in-the-middle.vue'),
-                /* no children */
-              }
-            ],
-          }
-        ]"
-      `)
+      expect(generateRouteRecord(tree)).toMatchSnapshot()
     })
 
     it('works with nested views', () => {

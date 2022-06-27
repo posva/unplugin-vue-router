@@ -137,12 +137,22 @@ declare module '${MODULE_VUE_ROUTER}' {
   export function useRouter(): RouterTyped
   export function useRoute<Name extends keyof RouteNamedMap = keyof RouteNamedMap>(name?: Name): RouteLocationNormalizedLoadedTypedList<RouteNamedMap>[Name]
 
-  export function onBeforeRouteLeave(guard: NavigationGuard<RouteMap>): void
-  export function onBeforeRouteUpdate(guard: NavigationGuard<RouteMap>): void
+  export function onBeforeRouteLeave(guard: NavigationGuard<RouteNamedMap>): void
+  export function onBeforeRouteUpdate(guard: NavigationGuard<RouteNamedMap>): void
 }
 
-declare module 'vue' {
+declare module '@vue/runtime-core' {
   import type { RouteNamedMap } from '${MODULE_ROUTES_PATH}'
+
+  export interface ComponentCustomOptions {
+    beforeRouteUpdate?: NavigationGuard<RouteNamedMap>
+    beforeRouteLeave?: NavigationGuard<RouteNamedMap>
+  }
+
+  export interface ComponentCustomProperties {
+    $route: RouteLocationNormalizedLoadedTypedList<RouteNamedMap>[keyof RouteNamedMap]
+    $router: _RouterTyped<RouteNamedMap>
+  }
 
   export interface GlobalComponents {
     RouterLink: RouterLinkTyped<RouteNamedMap>

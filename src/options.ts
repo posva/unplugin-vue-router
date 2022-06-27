@@ -1,6 +1,6 @@
 import { isPackageExists } from 'local-pkg'
 import type { TreeLeaf } from './core/tree'
-import { getRouteName, getFileBasedRouteName } from './core/utils'
+import { getFileBasedRouteName } from './core/utils'
 
 export interface Options {
   extensions?: string[]

@@ -7,6 +7,8 @@ import {
 } from '@vue-router'
 import type { RouterTyped } from '@vue-router'
 
+// const $route = useRoute()
+
 const router = useRouter()
 if (router.currentRoute.value.name === '/[name]') {
   router.currentRoute.value.params.name
@@ -17,6 +19,14 @@ if (router.currentRoute.value.name === '/[name]') {
 onBeforeRouteUpdate((to) => {
   if (to.name === '/articles/[id]' && to.params.id === '2') {
     to.params.id
+  }
+})
+
+onBeforeRouteLeave((to, from) => {
+  if (from.name === '/[name]') {
+    from.params.name
+  } else if (to.name === '/articles/[id]+') {
+    to.params.id.map((id) => id)
   }
 })
 
