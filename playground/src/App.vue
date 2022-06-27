@@ -9,7 +9,7 @@ route.name === '/about'
   <header>
     <div class="wrapper">
       <nav>
-        <RouterLink to="/about">About</RouterLink>
+        <RouterLink to="/added-during-runtime/[...path]">About</RouterLink>
         <RouterLink :to="{ name: '/articles/[id]', params: { id: 2 } }"
           >About</RouterLink
         >
