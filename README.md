@@ -120,7 +120,7 @@ VueRouter({
 
 This plugin generates a `d.ts` file with all the typing overrides. Make sure to include it in your `tsconfig.json`'s `include` or `files` property:
 
-```json
+```js
 {
   // ...
   "include": [/* ... */ "typed-router.d.ts"]
