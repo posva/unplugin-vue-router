@@ -24,4 +24,4 @@ jobs:
       #     NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
       - run: npx conventional-github-releaser -p angular
         env:
-          CONVENTIONAL_GITHUB_RELEASER_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          CONVENTIONAL_GITHUB_RELEASER_TOKEN: ${{secrets.GH_TOKEN}}

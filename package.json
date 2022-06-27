@@ -66,6 +66,14 @@
     "scule": "^0.2.1",
     "unplugin": "^0.7.0"
   },
+  "peerDependencies": {
+    "vue-router": "^4.1.0"
+  },
+  "peerDependenciesMeta": {
+    "vue-router": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "bumpp": "^8.1.0",
     "esno": "^0.16.3",
