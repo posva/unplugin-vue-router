@@ -1,4 +1,3 @@
-import { extname } from 'pathe'
 import type { Options } from '../options'
 import { createTreeLeafValue } from './treeLeafValue'
 import type { TreeLeafValue } from './treeLeafValue'
@@ -24,10 +23,10 @@ export class TreeLeaf {
    */
   options: Options
 
-  constructor(options: Options, value: string, parent?: TreeLeaf) {
+  constructor(options: Options, filePath: string, parent?: TreeLeaf) {
     this.options = options
     this.parent = parent
-    this.value = createTreeLeafValue(value, parent?.value)
+    this.value = createTreeLeafValue(filePath, parent?.value)
   }
 
   /**
@@ -37,22 +36,10 @@ export class TreeLeaf {
    * @param filePath - file path, defaults to path for convenience and testing
    */
   insert(path: string, filePath: string = path) {
-    const slashPos = path.indexOf('/')
-    let head = slashPos < 0 ? path : path.slice(0, slashPos)
-    const tail = slashPos < 0 ? '' : path.slice(slashPos + 1)
-    let viewName = 'default'
-
-    let segment = trimExtension(head)
-
-    if (segment.includes('@')) {
-      ;[segment, viewName] = segment.split('@')
-      head = segment + extname(head)
-    }
-
-    const isComponent = segment !== head
+    const { tail, segment, viewName, isComponent } = splitFilePath(path)
 
     if (!this.children.has(segment)) {
-      this.children.set(segment, new TreeLeaf(this.options, head, this))
+      this.children.set(segment, new TreeLeaf(this.options, segment, this))
     }
     const child = this.children.get(segment)!
 
@@ -72,24 +59,12 @@ export class TreeLeaf {
   }
 
   remove(path: string) {
-    const slashPos = path.indexOf('/')
-    let head = slashPos < 0 ? path : path.slice(0, slashPos)
-    const tail = slashPos < 0 ? '' : path.slice(slashPos + 1)
-
-    let segment = trimExtension(head)
-    let viewName = 'default'
-
-    if (segment.includes('@')) {
-      ;[segment, viewName] = segment.split('@')
-      head = segment + extname(head)
-    }
-
-    const isComponent = segment !== head
+    const { tail, segment, viewName, isComponent } = splitFilePath(path)
 
     const child = this.children.get(segment)
     if (!child) {
       throw new Error(
-        `Cannot Delete "${path}". "${head}" not found at "${this.value.path}".`
+        `Cannot Delete "${path}". "${segment}" not found at "${this.value.path}".`
       )
     }
 
@@ -126,4 +101,39 @@ export class TreeLeaf {
 
 export function createPrefixTree(options: Options) {
   return new TreeLeaf(options, '')
+}
+
+/**
+ * Splits a path into by finding the first '/' and returns the tail and segment. If it has an extension, it removes it.
+ * If it contains a named view, it returns the view name as well (otherwise it's default).
+ *
+ * @param filePath - filePath to split
+ */
+function splitFilePath(filePath: string) {
+  const slashPos = filePath.indexOf('/')
+  let head = slashPos < 0 ? filePath : filePath.slice(0, slashPos)
+  const tail = slashPos < 0 ? '' : filePath.slice(slashPos + 1)
+
+  let segment = head
+  // only the last segment can be a filename with an extension
+  if (!tail) {
+    segment = trimExtension(head)
+  }
+  let viewName = 'default'
+
+  const namedSeparatorPos = segment.indexOf('@')
+
+  if (namedSeparatorPos > 0) {
+    viewName = segment.slice(namedSeparatorPos + 1)
+    segment = segment.slice(0, namedSeparatorPos)
+  }
+
+  const isComponent = segment !== head
+
+  return {
+    segment,
+    tail,
+    viewName,
+    isComponent,
+  }
 }

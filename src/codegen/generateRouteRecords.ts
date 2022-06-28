@@ -27,7 +27,7 @@ ${indentStr}${
     node.value.filePaths.size
       ? `components: {
 ${Array.from(node.value.filePaths)
-  .map(([key, path]) => `${indentStr + '  '}${key}: () => import('${path}')`)
+  .map(([key, path]) => `${indentStr + '  '}'${key}': () => import('${path}')`)
   .join(',\n')}
 ${indentStr}},`
       : '/* no component */'

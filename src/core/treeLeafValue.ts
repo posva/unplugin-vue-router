@@ -106,16 +106,15 @@ export function createTreeLeafValue(
   segment: string,
   parent?: TreeLeafValue
 ): TreeLeafValue {
-  const trimmedSegment = trimExtension(segment)
-  if (!trimmedSegment || trimmedSegment === 'index') {
+  if (!segment || segment === 'index') {
     return new TreeLeafValueStatic('', parent)
   }
 
-  const [pathSegment, params, subSegments] = parseSegment(trimmedSegment)
+  const [pathSegment, params, subSegments] = parseSegment(segment)
 
   if (params.length) {
     return new TreeLeafValueParam(
-      trimmedSegment,
+      segment,
       parent,
       params,
       pathSegment,
@@ -123,7 +122,7 @@ export function createTreeLeafValue(
     )
   }
 
-  return new TreeLeafValueStatic(trimmedSegment, parent)
+  return new TreeLeafValueStatic(segment, parent)
 }
 
 const enum ParseSegmentState {
