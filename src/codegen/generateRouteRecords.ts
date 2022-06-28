@@ -21,10 +21,12 @@ ${Array.from(node.children.values())
 
   return `${startIndent}{
 ${indentStr}path: "${(parent ? '' : '/') + node.value.pathSegment}",
-${indentStr}${node.value.filePath ? `name: "${name}",` : '/* no name */'}
+${indentStr}${node.value.filePaths ? `name: "${name}",` : '/* no name */'}
 ${indentStr}${
-    node.value.filePath
-      ? `component: () => import('${node.value.filePath}'),`
+    node.value.filePaths
+      ? `components: {
+${Object.entries(node.value.filePaths).map(([key, path]) => `${indentStr + ' '.repeat(2)}${key}: () => import('${path}')`).join(',\n')}
+${indentStr}},`
       : '/* no component */'
   }
 ${indentStr}${

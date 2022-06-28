@@ -34,7 +34,9 @@ class _TreeLeafValueBase {
   /**
    * Does the node has a component at the given path. e.g having `routes/users/index.vue` and `routes/users.vue`.
    */
-  filePath?: string
+  filePaths?: {
+    [key: string]: string | undefined
+  }
 
   constructor(
     rawSegment: string,

@@ -55,8 +55,10 @@ export function createRoutesContext(options: Required<Options>) {
 
   function addPage(path: string) {
     console.log('added', path)
+    const route = stripRouteFolder(path)
+    // TODO: handle top level named view HMR
     routeTree.insert(
-      stripRouteFolder(path),
+      route,
       // './' + path
       resolve(root, path)
     )
