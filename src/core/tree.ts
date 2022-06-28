@@ -51,18 +51,13 @@ export class TreeLeaf {
 
     const isComponent = segment !== head
 
-    console.log(isComponent, segment, viewName)
-
     if (!this.children.has(segment)) {
       this.children.set(segment, new TreeLeaf(this.options, head, this))
     }
     const child = this.children.get(segment)!
 
     if (isComponent) {
-      child.value.filePaths = {
-        [viewName]: filePath,
-        ...child.value.filePaths,
-      }
+      child.value.filePaths.set(viewName, filePath)
     }
 
     if (tail) {
@@ -92,26 +87,22 @@ export class TreeLeaf {
       )
     }
 
-    console.log(child)
-
-    if (tail && Object.entries(child.value.filePaths || {}).length === 0) {
+    if (tail) {
       child.remove(tail)
       // if the child doesn't create any route
-      if (child.children.size === 0 && !child.value.filePaths) {
+      if (child.children.size === 0 && child.value.filePaths.size === 0) {
         this.children.delete(segment)
       }
     } else {
       // it can only be component because we only listen for removed files, not folders
-      if (isComponent && child.value.filePaths) {
-        child.value.filePaths[viewName] = undefined
+      if (isComponent) {
+        child.value.filePaths.delete(viewName)
       }
       // this is the file we wanted to remove
       if (child.children.size === 0) {
         this.children.delete(segment)
       }
     }
-
-    console.log(child)
   }
 
   isRoot() {

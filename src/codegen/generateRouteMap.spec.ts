@@ -17,11 +17,10 @@ describe('generateRouteNamedMap', () => {
     tree.insert('b.vue')
     tree.insert('c.vue')
     expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
-      "export interface RouteNamedMap {
+      "  '': RouteRecordInfo<'', '/', Record<never, never>, Record<never, never>>,
         '/a': RouteRecordInfo<'/a', '/a', Record<never, never>, Record<never, never>>,
         '/b': RouteRecordInfo<'/b', '/b', Record<never, never>, Record<never, never>>,
-        '/c': RouteRecordInfo<'/c', '/c', Record<never, never>, Record<never, never>>,
-      }"
+        '/c': RouteRecordInfo<'/c', '/c', Record<never, never>, Record<never, never>>,"
     `)
   })
 
@@ -35,15 +34,14 @@ describe('generateRouteNamedMap', () => {
     tree.insert('[[a]]+.vue') // optional repeated
     tree.insert('[...a].vue') // splat
     expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
-      "export interface RouteNamedMap {
+      "  '': RouteRecordInfo<'', '/', Record<never, never>, Record<never, never>>,
         '/[a]': RouteRecordInfo<'/[a]', '/:a', { a: _ParamValue<true> }, { a: _ParamValue<false> }>,
         '/partial-[a]': RouteRecordInfo<'/partial-[a]', '/partial-:a', { a: _ParamValue<true> }, { a: _ParamValue<false> }>,
         '/[[a]]': RouteRecordInfo<'/[[a]]', '/:a?', { a?: _ParamValueZeroOrOne<true> }, { a?: _ParamValueZeroOrOne<false> }>,
         '/partial-[[a]]': RouteRecordInfo<'/partial-[[a]]', '/partial-:a?', { a?: _ParamValueZeroOrOne<true> }, { a?: _ParamValueZeroOrOne<false> }>,
         '/[a]+': RouteRecordInfo<'/[a]+', '/:a+', { a: _ParamValueOneOrMore<true> }, { a: _ParamValueOneOrMore<false> }>,
         '/[[a]]+': RouteRecordInfo<'/[[a]]+', '/:a*', { a?: _ParamValueZeroOrMore<true> }, { a?: _ParamValueZeroOrMore<false> }>,
-        '/[...a]': RouteRecordInfo<'/[...a]', '/:a(.*)', { a: _ParamValue<true> }, { a: _ParamValue<false> }>,
-      }"
+        '/[...a]': RouteRecordInfo<'/[...a]', '/:a(.*)', { a: _ParamValue<true> }, { a: _ParamValue<false> }>,"
     `)
   })
 
@@ -56,13 +54,13 @@ describe('generateRouteNamedMap', () => {
     tree.insert('n/[[a]]+.vue') // optional repeated
     tree.insert('n/[...a].vue') // splat
     expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
-      "export interface RouteNamedMap {
+      "  '': RouteRecordInfo<'', '/', Record<never, never>, Record<never, never>>,
+        '/n': RouteRecordInfo<'/n', '/n', Record<never, never>, Record<never, never>>,
         '/n/[a]': RouteRecordInfo<'/n/[a]', '/n/:a', { a: _ParamValue<true> }, { a: _ParamValue<false> }>,
         '/n/[[a]]': RouteRecordInfo<'/n/[[a]]', '/n/:a?', { a?: _ParamValueZeroOrOne<true> }, { a?: _ParamValueZeroOrOne<false> }>,
         '/n/[a]+': RouteRecordInfo<'/n/[a]+', '/n/:a+', { a: _ParamValueOneOrMore<true> }, { a: _ParamValueOneOrMore<false> }>,
         '/n/[[a]]+': RouteRecordInfo<'/n/[[a]]+', '/n/:a*', { a?: _ParamValueZeroOrMore<true> }, { a?: _ParamValueZeroOrMore<false> }>,
-        '/n/[...a]': RouteRecordInfo<'/n/[...a]', '/n/:a(.*)', { a: _ParamValue<true> }, { a: _ParamValue<false> }>,
-      }"
+        '/n/[...a]': RouteRecordInfo<'/n/[...a]', '/n/:a(.*)', { a: _ParamValue<true> }, { a: _ParamValue<false> }>,"
     `)
   })
 
@@ -77,16 +75,17 @@ describe('generateRouteNamedMap', () => {
     tree.insert('c.vue')
     tree.insert('d.vue')
     expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
-      "export interface RouteNamedMap {
+      "  '': RouteRecordInfo<'', '/', Record<never, never>, Record<never, never>>,
+        '/a': RouteRecordInfo<'/a', '/a', Record<never, never>, Record<never, never>>,
         '/a/a': RouteRecordInfo<'/a/a', '/a/a', Record<never, never>, Record<never, never>>,
         '/a/b': RouteRecordInfo<'/a/b', '/a/b', Record<never, never>, Record<never, never>>,
         '/a/c': RouteRecordInfo<'/a/c', '/a/c', Record<never, never>, Record<never, never>>,
+        '/b': RouteRecordInfo<'/b', '/b', Record<never, never>, Record<never, never>>,
         '/b/b': RouteRecordInfo<'/b/b', '/b/b', Record<never, never>, Record<never, never>>,
         '/b/c': RouteRecordInfo<'/b/c', '/b/c', Record<never, never>, Record<never, never>>,
         '/b/d': RouteRecordInfo<'/b/d', '/b/d', Record<never, never>, Record<never, never>>,
         '/c': RouteRecordInfo<'/c', '/c', Record<never, never>, Record<never, never>>,
-        '/d': RouteRecordInfo<'/d', '/d', Record<never, never>, Record<never, never>>,
-      }"
+        '/d': RouteRecordInfo<'/d', '/d', Record<never, never>, Record<never, never>>,"
     `)
   })
 })

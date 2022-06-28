@@ -34,9 +34,7 @@ class _TreeLeafValueBase {
   /**
    * Does the node has a component at the given path. e.g having `routes/users/index.vue` and `routes/users.vue`.
    */
-  filePaths?: {
-    [key: string]: string | undefined
-  }
+  filePaths: Map<string, string>
 
   constructor(
     rawSegment: string,
@@ -53,6 +51,7 @@ class _TreeLeafValueBase {
       !parent?.path && this.pathSegment === ''
         ? '/'
         : joinPath(parent?.path || '', this.pathSegment)
+    this.filePaths = new Map()
   }
 
   toString(): string {

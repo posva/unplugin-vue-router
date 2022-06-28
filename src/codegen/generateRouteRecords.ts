@@ -21,11 +21,11 @@ ${Array.from(node.children.values())
 
   return `${startIndent}{
 ${indentStr}path: "${(parent ? '' : '/') + node.value.pathSegment}",
-${indentStr}${node.value.filePaths ? `name: "${name}",` : '/* no name */'}
+${indentStr}${node.value.filePaths.size ? `name: "${name}",` : '/* no name */'}
 ${indentStr}${
-    node.value.filePaths
+    node.value.filePaths.size
       ? `components: {
-${Object.entries(node.value.filePaths)
+${Object.entries(Object.fromEntries(node.value.filePaths))
   .map(
     ([key, path]) =>
       `${indentStr + ' '.repeat(2)}${key}: () => import('${path}')`
