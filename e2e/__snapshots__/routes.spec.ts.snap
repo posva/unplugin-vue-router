@@ -5,36 +5,36 @@ exports[`generates the routes 1`] = `
   {
     path: \\"/:path(.*)\\",
     name: \\"/[...path]\\",
-    component: () => import('/Users/posva/unplugin-vue-router/e2e/fixtures/filenames/routes/[...path].vue'),
+    component: () => import('/routes/[...path].vue'),
     /* no children */
   },
   {
     path: \\"/about\\",
     name: \\"/about\\",
-    component: () => import('/Users/posva/unplugin-vue-router/e2e/fixtures/filenames/routes/about.vue'),
+    component: () => import('/routes/about.vue'),
     /* no children */
   },
   {
     path: \\"/\\",
     name: \\"/\\",
-    component: () => import('/Users/posva/unplugin-vue-router/e2e/fixtures/filenames/routes/index.vue'),
+    component: () => import('/routes/index.vue'),
     /* no children */
   },
   {
     path: \\"/users.new\\",
     name: \\"/users.new\\",
-    component: () => import('/Users/posva/unplugin-vue-router/e2e/fixtures/filenames/routes/users.new.vue'),
+    component: () => import('/routes/users.new.vue'),
     /* no children */
   },
   {
     path: \\"/users\\",
     name: \\"/users\\",
-    component: () => import('/Users/posva/unplugin-vue-router/e2e/fixtures/filenames/routes/users.vue'),
+    component: () => import('/routes/users.vue'),
     children: [
       {
         path: \\":id\\",
         name: \\"/users/[id]\\",
-        component: () => import('/Users/posva/unplugin-vue-router/e2e/fixtures/filenames/routes/users/[id].vue'),
+        component: () => import('/routes/users/[id].vue'),
         /* no children */
       }
     ],
@@ -47,13 +47,13 @@ exports[`generates the routes 1`] = `
       {
         path: \\":id\\",
         name: \\"/articles/[id]\\",
-        component: () => import('/Users/posva/unplugin-vue-router/e2e/fixtures/filenames/routes/articles/[id].vue'),
+        component: () => import('/routes/articles/[id].vue'),
         /* no children */
       },
       {
         path: \\":slugs+\\",
         name: \\"/articles/[slugs]+\\",
-        component: () => import('/Users/posva/unplugin-vue-router/e2e/fixtures/filenames/routes/articles/[slugs]+.vue'),
+        component: () => import('/routes/articles/[slugs]+.vue'),
         /* no children */
       }
     ],
@@ -66,13 +66,13 @@ exports[`generates the routes 1`] = `
       {
         path: \\":doc?\\",
         name: \\"/optional/[[doc]]\\",
-        component: () => import('/Users/posva/unplugin-vue-router/e2e/fixtures/filenames/routes/optional/[[doc]].vue'),
+        component: () => import('/routes/optional/[[doc]].vue'),
         /* no children */
       },
       {
         path: \\":docs*\\",
         name: \\"/optional/[[docs]]+\\",
-        component: () => import('/Users/posva/unplugin-vue-router/e2e/fixtures/filenames/routes/optional/[[docs]]+.vue'),
+        component: () => import('/routes/optional/[[docs]]+.vue'),
         /* no children */
       }
     ],
@@ -90,7 +90,7 @@ exports[`generates the routes 1`] = `
           {
             path: \\"\\",
             name: \\"/nested/folder/\\",
-            component: () => import('/Users/posva/unplugin-vue-router/e2e/fixtures/filenames/routes/nested/folder/index.vue'),
+            component: () => import('/routes/nested/folder/index.vue'),
             /* no children */
           },
           {
@@ -106,7 +106,7 @@ exports[`generates the routes 1`] = `
                   {
                     path: \\"\\",
                     name: \\"/nested/folder/should/work/\\",
-                    component: () => import('/Users/posva/unplugin-vue-router/e2e/fixtures/filenames/routes/nested/folder/should/work/index.vue'),
+                    component: () => import('/routes/nested/folder/should/work/index.vue'),
                     /* no children */
                   }
                 ],

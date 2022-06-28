@@ -41,7 +41,9 @@ export function createRoutesContext(options: Required<Options>) {
 
   async function scanPages() {
     const routeFolders: string[] = [resolvedRoutesFolder]
-    const pattern = `**/*.{${options.extensions.join(',').replaceAll('.', '')}}`
+    const pattern = `**/*.{${options.extensions
+      .map((extension) => extension.replace('.', ''))
+      .join(',')}}`
     const files = (
       await Promise.all(
         routeFolders.map((folder) =>

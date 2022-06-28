@@ -20,5 +20,9 @@ it('generates the routes', async () => {
   })
 
   await context.scanPages()
-  expect(context.generateRoutes()).toMatchSnapshot()
+  expect(
+    context
+      .generateRoutes()
+      .replace(/(import\(["'])(?:.+?)fixtures\/filenames/gi, '$1')
+  ).toMatchSnapshot()
 })
