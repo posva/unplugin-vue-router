@@ -106,11 +106,11 @@ export class TreeLeaf {
   }
 
   isRoot() {
-    return this.value.path === '/' && !this.value.filePaths
+    return this.value.path === '/' && !this.value.filePaths.size
   }
 
   toString(): string {
-    return `${this.value}${this.value.filePaths ? ' 📄' : ''}`
+    return `${this.value}${this.value.filePaths.size ? ' 📄' : ''}`
   }
 }
 
