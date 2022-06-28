@@ -1,5 +1,4 @@
 import chokidar from 'chokidar'
-import { resolve } from 'path'
 import { Options } from '../options'
 import { createPrefixTree } from './tree'
 import { promises as fs } from 'fs'
@@ -8,6 +7,7 @@ import { generateRouteNamedMap } from '../codegen/generateRouteMap'
 import { MODULE_ROUTES_PATH, MODULE_VUE_ROUTER } from './moduleConstants'
 import { generateRouteRecord } from '../codegen/generateRouteRecords'
 import fg from 'fast-glob'
+import { normalize, resolve } from 'pathe'
 
 export function createRoutesContext(options: Required<Options>) {
   const { dts: preferDTS, root } = options
