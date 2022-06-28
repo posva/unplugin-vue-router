@@ -183,10 +183,6 @@ async function main() {
     await runIfNotDry(`pnpm`, ['exec', 'prettier', '--write', 'CHANGELOG.md'], {
       cwd: pkg.path,
     })
-    await fs.copyFile(
-      resolve(__dirname, '../LICENSE'),
-      resolve(pkg.path, 'LICENSE')
-    )
   }
 
   const { yes: isChangelogCorrect } = await prompt({
@@ -202,7 +198,6 @@ async function main() {
   step('\nBuilding all packages...')
   if (!skipBuild && !isDryRun) {
     await run('pnpm', ['run', 'build'])
-    await run('pnpm', ['run', 'build:dts'])
   } else {
     console.log(`(skipped)`)
   }
@@ -210,11 +205,7 @@ async function main() {
   const { stdout } = await run('git', ['diff'], { stdio: 'pipe' })
   if (stdout) {
     step('\nCommitting changes...')
-    await runIfNotDry('git', [
-      'add',
-      'packages/*/CHANGELOG.md',
-      'packages/*/package.json',
-    ])
+    await runIfNotDry('git', ['add', 'CHANGELOG.md', 'package.json'])
     await runIfNotDry('git', [
       'commit',
       '-m',
