@@ -28,6 +28,9 @@ jobs:
       - name: Lint
         run: nr lint
 
+      - name: Build
+        run: nr build
+
   test:
     runs-on: ${{ matrix.os }}
 
@@ -49,9 +52,6 @@ jobs:
 
       - name: Install
         run: nci
-
-      - name: Build
-        run: nr build
 
       - name: Test
         run: nr test
