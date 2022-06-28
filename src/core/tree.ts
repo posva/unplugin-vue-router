@@ -1,4 +1,4 @@
-import { extname } from 'path'
+import { extname } from 'pathe'
 import type { Options } from '../options'
 import { createTreeLeafValue } from './treeLeafValue'
 import type { TreeLeafValue } from './treeLeafValue'
