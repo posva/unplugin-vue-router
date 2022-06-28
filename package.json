@@ -65,6 +65,18 @@
     "start": "esno src/index.ts",
     "test": "vitest"
   },
+  "gitHooks": {
+    "pre-commit": "lint-staged",
+    "commit-msg": "node scripts/verifyCommit.js"
+  },
+  "lint-staged": {
+    "*.js": [
+      "prettier --write"
+    ],
+    "*.ts?(x)": [
+      "prettier --parser=typescript --write"
+    ]
+  },
   "dependencies": {
     "chokidar": "^3.5.3",
     "fast-glob": "^3.2.11",
@@ -86,6 +98,7 @@
     "enquirer": "^2.3.6",
     "esno": "^0.16.3",
     "execa": "^6.1.0",
+    "lint-staged": "^13.0.3",
     "minimist": "^1.2.6",
     "nodemon": "^2.0.18",
     "p-series": "^3.0.0",
@@ -100,6 +113,7 @@
     "vitest": "^0.15.2",
     "vue": "^3.2.37",
     "vue-router": "^4.0.16",
-    "webpack": "^5.72.1"
+    "webpack": "^5.72.1",
+    "yorkie": "^2.0.0"
   }
 }
