@@ -110,7 +110,11 @@ export class TreeLeaf {
   }
 
   toString(): string {
-    return `${this.value}${this.value.filePaths.size ? ` 📄(${Array.from(this.value.filePaths.keys()).join('|')})` : ''}`
+    return `${this.value}${
+      this.value.filePaths.size
+        ? ` 📄(${Array.from(this.value.filePaths.keys()).join('|')})`
+        : ''
+    }`
   }
 }
 
