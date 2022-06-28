@@ -39,6 +39,7 @@ declare module '@vue-router/routes' {
     '/users/': RouteRecordInfo<'/users/', '/users/', Record<never, never>, Record<never, never>>,
     '/users/[id]': RouteRecordInfo<'/users/[id]', '/users/:id', { id: _ParamValue<true> }, { id: _ParamValue<false> }>,
     '/users/[id].edit': RouteRecordInfo<'/users/[id].edit', '/users/:id/edit', { id: _ParamValue<true> }, { id: _ParamValue<false> }>,
+    '/users/nested.route.deep': RouteRecordInfo<'/users/nested.route.deep', '/users/nested/route/deep', Record<never, never>, Record<never, never>>,
   }
 }
 

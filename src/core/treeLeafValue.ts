@@ -71,8 +71,12 @@ class _TreeLeafValueBase {
 export class TreeLeafValueStatic extends _TreeLeafValueBase {
   _type: TreeLeafType.static = TreeLeafType.static
 
-  constructor(rawSegment: string, parent: TreeLeafValue | undefined) {
-    super(rawSegment, parent)
+  constructor(
+    rawSegment: string,
+    parent: TreeLeafValue | undefined,
+    pathSegment = rawSegment
+  ) {
+    super(rawSegment, parent, pathSegment)
   }
 }
 
@@ -122,7 +126,7 @@ export function createTreeLeafValue(
     )
   }
 
-  return new TreeLeafValueStatic(segment, parent)
+  return new TreeLeafValueStatic(segment, parent, pathSegment)
 }
 
 const enum ParseSegmentState {

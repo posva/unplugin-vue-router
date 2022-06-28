@@ -112,7 +112,7 @@ exports[`generates the routes 1`] = `
     ],
   },
   {
-    path: '/users.new',
+    path: '/users/new',
     name: '/users.new',
     component: () => import('/routes/users.new.vue'),
     /* no children */
