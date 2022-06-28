@@ -16,6 +16,7 @@ importers:
       minimist: ^1.2.6
       nodemon: ^2.0.18
       p-series: ^3.0.0
+      pathe: ^0.3.1
       prettier: ^2.7.1
       rimraf: ^3.0.2
       rollup: ^2.75.7
@@ -47,6 +48,7 @@ importers:
       minimist: 1.2.6
       nodemon: 2.0.18
       p-series: 3.0.0
+      pathe: 0.3.1
       prettier: 2.7.1
       rimraf: 3.0.2
       rollup: 2.75.7
@@ -2708,6 +2710,10 @@ packages:
   /path-type/4.0.0:
     resolution: {integrity: sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw==}
     engines: {node: '>=8'}
+    dev: true
+
+  /pathe/0.3.1:
+    resolution: {integrity: sha512-cKMVe/pikPpreoODbjoliSk0cIT66JjEOWN30akc9WTo8kUjxFPYqmXvMBVPMSAJGJlx6v/nYzqSSHkp1cfezQ==}
     dev: true
 
   /pathval/1.1.1:

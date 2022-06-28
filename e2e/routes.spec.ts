@@ -3,6 +3,7 @@ import { expect, it } from 'vitest'
 import { createRoutesContext } from '../src/core/context'
 import { DEFAULT_OPTIONS } from '../src/options'
 import { fileURLToPath, URL } from 'url'
+import { normalize } from 'pathe'
 
 const __dirname = fileURLToPath(new URL('./', import.meta.url))
 
@@ -23,6 +24,10 @@ it('generates the routes', async () => {
   expect(
     context
       .generateRoutes()
+      .replace(
+        /import\(["'](.+?)["']\)/g,
+        (_, filePath) => `import('${normalize(filePath)}')`
+      )
       .replace(/(import\(["'])(?:.+?)fixtures\/filenames/gi, '$1')
   ).toMatchSnapshot()
 })

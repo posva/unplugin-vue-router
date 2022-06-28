@@ -102,6 +102,7 @@
     "minimist": "^1.2.6",
     "nodemon": "^2.0.18",
     "p-series": "^3.0.0",
+    "pathe": "^0.3.1",
     "prettier": "^2.7.1",
     "rimraf": "^3.0.2",
     "rollup": "^2.75.7",
