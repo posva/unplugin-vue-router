@@ -57,6 +57,12 @@ export class TreeLeaf {
     }
   }
 
+  getSortedChildren() {
+    return Array.from(this.children.values()).sort((a, b) =>
+      a.value.path.localeCompare(b.value.path)
+    )
+  }
+
   remove(path: string) {
     const slashPos = path.indexOf('/')
     const head = slashPos < 0 ? path : path.slice(0, slashPos)

@@ -7,7 +7,7 @@ import { generateRouteNamedMap } from '../codegen/generateRouteMap'
 import { MODULE_ROUTES_PATH, MODULE_VUE_ROUTER } from './moduleConstants'
 import { generateRouteRecord } from '../codegen/generateRouteRecords'
 import fg from 'fast-glob'
-import { normalize, resolve } from 'pathe'
+import { resolve } from 'pathe'
 
 export function createRoutesContext(options: Required<Options>) {
   const { dts: preferDTS, root } = options

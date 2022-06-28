@@ -8,7 +8,8 @@ export function generateRouteRecord(
   // root
   if (node.value.path === '/' && indent === 0) {
     return `[
-${Array.from(node.children.values())
+${node
+  .getSortedChildren()
   .map((child) => generateRouteRecord(child, indent + 1))
   .join(',\n')}
 ]`
@@ -30,7 +31,8 @@ ${indentStr}${
 ${indentStr}${
     node.children.size > 0
       ? `children: [
-${Array.from(node.children.values())
+${node
+  .getSortedChildren()
   .map((child) => generateRouteRecord(child, indent + 2, node))
   .join(',\n')}
 ${indentStr}],`

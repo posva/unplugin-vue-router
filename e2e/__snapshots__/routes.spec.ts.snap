@@ -3,6 +3,12 @@
 exports[`generates the routes 1`] = `
 "export const routes = [
   {
+    path: \\"/\\",
+    name: \\"/\\",
+    component: () => import('/routes/index.vue'),
+    /* no children */
+  },
+  {
     path: \\"/:path(.*)\\",
     name: \\"/[...path]\\",
     component: () => import('/routes/[...path].vue'),
@@ -13,31 +19,6 @@ exports[`generates the routes 1`] = `
     name: \\"/about\\",
     component: () => import('/routes/about.vue'),
     /* no children */
-  },
-  {
-    path: \\"/\\",
-    name: \\"/\\",
-    component: () => import('/routes/index.vue'),
-    /* no children */
-  },
-  {
-    path: \\"/users.new\\",
-    name: \\"/users.new\\",
-    component: () => import('/routes/users.new.vue'),
-    /* no children */
-  },
-  {
-    path: \\"/users\\",
-    name: \\"/users\\",
-    component: () => import('/routes/users.vue'),
-    children: [
-      {
-        path: \\":id\\",
-        name: \\"/users/[id]\\",
-        component: () => import('/routes/users/[id].vue'),
-        /* no children */
-      }
-    ],
   },
   {
     path: \\"/articles\\",
@@ -54,25 +35,6 @@ exports[`generates the routes 1`] = `
         path: \\":slugs+\\",
         name: \\"/articles/[slugs]+\\",
         component: () => import('/routes/articles/[slugs]+.vue'),
-        /* no children */
-      }
-    ],
-  },
-  {
-    path: \\"/optional\\",
-    /* no name */
-    /* no component */
-    children: [
-      {
-        path: \\":doc?\\",
-        name: \\"/optional/[[doc]]\\",
-        component: () => import('/routes/optional/[[doc]].vue'),
-        /* no children */
-      },
-      {
-        path: \\":docs*\\",
-        name: \\"/optional/[[docs]]+\\",
-        component: () => import('/routes/optional/[[docs]]+.vue'),
         /* no children */
       }
     ],
@@ -116,6 +78,44 @@ exports[`generates the routes 1`] = `
         ],
       }
     ],
+  },
+  {
+    path: \\"/optional\\",
+    /* no name */
+    /* no component */
+    children: [
+      {
+        path: \\":doc?\\",
+        name: \\"/optional/[[doc]]\\",
+        component: () => import('/routes/optional/[[doc]].vue'),
+        /* no children */
+      },
+      {
+        path: \\":docs*\\",
+        name: \\"/optional/[[docs]]+\\",
+        component: () => import('/routes/optional/[[docs]]+.vue'),
+        /* no children */
+      }
+    ],
+  },
+  {
+    path: \\"/users\\",
+    name: \\"/users\\",
+    component: () => import('/routes/users.vue'),
+    children: [
+      {
+        path: \\":id\\",
+        name: \\"/users/[id]\\",
+        component: () => import('/routes/users/[id].vue'),
+        /* no children */
+      }
+    ],
+  },
+  {
+    path: \\"/users.new\\",
+    name: \\"/users.new\\",
+    component: () => import('/routes/users.new.vue'),
+    /* no children */
   }
 ]"
 `;

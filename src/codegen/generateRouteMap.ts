@@ -11,7 +11,7 @@ export function generateRouteNamedMap(node: TreeLeaf): string {
   // root
   if (node.isRoot()) {
     return `export interface RouteNamedMap {
-${Array.from(node.children.values()).map(generateRouteNamedMap).join('')}}`
+${node.getSortedChildren().map(generateRouteNamedMap).join('')}}`
   }
 
   return (
@@ -23,7 +23,7 @@ ${Array.from(node.children.values()).map(generateRouteNamedMap).join('')}}`
         )},\n`
       : '') +
     (node.children.size > 0
-      ? Array.from(node.children.values()).map(generateRouteNamedMap).join('\n')
+      ? node.getSortedChildren().map(generateRouteNamedMap).join('\n')
       : '')
   )
 }
