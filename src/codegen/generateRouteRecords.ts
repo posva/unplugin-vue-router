@@ -21,15 +21,11 @@ ${node
   const name = node.options.getRouteName(node)
 
   return `${startIndent}{
-${indentStr}path: "${(parent ? '' : '/') + node.value.pathSegment}",
-${indentStr}${node.value.filePaths.size ? `name: "${name}",` : '/* no name */'}
+${indentStr}path: '${(parent ? '' : '/') + node.value.pathSegment}',
+${indentStr}${node.value.filePaths.size ? `name: '${name}',` : '/* no name */'}
 ${indentStr}${
     node.value.filePaths.size
-      ? `components: {
-${Array.from(node.value.filePaths)
-  .map(([key, path]) => `${indentStr + '  '}'${key}': () => import('${path}')`)
-  .join(',\n')}
-${indentStr}},`
+      ? generateRouteRecordComponent(node, indentStr)
       : '/* no component */'
   }
 ${indentStr}${
@@ -43,4 +39,19 @@ ${indentStr}],`
       : '/* no children */'
   }
 ${startIndent}}`
+}
+
+function generateRouteRecordComponent(
+  node: TreeLeaf,
+  indentStr: string
+): string {
+  const files = Array.from(node.value.filePaths)
+  return files.length === 1
+    ? `component: () => import('${files[0][1]}'),`
+    : // files has at least one entry
+      `components: {
+${files
+  .map(([key, path]) => `${indentStr + '  '}'${key}': () => import('${path}')`)
+  .join(',\n')}
+${indentStr}},`
 }
