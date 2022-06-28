@@ -32,9 +32,10 @@ class _TreeLeafValueBase {
   path: string
 
   /**
-   * Does the node has a component at the given path. e.g having `routes/users/index.vue` and `routes/users.vue`.
+   * Component path that maps to a view name, which is used for vue-router's named view feature.
+   * Use `default` key for the default view.
    */
-  filePath?: string
+  filePaths: Map<string, string>
 
   constructor(
     rawSegment: string,
@@ -51,6 +52,7 @@ class _TreeLeafValueBase {
       !parent?.path && this.pathSegment === ''
         ? '/'
         : joinPath(parent?.path || '', this.pathSegment)
+    this.filePaths = new Map()
   }
 
   toString(): string {

@@ -64,7 +64,7 @@ describe('Tree', () => {
     expect(index).toBeDefined()
     const a = tree.children.get('a')!
     expect(a).toBeDefined()
-    expect(a.value.filePath).toBeUndefined()
+    expect(a.value.filePaths.get('default')).toBeUndefined()
     expect(a.value).toMatchObject({
       rawSegment: 'a',
       path: '/a',
@@ -79,7 +79,7 @@ describe('Tree', () => {
     })
 
     tree.insert('a.vue')
-    expect(a.value.filePath).toBe('a.vue')
+    expect(a.value.filePaths.get('default')).toBe('a.vue')
     expect(a.value).toMatchObject({
       rawSegment: 'a',
       path: '/a',

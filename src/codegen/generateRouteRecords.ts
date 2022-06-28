@@ -22,10 +22,14 @@ ${node
 
   return `${startIndent}{
 ${indentStr}path: "${(parent ? '' : '/') + node.value.pathSegment}",
-${indentStr}${node.value.filePath ? `name: "${name}",` : '/* no name */'}
+${indentStr}${node.value.filePaths.size ? `name: "${name}",` : '/* no name */'}
 ${indentStr}${
-    node.value.filePath
-      ? `component: () => import('${node.value.filePath}'),`
+    node.value.filePaths.size
+      ? `components: {
+${Array.from(node.value.filePaths)
+  .map(([key, path]) => `${indentStr + '  '}${key}: () => import('${path}')`)
+  .join(',\n')}
+${indentStr}},`
       : '/* no component */'
   }
 ${indentStr}${

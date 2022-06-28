@@ -134,7 +134,7 @@ export function getPascalCaseRouteName(node: TreeLeaf): string {
     })
     .join('')
 
-  if (node.value.filePath && node.children.has('index')) {
+  if (node.value.filePaths.size && node.children.has('index')) {
     name += 'Parent'
   }
 

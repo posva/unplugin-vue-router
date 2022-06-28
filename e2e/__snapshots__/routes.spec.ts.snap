@@ -5,19 +5,25 @@ exports[`generates the routes 1`] = `
   {
     path: \\"/\\",
     name: \\"/\\",
-    component: () => import('/routes/index.vue'),
+    components: {
+      default: () => import('/routes/index.vue')
+    },
     /* no children */
   },
   {
     path: \\"/:path(.*)\\",
     name: \\"/[...path]\\",
-    component: () => import('/routes/[...path].vue'),
+    components: {
+      default: () => import('/routes/[...path].vue')
+    },
     /* no children */
   },
   {
     path: \\"/about\\",
     name: \\"/about\\",
-    component: () => import('/routes/about.vue'),
+    components: {
+      default: () => import('/routes/about.vue')
+    },
     /* no children */
   },
   {
@@ -28,13 +34,17 @@ exports[`generates the routes 1`] = `
       {
         path: \\":id\\",
         name: \\"/articles/[id]\\",
-        component: () => import('/routes/articles/[id].vue'),
+        components: {
+          default: () => import('/routes/articles/[id].vue')
+        },
         /* no children */
       },
       {
         path: \\":slugs+\\",
         name: \\"/articles/[slugs]+\\",
-        component: () => import('/routes/articles/[slugs]+.vue'),
+        components: {
+          default: () => import('/routes/articles/[slugs]+.vue')
+        },
         /* no children */
       }
     ],
@@ -52,7 +62,9 @@ exports[`generates the routes 1`] = `
           {
             path: \\"\\",
             name: \\"/nested/folder/\\",
-            component: () => import('/routes/nested/folder/index.vue'),
+            components: {
+              default: () => import('/routes/nested/folder/index.vue')
+            },
             /* no children */
           },
           {
@@ -68,7 +80,9 @@ exports[`generates the routes 1`] = `
                   {
                     path: \\"\\",
                     name: \\"/nested/folder/should/work/\\",
-                    component: () => import('/routes/nested/folder/should/work/index.vue'),
+                    components: {
+                      default: () => import('/routes/nested/folder/should/work/index.vue')
+                    },
                     /* no children */
                   }
                 ],
@@ -87,13 +101,17 @@ exports[`generates the routes 1`] = `
       {
         path: \\":doc?\\",
         name: \\"/optional/[[doc]]\\",
-        component: () => import('/routes/optional/[[doc]].vue'),
+        components: {
+          default: () => import('/routes/optional/[[doc]].vue')
+        },
         /* no children */
       },
       {
         path: \\":docs*\\",
         name: \\"/optional/[[docs]]+\\",
-        component: () => import('/routes/optional/[[docs]]+.vue'),
+        components: {
+          default: () => import('/routes/optional/[[docs]]+.vue')
+        },
         /* no children */
       }
     ],
@@ -101,12 +119,16 @@ exports[`generates the routes 1`] = `
   {
     path: \\"/users\\",
     name: \\"/users\\",
-    component: () => import('/routes/users.vue'),
+    components: {
+      default: () => import('/routes/users.vue')
+    },
     children: [
       {
         path: \\":id\\",
         name: \\"/users/[id]\\",
-        component: () => import('/routes/users/[id].vue'),
+        components: {
+          default: () => import('/routes/users/[id].vue')
+        },
         /* no children */
       }
     ],
@@ -114,7 +136,9 @@ exports[`generates the routes 1`] = `
   {
     path: \\"/users.new\\",
     name: \\"/users.new\\",
-    component: () => import('/routes/users.new.vue'),
+    components: {
+      default: () => import('/routes/users.new.vue')
+    },
     /* no children */
   }
 ]"

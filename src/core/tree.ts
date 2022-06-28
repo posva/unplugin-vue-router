@@ -1,3 +1,4 @@
+import { extname } from 'pathe'
 import type { Options } from '../options'
 import { createTreeLeafValue } from './treeLeafValue'
 import type { TreeLeafValue } from './treeLeafValue'
@@ -37,10 +38,17 @@ export class TreeLeaf {
    */
   insert(path: string, filePath: string = path) {
     const slashPos = path.indexOf('/')
-    const head = slashPos < 0 ? path : path.slice(0, slashPos)
+    let head = slashPos < 0 ? path : path.slice(0, slashPos)
     const tail = slashPos < 0 ? '' : path.slice(slashPos + 1)
+    let viewName = 'default'
 
-    const segment = trimExtension(head)
+    let segment = trimExtension(head)
+
+    if (segment.includes('@')) {
+      ;[segment, viewName] = segment.split('@')
+      head = segment + extname(head)
+    }
+
     const isComponent = segment !== head
 
     if (!this.children.has(segment)) {
@@ -49,7 +57,7 @@ export class TreeLeaf {
     const child = this.children.get(segment)!
 
     if (isComponent) {
-      child.value.filePath = filePath
+      child.value.filePaths.set(viewName, filePath)
     }
 
     if (tail) {
@@ -65,10 +73,17 @@ export class TreeLeaf {
 
   remove(path: string) {
     const slashPos = path.indexOf('/')
-    const head = slashPos < 0 ? path : path.slice(0, slashPos)
+    let head = slashPos < 0 ? path : path.slice(0, slashPos)
     const tail = slashPos < 0 ? '' : path.slice(slashPos + 1)
 
-    const segment = trimExtension(head)
+    let segment = trimExtension(head)
+    let viewName = 'default'
+
+    if (segment.includes('@')) {
+      ;[segment, viewName] = segment.split('@')
+      head = segment + extname(head)
+    }
+
     const isComponent = segment !== head
 
     const child = this.children.get(segment)
@@ -77,16 +92,17 @@ export class TreeLeaf {
         `Cannot Delete "${path}". "${head}" not found at "${this.value.path}".`
       )
     }
+
     if (tail) {
       child.remove(tail)
       // if the child doesn't create any route
-      if (child.children.size === 0 && !child.value.filePath) {
+      if (child.children.size === 0 && child.value.filePaths.size === 0) {
         this.children.delete(segment)
       }
     } else {
       // it can only be component because we only listen for removed files, not folders
       if (isComponent) {
-        child.value.filePath = undefined
+        child.value.filePaths.delete(viewName)
       }
       // this is the file we wanted to remove
       if (child.children.size === 0) {
@@ -96,11 +112,15 @@ export class TreeLeaf {
   }
 
   isRoot() {
-    return this.value.path === '/' && !this.value.filePath
+    return this.value.path === '/' && !this.value.filePaths.size
   }
 
   toString(): string {
-    return `${this.value}${this.value.filePath ? ' 📄' : ''}`
+    return `${this.value}${
+      this.value.filePaths.size
+        ? ` 📄(${Array.from(this.value.filePaths.keys()).join('|')})`
+        : ''
+    }`
   }
 }
 
