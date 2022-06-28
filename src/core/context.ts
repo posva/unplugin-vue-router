@@ -161,6 +161,8 @@ declare module '@vue/runtime-core' {
 `
   }
 
+  // NOTE: this code needs to be generated because otherwise it doesn't go through transforms and `@vue-router/routes`
+  // cannot be resolved.
   function generateVueRouterProxy() {
     return `
 import { routes } from '@vue-router/routes'
@@ -169,9 +171,14 @@ import { createRouter as _createRouter } from 'vue-router'
 export * from 'vue-router'
 
 export function createRouter(options) {
+  const { extendRoutes } = options
+  if (typeof extendRoutes === 'function') {
+    routes = extendRoutes(routes) || routes
+  }
+
   return _createRouter({
-    routes,
     ...options,
+    routes,
   })
 }
 `
