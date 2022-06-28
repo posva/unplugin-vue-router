@@ -38,6 +38,47 @@ describe('Tree', () => {
     expect(child.children.size).toBe(0)
   })
 
+  it('handles named views', () => {
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    tree.insert('index.vue')
+    tree.insert('index@a.vue')
+    tree.insert('index@b.vue')
+    tree.insert('nested/foo@a.vue')
+    tree.insert('nested/foo@b.vue')
+    tree.insert('nested/[id]@a.vue')
+    tree.insert('nested/[id]@b.vue')
+    tree.insert('not.nested.path@a.vue')
+    tree.insert('not.nested.path@b.vue')
+    tree.insert('deep/not.nested.path@a.vue')
+    tree.insert('deep/not.nested.path@b.vue')
+    expect([...tree.children.get('index')!.value.filePaths.keys()]).toEqual([
+      'default',
+      'a',
+      'b',
+    ])
+    expect([
+      ...tree.children
+        .get('nested')!
+        .children.get('foo')!
+        .value.filePaths.keys(),
+    ]).toEqual(['a', 'b'])
+    expect([
+      ...tree.children
+        .get('nested')!
+        .children.get('[id]')!
+        .value.filePaths.keys(),
+    ]).toEqual(['a', 'b'])
+    expect([
+      ...tree.children.get('not.nested.path')!.value.filePaths.keys(),
+    ]).toEqual(['a', 'b'])
+    expect([
+      ...tree.children
+        .get('deep')!
+        .children.get('not.nested.path')!
+        .value.filePaths.keys(),
+    ]).toEqual(['a', 'b'])
+  })
+
   it('handles multiple params', () => {
     const tree = createPrefixTree(DEFAULT_OPTIONS)
     tree.insert('[a]-[b].vue')
