@@ -28,7 +28,7 @@ ${indentStr}${
 ${Object.entries(Object.fromEntries(node.value.filePaths))
   .map(
     ([key, path]) =>
-      `${indentStr + ' '.repeat(2)}${key}: () => import('${path}')`
+      `${indentStr + '  '}${key}: () => import('${path}')`
   )
   .join(',\n')}
 ${indentStr}},`
