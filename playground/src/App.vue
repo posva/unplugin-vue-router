@@ -23,6 +23,6 @@ route.name === '/about'
   </header>
 
   <RouterView />
-  <hr>
+  <hr />
   <RouterView name="named" />
 </template>

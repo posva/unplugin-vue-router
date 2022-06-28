@@ -45,25 +45,23 @@ export class TreeLeaf {
     let segment = trimExtension(head)
 
     if (segment.includes('@')) {
-      [segment, viewName] = segment.split('@')
+      ;[segment, viewName] = segment.split('@')
       head = segment + extname(head)
     }
 
     const isComponent = segment !== head
 
-
-    console.log(isComponent, segment, viewName);
+    console.log(isComponent, segment, viewName)
 
     if (!this.children.has(segment)) {
       this.children.set(segment, new TreeLeaf(this.options, head, this))
     }
     const child = this.children.get(segment)!
 
-
     if (isComponent) {
       child.value.filePaths = {
         [viewName]: filePath,
-        ...child.value.filePaths
+        ...child.value.filePaths,
       }
     }
 
@@ -81,7 +79,7 @@ export class TreeLeaf {
     let viewName = 'default'
 
     if (segment.includes('@')) {
-      [segment, viewName] = segment.split('@')
+      ;[segment, viewName] = segment.split('@')
       head = segment + extname(head)
     }
 
@@ -94,7 +92,7 @@ export class TreeLeaf {
       )
     }
 
-    console.log(child);
+    console.log(child)
 
     if (tail && Object.entries(child.value.filePaths || {}).length === 0) {
       child.remove(tail)
@@ -113,7 +111,7 @@ export class TreeLeaf {
       }
     }
 
-    console.log(child);
+    console.log(child)
   }
 
   isRoot() {

@@ -25,7 +25,12 @@ ${indentStr}${node.value.filePaths ? `name: "${name}",` : '/* no name */'}
 ${indentStr}${
     node.value.filePaths
       ? `components: {
-${Object.entries(node.value.filePaths).map(([key, path]) => `${indentStr + ' '.repeat(2)}${key}: () => import('${path}')`).join(',\n')}
+${Object.entries(node.value.filePaths)
+  .map(
+    ([key, path]) =>
+      `${indentStr + ' '.repeat(2)}${key}: () => import('${path}')`
+  )
+  .join(',\n')}
 ${indentStr}},`
       : '/* no component */'
   }
