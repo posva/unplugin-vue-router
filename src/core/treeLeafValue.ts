@@ -32,7 +32,8 @@ class _TreeLeafValueBase {
   path: string
 
   /**
-   * Does the node has a component at the given path. e.g having `routes/users/index.vue` and `routes/users.vue`.
+   * Component path that maps to a view name, which is used for vue-router's named view feature.
+   * Use `default` key for the default view.
    */
   filePaths: Map<string, string>
 
