@@ -79,7 +79,7 @@ describe('Tree', () => {
     })
 
     tree.insert('a.vue')
-    expect(a.value.filePaths).toBe('a.vue')
+    expect(a.value.filePaths?.default).toBe('a.vue')
     expect(a.value).toMatchObject({
       rawSegment: 'a',
       path: '/a',
@@ -139,6 +139,7 @@ describe('Tree', () => {
     tree.remove('a/b/c/d.vue')
     expect(tree.children.size).toBe(1)
     expect(tree.children.get('a')!.children.size).toBe(1)
+    // TODO: fix me
     expect(child.children.size).toBe(0)
   })
 })
