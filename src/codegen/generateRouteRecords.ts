@@ -25,7 +25,7 @@ ${indentStr}${node.value.filePaths.size ? `name: "${name}",` : '/* no name */'}
 ${indentStr}${
     node.value.filePaths.size
       ? `components: {
-${Object.entries(Object.fromEntries(node.value.filePaths))
+${Array.from(node.value.filePaths)
   .map(([key, path]) => `${indentStr + '  '}${key}: () => import('${path}')`)
   .join(',\n')}
 ${indentStr}},`
