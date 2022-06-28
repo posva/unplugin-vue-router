@@ -91,14 +91,6 @@ exports[`generateRouteRecord > handles non nested routes 1`] = `
         /* no children */
       },
       {
-        path: \\"other\\",
-        name: \\"/users/other\\",
-        components: {
-          default: () => import('users/other.vue')
-        },
-        /* no children */
-      },
-      {
         path: \\":id\\",
         name: \\"/users/[id]\\",
         components: {
@@ -128,6 +120,14 @@ exports[`generateRouteRecord > handles non nested routes 1`] = `
         name: \\"/users/[id].not-nested\\",
         components: {
           default: () => import('users/[id].not-nested.vue')
+        },
+        /* no children */
+      },
+      {
+        path: \\"other\\",
+        name: \\"/users/other\\",
+        components: {
+          default: () => import('users/other.vue')
         },
         /* no children */
       }

@@ -37,12 +37,12 @@ describe('generateRouteNamedMap', () => {
     expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
       "export interface RouteNamedMap {
         '/[a]': RouteRecordInfo<'/[a]', '/:a', { a: _ParamValue<true> }, { a: _ParamValue<false> }>,
-        '/partial-[a]': RouteRecordInfo<'/partial-[a]', '/partial-:a', { a: _ParamValue<true> }, { a: _ParamValue<false> }>,
         '/[[a]]': RouteRecordInfo<'/[[a]]', '/:a?', { a?: _ParamValueZeroOrOne<true> }, { a?: _ParamValueZeroOrOne<false> }>,
-        '/partial-[[a]]': RouteRecordInfo<'/partial-[[a]]', '/partial-:a?', { a?: _ParamValueZeroOrOne<true> }, { a?: _ParamValueZeroOrOne<false> }>,
-        '/[a]+': RouteRecordInfo<'/[a]+', '/:a+', { a: _ParamValueOneOrMore<true> }, { a: _ParamValueOneOrMore<false> }>,
-        '/[[a]]+': RouteRecordInfo<'/[[a]]+', '/:a*', { a?: _ParamValueZeroOrMore<true> }, { a?: _ParamValueZeroOrMore<false> }>,
         '/[...a]': RouteRecordInfo<'/[...a]', '/:a(.*)', { a: _ParamValue<true> }, { a: _ParamValue<false> }>,
+        '/[[a]]+': RouteRecordInfo<'/[[a]]+', '/:a*', { a?: _ParamValueZeroOrMore<true> }, { a?: _ParamValueZeroOrMore<false> }>,
+        '/[a]+': RouteRecordInfo<'/[a]+', '/:a+', { a: _ParamValueOneOrMore<true> }, { a: _ParamValueOneOrMore<false> }>,
+        '/partial-[a]': RouteRecordInfo<'/partial-[a]', '/partial-:a', { a: _ParamValue<true> }, { a: _ParamValue<false> }>,
+        '/partial-[[a]]': RouteRecordInfo<'/partial-[[a]]', '/partial-:a?', { a?: _ParamValueZeroOrOne<true> }, { a?: _ParamValueZeroOrOne<false> }>,
       }"
     `)
   })
@@ -59,9 +59,9 @@ describe('generateRouteNamedMap', () => {
       "export interface RouteNamedMap {
         '/n/[a]': RouteRecordInfo<'/n/[a]', '/n/:a', { a: _ParamValue<true> }, { a: _ParamValue<false> }>,
         '/n/[[a]]': RouteRecordInfo<'/n/[[a]]', '/n/:a?', { a?: _ParamValueZeroOrOne<true> }, { a?: _ParamValueZeroOrOne<false> }>,
-        '/n/[a]+': RouteRecordInfo<'/n/[a]+', '/n/:a+', { a: _ParamValueOneOrMore<true> }, { a: _ParamValueOneOrMore<false> }>,
-        '/n/[[a]]+': RouteRecordInfo<'/n/[[a]]+', '/n/:a*', { a?: _ParamValueZeroOrMore<true> }, { a?: _ParamValueZeroOrMore<false> }>,
         '/n/[...a]': RouteRecordInfo<'/n/[...a]', '/n/:a(.*)', { a: _ParamValue<true> }, { a: _ParamValue<false> }>,
+        '/n/[[a]]+': RouteRecordInfo<'/n/[[a]]+', '/n/:a*', { a?: _ParamValueZeroOrMore<true> }, { a?: _ParamValueZeroOrMore<false> }>,
+        '/n/[a]+': RouteRecordInfo<'/n/[a]+', '/n/:a+', { a: _ParamValueOneOrMore<true> }, { a: _ParamValueOneOrMore<false> }>,
       }"
     `)
   })

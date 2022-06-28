@@ -1,9 +1,8 @@
-import { join } from 'path'
 import { expect, it } from 'vitest'
 import { createRoutesContext } from '../src/core/context'
 import { DEFAULT_OPTIONS } from '../src/options'
 import { fileURLToPath, URL } from 'url'
-import { normalize } from 'pathe'
+import { normalize, join } from 'pathe'
 
 const __dirname = fileURLToPath(new URL('./', import.meta.url))
 
