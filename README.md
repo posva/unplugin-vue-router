@@ -123,7 +123,7 @@ VueRouter({
 
 ## Routes folder structure
 
-By default, this plugins checks the folder at `src/routes` for any `.vue` files and generates the corresponding routing structure basing itself in the file name. This way, you no longer need to maintain a `routes` array when adding routes to your application, **instead just add the new `.vue` component to the routes folder and let this plugin do the rest!**.
+By default, this plugins checks the folder at `src/routes` for any `.vue` files and generates the corresponding routing structure basing itself in the file name. This way, you no longer need to maintain a `routes` array when adding routes to your application, **instead just add the new `.vue` component to the routes folder and let this plugin do the rest!**
 
 Let's take a look at a simple example:
 
@@ -283,6 +283,29 @@ The `RouterTyped` type gives you access to the typed version of the router insta
 ```ts
 import type { RouterTyped } from '@vue-router'
 ```
+
+## Extending existing routes
+
+You can extend existing routes by passing an `extendRoutes` function to `createRouter()`. **This should be uses as a last resort** (or until a feature is natively available here):
+
+```js
+import { createWebHistory, createRouter } from '@vue-router'
+
+const router = createRouter({
+  extendRoutes: (routes) => {
+    const adminRoute = routes.find((r) => r.name === '/admin')
+    if (!adminRoute) {
+      adminRoute.meta ??= {}
+      adminRoute.meta.requiresAuth = true
+    }
+    // completely optional since we are modifying the routes in place
+    return routes
+  },
+  history: createWebHistory(),
+})
+```
+
+As this plugin evolves, this function should be used less and less and only become necessary in unique edge cases.
 
 ## Rationale
 

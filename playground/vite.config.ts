@@ -7,7 +7,13 @@ import Vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
   clearScreen: false,
-  plugins: [Vue({}), VueRouter(), Inspect()],
+  plugins: [
+    Vue({}),
+    VueRouter({
+      logs: true,
+    }),
+    Inspect(),
+  ],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

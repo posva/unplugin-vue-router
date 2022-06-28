@@ -20,6 +20,12 @@ export function createRoutesContext(options: Required<Options>) {
 
   const routeTree = createPrefixTree(options)
 
+  function log(...args: any[]) {
+    if (options.logs) {
+      console.log(...args)
+    }
+  }
+
   const resolvedRoutesFolder = resolve(root, options.routesFolder)
   const serverWatcher = chokidar.watch(resolvedRoutesFolder, {
     ignoreInitial: true,
@@ -35,7 +41,9 @@ export function createRoutesContext(options: Required<Options>) {
 
   async function scanPages() {
     const routeFolders: string[] = [resolvedRoutesFolder]
-    const pattern = `**/*.{${options.extensions.join(',').replaceAll('.', '')}}`
+    const pattern = `**/*.{${options.extensions
+      .map((extension) => extension.replace('.', ''))
+      .join(',')}}`
     const files = (
       await Promise.all(
         routeFolders.map((folder) =>
@@ -54,7 +62,7 @@ export function createRoutesContext(options: Required<Options>) {
   }
 
   function addPage(path: string) {
-    console.log('added', path)
+    log('added', path)
     const route = stripRouteFolder(path)
     // TODO: handle top level named view HMR
     routeTree.insert(
@@ -65,7 +73,7 @@ export function createRoutesContext(options: Required<Options>) {
   }
 
   function removePage(path: string) {
-    console.log('remove', path)
+    log('remove', path)
     routeTree.remove(stripRouteFolder(path))
   }
 
@@ -73,7 +81,7 @@ export function createRoutesContext(options: Required<Options>) {
     serverWatcher
       .on('change', (path) => {
         // TODO: parse defineRoute macro?
-        console.log('change', path)
+        log('change', path)
         writeConfigFiles()
       })
       .on('add', (path) => {
@@ -163,6 +171,8 @@ declare module '@vue/runtime-core' {
 `
   }
 
+  // NOTE: this code needs to be generated because otherwise it doesn't go through transforms and `@vue-router/routes`
+  // cannot be resolved.
   function generateVueRouterProxy() {
     return `
 import { routes } from '@vue-router/routes'
@@ -171,9 +181,14 @@ import { createRouter as _createRouter } from 'vue-router'
 export * from 'vue-router'
 
 export function createRouter(options) {
+  const { extendRoutes } = options
+  if (typeof extendRoutes === 'function') {
+    routes = extendRoutes(routes) || routes
+  }
+
   return _createRouter({
-    routes,
     ...options,
+    routes,
   })
 }
 `
@@ -181,8 +196,8 @@ export function createRouter(options) {
 
   let lastDTS: string | undefined
   async function _writeConfigFiles() {
-    console.log('writing')
-    logTree(routeTree)
+    log('writing')
+    logTree(routeTree, log)
     if (dts) {
       const content = generateDTS()
       if (lastDTS !== content) {
