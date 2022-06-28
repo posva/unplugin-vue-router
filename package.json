@@ -81,7 +81,6 @@
     }
   },
   "devDependencies": {
-    "bumpp": "^8.2.1",
     "chalk": "^5.0.1",
     "conventional-changelog-cli": "^2.2.2",
     "enquirer": "^2.3.6",
