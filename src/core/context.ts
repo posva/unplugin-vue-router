@@ -20,6 +20,12 @@ export function createRoutesContext(options: Required<Options>) {
 
   const routeTree = createPrefixTree(options)
 
+  function log(...args: any[]) {
+    if (options.logs) {
+      console.log(...args)
+    }
+  }
+
   const resolvedRoutesFolder = resolve(root, options.routesFolder)
   const serverWatcher = chokidar.watch(resolvedRoutesFolder, {
     ignoreInitial: true,
@@ -54,7 +60,7 @@ export function createRoutesContext(options: Required<Options>) {
   }
 
   function addPage(path: string) {
-    console.log('added', path)
+    log('added', path)
     routeTree.insert(
       stripRouteFolder(path),
       // './' + path
@@ -63,7 +69,7 @@ export function createRoutesContext(options: Required<Options>) {
   }
 
   function removePage(path: string) {
-    console.log('remove', path)
+    log('remove', path)
     routeTree.remove(stripRouteFolder(path))
   }
 
@@ -71,7 +77,7 @@ export function createRoutesContext(options: Required<Options>) {
     serverWatcher
       .on('change', (path) => {
         // TODO: parse defineRoute macro?
-        console.log('change', path)
+        log('change', path)
         writeConfigFiles()
       })
       .on('add', (path) => {
@@ -186,8 +192,8 @@ export function createRouter(options) {
 
   let lastDTS: string | undefined
   async function _writeConfigFiles() {
-    console.log('writing')
-    logTree(routeTree)
+    log('writing')
+    logTree(routeTree, log)
     if (dts) {
       const content = generateDTS()
       if (lastDTS !== content) {

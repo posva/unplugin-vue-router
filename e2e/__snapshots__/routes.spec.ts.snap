@@ -1,0 +1,121 @@
+// Vitest Snapshot v1
+
+exports[`generates the routes 1`] = `
+"export const routes = [
+  {
+    path: \\"/:path(.*)\\",
+    name: \\"/[...path]\\",
+    component: () => import('/Users/posva/unplugin-vue-router/e2e/fixtures/filenames/routes/[...path].vue'),
+    /* no children */
+  },
+  {
+    path: \\"/about\\",
+    name: \\"/about\\",
+    component: () => import('/Users/posva/unplugin-vue-router/e2e/fixtures/filenames/routes/about.vue'),
+    /* no children */
+  },
+  {
+    path: \\"/\\",
+    name: \\"/\\",
+    component: () => import('/Users/posva/unplugin-vue-router/e2e/fixtures/filenames/routes/index.vue'),
+    /* no children */
+  },
+  {
+    path: \\"/users.new\\",
+    name: \\"/users.new\\",
+    component: () => import('/Users/posva/unplugin-vue-router/e2e/fixtures/filenames/routes/users.new.vue'),
+    /* no children */
+  },
+  {
+    path: \\"/users\\",
+    name: \\"/users\\",
+    component: () => import('/Users/posva/unplugin-vue-router/e2e/fixtures/filenames/routes/users.vue'),
+    children: [
+      {
+        path: \\":id\\",
+        name: \\"/users/[id]\\",
+        component: () => import('/Users/posva/unplugin-vue-router/e2e/fixtures/filenames/routes/users/[id].vue'),
+        /* no children */
+      }
+    ],
+  },
+  {
+    path: \\"/articles\\",
+    /* no name */
+    /* no component */
+    children: [
+      {
+        path: \\":id\\",
+        name: \\"/articles/[id]\\",
+        component: () => import('/Users/posva/unplugin-vue-router/e2e/fixtures/filenames/routes/articles/[id].vue'),
+        /* no children */
+      },
+      {
+        path: \\":slugs+\\",
+        name: \\"/articles/[slugs]+\\",
+        component: () => import('/Users/posva/unplugin-vue-router/e2e/fixtures/filenames/routes/articles/[slugs]+.vue'),
+        /* no children */
+      }
+    ],
+  },
+  {
+    path: \\"/optional\\",
+    /* no name */
+    /* no component */
+    children: [
+      {
+        path: \\":doc?\\",
+        name: \\"/optional/[[doc]]\\",
+        component: () => import('/Users/posva/unplugin-vue-router/e2e/fixtures/filenames/routes/optional/[[doc]].vue'),
+        /* no children */
+      },
+      {
+        path: \\":docs*\\",
+        name: \\"/optional/[[docs]]+\\",
+        component: () => import('/Users/posva/unplugin-vue-router/e2e/fixtures/filenames/routes/optional/[[docs]]+.vue'),
+        /* no children */
+      }
+    ],
+  },
+  {
+    path: \\"/nested\\",
+    /* no name */
+    /* no component */
+    children: [
+      {
+        path: \\"folder\\",
+        /* no name */
+        /* no component */
+        children: [
+          {
+            path: \\"\\",
+            name: \\"/nested/folder/\\",
+            component: () => import('/Users/posva/unplugin-vue-router/e2e/fixtures/filenames/routes/nested/folder/index.vue'),
+            /* no children */
+          },
+          {
+            path: \\"should\\",
+            /* no name */
+            /* no component */
+            children: [
+              {
+                path: \\"work\\",
+                /* no name */
+                /* no component */
+                children: [
+                  {
+                    path: \\"\\",
+                    name: \\"/nested/folder/should/work/\\",
+                    component: () => import('/Users/posva/unplugin-vue-router/e2e/fixtures/filenames/routes/nested/folder/should/work/index.vue'),
+                    /* no children */
+                  }
+                ],
+              }
+            ],
+          }
+        ],
+      }
+    ],
+  }
+]"
+`;

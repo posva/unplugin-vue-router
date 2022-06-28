@@ -8,8 +8,8 @@ export type LiteralStringUnion<LiteralType, BaseType extends string = string> =
   | LiteralType
   | (BaseType & Record<never, never>)
 
-export function logTree(tree: TreeLeaf) {
-  console.log(printTree(tree))
+export function logTree(tree: TreeLeaf, log: (str: string) => any) {
+  log(printTree(tree))
 }
 
 const MAX_LEVEL = 1000

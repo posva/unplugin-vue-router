@@ -28,13 +28,18 @@ export interface Options {
   /**
    * Should generate d.ts files. Defaults to `true` if `typescript` is installed.
    */
-  dts?: boolean
+  dts?: boolean | string
 
   /**
    * Allows inspection by vite-plugin-inspect by not adding the leading `\0` to the id of virtual modules.
    * @internal
    */
   _inspect?: boolean
+
+  /**
+   * Activates debug logs.
+   */
+  logs?: boolean
 }
 
 export const DEFAULT_OPTIONS: Required<Options> = {
@@ -45,5 +50,6 @@ export const DEFAULT_OPTIONS: Required<Options> = {
   importMode: 'async',
   root: process.cwd(),
   dts: isPackageExists('typescript'),
+  logs: false,
   _inspect: false,
 }
