@@ -182,13 +182,9 @@ export * from 'vue-router'
 
 export function createRouter(options) {
   const { extendRoutes } = options
-  if (typeof extendRoutes === 'function') {
-    routes = extendRoutes(routes) || routes
-  }
-
   return _createRouter({
     ...options,
-    routes,
+    routes: typeof extendRoutes === 'function' ? extendRoutes(routes) : routes,
   })
 }
 `

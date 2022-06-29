@@ -5,7 +5,7 @@ import type { Route, RouteParams, RouteParamsRaw } from '@vue-router'
 
 const router = createRouter({
   extendRoutes: (routes) => {
-    routes.find((r) => r.name === 'home')!.meta = {}
+    routes.find((r) => r.name === '/')!.meta = {}
     return routes
   },
   history: createWebHistory(),
