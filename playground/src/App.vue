@@ -2,14 +2,16 @@
 import { useRoute } from '@vue-router'
 
 const route = useRoute()
-route.name === '/about'
+if (route.name === '/deep/nesting/works/[[files]]+') {
+  route.params.files
+}
 </script>
 
 <template>
   <header>
     <div class="wrapper">
       <nav>
-        <RouterLink to="/added-during-runtime/[...path]">About</RouterLink>
+        <RouterLink to="/about">About</RouterLink>
         <RouterLink :to="{ name: '/articles/[id]', params: { id: 2 } }"
           >About</RouterLink
         >

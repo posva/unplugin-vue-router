@@ -152,20 +152,16 @@ declare module '${MODULE_VUE_ROUTER}' {
   export function onBeforeRouteUpdate(guard: NavigationGuard<RouteNamedMap>): void
 }
 
-declare module '@vue/runtime-core' {
+declare module 'vue-router' {
   import type { RouteNamedMap } from '${MODULE_ROUTES_PATH}'
 
-  export interface ComponentCustomOptions {
-    beforeRouteUpdate?: NavigationGuard<RouteNamedMap>
-    beforeRouteLeave?: NavigationGuard<RouteNamedMap>
-  }
+  export interface TypesConfig {
+    beforeRouteUpdate: NavigationGuard<RouteNamedMap>
+    beforeRouteLeave: NavigationGuard<RouteNamedMap>
 
-  export interface ComponentCustomProperties {
     $route: RouteLocationNormalizedLoadedTypedList<RouteNamedMap>[keyof RouteNamedMap]
     $router: _RouterTyped<RouteNamedMap>
-  }
 
-  export interface GlobalComponents {
     RouterLink: RouterLinkTyped<RouteNamedMap>
   }
 }

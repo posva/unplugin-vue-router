@@ -85,7 +85,7 @@
     "unplugin": "^0.7.0"
   },
   "peerDependencies": {
-    "vue-router": "^4.1.0"
+    "vue-router": "^4.1.0-0"
   },
   "peerDependenciesMeta": {
     "vue-router": {
@@ -114,7 +114,7 @@
     "vite": "^2.9.13",
     "vitest": "^0.15.2",
     "vue": "^3.2.37",
-    "vue-router": "^4.1.0-0",
+    "vue-router": "edge",
     "webpack": "^5.72.1",
     "yorkie": "^2.0.0"
   }
