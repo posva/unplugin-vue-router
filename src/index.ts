@@ -47,6 +47,9 @@ export default createUnplugin<Options>((opt) => {
     },
 
     buildEnd() {
+      if (options.logs) {
+        console.log('🛑 stopping watcher')
+      }
       ctx.stopWatcher()
     },
 

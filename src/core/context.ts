@@ -78,11 +78,12 @@ export function createRoutesContext(options: Required<Options>) {
   }
 
   function setupWatcher() {
+    console.log(`🤖 Scanning files in ${resolvedRoutesFolder}`)
     serverWatcher
       .on('change', (path) => {
         // TODO: parse defineRoute macro?
         log('change', path)
-        writeConfigFiles()
+        // writeConfigFiles()
       })
       .on('add', (path) => {
         addPage(path)
