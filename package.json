@@ -93,6 +93,7 @@
     }
   },
   "devDependencies": {
+    "c8": "^7.11.3",
     "chalk": "^5.0.1",
     "conventional-changelog-cli": "^2.2.2",
     "enquirer": "^2.3.6",
