@@ -48,6 +48,28 @@ useRoute('/multiple-[a]-[b]-params').params
 useRoute<'/[name]'>().params.name
 // @ts-expect-error: /about doesn't have params
 useRoute<'/about'>('/about').params.never
+
+function defineRoute<T extends Partial<RouteRecordRaw>>(
+  routeModifier: (route: RouteRecordRaw) => T
+): T
+function defineRoute<T extends Partial<RouteRecordRaw>>(route: T): T
+function defineRoute<T extends Partial<RouteRecordRaw>>(
+  route: T | ((route: RouteRecordRaw) => T)
+): T {
+  return {} as T
+}
+
+defineRoute({
+  path: '/:name(\\d+)',
+  name: 'my-name',
+})
+defineRoute((route) => ({
+  ...route,
+  children: [
+    ...(route.children || []),
+    { path: '/cosa', name: 'cosa', component: {} },
+  ],
+}))
 </script>
 
 <template>
