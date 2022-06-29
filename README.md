@@ -286,7 +286,7 @@ import type { RouterTyped } from '@vue-router'
 
 ## Extending existing routes
 
-You can extend existing routes by passing an `extendRoutes` function to `createRouter()`. **This should be uses as a last resort** (or until a feature is natively available here):
+You can extend existing routes by passing an `extendRoutes` function to `createRouter()`. **This should be used as a last resort** (or until a feature is natively available here):
 
 ```js
 import { createWebHistory, createRouter } from '@vue-router'

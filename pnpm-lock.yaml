@@ -29,7 +29,7 @@ importers:
       vite: ^2.9.13
       vitest: ^0.15.2
       vue: ^3.2.37
-      vue-router: ^4.0.16
+      vue-router: ^4.1.0-0
       webpack: ^5.72.1
       yorkie: ^2.0.0
     dependencies:
@@ -59,7 +59,7 @@ importers:
       vite: 2.9.13
       vitest: 0.15.2
       vue: 3.2.37
-      vue-router: 4.0.16_vue@3.2.37
+      vue-router: 4.1.0-beta.0_vue@3.2.37
       webpack: 5.73.0
       yorkie: 2.0.0
 
@@ -3734,8 +3734,8 @@ packages:
       - supports-color
     dev: true
 
-  /vue-router/4.0.16_vue@3.2.37:
-    resolution: {integrity: sha512-JcO7cb8QJLBWE+DfxGUL3xUDOae/8nhM1KVdnudadTAORbuxIC/xAydC5Zr/VLHUDQi1ppuTF5/rjBGzgzrJNA==}
+  /vue-router/4.1.0-beta.0_vue@3.2.37:
+    resolution: {integrity: sha512-HmE6TRucb5io3nUEk/mccg8DswTcFl7L3JZY6P0MFMD1wnH1YVYB3rqxbZOGO78AwTMdSXLUnsB2j4w0gUUbSg==}
     peerDependencies:
       vue: ^3.2.0
     dependencies:

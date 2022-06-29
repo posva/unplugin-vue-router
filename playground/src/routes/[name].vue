@@ -5,7 +5,7 @@ import {
   onBeforeRouteLeave,
   onBeforeRouteUpdate,
 } from '@vue-router'
-import type { RouterTyped } from '@vue-router'
+import type { RouterTyped, RouteRecordRaw } from '@vue-router'
 
 // const $route = useRoute()
 
