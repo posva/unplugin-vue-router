@@ -2,7 +2,7 @@
 
 [![NPM version](https://img.shields.io/npm/v/unplugin-vue-router?color=black&label=)](https://www.npmjs.com/package/unplugin-vue-router)
 
-> Zero-config File based type safe Routing in Vue
+> Automatic file based Routing in Vue with TS support ✨
 
 <!-- https://user-images.githubusercontent.com/664177/176622756-3d10acc6-caac-40ff-a41f-9bdccadf7f1d.mp4 -->
 
