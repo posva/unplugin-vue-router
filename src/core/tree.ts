@@ -80,7 +80,7 @@ export class TreeLeaf {
         child.value.filePaths.delete(viewName)
       }
       // this is the file we wanted to remove
-      if (child.children.size === 0) {
+      if (child.children.size === 0 && child.value.filePaths.size === 0) {
         this.children.delete(segment)
       }
     }

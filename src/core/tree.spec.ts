@@ -79,6 +79,17 @@ describe('Tree', () => {
     ]).toEqual(['a', 'b'])
   })
 
+  it('removes the node after all named views', () => {
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    tree.insert('index.vue')
+    tree.insert('index@a.vue')
+    expect(tree.children.get('index')).toBeDefined()
+    tree.remove('index@a.vue')
+    expect(tree.children.get('index')).toBeDefined()
+    tree.remove('index.vue')
+    expect(tree.children.get('index')).toBeUndefined()
+  })
+
   it('handles multiple params', () => {
     const tree = createPrefixTree(DEFAULT_OPTIONS)
     tree.insert('[a]-[b].vue')
