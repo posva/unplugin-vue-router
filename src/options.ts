@@ -1,8 +1,11 @@
 import { isPackageExists } from 'local-pkg'
-import type { TreeLeaf } from './core/tree'
 import { getFileBasedRouteName } from './core/utils'
+import type { TreeLeaf } from './core/tree'
 
 export interface Options {
+  /**
+   * Extensions of files to be considered as pages. Defaults to `['.vue']`. Cannot be empty.
+   */
   extensions?: string[]
   /**
    * Folder containing the components that should be used for routes.
@@ -10,17 +13,22 @@ export interface Options {
    * @default "src/routes"
    */
   routesFolder?: string
+  // TODO: add support for multiple routes folders and prepending a path segment
 
   /**
    * Method to generate the name of a route.
    */
   getRouteName: (node: TreeLeaf) => string
 
-  importMode?:
-    | 'sync'
-    | 'async'
-    | ((path: string, resolvedOptions: Options) => 'sync' | 'async')
+  // TODO:
+  // importMode?:
+  //   | 'sync'
+  //   | 'async'
+  //   | ((path: string, resolvedOptions: Options) => 'sync' | 'async')
 
+  /**
+   * Array of file globs to ignore. Defaults to `[]`.
+   */
   exclude?: string[]
 
   root?: string
@@ -43,11 +51,10 @@ export interface Options {
 }
 
 export const DEFAULT_OPTIONS: Required<Options> = {
-  extensions: ['.vue', '.js', '.jsx', '.ts', '.tsx'],
+  extensions: ['.vue'],
   exclude: [],
   routesFolder: 'src/routes',
   getRouteName: getFileBasedRouteName,
-  importMode: 'async',
   root: process.cwd(),
   dts: isPackageExists('typescript'),
   logs: false,

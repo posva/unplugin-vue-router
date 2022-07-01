@@ -31,6 +31,7 @@ export function createRoutesContext(options: Required<Options>) {
     ignoreInitial: true,
     disableGlobbing: true,
     ignorePermissionErrors: true,
+    ignored: options.exclude,
     // useFsEvents: true,
     // TODO: allow user options
   })
@@ -41,19 +42,29 @@ export function createRoutesContext(options: Required<Options>) {
 
   async function scanPages() {
     const routeFolders: string[] = [resolvedRoutesFolder]
-    const pattern = `**/*.{${options.extensions
-      .map((extension) => extension.replace('.', ''))
-      .join(',')}}`
+    if (options.extensions.length < 1) {
+      throw new Error(
+        '"extensions" cannot be empty. Please specify at least one extension.'
+      )
+    }
+    const pattern =
+      `**/*` +
+      (options.extensions.length === 1
+        ? options.extensions[0]
+        : `.{${options.extensions
+            .map((extension) => extension.replace('.', ''))
+            .join(',')}}`)
     const files = (
       await Promise.all(
         routeFolders.map((folder) =>
-          fg(pattern, { cwd: folder, followSymbolicLinks: true }).then(
-            (files) => files.flatMap((file) => resolve(folder, file))
-          )
+          fg(pattern, {
+            cwd: folder,
+            followSymbolicLinks: true,
+            ignore: options.exclude,
+          }).then((files) => files.flatMap((file) => resolve(folder, file)))
         )
       )
     ).flat()
-    // TODO: filter out excluded files
 
     for (const file of files) {
       addPage(file)
