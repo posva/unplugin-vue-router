@@ -79,6 +79,14 @@ describe('Tree', () => {
     ]).toEqual(['a', 'b'])
   })
 
+  it('handles single named views that are not default', () => {
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    tree.insert('index@a.vue')
+    expect([...tree.children.get('index')!.value.filePaths.keys()]).toEqual([
+      'a',
+    ])
+  })
+
   it('removes the node after all named views', () => {
     const tree = createPrefixTree(DEFAULT_OPTIONS)
     tree.insert('index.vue')

@@ -1,4 +1,4 @@
 {
-  "testing.automaticallyOpenPeekView": "never",
-  "prettier.enable": true
+  "prettier.enable": true,
+  "testing.automaticallyOpenPeekView": "never"
 }

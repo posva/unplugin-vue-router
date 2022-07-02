@@ -61,6 +61,21 @@ exports[`generateRouteRecord > correctly names index.vue files 1`] = `
 ]"
 `;
 
+exports[`generateRouteRecord > handles multiple named views 1`] = `
+"[
+  {
+    path: '/foo',
+    name: '/foo',
+    components: {
+      'default': () => import('foo.vue'),
+      'a': () => import('foo@a.vue'),
+      'b': () => import('foo@b.vue')
+    },
+    /* no children */
+  }
+]"
+`;
+
 exports[`generateRouteRecord > handles non nested routes 1`] = `
 "[
   {
@@ -117,6 +132,19 @@ exports[`generateRouteRecord > handles non nested routes 1`] = `
     path: '/users/not-nested',
     name: '/users.not-nested',
     component: () => import('users.not-nested.vue'),
+    /* no children */
+  }
+]"
+`;
+
+exports[`generateRouteRecord > handles single named views 1`] = `
+"[
+  {
+    path: '/foo',
+    name: '/foo',
+    components: {
+      'a': () => import('foo@a.vue')
+    },
     /* no children */
   }
 ]"

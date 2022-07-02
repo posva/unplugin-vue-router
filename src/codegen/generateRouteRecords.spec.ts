@@ -23,6 +23,20 @@ describe('generateRouteRecord', () => {
     expect(generateRouteRecord(tree)).toMatchSnapshot()
   })
 
+  it('handles multiple named views', () => {
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    tree.insert('foo.vue')
+    tree.insert('foo@a.vue')
+    tree.insert('foo@b.vue')
+    expect(generateRouteRecord(tree)).toMatchSnapshot()
+  })
+
+  it('handles single named views', () => {
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    tree.insert('foo@a.vue')
+    expect(generateRouteRecord(tree)).toMatchSnapshot()
+  })
+
   it('nested children', () => {
     const tree = createPrefixTree(DEFAULT_OPTIONS)
     tree.insert('a/a.vue')

@@ -46,7 +46,8 @@ function generateRouteRecordComponent(
   indentStr: string
 ): string {
   const files = Array.from(node.value.filePaths)
-  return files.length === 1
+  const isDefaultExport = files.length === 1 && files[0][0] === 'default'
+  return isDefaultExport
     ? `component: () => import('${files[0][1]}'),`
     : // files has at least one entry
       `components: {
