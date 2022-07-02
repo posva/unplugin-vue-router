@@ -2,6 +2,7 @@ import type { Options } from '../options'
 import { createTreeLeafValue } from './treeLeafValue'
 import type { TreeLeafValue } from './treeLeafValue'
 import { trimExtension } from './utils'
+import { CustomRouteBlock } from './customBlock'
 
 export class TreeLeaf {
   /**
@@ -50,6 +51,18 @@ export class TreeLeaf {
     if (tail) {
       child.insert(tail, filePath)
     }
+    return child
+  }
+
+  mergeCustomRouteBlock(routeBlock: CustomRouteBlock | undefined) {
+    if (!routeBlock) return
+
+    this.value.name = routeBlock.name
+    if (routeBlock.path != null) {
+      this.value.path = routeBlock.path
+      this.value.pathSegment = routeBlock.path
+    }
+    this.value.meta = routeBlock.meta
   }
 
   getSortedChildren() {

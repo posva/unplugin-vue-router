@@ -33,6 +33,8 @@ export interface Options {
 
   root?: string
 
+  routeBlockLang?: string
+
   /**
    * Should generate d.ts files. Defaults to `true` if `typescript` is installed.
    */
@@ -54,6 +56,7 @@ export const DEFAULT_OPTIONS: Required<Options> = {
   extensions: ['.vue'],
   exclude: [],
   routesFolder: 'src/routes',
+  routeBlockLang: 'json5',
   getRouteName: getFileBasedRouteName,
   root: process.cwd(),
   dts: isPackageExists('typescript'),

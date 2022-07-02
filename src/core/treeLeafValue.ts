@@ -1,3 +1,4 @@
+import { RouteMeta, RouteRecordName } from 'vue-router'
 import { joinPath, trimExtension } from './utils'
 
 export const enum TreeLeafType {
@@ -30,6 +31,16 @@ class _TreeLeafValueBase {
    * fullPath of the node based on parent nodes
    */
   path: string
+
+  /**
+   * Overridden name for this route.
+   */
+  name?: RouteRecordName
+
+  /**
+   * Meta of the route
+   */
+  meta?: RouteMeta
 
   /**
    * Component path that maps to a view name, which is used for vue-router's named view feature.
