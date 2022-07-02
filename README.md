@@ -290,6 +290,21 @@ The `RouterTyped` type gives you access to the typed version of the router insta
 import type { RouterTyped } from '@vue-router'
 ```
 
+## Named views
+
+It is possible to define [named views](https://router.vuejs.org/guide/essentials/named-views.html#named-views) by appending an `@` + a named to their filename, e.g. a file named `src/routes/index@aux.vue` will generate a route of:
+
+```js
+{
+  path: '/',
+  component: {
+    aux: () => import('src/routes/index@aux.vue')
+  }
+}
+```
+
+Note that by default a non named route
+
 ## Extending existing routes
 
 You can extend existing routes by passing an `extendRoutes` function to `createRouter()`. **This should be used as a last resort** (or until a feature is natively available here):
