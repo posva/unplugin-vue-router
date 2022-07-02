@@ -19,12 +19,25 @@ export async function getRouteBlock(path: string, options: Required<Options>) {
     result = parseCustomBlock(blockStr, path, options)
   }
 
+  // validation
+  if (result) {
+    if (result.path != null && !result.path.startsWith('/')) {
+      console.error(`Overridden path must start with "/". Found in "${path}".`)
+    }
+  }
+
   return result
 }
 
-export type CustomRouteBlock = Partial<
-  Omit<RouteRecordRaw, 'components' | 'component' | 'children' | 'beforeEnter'>
->
+export interface CustomRouteBlock
+  extends Partial<
+    Omit<
+      RouteRecordRaw,
+      'components' | 'component' | 'children' | 'beforeEnter' | 'name'
+    >
+  > {
+  name?: string
+}
 
 function parseCustomBlock(
   block: SFCBlock,

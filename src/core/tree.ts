@@ -57,17 +57,12 @@ export class TreeLeaf {
   mergeCustomRouteBlock(routeBlock: CustomRouteBlock | undefined) {
     if (!routeBlock) return
 
-    this.value.name = routeBlock.name
-    if (routeBlock.path != null) {
-      this.value.path = routeBlock.path
-      this.value.pathSegment = routeBlock.path
-    }
-    this.value.meta = routeBlock.meta
+    this.value.overrides = routeBlock
   }
 
   getSortedChildren() {
     return Array.from(this.children.values()).sort((a, b) =>
-      a.value.path.localeCompare(b.value.path)
+      a.path.localeCompare(b.path)
     )
   }
 
@@ -77,7 +72,7 @@ export class TreeLeaf {
     const child = this.children.get(segment)
     if (!child) {
       throw new Error(
-        `Cannot Delete "${path}". "${segment}" not found at "${this.value.path}".`
+        `Cannot Delete "${path}". "${segment}" not found at "${this.path}".`
       )
     }
 
@@ -97,6 +92,21 @@ export class TreeLeaf {
         this.children.delete(segment)
       }
     }
+  }
+
+  get path() {
+    return (
+      this.value.overrides.path ??
+      (this.parent ? '' : '/') + this.value.pathSegment
+    )
+  }
+
+  get fullPath() {
+    return this.value.overrides.path ?? this.value.path
+  }
+
+  get name() {
+    return this.value.overrides.name || this.options.getRouteName(this)
   }
 
   isRoot() {

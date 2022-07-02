@@ -14,6 +14,7 @@ import { generateRouteRecord } from '../codegen/generateRouteRecords'
 import fg from 'fast-glob'
 import { resolve } from 'pathe'
 import { ServerContext } from '../options'
+import { getRouteBlock, parseCustomBlock } from './customBlock'
 
 export function createRoutesContext(options: Required<Options>) {
   const { dts: preferDTS, root } = options
@@ -72,21 +73,30 @@ export function createRoutesContext(options: Required<Options>) {
       )
     ).flat()
 
-    for (const file of files) {
-      addPage(file)
-    }
+    await Promise.all(files.map((file) => addPage(file)))
+
     await _writeConfigFiles()
   }
 
-  function addPage(path: string) {
+  async function addPage(path: string) {
+    const routePath = stripRouteFolder(path)
+    const routeBlock = await getRouteBlock(path, options)
     log('added', path)
-    const route = stripRouteFolder(path)
+    if (routeBlock) console.log(routeBlock)
     // TODO: handle top level named view HMR
-    routeTree.insert(
-      route,
+    const node = routeTree.insert(
+      routePath,
       // './' + path
       resolve(root, path)
     )
+    node.mergeCustomRouteBlock(routeBlock)
+  }
+
+  async function updatePage(path: string) {
+    const routeBlock = await getRouteBlock(path, options)
+    // TODO:
+    // const node = routeTree.findByPath(path)
+    // node.mergeCustomRouteBlock(routeBlock)
   }
 
   function removePage(path: string) {
@@ -100,14 +110,15 @@ export function createRoutesContext(options: Required<Options>) {
       .on('change', (path) => {
         // TODO: parse defineRoute macro?
         log('change', path)
+        // updatePage(path)
         // writeConfigFiles()
       })
-      .on('add', (path) => {
-        addPage(path)
+      .on('add', async (path) => {
+        await addPage(path)
         writeConfigFiles()
       })
-      .on('unlink', (path) => {
-        removePage(path)
+      .on('unlink', async (path) => {
+        await removePage(path)
         writeConfigFiles()
       })
   }

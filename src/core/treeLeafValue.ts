@@ -32,15 +32,17 @@ class _TreeLeafValueBase {
    */
   path: string
 
-  /**
-   * Overridden name for this route.
-   */
-  name?: RouteRecordName
-
-  /**
-   * Meta of the route
-   */
-  meta?: RouteMeta
+  overrides: {
+    path?: string
+    /**
+     * Overridden name for this route.
+     */
+    name?: string
+    /**
+     * Meta of the route
+     */
+    meta?: RouteMeta
+  } = {}
 
   /**
    * Component path that maps to a view name, which is used for vue-router's named view feature.

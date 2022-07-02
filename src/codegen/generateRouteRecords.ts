@@ -18,11 +18,14 @@ ${node
   const startIndent = ' '.repeat(indent * 2)
   const indentStr = ' '.repeat((indent + 1) * 2)
 
-  const name = node.options.getRouteName(node)
+  // TODO: should meta be defined a different way to allow preserving imports?
+  // const meta = node.value.overrides.meta
 
   return `${startIndent}{
-${indentStr}path: '${(parent ? '' : '/') + node.value.pathSegment}',
-${indentStr}${node.value.filePaths.size ? `name: '${name}',` : '/* no name */'}
+${indentStr}path: '${node.path}',
+${indentStr}${
+    node.value.filePaths.size ? `name: '${node.name}',` : '/* no name */'
+  }
 ${indentStr}${
     node.value.filePaths.size
       ? generateRouteRecordComponent(node, indentStr)
