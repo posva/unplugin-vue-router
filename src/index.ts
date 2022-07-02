@@ -4,25 +4,25 @@ import {
   MODULE_ROUTES_PATH,
   MODULE_VUE_ROUTER,
   VIRTUAL_PREFIX,
+  getVirtualId as _getVirtualId,
+  asVirtualId as _asVirtualId,
 } from './core/moduleConstants'
 import { DEFAULT_OPTIONS, Options } from './options'
+import { createViteContext } from './core/vite'
 
-export default createUnplugin<Options>((opt) => {
+export default createUnplugin<Options>((opt, meta) => {
   const options: Required<Options> = { ...DEFAULT_OPTIONS, ...opt }
   const ctx = createRoutesContext(options)
-  const root = process.cwd()
 
   function getVirtualId(id: string) {
     if (options._inspect) return id
-    return id.startsWith(VIRTUAL_PREFIX)
-      ? id.slice(VIRTUAL_PREFIX.length)
-      : null
+    return _getVirtualId(id)
   }
 
   function asVirtualId(id: string) {
     // for inspection
     if (options._inspect) return id
-    return VIRTUAL_PREFIX + id
+    return _asVirtualId(id)
   }
 
   return {
@@ -67,6 +67,12 @@ export default createUnplugin<Options>((opt) => {
 
       // fallback
       return null
+    },
+
+    vite: {
+      configureServer(server) {
+        ctx.setServerContext(createViteContext(server))
+      },
     },
   }
 })

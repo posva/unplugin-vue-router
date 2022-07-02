@@ -4,10 +4,16 @@ import { createPrefixTree } from './tree'
 import { promises as fs } from 'fs'
 import { logTree, throttle } from './utils'
 import { generateRouteNamedMap } from '../codegen/generateRouteMap'
-import { MODULE_ROUTES_PATH, MODULE_VUE_ROUTER } from './moduleConstants'
+import {
+  getVirtualId,
+  MODULE_ROUTES_PATH,
+  MODULE_VUE_ROUTER,
+  asVirtualId,
+} from './moduleConstants'
 import { generateRouteRecord } from '../codegen/generateRouteRecords'
 import fg from 'fast-glob'
 import { resolve } from 'pathe'
+import { ServerContext } from '../options'
 
 export function createRoutesContext(options: Required<Options>) {
   const { dts: preferDTS, root } = options
@@ -207,6 +213,9 @@ export function createRouter(options) {
       if (lastDTS !== content) {
         await fs.writeFile(dts, content, 'utf-8')
         lastDTS = content
+        server?.invalidate(MODULE_ROUTES_PATH)
+        server?.invalidate(MODULE_VUE_ROUTER)
+        server?.reload()
       }
     }
   }
@@ -222,10 +231,16 @@ export function createRouter(options) {
     serverWatcher.close()
   }
 
+  let server: ServerContext | undefined
+  function setServerContext(_server: ServerContext) {
+    server = _server
+  }
+
   return {
     scanPages,
     writeConfigFiles,
 
+    setServerContext,
     stopWatcher,
 
     generateRoutes,

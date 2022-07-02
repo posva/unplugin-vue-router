@@ -60,3 +60,8 @@ export const DEFAULT_OPTIONS: Required<Options> = {
   logs: false,
   _inspect: false,
 }
+
+export interface ServerContext {
+  invalidate: (module: string) => void
+  reload: () => void
+}
