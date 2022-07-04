@@ -220,8 +220,12 @@ async function main() {
   step('\nCreating tags...')
   let versionsToPush = []
   for (const pkg of pkgWithVersions) {
-    versionsToPush.push(`refs/tags/${pkg.name}@${pkg.version}`)
-    await runIfNotDry('git', ['tag', `${pkg.name}@${pkg.version}`])
+    const tagName =
+      pkg.name === 'vue-router'
+        ? `v${pkg.version}`
+        : `${pkg.name}@${pkg.version}`
+    versionsToPush.push(`refs/tags/${tagName}`)
+    await runIfNotDry('git', ['tag', `${tagName}`])
   }
 
   step('\nPublishing packages...')
@@ -286,6 +290,7 @@ async function publishPackage(pkg) {
         'public',
         '--publish-branch',
         EXPECTED_BRANCH,
+        ...(skipCleanGitCheck ? ['--no-git-checks'] : []),
       ],
       {
         cwd: pkg.path,
