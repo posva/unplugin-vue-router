@@ -307,6 +307,25 @@ Note that by default a non named route
 
 ## Extending existing routes
 
+### SFC `<route>` custom block
+
+The `<route>` custom block is a way to extend existing routes. It can be used to add new `meta` fields, override the `path`, the `name`, or anything else in a route. **It has to be added to a `.vue` component inside of the [routes folder](#routes-folder-structure)**. It is similar to [the same feature in vite-plugin-pages](https://github.com/hannoeru/vite-plugin-pages#sfc-custom-block-for-route-data) to facilitate migration.
+
+```vue
+<route lang="json">
+{
+  "name": "name-override",
+  "meta": {
+    "requiresAuth": false
+  }
+}
+</route>
+```
+
+Note you can specify the language to use with `<route lang="yaml">`. By default, the language is JSON5 (more flexible version of JSON) but yaml and JSON are also supported. **This will also add Syntax Highlighting**.
+
+### `extendRoutes()`
+
 You can extend existing routes by passing an `extendRoutes` function to `createRouter()`. **This should be used as a last resort** (or until a feature is natively available here):
 
 ```js

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/posva/unplugin-vue-router/main/route.schema.json",
+  "$id": "https://raw.githubusercontent.com/posva/unplugin-vue-router/main/route.schema.json",
   "title": "Route custom block",
   "description": "An SFC custom block to add information to a route",
   "type": "object",
