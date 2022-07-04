@@ -1,48 +1,17 @@
 ## [0.0.10](https://github.com/posva/unplugin-vue-router/compare/v0.0.6...v0.0.10) (2022-07-04)
 
-### Bug Fixes
-
-- correctly extendRoutes ([e8d22a2](https://github.com/posva/unplugin-vue-router/commit/e8d22a2d077063e747816882188c29891f009612))
-- correctly handle named views ([0c983f6](https://github.com/posva/unplugin-vue-router/commit/0c983f653e335fd43bc6489cfc36ffe34aaa7b7c))
-- handle static unnested paths ([56b73d7](https://github.com/posva/unplugin-vue-router/commit/56b73d720388c2b043ace8dcbcb14183e1860bbb))
-- keep tree nodes until all children are removed ([e254d15](https://github.com/posva/unplugin-vue-router/commit/e254d15aa7143b5e4487b0f1c58c5dc80446489f))
-- stable order of paths ([59d743a](https://github.com/posva/unplugin-vue-router/commit/59d743a6c156a97e59d2848f791f69db6636f640))
-
 ### Features
 
 - add route json schema ([c5480e1](https://github.com/posva/unplugin-vue-router/commit/c5480e12725b9f7abbdf41322586c3e7b1d927a1))
-- allow extending routes with extendRoutes ([da4db97](https://github.com/posva/unplugin-vue-router/commit/da4db971dc48f77a2b00d364e4940e1c2d849d94))
-- exclude ([a4f1998](https://github.com/posva/unplugin-vue-router/commit/a4f1998171102dcc1a506f68d3e55a2018d679ab))
-- extend global types ([0d87201](https://github.com/posva/unplugin-vue-router/commit/0d872017cbfc407999ffdad167a78e8b1b2469ca)), closes [#3](https://github.com/posva/unplugin-vue-router/issues/3)
-- keep one component if possible ([efe20e2](https://github.com/posva/unplugin-vue-router/commit/efe20e2e7a89e2b339dc66840d165463d93ac4ba))
-- named view support ([#6](https://github.com/posva/unplugin-vue-router/issues/6)) ([a46dcd2](https://github.com/posva/unplugin-vue-router/commit/a46dcd24396962cf0519b05d53de75cc8511acdf))
 - parse route custom block ([963d1ca](https://github.com/posva/unplugin-vue-router/commit/963d1caf092c0147a9c0d5e5a2b19ca39583c95f))
 - **vite:** reload when routes change ([0231679](https://github.com/posva/unplugin-vue-router/commit/0231679005b17d5dd3ad496a3c19f4722018948d))
-
-### Performance Improvements
-
-- avoid writing on changes ([5a7c313](https://github.com/posva/unplugin-vue-router/commit/5a7c313da60c70510f6d05a197bedbbef5191d5b))
 
 ## [0.0.9](https://github.com/posva/unplugin-vue-router/compare/v0.0.6...v0.0.9) (2022-07-01)
 
 ### Bug Fixes
 
-- correctly extendRoutes ([e8d22a2](https://github.com/posva/unplugin-vue-router/commit/e8d22a2d077063e747816882188c29891f009612))
-- handle static unnested paths ([56b73d7](https://github.com/posva/unplugin-vue-router/commit/56b73d720388c2b043ace8dcbcb14183e1860bbb))
 - keep tree nodes until all children are removed ([e254d15](https://github.com/posva/unplugin-vue-router/commit/e254d15aa7143b5e4487b0f1c58c5dc80446489f))
 - stable order of paths ([59d743a](https://github.com/posva/unplugin-vue-router/commit/59d743a6c156a97e59d2848f791f69db6636f640))
-
-### Features
-
-- allow extending routes with extendRoutes ([da4db97](https://github.com/posva/unplugin-vue-router/commit/da4db971dc48f77a2b00d364e4940e1c2d849d94))
-- exclude ([a4f1998](https://github.com/posva/unplugin-vue-router/commit/a4f1998171102dcc1a506f68d3e55a2018d679ab))
-- extend global types ([0d87201](https://github.com/posva/unplugin-vue-router/commit/0d872017cbfc407999ffdad167a78e8b1b2469ca)), closes [#3](https://github.com/posva/unplugin-vue-router/issues/3)
-- keep one component if possible ([efe20e2](https://github.com/posva/unplugin-vue-router/commit/efe20e2e7a89e2b339dc66840d165463d93ac4ba))
-- named view support ([#6](https://github.com/posva/unplugin-vue-router/issues/6)) ([a46dcd2](https://github.com/posva/unplugin-vue-router/commit/a46dcd24396962cf0519b05d53de75cc8511acdf))
-
-### Performance Improvements
-
-- avoid writing on changes ([5a7c313](https://github.com/posva/unplugin-vue-router/commit/5a7c313da60c70510f6d05a197bedbbef5191d5b))
 
 ## [0.0.8](https://github.com/posva/unplugin-vue-router/compare/v0.0.6...v0.0.8) (2022-06-29)
 
@@ -51,16 +20,6 @@
 - correctly extendRoutes ([e8d22a2](https://github.com/posva/unplugin-vue-router/commit/e8d22a2d077063e747816882188c29891f009612))
 - handle static unnested paths ([56b73d7](https://github.com/posva/unplugin-vue-router/commit/56b73d720388c2b043ace8dcbcb14183e1860bbb))
 - stable order of paths ([59d743a](https://github.com/posva/unplugin-vue-router/commit/59d743a6c156a97e59d2848f791f69db6636f640))
-
-### Features
-
-- allow extending routes with extendRoutes ([da4db97](https://github.com/posva/unplugin-vue-router/commit/da4db971dc48f77a2b00d364e4940e1c2d849d94))
-- keep one component if possible ([efe20e2](https://github.com/posva/unplugin-vue-router/commit/efe20e2e7a89e2b339dc66840d165463d93ac4ba))
-- named view support ([#6](https://github.com/posva/unplugin-vue-router/issues/6)) ([a46dcd2](https://github.com/posva/unplugin-vue-router/commit/a46dcd24396962cf0519b05d53de75cc8511acdf))
-
-### Performance Improvements
-
-- avoid writing on changes ([5a7c313](https://github.com/posva/unplugin-vue-router/commit/5a7c313da60c70510f6d05a197bedbbef5191d5b))
 
 ## [0.0.7](https://github.com/posva/unplugin-vue-router/compare/v0.0.6...v0.0.7) (2022-06-28)
 
