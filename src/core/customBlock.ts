@@ -1,11 +1,11 @@
 import { SFCBlock, parse } from '@vue/compiler-sfc'
 import { promises as fs } from 'fs'
-import { Options } from '../options'
+import { ResolvedOptions } from '../options'
 import JSON5 from 'json5'
 import { parse as YAMLParser } from 'yaml'
 import { RouteRecordRaw } from 'vue-router'
 
-export async function getRouteBlock(path: string, options: Required<Options>) {
+export async function getRouteBlock(path: string, options: ResolvedOptions) {
   const content = await fs.readFile(path, 'utf8')
 
   const parsedSFC = await parse(content, { pad: 'space' }).descriptor
@@ -42,7 +42,7 @@ export interface CustomRouteBlock
 function parseCustomBlock(
   block: SFCBlock,
   filePath: string,
-  options: Required<Options>
+  options: ResolvedOptions
 ): CustomRouteBlock | undefined {
   const lang = block.lang ?? options.routeBlockLang
 

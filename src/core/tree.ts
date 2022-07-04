@@ -1,4 +1,4 @@
-import type { Options } from '../options'
+import type { ResolvedOptions } from '../options'
 import { createTreeLeafValue } from './treeLeafValue'
 import type { TreeLeafValue } from './treeLeafValue'
 import { trimExtension } from './utils'
@@ -22,9 +22,9 @@ export class TreeLeaf {
   /**
    * Plugin options taken into account by the tree.
    */
-  options: Options
+  options: ResolvedOptions
 
-  constructor(options: Options, filePath: string, parent?: TreeLeaf) {
+  constructor(options: ResolvedOptions, filePath: string, parent?: TreeLeaf) {
     this.options = options
     this.parent = parent
     this.value = createTreeLeafValue(filePath, parent?.value)
@@ -122,7 +122,7 @@ export class TreeLeaf {
   }
 }
 
-export function createPrefixTree(options: Options) {
+export function createPrefixTree(options: ResolvedOptions) {
   return new TreeLeaf(options, '')
 }
 

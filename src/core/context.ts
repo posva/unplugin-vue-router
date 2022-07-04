@@ -1,5 +1,5 @@
 import chokidar from 'chokidar'
-import { Options } from '../options'
+import { ResolvedOptions } from '../options'
 import { createPrefixTree } from './tree'
 import { promises as fs } from 'fs'
 import { logTree, throttle } from './utils'
@@ -11,7 +11,7 @@ import { resolve } from 'pathe'
 import { ServerContext } from '../options'
 import { getRouteBlock } from './customBlock'
 
-export function createRoutesContext(options: Required<Options>) {
+export function createRoutesContext(options: ResolvedOptions) {
   const { dts: preferDTS, root } = options
   const dts =
     preferDTS === false

@@ -6,11 +6,11 @@ import {
   getVirtualId as _getVirtualId,
   asVirtualId as _asVirtualId,
 } from './core/moduleConstants'
-import { DEFAULT_OPTIONS, Options } from './options'
+import { DEFAULT_OPTIONS, Options, ResolvedOptions } from './options'
 import { createViteContext } from './core/vite'
 
 export default createUnplugin<Options>((opt, meta) => {
-  const options: Required<Options> = { ...DEFAULT_OPTIONS, ...opt }
+  const options: ResolvedOptions = { ...DEFAULT_OPTIONS, ...opt }
   const ctx = createRoutesContext(options)
 
   function getVirtualId(id: string) {

@@ -2,17 +2,17 @@ import { isPackageExists } from 'local-pkg'
 import { getFileBasedRouteName } from './core/utils'
 import type { TreeLeaf } from './core/tree'
 
-export interface Options {
+export interface ResolvedOptions {
   /**
    * Extensions of files to be considered as pages. Defaults to `['.vue']`. Cannot be empty.
    */
-  extensions?: string[]
+  extensions: string[]
   /**
    * Folder containing the components that should be used for routes.
    *
    * @default "src/routes"
    */
-  routesFolder?: string
+  routesFolder: string
   // TODO: add support for multiple routes folders and prepending a path segment
 
   /**
@@ -29,30 +29,32 @@ export interface Options {
   /**
    * Array of file globs to ignore. Defaults to `[]`.
    */
-  exclude?: string[]
+  exclude: string[]
 
-  root?: string
+  root: string
 
-  routeBlockLang?: string
+  routeBlockLang: string
 
   /**
    * Should generate d.ts files. Defaults to `true` if `typescript` is installed.
    */
-  dts?: boolean | string
+  dts: boolean | string
 
   /**
    * Allows inspection by vite-plugin-inspect by not adding the leading `\0` to the id of virtual modules.
    * @internal
    */
-  _inspect?: boolean
+  _inspect: boolean
 
   /**
    * Activates debug logs.
    */
-  logs?: boolean
+  logs: boolean
 }
 
-export const DEFAULT_OPTIONS: Required<Options> = {
+export type Options = Partial<ResolvedOptions>
+
+export const DEFAULT_OPTIONS: ResolvedOptions = {
   extensions: ['.vue'],
   exclude: [],
   routesFolder: 'src/routes',
