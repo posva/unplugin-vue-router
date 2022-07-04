@@ -52,6 +52,7 @@
   },
   "files": [
     "dist",
+    "./route.schema.json",
     "*.d.ts"
   ],
   "scripts": {
