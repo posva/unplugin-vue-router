@@ -93,6 +93,21 @@ module.exports = {
 
 <br></details>
 
+<details>
+<summary>esbuild</summary><br>
+
+```ts
+// esbuild.config.js
+import { build } from 'esbuild'
+import VueRouter from 'unplugin-vue-router/esbuild'
+
+build({
+  plugins: [VueRouter()],
+})
+```
+
+<br></details>
+
 Then, you can run your dev server (usually `npm run dev` to generate the first version of the types) you can replace your imports from `vue-router` to `@vue-router`:
 
 ```diff
