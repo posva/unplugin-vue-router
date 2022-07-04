@@ -5,10 +5,8 @@ import type {
   _RouteMapGeneric,
 } from '../codegen/generateRouteMap'
 import type {
-  _ParamValue,
-  _ParamValueOneOrMore,
-  _ParamValueZeroOrOne,
-  _ParamValueZeroOrMore,
+  ParamValue,
+  ParamValueOneOrMore,
 } from '../codegen/generateRouteParams'
 import type { _RouterTyped as RouterTyped } from './router'
 import { RouteLocationTyped } from './routeLocation'
@@ -28,14 +26,14 @@ describe('RouterTyped', () => {
     '/[...path]': RouteRecordInfo<
       '/[...path]',
       '/:path(.*)',
-      { path: _ParamValue<true> },
-      { path: _ParamValue<false> }
+      { path: ParamValue<true> },
+      { path: ParamValue<false> }
     >
     '/[a]': RouteRecordInfo<
       '/[a]',
       '/:a',
-      { a: _ParamValue<true> },
-      { a: _ParamValue<false> }
+      { a: ParamValue<true> },
+      { a: ParamValue<false> }
     >
     '/a': RouteRecordInfo<
       '/a',
@@ -46,8 +44,8 @@ describe('RouterTyped', () => {
     '/[id]+': RouteRecordInfo<
       '/[id]+',
       '/:id+',
-      { id: _ParamValueOneOrMore<true> },
-      { id: _ParamValueOneOrMore<false> }
+      { id: ParamValueOneOrMore<true> },
+      { id: ParamValueOneOrMore<false> }
     >
   }
   const router = defineRouter<RouteMap>()
@@ -55,7 +53,7 @@ describe('RouterTyped', () => {
   it('resolve', () => {
     typeTest(() => {
       expectType<Record<never, never>>(router.resolve({ name: '/a' }).params)
-      expectType<{ a: _ParamValue<true> }>(
+      expectType<{ a: ParamValue<true> }>(
         router.resolve({ name: '/[a]' }).params
       )
 
@@ -92,12 +90,12 @@ describe('RouterTyped', () => {
         // @ts-expect-error: no route named this way
         if (to.name === '/[id]') {
         } else if (to.name === '/[a]') {
-          expectType<{ a: _ParamValue<true> }>(to.params)
+          expectType<{ a: ParamValue<true> }>(to.params)
         }
         // @ts-expect-error: no route named this way
         if (from.name === '/[id]') {
         } else if (to.name === '/[a]') {
-          expectType<{ a: _ParamValue<true> }>(to.params)
+          expectType<{ a: ParamValue<true> }>(to.params)
         }
         if (Math.random()) {
           return { name: '/[a]', params: { a: 2 } }
@@ -115,12 +113,12 @@ describe('RouterTyped', () => {
         // @ts-expect-error: no route named this way
         if (to.name === '/[id]') {
         } else if (to.name === '/[a]') {
-          expectType<{ a: _ParamValue<true> }>(to.params)
+          expectType<{ a: ParamValue<true> }>(to.params)
         }
         // @ts-expect-error: no route named this way
         if (from.name === '/[id]') {
         } else if (to.name === '/[a]') {
-          expectType<{ a: _ParamValue<true> }>(to.params)
+          expectType<{ a: ParamValue<true> }>(to.params)
         }
         if (Math.random()) {
           return { name: '/[a]', params: { a: 2 } }
@@ -138,12 +136,12 @@ describe('RouterTyped', () => {
         // @ts-expect-error: no route named this way
         if (to.name === '/[id]') {
         } else if (to.name === '/[a]') {
-          expectType<{ a: _ParamValue<true> }>(to.params)
+          expectType<{ a: ParamValue<true> }>(to.params)
         }
         // @ts-expect-error: no route named this way
         if (from.name === '/[id]') {
         } else if (to.name === '/[a]') {
-          expectType<{ a: _ParamValue<true> }>(to.params)
+          expectType<{ a: ParamValue<true> }>(to.params)
         }
         if (Math.random()) {
           return { name: '/[a]', params: { a: 2 } }

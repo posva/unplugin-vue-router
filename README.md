@@ -262,11 +262,11 @@ Extending types with dynamically added routes:
 declare module '@vue-router/routes' {
   import type {
     RouteRecordInfo,
-    _ParamValue,
+    ParamValue,
     // these are other param helper types
-    _ParamValueOneOrMore,
-    _ParamValueZeroOrMore,
-    _ParamValueZeroOrOne,
+    ParamValueOneOrMore,
+    ParamValueZeroOrMore,
+    ParamValueZeroOrOne,
   } from 'unplugin-vue-router'
   export interface RouteNamedMap {
     // the key is the name and should match the first generic of RouteRecordInfo
@@ -274,9 +274,9 @@ declare module '@vue-router/routes' {
       'custom-dynamic-name',
       '/added-during-runtime/[...path]',
       // these are the raw param types (accept numbers, strings, booleans, etc)
-      { path: _ParamValue<true> },
+      { path: ParamValue<true> },
       // these are the normalized params as found in useRoute().params
-      { path: _ParamValue<false> }
+      { path: ParamValue<false> }
     >
   }
 }

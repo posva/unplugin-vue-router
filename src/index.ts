@@ -3,7 +3,6 @@ import { createRoutesContext } from './core/context'
 import {
   MODULE_ROUTES_PATH,
   MODULE_VUE_ROUTER,
-  VIRTUAL_PREFIX,
   getVirtualId as _getVirtualId,
   asVirtualId as _asVirtualId,
 } from './core/moduleConstants'
@@ -86,7 +85,6 @@ export type {
 } from './codegen/generateRouteMap'
 export type {
   RouteLocationNormalizedTyped,
-  // RouteLocationNormalizedTypedList,
   RouteLocationNormalizedLoadedTyped,
   RouteLocationNormalizedLoadedTypedList,
   RouteLocationAsRelativeTyped,
@@ -99,8 +97,8 @@ export type { NavigationGuard } from './typeExtensions/navigationGuards'
 export type { _RouterTyped } from './typeExtensions/router'
 export type { RouterLinkTyped } from './typeExtensions/RouterLink'
 export type {
-  _ParamValue,
-  _ParamValueOneOrMore,
-  _ParamValueZeroOrMore,
-  _ParamValueZeroOrOne,
+  ParamValue,
+  ParamValueOneOrMore,
+  ParamValueZeroOrMore,
+  ParamValueZeroOrOne,
 } from './codegen/generateRouteParams'

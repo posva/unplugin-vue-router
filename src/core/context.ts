@@ -135,12 +135,11 @@ import type {
   RouteRecordInfo,
   RouterLinkTyped,
   RouteLocationNormalizedLoadedTypedList,
-  RouteLocationAsString,
   NavigationGuard,
-  _ParamValue,
-  _ParamValueOneOrMore,
-  _ParamValueZeroOrMore,
-  _ParamValueZeroOrOne,
+  ParamValue,
+  ParamValueOneOrMore,
+  ParamValueZeroOrMore,
+  ParamValueZeroOrOne,
 } from 'unplugin-vue-router'
 
 declare module '${MODULE_ROUTES_PATH}' {

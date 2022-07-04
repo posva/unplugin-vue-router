@@ -7,12 +7,12 @@ export function generateRouteParams(node: TreeLeaf, isRaw: boolean): string {
           (param) =>
             `${param.paramName}${param.optional ? '?' : ''}: ` +
             (param.modifier === '+'
-              ? `_ParamValueOneOrMore<${isRaw}>`
+              ? `ParamValueOneOrMore<${isRaw}>`
               : param.modifier === '*'
-              ? `_ParamValueZeroOrMore<${isRaw}>`
+              ? `ParamValueZeroOrMore<${isRaw}>`
               : param.modifier === '?'
-              ? `_ParamValueZeroOrOne<${isRaw}>`
-              : `_ParamValue<${isRaw}>`)
+              ? `ParamValueZeroOrOne<${isRaw}>`
+              : `ParamValue<${isRaw}>`)
         )
         .join(', ')} }`
     : // no params allowed
@@ -22,35 +22,33 @@ export function generateRouteParams(node: TreeLeaf, isRaw: boolean): string {
 /**
  * Utility type for raw and non raw params like :id+
  *
- * @internal
  */
-export type _ParamValueOneOrMore<isRaw extends boolean> = true extends isRaw
-  ? [string | number, ...(string | number)[]]
-  : [string, ...string[]]
+export type ParamValueOneOrMore<isRaw extends boolean> = [
+  ParamValue<isRaw>,
+  ...ParamValue<isRaw>[]
+]
 
 /**
  * Utility type for raw and non raw params like :id*
  *
- * @internal
  */
-export type _ParamValueZeroOrMore<isRaw extends boolean> = true extends isRaw
-  ? (string | number)[] | undefined | null
-  : string[] | undefined | null
+export type ParamValueZeroOrMore<isRaw extends boolean> =
+  | ParamValue<isRaw>[]
+  | undefined
+  | null
 
 /**
  * Utility type for raw and non raw params like :id?
  *
- * @internal
  */
-export type _ParamValueZeroOrOne<isRaw extends boolean> = true extends isRaw
+export type ParamValueZeroOrOne<isRaw extends boolean> = true extends isRaw
   ? string | number | null | undefined
   : string
 
 /**
  * Utility type for raw and non raw params like :id
  *
- * @internal
  */
-export type _ParamValue<isRaw extends boolean> = true extends isRaw
+export type ParamValue<isRaw extends boolean> = true extends isRaw
   ? string | number
   : string

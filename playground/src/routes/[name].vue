@@ -40,9 +40,10 @@ if (routeLocation.name === '/[name]') {
   routeLocation.params.id
 }
 
-const route = useRoute()
-if (route.name == '/articles/[id]') {
-  console.log('route.params', route.params.id)
+const route = useRoute('/[name]')
+const anyRoute = useRoute()
+if (anyRoute.name == '/articles/[id]') {
+  console.log('anyRoute.params', anyRoute.params.id)
 }
 useRoute('/multiple-[a]-[b]-params').params
 useRoute<'/[name]'>().params.name
@@ -66,7 +67,7 @@ defineRoute({
 defineRoute((route) => ({
   ...route,
   children: [
-    ...(route.children || []),
+    ...('children' in route ? route.children : []),
     { path: '/cosa', name: 'cosa', component: {} },
   ],
 }))
@@ -74,6 +75,7 @@ defineRoute((route) => ({
 
 <template>
   <main>
-    <h1>Param: {{ $route.params.name }}</h1>
+    <h1>Param: {{ $route.name === '/[name]' && $route.params.name }}</h1>
+    <h2>Param: {{ route.params.name }}</h2>
   </main>
 </template>
