@@ -1,3 +1,7 @@
+## [0.0.11](https://github.com/posva/unplugin-vue-router/compare/v0.10.0...v0.0.11) (2022-07-04)
+
+Adapt peer vue router per dep to `4.1.0`.
+
 ## [0.0.10](https://github.com/posva/unplugin-vue-router/compare/v0.0.6...v0.0.10) (2022-07-04)
 
 ### Features
