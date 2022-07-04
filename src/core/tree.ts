@@ -97,7 +97,7 @@ export class TreeLeaf {
   get path() {
     return (
       this.value.overrides.path ??
-      (this.parent ? '' : '/') + this.value.pathSegment
+      (this.parent?.isRoot() ? '/' : '') + this.value.pathSegment
     )
   }
 
