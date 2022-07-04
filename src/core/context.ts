@@ -4,17 +4,12 @@ import { createPrefixTree } from './tree'
 import { promises as fs } from 'fs'
 import { logTree, throttle } from './utils'
 import { generateRouteNamedMap } from '../codegen/generateRouteMap'
-import {
-  getVirtualId,
-  MODULE_ROUTES_PATH,
-  MODULE_VUE_ROUTER,
-  asVirtualId,
-} from './moduleConstants'
+import { MODULE_ROUTES_PATH, MODULE_VUE_ROUTER } from './moduleConstants'
 import { generateRouteRecord } from '../codegen/generateRouteRecords'
 import fg from 'fast-glob'
 import { resolve } from 'pathe'
 import { ServerContext } from '../options'
-import { getRouteBlock, parseCustomBlock } from './customBlock'
+import { getRouteBlock } from './customBlock'
 
 export function createRoutesContext(options: Required<Options>) {
   const { dts: preferDTS, root } = options
@@ -200,7 +195,7 @@ declare module 'vue-router' {
   // cannot be resolved.
   function generateVueRouterProxy() {
     return `
-import { routes } from '@vue-router/routes'
+import { routes } from '${MODULE_ROUTES_PATH}'
 import { createRouter as _createRouter } from 'vue-router'
 
 export * from 'vue-router'
