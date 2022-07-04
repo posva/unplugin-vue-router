@@ -1,3 +1,13 @@
+## [0.0.12](https://github.com/posva/unplugin-vue-router/compare/v0.0.11...v0.0.12) (2022-07-04)
+
+### Bug Fixes
+
+- **options:** make all options optional ([9a573dd](https://github.com/posva/unplugin-vue-router/commit/9a573ddf1cb57580257654e26db91e2751ee5820)), closes [#13](https://github.com/posva/unplugin-vue-router/issues/13)
+
+### Features
+
+- supports esbuild ([#11](https://github.com/posva/unplugin-vue-router/issues/11)) ([17196c7](https://github.com/posva/unplugin-vue-router/commit/17196c776c059ea373e563e07172604fb12a6043))
+
 ## [0.0.11](https://github.com/posva/unplugin-vue-router/compare/v0.10.0...v0.0.11) (2022-07-04)
 
 Adapt peer vue router per dep to `4.1.0`.
