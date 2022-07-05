@@ -71,6 +71,14 @@ defineRoute((route) => ({
     { path: '/cosa', name: 'cosa', component: {} },
   ],
 }))
+
+defineRouteMeta<{ transition: string }>()
+defineRouteMeta({
+  transition: 'fade' as 'fade' | 'slide',
+})
+defineRouteMeta<{ transition: 'fade' | 'slide' }>({
+  transition: 'fade',
+})
 </script>
 
 <template>
