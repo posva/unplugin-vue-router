@@ -61,7 +61,8 @@ export function createRoutesContext(options: ResolvedOptions) {
         routeFolders.map((folder) =>
           fg(pattern, {
             cwd: folder,
-            followSymbolicLinks: true,
+            // TODO: do they return the symbolic link path or the original file?
+            // followSymbolicLinks: false,
             ignore: options.exclude,
           }).then((files) => files.flatMap((file) => resolve(folder, file)))
         )
@@ -100,7 +101,7 @@ export function createRoutesContext(options: ResolvedOptions) {
   }
 
   function setupWatcher() {
-    console.log(`🤖 Scanning files in ${resolvedRoutesFolder}`)
+    log(`🤖 Scanning files in ${resolvedRoutesFolder}`)
     serverWatcher
       .on('change', (path) => {
         // TODO: parse defineRoute macro?
