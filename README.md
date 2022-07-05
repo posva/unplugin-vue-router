@@ -17,7 +17,7 @@ This build-time plugin simplifies your routing setup **and** makes it safer and 
 ## Install
 
 ```bash
-npm i unplugin-vue-router
+npm i -D unplugin-vue-router
 ```
 
 <details>
