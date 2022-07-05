@@ -362,6 +362,23 @@ const router = createRouter({
 
 As this plugin evolves, this function should be used less and less and only become necessary in unique edge cases.
 
+#### Usage with vite-plugin-vue-layouts
+
+this plugin support the use with [vite-plugin-vue-layouts](https://github.com/JohnCampionJr/vite-plugin-vue-layouts)
+
+```js
+import { createWebHistory, createRouter } from '@vue-router'
+import { setupLayouts } from 'virtual:generated-layouts';
+
+const router = createRouter({
+  extendRoutes: (routes) => {
+    setupLayouts(routes);
+    ...
+  },
+  ...
+})
+```
+
 ## Rationale
 
 This project idea came from trying [to type the router directly using Typescript](https://github.com/vuejs/router/pull/1397/commits/c577998f3edaa6a1eb9474c27ab6c58f6e2d7c8a), finding out it's not fast enough to be pleasant to use and, ending up using build-based tools, taking some inspiration from other projects like:
