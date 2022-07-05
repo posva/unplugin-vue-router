@@ -1,3 +1,10 @@
+## [0.0.13](https://github.com/posva/unplugin-vue-router/compare/v0.0.12...v0.0.13) (2022-07-05)
+
+### Bug Fixes
+
+- **build:** externalize vue compiler ([7ef277b](https://github.com/posva/unplugin-vue-router/commit/7ef277be6c3943370537ffcc7d33b0e41c595913))
+- use route block in nested routes ([bdf4170](https://github.com/posva/unplugin-vue-router/commit/bdf4170f184045a2d8ee68e7a440759f9c9b93a3)), closes [#17](https://github.com/posva/unplugin-vue-router/issues/17)
+
 ## [0.0.12](https://github.com/posva/unplugin-vue-router/compare/v0.0.11...v0.0.12) (2022-07-04)
 
 ### Bug Fixes
