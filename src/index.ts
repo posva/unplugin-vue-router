@@ -76,6 +76,7 @@ export default createUnplugin<Options>((opt, meta) => {
   }
 })
 
+export { createRoutesContext }
 export { getFileBasedRouteName, getPascalCaseRouteName } from './core/utils'
 
 export type {

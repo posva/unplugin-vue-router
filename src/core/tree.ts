@@ -31,7 +31,7 @@ export class TreeLeaf {
   }
 
   /**
-   * Adds a path to the tree
+   * Adds a path to the tree. `path` cannot start with a `/`.
    *
    * @param path - route path of the file
    * @param filePath - file path, defaults to path for convenience and testing

@@ -1,5 +1,5 @@
-import { RouteMeta, RouteRecordName } from 'vue-router'
-import { joinPath, trimExtension } from './utils'
+import { RouteMeta } from 'vue-router'
+import { joinPath } from './utils'
 
 export const enum TreeLeafType {
   static,
