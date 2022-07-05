@@ -36,7 +36,7 @@ export class TreeLeaf {
    * @param path - route path of the file
    * @param filePath - file path, defaults to path for convenience and testing
    */
-  insert(path: string, filePath: string = path) {
+  insert(path: string, filePath: string = path): TreeLeaf {
     const { tail, segment, viewName, isComponent } = splitFilePath(path)
 
     if (!this.children.has(segment)) {
@@ -49,7 +49,7 @@ export class TreeLeaf {
     }
 
     if (tail) {
-      child.insert(tail, filePath)
+      return child.insert(tail, filePath)
     }
     return child
   }
