@@ -121,7 +121,7 @@ createRouter({
 })
 ```
 
-Make sure to also check [the TypeScript section](#typescript) below if you are using TypeScript.
+Make sure to also check and follow [the TypeScript section](#typescript) below **if you are using TypeScript or have a `jsconfig.json` file**.
 
 ## Configuration
 
@@ -247,7 +247,7 @@ To create a catch all route prepend 3 dots (`...`) to the param name, e.g. `src/
 
 ## TypeScript
 
-This plugin generates a `d.ts` file with all the typing overrides when the dev or build server is ran. Make sure to include it in your `tsconfig.json`'s `include` or `files` property:
+This plugin generates a `d.ts` file with all the typing overrides when the dev or build server is ran. Make sure to include it in your `tsconfig.json`'s (or `jsconfig.json`'s) `include` or `files` property:
 
 ```js
 {
@@ -361,6 +361,18 @@ const router = createRouter({
 ```
 
 As this plugin evolves, this function should be used less and less and only become necessary in unique edge cases.
+
+One example of this is using [vite-plugin-vue-layouts](https://github.com/JohnCampionJr/vite-plugin-vue-layouts) which can only be used alongside `extendRoutes()`:
+
+```ts
+import { createRouter } from '@vue-router'
+import { setupLayouts } from 'virtual:generated-layouts'
+
+const router = createRouter({
+  // ...
+  extendRoutes: (routes) => setupLayouts(routes),
+})
+```
 
 ## Rationale
 
