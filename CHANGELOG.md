@@ -1,3 +1,14 @@
+## [0.0.15](https://github.com/posva/unplugin-vue-router/compare/v0.0.14...v0.0.15) (2022-07-05)
+
+### Bug Fixes
+
+- generate meta field ([3bad90c](https://github.com/posva/unplugin-vue-router/commit/3bad90c19dfa31fd92ce401968b9b1777076536d)), closes [#21](https://github.com/posva/unplugin-vue-router/issues/21)
+
+### Features
+
+- expose createPrefixTree ([01fc3b3](https://github.com/posva/unplugin-vue-router/commit/01fc3b302ae0ae0ca74c3de507f34e7317b8d256))
+- expose the context ([d8d1ea7](https://github.com/posva/unplugin-vue-router/commit/d8d1ea7de2a4cfd2f7d72c3b19a679730fe885c0))
+
 ## [0.0.14](https://github.com/posva/unplugin-vue-router/compare/v0.0.13...v0.0.14) (2022-07-05)
 
 ### Features
