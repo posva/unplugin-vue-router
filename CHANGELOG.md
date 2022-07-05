@@ -1,3 +1,9 @@
+## [0.0.14](https://github.com/posva/unplugin-vue-router/compare/v0.0.13...v0.0.14) (2022-07-05)
+
+### Features
+
+- handle updates of routes ([1a9a028](https://github.com/posva/unplugin-vue-router/commit/1a9a028a6043c44f6566bd2fcf5cfbaf859ec60d))
+
 ## [0.0.13](https://github.com/posva/unplugin-vue-router/compare/v0.0.12...v0.0.13) (2022-07-05)
 
 ### Bug Fixes
