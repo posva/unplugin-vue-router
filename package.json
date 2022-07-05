@@ -87,6 +87,7 @@
     "fast-glob": "^3.2.11",
     "json5": "^2.2.1",
     "local-pkg": "^0.4.1",
+    "pathe": "^0.3.2",
     "scule": "^0.2.1",
     "unplugin": "^0.7.1",
     "yaml": "^2.1.1"
@@ -110,7 +111,6 @@
     "minimist": "^1.2.6",
     "nodemon": "^2.0.18",
     "p-series": "^3.0.0",
-    "pathe": "^0.3.2",
     "prettier": "^2.7.1",
     "rimraf": "^3.0.2",
     "rollup": "^2.75.7",
