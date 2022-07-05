@@ -102,3 +102,9 @@ export type {
   ParamValueZeroOrMore,
   ParamValueZeroOrOne,
 } from './codegen/generateRouteParams'
+export { TreeLeaf, createPrefixTree } from './core/tree'
+// export {
+//   createTreeLeafValue,
+//   TreeLeafValueParam,
+//   TreeLeafValueStatic,
+// } from './core/treeLeafValue'
