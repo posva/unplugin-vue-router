@@ -109,6 +109,12 @@ export class TreeLeaf {
     return this.value.overrides.name || this.options.getRouteName(this)
   }
 
+  get meta() {
+    return this.value.overrides.meta
+      ? JSON.stringify(this.value.overrides.meta, null, 2)
+      : ''
+  }
+
   isRoot() {
     return this.value.path === '/' && !this.value.filePaths.size
   }

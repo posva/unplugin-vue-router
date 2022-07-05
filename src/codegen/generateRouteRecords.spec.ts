@@ -115,4 +115,17 @@ describe('generateRouteRecord', () => {
       expect(generateRouteRecord(tree)).toMatchSnapshot()
     })
   })
+
+  it('adds meta data', () => {
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const node = tree.insert('index.vue')
+    node.mergeCustomRouteBlock({
+      meta: {
+        auth: true,
+        title: 'Home',
+      },
+    })
+
+    expect(generateRouteRecord(tree)).toMatchSnapshot()
+  })
 })

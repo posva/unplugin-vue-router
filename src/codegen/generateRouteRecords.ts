@@ -1,10 +1,6 @@
 import type { TreeLeaf } from '../core/tree'
 
-export function generateRouteRecord(
-  node: TreeLeaf,
-  indent = 0,
-  parent: TreeLeaf | null = null
-): string {
+export function generateRouteRecord(node: TreeLeaf, indent = 0): string {
   // root
   if (node.value.path === '/' && indent === 0) {
     return `[
@@ -36,11 +32,11 @@ ${indentStr}${
       ? `children: [
 ${node
   .getSortedChildren()
-  .map((child) => generateRouteRecord(child, indent + 2, node))
+  .map((child) => generateRouteRecord(child, indent + 2))
   .join(',\n')}
 ${indentStr}],`
       : '/* no children */'
-  }
+  }${formatMeta(node.meta, indentStr)}
 ${startIndent}}`
 }
 
@@ -58,4 +54,15 @@ ${files
   .map(([key, path]) => `${indentStr + '  '}'${key}': () => import('${path}')`)
   .join(',\n')}
 ${indentStr}},`
+}
+
+function formatMeta(meta: string, indent: string): string {
+  const formatted =
+    meta &&
+    meta
+      .split('\n')
+      .map((line) => indent + line)
+      .join('\n')
+
+  return formatted ? '\n' + indent + 'meta: ' + formatted.trimStart() : ''
 }

@@ -37,6 +37,21 @@ exports[`generateRouteRecord > adds children and name when folder and component 
 ]"
 `;
 
+exports[`generateRouteRecord > adds meta data 1`] = `
+"[
+  {
+    path: '/',
+    name: '/',
+    component: () => import('index.vue'),
+    /* no children */
+    meta: {
+      \\"auth\\": true,
+      \\"title\\": \\"Home\\"
+    }
+  }
+]"
+`;
+
 exports[`generateRouteRecord > correctly names index.vue files 1`] = `
 "[
   {

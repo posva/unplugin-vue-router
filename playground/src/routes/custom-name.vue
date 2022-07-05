@@ -1,5 +1,8 @@
 <route lang="json">
 {
-  "name": "a rebel"
+  "name": "a rebel",
+  "meta": {
+    "requiresAuth": true
+  }
 }
 </route>
