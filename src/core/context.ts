@@ -1,6 +1,6 @@
 import chokidar from 'chokidar'
 import { ResolvedOptions } from '../options'
-import { createPrefixTree } from './tree'
+import { createPrefixTree, TreeLeaf } from './tree'
 import { promises as fs } from 'fs'
 import { logTree, throttle } from './utils'
 import { generateRouteNamedMap } from '../codegen/generateRouteMap'
@@ -21,6 +21,7 @@ export function createRoutesContext(options: ResolvedOptions) {
       : resolve(root, preferDTS)
 
   const routeTree = createPrefixTree(options)
+  const routeMap = new Map<string, TreeLeaf>()
 
   function log(...args: any[]) {
     if (options.logs) {
@@ -86,28 +87,32 @@ export function createRoutesContext(options: ResolvedOptions) {
       resolve(root, path)
     )
     node.mergeCustomRouteBlock(routeBlock)
+    routeMap.set(path, node)
   }
 
   async function updatePage(path: string) {
+    log('update', path)
+    const node = routeMap.get(path)
+    if (!node) {
+      console.warn(`Cannot update "${path}": Not found.`)
+      return
+    }
     const routeBlock = await getRouteBlock(path, options)
-    // TODO:
-    // const node = routeTree.findByPath(path)
-    // node.mergeCustomRouteBlock(routeBlock)
+    node.mergeCustomRouteBlock(routeBlock)
   }
 
   function removePage(path: string) {
     log('remove', path)
     routeTree.remove(stripRouteFolder(path))
+    routeMap.delete(path)
   }
 
   function setupWatcher() {
     log(`🤖 Scanning files in ${resolvedRoutesFolder}`)
     serverWatcher
-      .on('change', (path) => {
-        // TODO: parse defineRoute macro?
-        log('change', path)
-        // updatePage(path)
-        // writeConfigFiles()
+      .on('change', async (path) => {
+        await updatePage(path)
+        writeConfigFiles()
       })
       .on('add', async (path) => {
         await addPage(path)
