@@ -12,7 +12,7 @@ import { ServerContext } from '../options'
 import { getRouteBlock } from './customBlock'
 
 export function createRoutesContext(options: ResolvedOptions) {
-  const { dts: preferDTS, root } = options
+  const { dts: preferDTS, root, ignoredPathPrefix } = options
   const dts =
     preferDTS === false
       ? false
@@ -29,12 +29,20 @@ export function createRoutesContext(options: ResolvedOptions) {
     }
   }
 
+  const ignoredPathPattern = `**/` +
+  (options.ignoredPathPrefix.length === 1
+    ? options.ignoredPathPrefix[0]
+    : `{${options.ignoredPathPrefix
+        .join(',')}}?(*)`)
+  
+  const exclude = options.exclude.concat(ignoredPathPattern)
+
   const resolvedRoutesFolder = resolve(root, options.routesFolder)
   const serverWatcher = chokidar.watch(resolvedRoutesFolder, {
     ignoreInitial: true,
     disableGlobbing: true,
     ignorePermissionErrors: true,
-    ignored: options.exclude,
+    ignored: exclude,
     // useFsEvents: true,
     // TODO: allow user options
   })
@@ -50,13 +58,14 @@ export function createRoutesContext(options: ResolvedOptions) {
         '"extensions" cannot be empty. Please specify at least one extension.'
       )
     }
-    const pattern =
-      `**/*` +
+
+    const pattern =  `**/*` +
       (options.extensions.length === 1
         ? options.extensions[0]
         : `.{${options.extensions
             .map((extension) => extension.replace('.', ''))
             .join(',')}}`)
+
     const files = (
       await Promise.all(
         routeFolders.map((folder) =>
@@ -64,7 +73,7 @@ export function createRoutesContext(options: ResolvedOptions) {
             cwd: folder,
             // TODO: do they return the symbolic link path or the original file?
             // followSymbolicLinks: false,
-            ignore: options.exclude,
+            ignore: exclude,
           }).then((files) => files.flatMap((file) => resolve(folder, file)))
         )
       )

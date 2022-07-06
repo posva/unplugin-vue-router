@@ -50,6 +50,8 @@ export interface ResolvedOptions {
    * Activates debug logs.
    */
   logs: boolean
+
+  ignoredPathPrefix: string[]
 }
 
 export type Options = Partial<ResolvedOptions>
@@ -64,6 +66,7 @@ export const DEFAULT_OPTIONS: ResolvedOptions = {
   dts: isPackageExists('typescript'),
   logs: false,
   _inspect: false,
+  ignoredPathPrefix: ['_not', 'not-']
 }
 
 export interface ServerContext {
