@@ -108,3 +108,5 @@ export { TreeLeaf, createPrefixTree } from './core/tree'
 //   TreeLeafValueParam,
 //   TreeLeafValueStatic,
 // } from './core/treeLeafValue'
+
+export const VueRouterExports = ['useRoute', 'useRouter']

@@ -1,10 +1,5 @@
 <script lang="ts" setup>
-import {
-  useRoute,
-  useRouter,
-  onBeforeRouteLeave,
-  onBeforeRouteUpdate,
-} from '@vue-router'
+import { onBeforeRouteLeave, onBeforeRouteUpdate } from '@vue-router'
 import type { RouterTyped, RouteRecordRaw } from '@vue-router'
 
 // const $route = useRoute()

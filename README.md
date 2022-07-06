@@ -121,6 +121,26 @@ createRouter({
 })
 ```
 
+If you are using [unplugin-auto-import](https://github.com/antfu/unplugin-auto-import), make sure to remove the `vue-router` preset and use the one exported by `unplugin-vue-router`:
+
+```diff
+ import { defineConfig } from 'vite'
+ import AutoImport from 'unplugin-auto-import/vite'
++import { VueRouterExports } from 'unplugin-vue-router'
+
+ export default defineConfig({
+   plugins: [
+     // other plugins
+     AutoImport({
+       imports: [
+-        'vue-router',
++        { '@vue-router': VueRouterExports },
+       ],
+     }),
+   ],
+ })
+```
+
 Make sure to also check and follow [the TypeScript section](#typescript) below **if you are using TypeScript or have a `jsconfig.json` file**.
 
 ## Configuration
