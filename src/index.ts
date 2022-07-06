@@ -8,10 +8,11 @@ import {
 } from './core/moduleConstants'
 import { DEFAULT_OPTIONS, Options, ResolvedOptions } from './options'
 import { createViteContext } from './core/vite'
+import { isFunction, isObject, mergeDeep } from './core/utils'
 
 export default createUnplugin<Options>((opt, meta) => {
   const options: ResolvedOptions = { ...DEFAULT_OPTIONS, ...opt }
-  const ctx = createRoutesContext(options)
+  const ctx = createRoutesContext(options, meta)
 
   function getVirtualId(id: string) {
     if (options._inspect) return id
@@ -71,6 +72,45 @@ export default createUnplugin<Options>((opt, meta) => {
     vite: {
       configureServer(server) {
         ctx.setServerContext(createViteContext(server))
+      },
+      config(config){
+        if(meta.framework !== 'webpack' && options.manualChunks) {
+          mergeDeep(config, {
+            build: {
+              rollupOptions: {
+                output: {
+                }
+              }
+            }
+          })
+
+          const output = [config.build!.rollupOptions!.output!].flat()
+          output.forEach((item) => {
+            const { manualChunks: viteManualChunks } = item;
+            if(!viteManualChunks) {
+              item.manualChunks = options.manualChunks
+            } else {
+              if(typeof viteManualChunks !== typeof options.manualChunks) {
+                throw new Error(
+                  `The type of "viteManualChunks" you currently configure in the viteRouter plugin is inconsistent with the type of "vite" configuration`
+                )
+              } else if(isObject(options.manualChunks)) {
+                Object.assign(viteManualChunks, options.manualChunks)
+              } else if(isFunction(options.manualChunks)){
+                item.manualChunks = (id: string) => {
+                  const routerChunk = (options.manualChunks as any)(id)
+                  if(routerChunk) {
+                    return routerChunk
+                  }
+                  const viteChunk = (viteManualChunks as any)(id)
+                  if(viteChunk) {
+                    return viteChunk
+                  }
+                }
+              }
+            }
+          })
+        }
       },
     },
   }

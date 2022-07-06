@@ -12,6 +12,15 @@ export default defineConfig({
   plugins: [
     Vue({}),
     VueRouter({
+      manualChunks: (id) => {
+        if(id.includes('[id]')) {
+          console.log({
+            id
+          })
+          return 'idididid'
+        }
+        // return id
+      },
       logs: true,
       // getRouteName: getPascalCaseRouteName,
       exclude: [
@@ -28,4 +37,13 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        // manualChunks: () => {}
+        // a : 1
+      },
+      // s: 2,
+    }
+  }
 })

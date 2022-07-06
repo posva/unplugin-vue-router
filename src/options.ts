@@ -1,6 +1,7 @@
 import { isPackageExists } from 'local-pkg'
-import { getFileBasedRouteName } from './core/utils'
+import { getFileBasedRouteName, noop } from './core/utils'
 import type { TreeLeaf } from './core/tree'
+import { ManualChunksOption } from 'rollup'
 
 export interface ResolvedOptions {
   /**
@@ -50,6 +51,8 @@ export interface ResolvedOptions {
    * Activates debug logs.
    */
   logs: boolean
+
+  manualChunks: ManualChunksOption
 }
 
 export type Options = Partial<ResolvedOptions>
@@ -64,6 +67,7 @@ export const DEFAULT_OPTIONS: ResolvedOptions = {
   dts: isPackageExists('typescript'),
   logs: false,
   _inspect: false,
+  manualChunks: noop
 }
 
 export interface ServerContext {

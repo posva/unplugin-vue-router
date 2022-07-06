@@ -2,7 +2,7 @@ import chokidar from 'chokidar'
 import { ResolvedOptions } from '../options'
 import { createPrefixTree, TreeLeaf } from './tree'
 import { promises as fs } from 'fs'
-import { logTree, throttle } from './utils'
+import { logTree, noop, throttle } from './utils'
 import { generateRouteNamedMap } from '../codegen/generateRouteMap'
 import { MODULE_ROUTES_PATH, MODULE_VUE_ROUTER } from './moduleConstants'
 import { generateRouteRecord } from '../codegen/generateRouteRecords'
@@ -10,8 +10,10 @@ import fg from 'fast-glob'
 import { resolve } from 'pathe'
 import { ServerContext } from '../options'
 import { getRouteBlock } from './customBlock'
+import { UnpluginContextMeta } from 'unplugin'
 
-export function createRoutesContext(options: ResolvedOptions) {
+export function createRoutesContext(options: ResolvedOptions, meta?: UnpluginContextMeta) {
+  const hasWebpackChunks = options.manualChunks !== noop && meta?.framework === 'webpack'
   const { dts: preferDTS, root } = options
   const dts =
     preferDTS === false
@@ -125,7 +127,7 @@ export function createRoutesContext(options: ResolvedOptions) {
   }
 
   function generateRoutes() {
-    return `export const routes = ${generateRouteRecord(routeTree)}`
+    return `export const routes = ${generateRouteRecord(routeTree, 0, hasWebpackChunks && options.manualChunks)}`
   }
 
   function generateDTS(): string {
@@ -256,5 +258,7 @@ export function createRouter(options) {
 
     generateRoutes,
     generateVueRouterProxy,
+
+    hasWebpackChunks,
   }
 }
