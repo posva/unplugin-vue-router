@@ -1,8 +1,9 @@
 import { TreeLeaf } from '../core/tree'
 
 export function generateRouteParams(node: TreeLeaf, isRaw: boolean): string {
-  return node.value.isParam()
-    ? `{ ${node.value.params
+  const nodeParams = node.params
+  return node.params.length > 0
+    ? `{ ${node.params
         .map(
           (param) =>
             `${param.paramName}${param.optional ? '?' : ''}: ` +

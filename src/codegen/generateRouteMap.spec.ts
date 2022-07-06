@@ -47,6 +47,22 @@ describe('generateRouteNamedMap', () => {
     `)
   })
 
+  it('handles nested params in folders', () => {
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    tree.insert('n/[a]/index.vue') // normal
+    tree.insert('n/[a]/other.vue')
+    tree.insert('n/[a]/[b].vue')
+    tree.insert('n/[a]/[c]/other-[d].vue')
+    expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
+      "export interface RouteNamedMap {
+        '/n/[a]/': RouteRecordInfo<'/n/[a]/', '/n/:a/', { a: ParamValue<true> }, { a: ParamValue<false> }>,
+        '/n/[a]/[b]': RouteRecordInfo<'/n/[a]/[b]', '/n/:a/:b', { a: ParamValue<true>, b: ParamValue<true> }, { a: ParamValue<false>, b: ParamValue<false> }>,
+        '/n/[a]/[c]/other-[d]': RouteRecordInfo<'/n/[a]/[c]/other-[d]', '/n/:a/:c/other-:d', { a: ParamValue<true>, c: ParamValue<true>, d: ParamValue<true> }, { a: ParamValue<false>, c: ParamValue<false>, d: ParamValue<false> }>,
+        '/n/[a]/other': RouteRecordInfo<'/n/[a]/other', '/n/:a/other', { a: ParamValue<true> }, { a: ParamValue<false> }>,
+      }"
+    `)
+  })
+
   it('adds nested params', () => {
     const tree = createPrefixTree(DEFAULT_OPTIONS)
     tree.insert('n/[a].vue') // normal

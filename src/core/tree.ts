@@ -1,5 +1,5 @@
 import type { ResolvedOptions } from '../options'
-import { createTreeLeafValue } from './treeLeafValue'
+import { createTreeLeafValue, TreeRouteParam } from './treeLeafValue'
 import type { TreeLeafValue } from './treeLeafValue'
 import { trimExtension } from './utils'
 import { CustomRouteBlock } from './customBlock'
@@ -113,6 +113,19 @@ export class TreeLeaf {
     return this.value.overrides.meta
       ? JSON.stringify(this.value.overrides.meta, null, 2)
       : ''
+  }
+
+  get params(): TreeRouteParam[] {
+    const params = this.value.isParam() ? [...this.value.params] : []
+    let node = this.parent
+    while (node) {
+      if (node.value.isParam()) {
+        params.unshift(...node.value.params)
+      }
+      node = node.parent
+    }
+
+    return params
   }
 
   isRoot() {

@@ -5,13 +5,15 @@ const route = useRoute()
 if (route.name === '/deep/nesting/works/[[files]]+') {
   route.params.files
 }
+
+const customRoute = useRoute('/deep/nesting/works/custom-path')
 </script>
 
 <template>
   <header>
     <div class="wrapper">
       <nav>
-        <RouterLink to="/about">About</RouterLink>
+        <RouterLink to="/users/2">About</RouterLink>
         <RouterLink :to="{ name: '/articles/[id]', params: { id: 2 } }"
           >About</RouterLink
         >

@@ -38,6 +38,86 @@ describe('Tree', () => {
     expect(child.children.size).toBe(0)
   })
 
+  it('creates params in nested files', () => {
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const nestedId = tree.insert('nested/[id].vue')
+
+    expect(nestedId.value.isParam()).toBe(true)
+    expect(nestedId.params).toEqual([
+      expect.objectContaining({
+        isSplat: false,
+        modifier: '',
+        optional: false,
+        paramName: 'id',
+        repeatable: false,
+      }),
+    ])
+
+    const nestedAId = tree.insert('nested/a/[id].vue')
+    expect(nestedAId.value.isParam()).toBe(true)
+    expect(nestedAId.params).toEqual([
+      expect.objectContaining({
+        isSplat: false,
+        modifier: '',
+        optional: false,
+        paramName: 'id',
+        repeatable: false,
+      }),
+    ])
+  })
+
+  it('creates params in nested folders', () => {
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
+
+    let node = tree.insert('nested/[id]/index.vue')
+    const id = tree.children.get('nested')!.children.get('[id]')!
+    expect(id.value.isParam()).toBe(true)
+    expect(id.params).toEqual([
+      expect.objectContaining({
+        isSplat: false,
+        modifier: '',
+        optional: false,
+        paramName: 'id',
+        repeatable: false,
+      }),
+    ])
+
+    expect(node.value.isParam()).toBe(false)
+    expect(node.params).toEqual([
+      expect.objectContaining({
+        isSplat: false,
+        modifier: '',
+        optional: false,
+        paramName: 'id',
+        repeatable: false,
+      }),
+    ])
+
+    node = tree.insert('nested/[a]/other.vue')
+    expect(node.value.isParam()).toBe(false)
+    expect(node.params).toEqual([
+      expect.objectContaining({
+        isSplat: false,
+        modifier: '',
+        optional: false,
+        paramName: 'a',
+        repeatable: false,
+      }),
+    ])
+
+    node = tree.insert('nested/a/[id]/index.vue')
+    expect(node.value.isParam()).toBe(false)
+    expect(node.params).toEqual([
+      expect.objectContaining({
+        isSplat: false,
+        modifier: '',
+        optional: false,
+        paramName: 'id',
+        repeatable: false,
+      }),
+    ])
+  })
+
   it('handles named views', () => {
     const tree = createPrefixTree(DEFAULT_OPTIONS)
     tree.insert('index.vue')
