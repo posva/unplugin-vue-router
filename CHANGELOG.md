@@ -1,3 +1,9 @@
+## [0.0.17](https://github.com/posva/unplugin-vue-router/compare/v0.0.16...v0.0.17) (2022-07-06)
+
+### Features
+
+- expose auto imports array ([3e71a23](https://github.com/posva/unplugin-vue-router/commit/3e71a235306a0947bf0a5a0b5fade7c653c363ef)), closes [#24](https://github.com/posva/unplugin-vue-router/issues/24)
+
 ## [0.0.16](https://github.com/posva/unplugin-vue-router/compare/v0.0.15...v0.0.16) (2022-07-06)
 
 ### Bug Fixes
