@@ -1,3 +1,9 @@
+## [0.0.16](https://github.com/posva/unplugin-vue-router/compare/v0.0.15...v0.0.16) (2022-07-06)
+
+### Bug Fixes
+
+- handle parent params ([ef078b0](https://github.com/posva/unplugin-vue-router/commit/ef078b074f2a17b053aeb243f5f1b66d9ab0ea12)), closes [#20](https://github.com/posva/unplugin-vue-router/issues/20)
+
 ## [0.0.15](https://github.com/posva/unplugin-vue-router/compare/v0.0.14...v0.0.15) (2022-07-05)
 
 ### Bug Fixes
