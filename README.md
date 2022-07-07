@@ -327,7 +327,7 @@ import type { RouterTyped } from '@vue-router'
 
 ## Named views
 
-It is possible to define [named views](https://router.vuejs.org/guide/essentials/named-views.html#named-views) by appending an `@` + a named to their filename, e.g. a file named `src/routes/index@aux.vue` will generate a route of:
+It is possible to define [named views](https://router.vuejs.org/guide/essentials/named-views.html#named-views) by appending an `@` + a name to their filename, e.g. a file named `src/routes/index@aux.vue` will generate a route of:
 
 ```js
 {
@@ -338,7 +338,7 @@ It is possible to define [named views](https://router.vuejs.org/guide/essentials
 }
 ```
 
-Note that by default a non named route
+Note that by default a non named route is named `default` and that you don't need to name your file `index@default.vue` even if there are other named views (e.g. having `index@aux.vue` and `index.vue` is the same as having `index@aux.vue` and `index@default.vue`).
 
 ## Extending existing routes
 
