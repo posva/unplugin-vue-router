@@ -1,3 +1,14 @@
+## [0.0.18](https://github.com/posva/unplugin-vue-router/compare/v0.0.17...v0.0.18) (2022-07-07)
+
+### Bug Fixes
+
+- **link:** fix slot types ([64ff5b6](https://github.com/posva/unplugin-vue-router/commit/64ff5b6dd7fa619c6ef522aac6134efeaf739a33)), closes [#27](https://github.com/posva/unplugin-vue-router/issues/27)
+
+### Features
+
+- **types:** expose some useful route location types ([86b1d01](https://github.com/posva/unplugin-vue-router/commit/86b1d011ca0f44c73052a8ff8b9bd8a98f4cc6e9))
+- **types:** typed useLink() ([55bf04e](https://github.com/posva/unplugin-vue-router/commit/55bf04ed8baab3fcaabfa007e3959a8e13283626))
+
 ## [0.0.17](https://github.com/posva/unplugin-vue-router/compare/v0.0.16...v0.0.17) (2022-07-06)
 
 ### Features
