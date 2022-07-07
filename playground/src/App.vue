@@ -6,6 +6,7 @@ import type {
   RouteLocationResolved,
   RouteLocation,
 } from '@vue-router'
+import { ref } from 'vue'
 
 function test(
   a: RouteLocationResolved<'/[name]'>,
@@ -21,11 +22,14 @@ if (route.name === '/deep/nesting/works/[[files]]+') {
 const router = useRouter()
 
 router.resolve('/:name')
-router.resolve({ name: '/[name]' }).params.name
+router.resolve({ name: '/[name]', params: { name: 'hello' } }).params.name
 
-useLink('/:path(.*)')
-useLink({ path: '/articles/:id' })
-useLink({ name: '/[name]', params: { name: 'hey' } }).route.value.params.name
+useLink({ to: '/articles/2' }).route.value.name
+useLink({ to: { path: '/articles/:id' } })
+useLink({ to: { name: '/[name]', params: { name: 2 } } }).route.value.params
+  .name
+// useLink({ name: '/[name]', params: { name: 2 } }).route.value.params.name
+useLink({ to: ref({ name: '/[name]', params: { name: 2 } }) }).route.value.name
 
 const customRoute = useRoute('/deep/nesting/works/custom-path')
 </script>

@@ -5,9 +5,11 @@ import type {
   VNode,
   ComputedRef,
   UnwrapRef,
+  Ref,
 } from 'vue'
 import type {
   NavigationFailure,
+  RouteLocationRaw,
   RouterLinkProps as _RouterLinkProps,
 } from 'vue-router'
 import type { _RouterTyped } from './router'
@@ -73,10 +75,12 @@ export interface _UseLinkReturnTyped<
  * Typed version of `useLink()`.
  */
 export interface UseLinkFnTyped<RouteMap extends _RouteMapGeneric> {
-  <Name extends keyof RouteMap = keyof RouteMap>(
+  <Name extends keyof RouteMap = keyof RouteMap>(props: {
     to:
       | RouteLocationAsString<RouteMap>
       | RouteLocationAsRelativeTyped<RouteMap, Name>
       | RouteLocationAsPathTyped<RouteMap, Name>
-  ): _UseLinkReturnTyped<RouteMap, Name>
+      | Ref<RouteLocationRaw>
+    replace?: boolean | undefined | Ref<boolean | undefined>
+  }): _UseLinkReturnTyped<RouteMap, Name>
 }
