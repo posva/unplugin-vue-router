@@ -95,7 +95,11 @@ export type {
 } from './typeExtensions/routeLocation'
 export type { NavigationGuard } from './typeExtensions/navigationGuards'
 export type { _RouterTyped } from './typeExtensions/router'
-export type { RouterLinkTyped } from './typeExtensions/RouterLink'
+export type {
+  RouterLinkTyped,
+  UseLinkFnTyped,
+  _UseLinkReturnTyped,
+} from './typeExtensions/RouterLink'
 export type {
   ParamValue,
   ParamValueOneOrMore,

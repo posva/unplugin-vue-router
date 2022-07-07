@@ -1,10 +1,20 @@
 <script setup lang="ts">
-import { useRoute } from '@vue-router'
+import { useLink, useRoute } from '@vue-router'
+import type { RouteNamedMap } from '@vue-router/routes'
 
 const route = useRoute()
 if (route.name === '/deep/nesting/works/[[files]]+') {
   route.params.files
 }
+
+const router = useRouter()
+
+router.resolve('/:name')
+router.resolve({ name: '/[name]' }).params.name
+
+useLink('/:path(.*)')
+useLink({ path: '/articles/:id' })
+useLink({ name: '/[name]', params: { name: 'hey' } }).route.value.params.name
 
 const customRoute = useRoute('/deep/nesting/works/custom-path')
 </script>

@@ -15,6 +15,7 @@ import type {
   ParamValueOneOrMore,
   ParamValueZeroOrMore,
   ParamValueZeroOrOne,
+  UseLinkFnTyped,
 } from 'unplugin-vue-router'
 
 declare module '@vue-router/routes' {
@@ -67,6 +68,8 @@ declare module '@vue-router' {
 
   export function useRouter(): RouterTyped
   export function useRoute<Name extends keyof RouteNamedMap = keyof RouteNamedMap>(name?: Name): RouteLocationNormalizedLoadedTypedList<RouteNamedMap>[Name]
+
+  export const useLink: UseLinkFnTyped<RouteNamedMap>
 
   export function onBeforeRouteLeave(guard: NavigationGuard<RouteNamedMap>): void
   export function onBeforeRouteUpdate(guard: NavigationGuard<RouteNamedMap>): void
