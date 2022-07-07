@@ -1,3 +1,9 @@
+## [0.0.19](https://github.com/posva/unplugin-vue-router/compare/v0.0.18...v0.0.19) (2022-07-07)
+
+### Bug Fixes
+
+- trim route blocks ([3427e9f](https://github.com/posva/unplugin-vue-router/commit/3427e9f6ec6a5682a7d3bf0b440a0a220ba1ef84)), closes [#23](https://github.com/posva/unplugin-vue-router/issues/23)
+
 ## [0.0.18](https://github.com/posva/unplugin-vue-router/compare/v0.0.17...v0.0.18) (2022-07-07)
 
 ### Bug Fixes
