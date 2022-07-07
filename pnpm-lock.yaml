@@ -71,25 +71,7 @@ importers:
       webpack: 5.73.0
       yorkie: 2.0.0
 
-  playground/vite:
-    specifiers:
-      '@vitejs/plugin-vue': ^2.3.3
-      '@vue/compiler-sfc': ^3.2.37
-      '@vue/tsconfig': ^0.1.3
-      unplugin-vue-router: workspace:*
-      vite: ^2.9.13
-      vite-plugin-inspect: ^0.5.1
-      vue: ^3.2.37
-    devDependencies:
-      '@vitejs/plugin-vue': 2.3.3_vite@2.9.13+vue@3.2.37
-      '@vue/compiler-sfc': 3.2.37
-      '@vue/tsconfig': 0.1.3
-      unplugin-vue-router: link:../..
-      vite: 2.9.13
-      vite-plugin-inspect: 0.5.1_vite@2.9.13
-      vue: 3.2.37
-
-  playground/webpack:
+  examples/webpack:
     specifiers:
       '@babel/core': ^7.0.0
       '@typescript-eslint/eslint-plugin': ^5.4.0
@@ -127,6 +109,24 @@ importers:
       lint-staged: 11.2.6
       prettier: 2.7.1
       typescript: 4.5.5
+
+  playground:
+    specifiers:
+      '@vitejs/plugin-vue': ^2.3.3
+      '@vue/compiler-sfc': ^3.2.37
+      '@vue/tsconfig': ^0.1.3
+      unplugin-vue-router: workspace:*
+      vite: ^2.9.13
+      vite-plugin-inspect: ^0.5.1
+      vue: ^3.2.37
+    devDependencies:
+      '@vitejs/plugin-vue': 2.3.3_vite@2.9.13+vue@3.2.37
+      '@vue/compiler-sfc': 3.2.37
+      '@vue/tsconfig': 0.1.3
+      unplugin-vue-router: link:..
+      vite: 2.9.13
+      vite-plugin-inspect: 0.5.1_vite@2.9.13
+      vue: 3.2.37
 
 packages:
 
@@ -278,7 +278,6 @@ packages:
   /@babel/helper-validator-identifier/7.18.6:
     resolution: {integrity: sha512-MmetCkz9ej86nJQV+sFCxoGGrUbU3q02kgLciwkrt9QqEB7cP39oKEY0PakknEO0Gu20SskMRi+AYZ3b1TpN9g==}
     engines: {node: '>=6.9.0'}
-    dev: true
 
   /@babel/helper-validator-option/7.18.6:
     resolution: {integrity: sha512-XO7gESt5ouv/LRJdrVjkShckw6STTaB7l9BrpBaAHDeF5YZT+01PCwmR0SJHnkW6i8OwW/EVWRShfi4j2x+KQw==}
@@ -318,7 +317,6 @@ packages:
     hasBin: true
     dependencies:
       '@babel/types': 7.18.7
-    dev: true
 
   /@babel/template/7.18.6:
     resolution: {integrity: sha512-JoDWzPe+wgBsTTgdnIma3iHNFC7YVJoPssVBDjiHfNlyt4YcunDtcDOUmfVDfCK5MfdsaIoX9PkijPhjH3nYUw==}
@@ -360,7 +358,6 @@ packages:
     dependencies:
       '@babel/helper-validator-identifier': 7.18.6
       to-fast-properties: 2.0.0
-    dev: true
 
   /@bcoe/v8-coverage/0.2.3:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
@@ -1143,7 +1140,7 @@ packages:
   /@vue/compiler-sfc/3.2.37:
     resolution: {integrity: sha512-+7i/2+9LYlpqDv+KTtWhOZH+pa8/HnX/905MdVmAcI/mPQOBwkHHIzrsEsucyOIZQYMkXUiTkmZq5am/NyXKkg==}
     dependencies:
-      '@babel/parser': 7.18.5
+      '@babel/parser': 7.18.6
       '@vue/compiler-core': 3.2.37
       '@vue/compiler-dom': 3.2.37
       '@vue/compiler-ssr': 3.2.37
@@ -1258,7 +1255,7 @@ packages:
   /@vue/reactivity-transform/3.2.37:
     resolution: {integrity: sha512-IWopkKEb+8qpu/1eMKVeXrK0NLw9HicGviJzhJDEyfxTR9e1WtpnnbYkJWurX6WwoFP0sz10xQg8yL8lgskAZg==}
     dependencies:
-      '@babel/parser': 7.18.5
+      '@babel/parser': 7.18.6
       '@vue/compiler-core': 3.2.37
       '@vue/shared': 3.2.37
       estree-walker: 2.0.2
