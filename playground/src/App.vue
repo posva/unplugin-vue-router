@@ -22,6 +22,9 @@ const customRoute = useRoute('/deep/nesting/works/custom-path')
         >
         <button @click="$router.push('/oeu')">Click</button>
         {{ $route.name === '' }}
+        <RouterLink to="/:name" v-slot="{ name }">
+          {{ name }}
+        </RouterLink>
       </nav>
     </div>
   </header>
