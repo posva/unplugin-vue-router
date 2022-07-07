@@ -1,3 +1,9 @@
+## [0.0.20](https://github.com/posva/unplugin-vue-router/compare/v0.0.19...v0.0.20) (2022-07-07)
+
+### Bug Fixes
+
+- correct arg for useLink ([afdf147](https://github.com/posva/unplugin-vue-router/commit/afdf147bb4d2e8191dce00ebde408056acc474c4))
+
 ## [0.0.19](https://github.com/posva/unplugin-vue-router/compare/v0.0.18...v0.0.19) (2022-07-07)
 
 ### Bug Fixes
