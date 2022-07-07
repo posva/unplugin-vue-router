@@ -75,6 +75,10 @@ export interface RouteLocationTyped<
   params: RouteMap[Name]['params']
 }
 
+export type RouteLocationTypedList<
+  RouteMap extends _RouteMapGeneric = Record<string, RouteRecordInfo>
+> = { [N in keyof RouteMap]: RouteLocationTyped<RouteMap, N> }
+
 export interface RouteLocationResolvedTyped<
   RouteMap extends _RouteMapGeneric,
   Name extends keyof RouteMap

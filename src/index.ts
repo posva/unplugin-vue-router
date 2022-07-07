@@ -84,14 +84,19 @@ export type {
   RouteRecordInfo,
 } from './codegen/generateRouteMap'
 export type {
-  RouteLocationNormalizedTyped,
-  RouteLocationNormalizedLoadedTyped,
-  RouteLocationNormalizedLoadedTypedList,
   RouteLocationAsRelativeTyped,
   RouteLocationAsRelativeTypedList,
   RouteLocationAsPathTyped,
   RouteLocationAsPathTypedList,
   RouteLocationAsString,
+  RouteLocationTyped,
+  RouteLocationTypedList,
+  RouteLocationResolvedTyped,
+  RouteLocationResolvedTypedList,
+  RouteLocationNormalizedTyped,
+  RouteLocationNormalizedTypedList,
+  RouteLocationNormalizedLoadedTyped,
+  RouteLocationNormalizedLoadedTypedList,
 } from './typeExtensions/routeLocation'
 export type { NavigationGuard } from './typeExtensions/navigationGuards'
 export type { _RouterTyped } from './typeExtensions/router'

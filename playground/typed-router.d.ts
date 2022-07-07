@@ -6,15 +6,24 @@
 /// <reference types="unplugin-vue-router/client" />
 
 import type {
-  _RouterTyped,
-  RouteRecordInfo,
-  RouterLinkTyped,
+  // type safe route locations
+  RouteLocationTypedList,
+  RouteLocationResolvedTypedList,
+  RouteLocationNormalizedTypedList,
   RouteLocationNormalizedLoadedTypedList,
-  NavigationGuard,
+
+  // helper types
+  // route definitions
+  RouteRecordInfo,
   ParamValue,
   ParamValueOneOrMore,
   ParamValueZeroOrMore,
   ParamValueZeroOrOne,
+
+  // vue-router extensions
+  _RouterTyped,
+  RouterLinkTyped,
+  NavigationGuard,
   UseLinkFnTyped,
 } from 'unplugin-vue-router'
 
@@ -53,10 +62,30 @@ declare module '@vue-router' {
   import type { RouteNamedMap } from '@vue-router/routes'
 
   export type RouterTyped = _RouterTyped<RouteNamedMap>
+
   /**
-   * Generate a type safe route location. Requires the name of the route to be passed as a generic.
+   * Type safe version of `RouteLocationNormalized` (the type of `to` and `from` in navigation guards).
+   * Allows passing the name of the route to be passed as a generic.
    */
-  export type Route<Name extends keyof RouteNamedMap> = RouteLocationNormalizedLoadedTypedList<RouteNamedMap>[Name]
+  export type RouteLocationNormalized<Name extends keyof RouteNamedMap = keyof RouteNamedMap> = RouteLocationNormalizedTypedList<RouteNamedMap>[Name]
+
+  /**
+   * Type safe version of `RouteLocationNormalizedLoaded` (the return type of `useRoute()`).
+   * Allows passing the name of the route to be passed as a generic.
+   */
+  export type RouteLocationNormalizedLoaded<Name extends keyof RouteNamedMap = keyof RouteNamedMap> = RouteLocationNormalizedLoadedTypedList<RouteNamedMap>[Name]
+
+  /**
+   * Type safe version of `RouteLocationResolved` (the returned route of `router.resolve()`).
+   * Allows passing the name of the route to be passed as a generic.
+   */
+  export type RouteLocationResolved<Name extends keyof RouteNamedMap = keyof RouteNamedMap> = RouteLocationResolvedTypedList<RouteNamedMap>[Name]
+
+  /**
+   * Type safe version of `RouteLocation` . Allows passing the name of the route to be passed as a generic.
+   */
+  export type RouteLocation<Name extends keyof RouteNamedMap = keyof RouteNamedMap> = RouteLocationTypedList<RouteNamedMap>[Name]
+
   /**
    * Generate a type safe params for a route location. Requires the name of the route to be passed as a generic.
    */

@@ -48,7 +48,6 @@ export interface RouterLinkTyped<RouteMap extends _RouteMapGeneric> {
       RouterLinkProps<RouteMap>
 
     $slots: {
-      // TODO: is it correct to use the resolve tip?
       default: (arg: UnwrapRef<_UseLinkReturnTyped<RouteMap>>) => VNode[]
     }
   }
