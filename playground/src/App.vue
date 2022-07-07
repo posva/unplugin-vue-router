@@ -1,7 +1,17 @@
 <script setup lang="ts">
 import { useLink, useRoute } from '@vue-router'
 import type { RouteNamedMap } from '@vue-router/routes'
-import type { RouteLocationNormalizedLoaded } from '@vue-router'
+import type {
+  RouteLocationNormalizedLoaded,
+  RouteLocationResolved,
+  RouteLocation,
+} from '@vue-router'
+
+function test(
+  a: RouteLocationResolved<'/[name]'>,
+  b: RouteLocationNormalizedLoaded<'/[name]'>,
+  c: RouteLocation<'/[name]'>
+) {}
 
 const route = useRoute()
 if (route.name === '/deep/nesting/works/[[files]]+') {
