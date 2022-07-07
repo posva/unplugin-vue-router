@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useLink, useRoute } from '@vue-router'
 import type { RouteNamedMap } from '@vue-router/routes'
+import type { RouteLocationNormalizedLoaded } from '@vue-router'
 
 const route = useRoute()
 if (route.name === '/deep/nesting/works/[[files]]+') {
@@ -32,8 +33,8 @@ const customRoute = useRoute('/deep/nesting/works/custom-path')
         >
         <button @click="$router.push('/oeu')">Click</button>
         {{ $route.name === '' }}
-        <RouterLink to="/:name" v-slot="{ name }">
-          {{ name }}
+        <RouterLink to="/:name" v-slot="{ route }">
+          {{ (route as RouteLocationNormalizedLoaded<'/[name]'>).params.name }}
         </RouterLink>
       </nav>
     </div>

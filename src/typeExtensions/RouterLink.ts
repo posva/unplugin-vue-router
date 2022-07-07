@@ -4,6 +4,7 @@ import type {
   VNodeProps,
   VNode,
   ComputedRef,
+  UnwrapRef,
 } from 'vue'
 import type {
   NavigationFailure,
@@ -48,7 +49,7 @@ export interface RouterLinkTyped<RouteMap extends _RouteMapGeneric> {
 
     $slots: {
       // TODO: is it correct to use the resolve tip?
-      default: (arg: ReturnType<_RouterTyped<RouteMap>['resolve']>) => VNode[]
+      default: (arg: UnwrapRef<_UseLinkReturnTyped<RouteMap>>) => VNode[]
     }
   }
 }
