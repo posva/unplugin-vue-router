@@ -3,26 +3,43 @@ import type {
   ComponentCustomProps,
   VNodeProps,
   VNode,
+  ComputedRef,
+  UnwrapRef,
 } from 'vue'
-import type { RouterLinkProps as _RouterLinkProps } from 'vue-router'
+import type {
+  NavigationFailure,
+  RouterLinkProps as _RouterLinkProps,
+} from 'vue-router'
 import type { _RouterTyped } from './router'
 
-// TODO: could this have a name generic to type the slot? is it
+// TODO: could this have a name generic to type the slot? is it possible
 
 import { _RouteMapGeneric } from '../codegen/generateRouteMap'
 import {
+  RouteLocationAsPathTyped,
   RouteLocationAsPathTypedList,
+  RouteLocationAsRelativeTyped,
   RouteLocationAsRelativeTypedList,
   RouteLocationAsString,
+  RouteLocationResolvedTypedList,
 } from './routeLocation'
 
-export interface RouterLinkProps<RouteMap extends _RouteMapGeneric>
-  extends Omit<_RouterLinkProps, 'to'> {
+/**
+ * Typed version of `RouterLinkProps`.
+ */
+export interface RouterLinkProps<
+  RouteMap extends _RouteMapGeneric,
+  Name extends keyof RouteMap = keyof RouteMap
+> extends Omit<_RouterLinkProps, 'to'> {
   to:
     | RouteLocationAsString<RouteMap>
-    | RouteLocationAsRelativeTypedList<RouteMap>[keyof RouteMap]
-    | RouteLocationAsPathTypedList<RouteMap>[keyof RouteMap]
+    | RouteLocationAsRelativeTypedList<RouteMap>[Name]
+    | RouteLocationAsPathTypedList<RouteMap>[Name]
 }
+
+/**
+ * Typed version of `<RouterLink>` component.
+ */
 export interface RouterLinkTyped<RouteMap extends _RouteMapGeneric> {
   new (): {
     $props: AllowedComponentProps &
@@ -31,10 +48,35 @@ export interface RouterLinkTyped<RouteMap extends _RouteMapGeneric> {
       RouterLinkProps<RouteMap>
 
     $slots: {
-      // TODO: is it correct to use the resolve tip?
-      default: (arg: ReturnType<_RouterTyped<RouteMap>['resolve']>) => VNode[]
+      default: (arg: UnwrapRef<_UseLinkReturnTyped<RouteMap>>) => VNode[]
     }
   }
 }
 
-// TODO: typed useLink()
+// TODO: should be exposed by the router instead
+/**
+ * Return type of `useLink()`. Should be exposed by the router instead.
+ * @internal
+ */
+export interface _UseLinkReturnTyped<
+  RouteMap extends _RouteMapGeneric,
+  Name extends keyof RouteMap = keyof RouteMap
+> {
+  route: ComputedRef<RouteLocationResolvedTypedList<RouteMap>[Name]>
+  href: ComputedRef<string>
+  isActive: ComputedRef<boolean>
+  isExactActive: ComputedRef<boolean>
+  navigate(e?: MouseEvent): Promise<void | NavigationFailure>
+}
+
+/**
+ * Typed version of `useLink()`.
+ */
+export interface UseLinkFnTyped<RouteMap extends _RouteMapGeneric> {
+  <Name extends keyof RouteMap = keyof RouteMap>(
+    to:
+      | RouteLocationAsString<RouteMap>
+      | RouteLocationAsRelativeTyped<RouteMap, Name>
+      | RouteLocationAsPathTyped<RouteMap, Name>
+  ): _UseLinkReturnTyped<RouteMap, Name>
+}

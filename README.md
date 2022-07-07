@@ -325,9 +325,30 @@ The `RouterTyped` type gives you access to the typed version of the router insta
 import type { RouterTyped } from '@vue-router'
 ```
 
+#### `RouterLocationResolved`
+
+The `RouterLocationResolved` type exposed by `@vue-router` allows passing a generic (which autocomplete) to type a route **whenever checking the name doesn't makes sense because you know the type**. This is useful for cases like `<RouterLink v-slot="{ route }">`:
+
+```vue
+<RouterLink v-slot="{ route }">
+  User {{ (route as RouterLocationResolved<'/users/[id]'>).params.id }}
+</RouterLink>
+```
+
+This type corresponds to the return type of `router.resolve()`.
+
+You have the same equivalents for `RouterLocation`, `RouterLocationNormalized`, and `RouterLocationNormalizedLoaded`. All of them exist in `vue-router` but the one exposed by `@vue-router` accept a generic:
+
+```ts
+// these are all valid
+let userWithId: RouterLocationNormalizedLoaded<'/users/[id]'> = useRoute()
+userWithId = useRoute<'/users/[id]'>()
+userWithId = useRoute('/users/[id]') // 👈  this one is the easiest to write
+```
+
 ## Named views
 
-It is possible to define [named views](https://router.vuejs.org/guide/essentials/named-views.html#named-views) by appending an `@` + a named to their filename, e.g. a file named `src/routes/index@aux.vue` will generate a route of:
+It is possible to define [named views](https://router.vuejs.org/guide/essentials/named-views.html#named-views) by appending an `@` + a name to their filename, e.g. a file named `src/routes/index@aux.vue` will generate a route of:
 
 ```js
 {
@@ -338,7 +359,7 @@ It is possible to define [named views](https://router.vuejs.org/guide/essentials
 }
 ```
 
-Note that by default a non named route
+Note that by default a non named route is named `default` and that you don't need to name your file `index@default.vue` even if there are other named views (e.g. having `index@aux.vue` and `index.vue` is the same as having `index@aux.vue` and `index@default.vue`).
 
 ## Extending existing routes
 

@@ -5,6 +5,8 @@ import {
   MODULE_VUE_ROUTER,
   getVirtualId as _getVirtualId,
   asVirtualId as _asVirtualId,
+  routeBlockQueryRE,
+  ROUTE_BLOCK_ID,
 } from './core/moduleConstants'
 import { DEFAULT_OPTIONS, Options, ResolvedOptions } from './options'
 import { createViteContext } from './core/vite'
@@ -39,6 +41,11 @@ export default createUnplugin<Options>((opt, meta) => {
       if (id === MODULE_VUE_ROUTER) {
         return asVirtualId(id)
       }
+
+      if (routeBlockQueryRE.test(id)) {
+        return ROUTE_BLOCK_ID
+      }
+
       return null
     },
 
@@ -63,6 +70,14 @@ export default createUnplugin<Options>((opt, meta) => {
       // dependency correctly
       if (resolvedId === MODULE_VUE_ROUTER) {
         return ctx.generateVueRouterProxy()
+      }
+
+      // remove the <route> block as it's parsed by the plugin
+      if (id === ROUTE_BLOCK_ID) {
+        return {
+          code: `export default {}`,
+          map: null,
+        }
       }
 
       // fallback
@@ -124,18 +139,27 @@ export type {
   RouteRecordInfo,
 } from './codegen/generateRouteMap'
 export type {
-  RouteLocationNormalizedTyped,
-  RouteLocationNormalizedLoadedTyped,
-  RouteLocationNormalizedLoadedTypedList,
   RouteLocationAsRelativeTyped,
   RouteLocationAsRelativeTypedList,
   RouteLocationAsPathTyped,
   RouteLocationAsPathTypedList,
   RouteLocationAsString,
+  RouteLocationTyped,
+  RouteLocationTypedList,
+  RouteLocationResolvedTyped,
+  RouteLocationResolvedTypedList,
+  RouteLocationNormalizedTyped,
+  RouteLocationNormalizedTypedList,
+  RouteLocationNormalizedLoadedTyped,
+  RouteLocationNormalizedLoadedTypedList,
 } from './typeExtensions/routeLocation'
 export type { NavigationGuard } from './typeExtensions/navigationGuards'
 export type { _RouterTyped } from './typeExtensions/router'
-export type { RouterLinkTyped } from './typeExtensions/RouterLink'
+export type {
+  RouterLinkTyped,
+  UseLinkFnTyped,
+  _UseLinkReturnTyped,
+} from './typeExtensions/RouterLink'
 export type {
   ParamValue,
   ParamValueOneOrMore,

@@ -1,10 +1,31 @@
 <script setup lang="ts">
-import { useRoute } from '@vue-router'
+import { useLink, useRoute } from '@vue-router'
+import type { RouteNamedMap } from '@vue-router/routes'
+import type {
+  RouteLocationNormalizedLoaded,
+  RouteLocationResolved,
+  RouteLocation,
+} from '@vue-router'
+
+function test(
+  a: RouteLocationResolved<'/[name]'>,
+  b: RouteLocationNormalizedLoaded<'/[name]'>,
+  c: RouteLocation<'/[name]'>
+) {}
 
 const route = useRoute()
 if (route.name === '/deep/nesting/works/[[files]]+') {
   route.params.files
 }
+
+const router = useRouter()
+
+router.resolve('/:name')
+router.resolve({ name: '/[name]' }).params.name
+
+useLink('/:path(.*)')
+useLink({ path: '/articles/:id' })
+useLink({ name: '/[name]', params: { name: 'hey' } }).route.value.params.name
 
 const customRoute = useRoute('/deep/nesting/works/custom-path')
 </script>
@@ -22,8 +43,8 @@ const customRoute = useRoute('/deep/nesting/works/custom-path')
         >
         <button @click="$router.push('/oeu')">Click</button>
         {{ $route.name === '' }}
-        <RouterLink to="/:name" v-slot="{ name }">
-          {{ name }}
+        <RouterLink to="/:name" v-slot="{ route }">
+          {{ (route as RouteLocationNormalizedLoaded<'/[name]'>).params.name }}
         </RouterLink>
       </nav>
     </div>
