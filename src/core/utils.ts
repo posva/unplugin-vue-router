@@ -157,3 +157,36 @@ export function getFileBasedRouteName(node: TreeLeaf): string {
   if (!node.parent) return ''
   return getFileBasedRouteName(node.parent) + '/' + node.value.rawSegment
 }
+
+export const noop = () => undefined;
+
+export function isObject(item: any): item is Record<string, any> {
+  return (item && typeof item === 'object' && !Array.isArray(item))
+}
+
+export function isFunction(data: any): data is (...p: any[]) => any {
+  return typeof data === 'function'
+}
+
+export type DeepPartial<T> = { [P in keyof T]?: DeepPartial<T[P]> }
+export function mergeDeep<T>(original: T, patch: DeepPartial<T>): T {
+  const o = original as any
+  const p = patch as any
+
+  if (Array.isArray(o) && Array.isArray(p))
+    return [...o, ...p] as any
+
+  if (Array.isArray(o))
+    return [...o] as any
+
+  const output = o
+  if (isObject(o) && isObject(p)) {
+    Object.keys(p).forEach((key) => {
+      if ((isObject(o[key]) && isObject(p[key])) || (Array.isArray(o[key]) && Array.isArray(p[key])))
+        output[key] = mergeDeep(o[key], p[key])
+      else
+        Object.assign(output, { [key]: p[key] })
+    })
+  }
+  return output
+}

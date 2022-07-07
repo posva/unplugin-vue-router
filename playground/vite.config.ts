@@ -17,6 +17,11 @@ export default defineConfig({
   plugins: [
     Vue({}),
     VueRouter({
+      manualChunks: (id) => {
+        if(id.includes('[id]')) {
+          return 'idididid'
+        }
+      },
       logs: true,
       // getRouteName: getPascalCaseRouteName,
       exclude: [

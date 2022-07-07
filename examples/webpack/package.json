@@ -1,0 +1,21 @@
+{
+  "name": "webpack",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "unplugin-vue-router": "workspace:*",
+    "vue": "^3.2.13",
+    "vue-router": "^4.1.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.0.0",
+    "@vue/cli-plugin-typescript": "~5.0.0",
+    "@vue/cli-service": "~5.0.0",
+    "typescript": "~4.5.5"
+  }
+}
