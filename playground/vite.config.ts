@@ -17,13 +17,11 @@ export default defineConfig({
   plugins: [
     Vue({}),
     VueRouter({
+      extensions: ['.md', '.vue'],
       logs: true,
       // getRouteName: getPascalCaseRouteName,
       exclude: [
         'ignored',
-        // resolve(__dirname, './src/routes/ignored'),
-        //
-        // './src/routes/**/*.spec.ts',
       ],
     }),
     AutoImport({
