@@ -8,7 +8,7 @@
     "@vitejs/plugin-vue": "^2.3.3",
     "@vue/compiler-sfc": "^3.2.37",
     "@vue/tsconfig": "^0.1.3",
-    "vite": "^2.9.13",
+    "vite": "^2.9.14",
     "vite-plugin-inspect": "^0.5.1",
     "unplugin-vue-router": "workspace:*",
     "vue": "^3.2.37"
