@@ -17,10 +17,23 @@ export default defineConfig({
   plugins: [
     Vue({}),
     VueRouter({
+      routesFolder: [
+        // can add multiple routes folders
+        {
+          src: 'src/routes',
+          // can even add params
+          // path: ':lang/',
+        },
+        {
+          src: 'src/features/**/routes',
+        },
+      ],
       logs: true,
       // getRouteName: getPascalCaseRouteName,
       exclude: [
         'ignored',
+        '**/__*',
+        '**/__**/*',
         // resolve(__dirname, './src/routes/ignored'),
         //
         // './src/routes/**/*.spec.ts',

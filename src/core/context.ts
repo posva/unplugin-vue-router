@@ -1,5 +1,4 @@
-import chokidar from 'chokidar'
-import { ResolvedOptions } from '../options'
+import { normalizeRoutesFolderOption, ResolvedOptions } from '../options'
 import { createPrefixTree, TreeLeaf } from './tree'
 import { promises as fs } from 'fs'
 import { logTree, throttle } from './utils'
@@ -10,9 +9,10 @@ import fg from 'fast-glob'
 import { resolve } from 'pathe'
 import { ServerContext } from '../options'
 import { getRouteBlock } from './customBlock'
+import { RoutesFolderWatcher, HandlerContext } from './RoutesFolderWatcher'
 
 export function createRoutesContext(options: ResolvedOptions) {
-  const { dts: preferDTS, root } = options
+  const { dts: preferDTS, root, routesFolder } = options
   const dts =
     preferDTS === false
       ? false
@@ -29,27 +29,29 @@ export function createRoutesContext(options: ResolvedOptions) {
     }
   }
 
-  const resolvedRoutesFolder = resolve(root, options.routesFolder)
-  const serverWatcher = chokidar.watch(resolvedRoutesFolder, {
-    ignoreInitial: true,
-    disableGlobbing: true,
-    ignorePermissionErrors: true,
-    ignored: options.exclude,
-    // useFsEvents: true,
-    // TODO: allow user options
-  })
+  // it's important to resolve the path before the watcher is created so it give full paths in the handler
+  const resolvedRoutesFolders = normalizeRoutesFolderOption(routesFolder).map(
+    (routeOption) => ({
+      ...routeOption,
+      src: resolve(root, routeOption.src),
+    })
+  )
 
-  function stripRouteFolder(path: string) {
-    return path.slice(resolvedRoutesFolder.length + 1)
-  }
+  // populated by the initial scan pages
+  const watchers: RoutesFolderWatcher[] = []
 
   async function scanPages() {
-    const routeFolders: string[] = [resolvedRoutesFolder]
     if (options.extensions.length < 1) {
       throw new Error(
         '"extensions" cannot be empty. Please specify at least one extension.'
       )
     }
+
+    // initial scan was already done
+    if (watchers.length > 0) {
+      return
+    }
+
     const pattern =
       `**/*` +
       (options.extensions.length === 1
@@ -57,29 +59,41 @@ export function createRoutesContext(options: ResolvedOptions) {
         : `.{${options.extensions
             .map((extension) => extension.replace('.', ''))
             .join(',')}}`)
-    const files = (
-      await Promise.all(
-        routeFolders.map((folder) =>
-          fg(pattern, {
-            cwd: folder,
-            // TODO: do they return the symbolic link path or the original file?
-            // followSymbolicLinks: false,
-            ignore: options.exclude,
-          }).then((files) => files.flatMap((file) => resolve(folder, file)))
-        )
-      )
-    ).flat()
 
-    await Promise.all(files.map((file) => addPage(file)))
+    await Promise.all(
+      resolvedRoutesFolders.map((folder) => {
+        const watcher = new RoutesFolderWatcher(folder, options)
+        setupWatcher(watcher)
+        watchers.push(watcher)
+
+        return fg(pattern, {
+          cwd: folder.src,
+          // TODO: do they return the symbolic link path or the original file?
+          // followSymbolicLinks: false,
+          ignore: options.exclude,
+          // TODO: is this flat necessary?
+        })
+          .then((files) => files.map((file) => resolve(folder.src, file)))
+          .then((files) =>
+            Promise.all(
+              files.map((file) =>
+                addPage({
+                  routePath: watcher.asRoutePath(file),
+                  filePath: file,
+                })
+              )
+            )
+          )
+      })
+    )
 
     await _writeConfigFiles()
   }
 
-  async function addPage(path: string) {
-    const routePath = stripRouteFolder(path)
+  async function addPage({ filePath: path, routePath }: HandlerContext) {
     const routeBlock = await getRouteBlock(path, options)
-    log('added', path)
-    if (routeBlock) console.log(routeBlock)
+    log(`added "${routePath}" for "${path}"`)
+    if (routeBlock) log(routeBlock)
     // TODO: handle top level named view HMR
     const node = routeTree.insert(
       routePath,
@@ -90,8 +104,8 @@ export function createRoutesContext(options: ResolvedOptions) {
     routeMap.set(path, node)
   }
 
-  async function updatePage(path: string) {
-    log('update', path)
+  async function updatePage({ filePath: path, routePath }: HandlerContext) {
+    log(`updated "${routePath}" for "${path}"`)
     const node = routeMap.get(path)
     if (!node) {
       console.warn(`Cannot update "${path}": Not found.`)
@@ -101,25 +115,25 @@ export function createRoutesContext(options: ResolvedOptions) {
     node.mergeCustomRouteBlock(routeBlock)
   }
 
-  function removePage(path: string) {
-    log('remove', path)
-    routeTree.remove(stripRouteFolder(path))
+  function removePage({ filePath: path, routePath }: HandlerContext) {
+    log(`remove "${routePath}" for "${path}"`)
+    routeTree.remove(routePath)
     routeMap.delete(path)
   }
 
-  function setupWatcher() {
-    log(`🤖 Scanning files in ${resolvedRoutesFolder}`)
-    serverWatcher
-      .on('change', async (path) => {
-        await updatePage(path)
+  function setupWatcher(watcher: RoutesFolderWatcher) {
+    log(`🤖 Scanning files in ${watcher.src}`)
+    watcher
+      .on('change', async (ctx) => {
+        await updatePage(ctx)
         writeConfigFiles()
       })
-      .on('add', async (path) => {
-        await addPage(path)
+      .on('add', async (ctx) => {
+        await addPage(ctx)
         writeConfigFiles()
       })
-      .on('unlink', async (path) => {
-        await removePage(path)
+      .on('unlink', async (ctx) => {
+        await removePage(ctx)
         writeConfigFiles()
       })
   }
@@ -268,10 +282,8 @@ export function createRouter(options) {
   // subsequent calls after the first execution will wait 500ms-100ms to execute (throttling)
   const writeConfigFiles = throttle(_writeConfigFiles, 500, 100)
 
-  setupWatcher()
-
   function stopWatcher() {
-    serverWatcher.close()
+    watchers.forEach((watcher) => watcher.close())
   }
 
   let server: ServerContext | undefined
