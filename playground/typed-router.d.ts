@@ -43,6 +43,8 @@ declare module '@vue-router/routes' {
     '/deep/nesting/works/custom-path': RouteRecordInfo<'/deep/nesting/works/custom-path', '/deep-surprise-:id(\d+)', Record<never, never>, Record<never, never>>,
     'deep a rebel': RouteRecordInfo<'deep a rebel', '/deep/nesting/works/custom-name', Record<never, never>, Record<never, never>>,
     '/deep/nesting/works/too': RouteRecordInfo<'/deep/nesting/works/too', '/deep/nesting/works/too', Record<never, never>, Record<never, never>>,
+    '/docs/:lang/': RouteRecordInfo<'/docs/:lang/', '/docs/:lang/', Record<never, never>, Record<never, never>>,
+    '/docs/:lang/about': RouteRecordInfo<'/docs/:lang/about', '/docs/:lang/about', Record<never, never>, Record<never, never>>,
     'the most rebel': RouteRecordInfo<'the most rebel', '/most-rebel', Record<never, never>, Record<never, never>>,
     '/multiple-[a]-[b]-params': RouteRecordInfo<'/multiple-[a]-[b]-params', '/multiple-:a-:b-params', { a: ParamValue<true>, b: ParamValue<true> }, { a: ParamValue<false>, b: ParamValue<false> }>,
     '/my-optional-[[slug]]': RouteRecordInfo<'/my-optional-[[slug]]', '/my-optional-:slug?', { slug?: ParamValueZeroOrOne<true> }, { slug?: ParamValueZeroOrOne<false> }>,

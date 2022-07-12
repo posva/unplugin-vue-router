@@ -149,7 +149,8 @@ Have a glimpse of all the existing configuration options with their correspondin
 
 ```ts
 VueRouter({
-  // Folder(s) to scan for vue components and generate routes. Can be a string or an array of strings.
+  // Folder(s) to scan for vue components and generate routes. Can be a string, or
+  // an object, or an array of those.
   routesFolder: 'src/routes'
   // Path for the generated types. Defaults to `./typed-router.d.ts` if typescript
   // is installed. Can be disabled by passing `false`.
@@ -264,6 +265,42 @@ And you can combine both to create optional repeatable params, e.g. `src/routes/
 ### Catch all / 404 Not found route
 
 To create a catch all route prepend 3 dots (`...`) to the param name, e.g. `src/routes/[...path].vue` will create a route with the following path: `/:path(.*)`. This will match any route. Note this can be done inside a folder too, e.g. `src/routes/articles/[...path].vue` will create a route with the following path: `/articles/:path(.*)`.
+
+### Multiple routes folders
+
+It's possible to provide multiple routes folders by passing an array to `routesFolder`:
+
+```js
+VueRouter({
+  routesFolder: ['src/routes', 'src/admin/routes'],
+})
+```
+
+You can also provide a path prefix for each of these folders, it will be used _as is_, and can therefor **not end in a `/`** and even contain any params you want:
+
+```js
+VueRouter({
+  routesFolder: [
+    'src/routes',
+    {
+      src: 'src/admin/routes',
+      // note there is always a trailing slash and never a leading one
+      path: 'admin/',
+    },
+    {
+      src: 'src/docs',
+      path: 'docs/:lang/',
+    },
+    {
+      src: 'src/promos',
+      // produces paths like /promos-some-file-name
+      path: 'promos-',
+    },
+  ],
+})
+```
+
+Note that the provided folders must be separate and one _route folder_ cannot contain another specified _route folder_.
 
 ## TypeScript
 

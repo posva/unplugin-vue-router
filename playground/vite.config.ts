@@ -27,6 +27,10 @@ export default defineConfig({
         {
           src: 'src/features/**/routes',
         },
+        {
+          src: 'src/docs',
+          path: 'docs/:lang/',
+        },
       ],
       logs: true,
       // getRouteName: getPascalCaseRouteName,
