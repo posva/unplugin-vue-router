@@ -151,7 +151,16 @@ Have a glimpse of all the existing configuration options with their correspondin
 VueRouter({
   // Folder(s) to scan for vue components and generate routes. Can be a string, or
   // an object, or an array of those.
-  routesFolder: 'src/routes'
+  routesFolder: 'src/routes',
+
+  // allowed extensions to be considered as routes
+  extensions: ['.vue'],
+
+  // list of glob files to exclude from the routes generation
+  // e.g. ['**/__*'] will exclude all files starting with `__`
+  // e.g. ['**/__*/**/*'] will exclude all files within folders starting with `__`
+  exclude: [],
+
   // Path for the generated types. Defaults to `./typed-router.d.ts` if typescript
   // is installed. Can be disabled by passing `false`.
   dts: './typed-router.d.ts',
@@ -160,6 +169,10 @@ VueRouter({
   // `getFileBasedRouteName()` (the default) and `getPascalCaseRouteName()`. Import any
   // of them within your `vite.config.ts` file.
   getRouteName: (routeNode) => myOwnGenerateRouteName(routeNode),
+
+  // Customizes the default langage for `<route>` blocks
+  // json5 is just a more permissive version of json
+  routeBlockLang: 'json5',
 })
 ```
 
