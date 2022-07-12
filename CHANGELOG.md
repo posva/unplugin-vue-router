@@ -1,3 +1,9 @@
+## [0.0.21](https://github.com/posva/unplugin-vue-router/compare/v0.0.20...v0.0.21) (2022-07-12)
+
+### Features
+
+- support multiple folders ([8a2e2a8](https://github.com/posva/unplugin-vue-router/commit/8a2e2a8b54b16ab128546ae0f0f14f6a3316b95d)), closes [#28](https://github.com/posva/unplugin-vue-router/issues/28)
+
 ## [0.0.20](https://github.com/posva/unplugin-vue-router/compare/v0.0.19...v0.0.20) (2022-07-07)
 
 ### Bug Fixes
