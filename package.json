@@ -63,7 +63,7 @@
     "build": "tsup",
     "dev": "tsup --watch src",
     "build:fix": "esno scripts/postbuild.ts",
-    "lint": "prettier -c src/**/*.ts",
+    "lint": "prettier -c '{src,examples,playground}/**/*.{ts,vue}'",
     "play": "npm -C playground run dev",
     "play:build": "npm -C playground run build",
     "release": "node scripts/release.mjs",
