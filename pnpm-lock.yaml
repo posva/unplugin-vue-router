@@ -75,7 +75,6 @@ importers:
 
   examples/webpack:
     specifiers:
-      '@babel/core': ^7.0.0
       '@vue/cli-plugin-typescript': ~5.0.0
       '@vue/cli-service': ~5.0.0
       typescript: ~4.5.5
@@ -87,9 +86,8 @@ importers:
       vue: 3.2.37
       vue-router: 4.1.2_vue@3.2.37
     devDependencies:
-      '@babel/core': 7.18.6
       '@vue/cli-plugin-typescript': 5.0.8_mi26q24vwsf2fhtjnykrnpe75u
-      '@vue/cli-service': 5.0.8_@babel+core@7.18.6
+      '@vue/cli-service': 5.0.8
       typescript: 4.5.5
 
   playground:
@@ -175,6 +173,18 @@ packages:
       '@babel/types': 7.18.8
       '@jridgewell/gen-mapping': 0.3.2
       jsesc: 2.5.2
+    dev: true
+
+  /@babel/helper-compilation-targets/7.18.6:
+    resolution: {integrity: sha512-vFjbfhNCzqdeAtZflUFrG5YIFqGTqsctrtkZ1D/NB0mDW9TwW3GmmUepYY4G9wCET5rY5ugz4OGTcLd614IzQg==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0
+    dependencies:
+      '@babel/compat-data': 7.18.8
+      '@babel/helper-validator-option': 7.18.6
+      browserslist: 4.21.2
+      semver: 6.3.0
     dev: true
 
   /@babel/helper-compilation-targets/7.18.6_@babel+core@7.18.6:
@@ -643,7 +653,7 @@ packages:
     peerDependencies:
       '@vue/cli-service': ^3.0.0 || ^4.0.0 || ^5.0.0-0
     dependencies:
-      '@vue/cli-service': 5.0.8_@babel+core@7.18.6
+      '@vue/cli-service': 5.0.8
       '@vue/cli-shared-utils': 5.0.8
     transitivePeerDependencies:
       - encoding
@@ -665,7 +675,7 @@ packages:
     dependencies:
       '@babel/core': 7.18.6
       '@types/webpack-env': 1.17.0
-      '@vue/cli-service': 5.0.8_@babel+core@7.18.6
+      '@vue/cli-service': 5.0.8
       '@vue/cli-shared-utils': 5.0.8
       babel-loader: 8.2.5_fswvdo7jykdwhfxrdcvghfn6pa
       fork-ts-checker-webpack-plugin: 6.5.2_aqql6fqjnucmdfn6etiifn2koq
@@ -690,10 +700,10 @@ packages:
     peerDependencies:
       '@vue/cli-service': ^3.0.0 || ^4.0.0 || ^5.0.0-0
     dependencies:
-      '@vue/cli-service': 5.0.8_@babel+core@7.18.6
+      '@vue/cli-service': 5.0.8
     dev: true
 
-  /@vue/cli-service/5.0.8_@babel+core@7.18.6:
+  /@vue/cli-service/5.0.8:
     resolution: {integrity: sha512-nV7tYQLe7YsTtzFrfOMIHc5N2hp5lHG2rpYr0aNja9rNljdgcPZLyQRb2YRivTHqTv7lI962UXFURcpStHgyFw==}
     engines: {node: ^12.0.0 || >= 14.0.0}
     hasBin: true
@@ -724,7 +734,7 @@ packages:
       webpack-sources:
         optional: true
     dependencies:
-      '@babel/helper-compilation-targets': 7.18.6_@babel+core@7.18.6
+      '@babel/helper-compilation-targets': 7.18.6
       '@soda/friendly-errors-webpack-plugin': 1.8.1_webpack@5.73.0
       '@soda/get-current-script': 1.0.2
       '@types/minimist': 1.2.2
