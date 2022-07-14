@@ -6,7 +6,7 @@ module.exports = defineConfig({
   configureWebpack: {
     plugins: [
       routerPlugin({
-        routesFolder: 'src',
+        routesFolder: 'src/pages',
         // manualChunks: (id) => {
         //   return id.split('/src')[1] ?? 'default'
         // }

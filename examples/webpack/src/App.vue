@@ -1,12 +1,22 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
+    <header>
+    <div class="wrapper">
+      <mark>current page name is: {{$route.name}}</mark>
+      <nav>
+        <RouterLink to="/chunk1">chunk1</RouterLink>
+          <br/>
+        <RouterLink to="/chunk2">chunk2</RouterLink>
+          <br/>
+        <RouterLink to="/HelloWorld">HelloWorld</RouterLink>
+      </nav>
+    </div>
+  </header>
   <router-view></router-view>
-  <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import HelloWorld from './components/HelloWorld.vue';
+import HelloWorld from './pages/HelloWorld.vue';
 
 export default defineComponent({
   name: 'App',
