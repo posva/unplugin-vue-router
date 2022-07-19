@@ -1,5 +1,5 @@
 import { RouteLocationNormalizedLoaded, useRoute } from 'vue-router'
-import { Ref, ToRefs } from 'vue'
+import { ref, Ref, ToRefs } from 'vue'
 
 export function defineLoader<P extends Promise<any>>(
   loader: (route: RouteLocationNormalizedLoaded) => P
@@ -7,26 +7,36 @@ export function defineLoader<P extends Promise<any>>(
   const dataLoader: DataLoader<Awaited<P>> = (() => {
     const route = useRoute()
 
-    return loader(route)
+    const data = loader(route)
+    const pending = ref(false)
+    const error = ref<unknown>()
+
+    function refresh() {}
+
+    return {
+      ...data,
+      pending,
+      error,
+      refresh,
+    }
   }) as DataLoader<Awaited<P>>
 
-  dataLoader.withError = <E>() => dataLoader as DataLoader<Awaited<P>, E>
   dataLoader._loader = loader
 
   return dataLoader
 }
 
-export interface DataLoader<T, E = unknown> {
-  (): _DataLoaderResult<E> & ToRefs<T>
-
-  withError: <E>() => DataLoader<T, E>
+export interface DataLoader<T> {
+  (): _DataLoaderResult & ToRefs<T>
 
   // internal loader to call before
   _loader: (route: RouteLocationNormalizedLoaded) => Promise<T>
 }
 
-export interface _DataLoaderResult<E = unknown> {
+export interface _DataLoaderResult {
   pending: Ref<boolean>
-  error: Ref<E>
+  error: Ref<any> // any is simply more convenient for errors
   refresh: () => Promise<void>
 }
+
+// new WeakMap<Function, any>()

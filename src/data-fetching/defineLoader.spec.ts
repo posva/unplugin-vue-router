@@ -48,15 +48,4 @@ dts(async () => {
     pending: Ref<boolean>
     refresh: () => Promise<void>
   }>(useWithRef())
-
-  const useWithError = defineLoader(async (route) => {
-    const user = shallowRef({
-      id: route.params.id as string,
-      name: 'Edu',
-    })
-
-    return { user }
-  }).withError<Error>()
-
-  expectType<Error>(useWithError().error.value)
 })
