@@ -166,10 +166,11 @@ export * from 'vue-router'
 
 export function createRouter(options) {
   const { extendRoutes } = options
-  return _createRouter({
-    ...options,
-    routes: typeof extendRoutes === 'function' ? extendRoutes(routes) : routes,
-  })
+  // use Object.assign for better browser support
+  return _createRouter(Object.assign(
+    options,
+    { routes: typeof extendRoutes === 'function' ? extendRoutes(routes) : routes },
+  ))
 }
 `
   }
