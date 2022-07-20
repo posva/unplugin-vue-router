@@ -1,8 +1,14 @@
-import { useRoute } from '@vue-router'
+import { useRoute } from 'vue-router'
 import { Ref, shallowRef } from 'vue'
 import { defineLoader } from './defineLoader'
 import { expectType } from 'ts-expect'
+import { describe, it } from 'vitest'
 
+describe('defineLoader', () => {
+  it('works', () => {})
+})
+
+// dts testing
 function dts(_fn: () => any) {}
 
 dts(async () => {
