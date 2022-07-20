@@ -7,6 +7,7 @@ import {
   getFileBasedRouteName,
   getPascalCaseRouteName,
   VueRouterExports,
+  RuntimeExports,
 } from '../src'
 import Vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
@@ -47,6 +48,7 @@ export default defineConfig({
       imports: [
         {
           '@vue-router': VueRouterExports,
+          'unplugin-vue-router/runtime': RuntimeExports,
         },
       ],
     }),

@@ -10,7 +10,8 @@ async function run() {
     cwd: resolve(__dirname, '../dist'),
   })
   for (const file of files) {
-    console.log(chalk.cyan.inverse(' POST '), `Fix ${basename(file)}`)
+    const filename = basename(file)
+    console.log(chalk.cyan.inverse(' POST '), `Fix ${filename}`)
     if (file === 'index.js') {
       // fix cjs exports
       let code = await fs.readFile(file, 'utf8')
@@ -22,7 +23,9 @@ async function run() {
     const name = basename(file, '.js')
     await fs.writeFile(
       `${name}.d.ts`,
-      `export { default } from './dist/${name}'\n`
+      filename === 'runtime.js'
+        ? `export * from './dist/${name}'\n`
+        : `export { default } from './dist/${name}'\n`
     )
   }
 }

@@ -11,6 +11,7 @@ import { ServerContext } from '../options'
 import { getRouteBlock } from './customBlock'
 import { RoutesFolderWatcher, HandlerContext } from './RoutesFolderWatcher'
 import { generateDTS as _generateDTS } from '../codegen/generateDTS'
+import { generateVueRouterProxy as _generateVueRouterProxy } from '../codegen/vueRouterModule'
 
 export function createRoutesContext(options: ResolvedOptions) {
   const { dts: preferDTS, root, routesFolder } = options
@@ -158,21 +159,7 @@ export function createRoutesContext(options: ResolvedOptions) {
   // NOTE: this code needs to be generated because otherwise it doesn't go through transforms and `@vue-router/routes`
   // cannot be resolved.
   function generateVueRouterProxy() {
-    return `
-import { routes } from '${MODULE_ROUTES_PATH}'
-import { createRouter as _createRouter } from 'vue-router'
-
-export * from 'vue-router'
-
-export function createRouter(options) {
-  const { extendRoutes } = options
-  // use Object.assign for better browser support
-  return _createRouter(Object.assign(
-    options,
-    { routes: typeof extendRoutes === 'function' ? extendRoutes(routes) : routes },
-  ))
-}
-`
+    return _generateVueRouterProxy(MODULE_ROUTES_PATH)
   }
 
   let lastDTS: string | undefined

@@ -134,3 +134,4 @@ export { TreeLeaf, createPrefixTree } from './core/tree'
 // } from './core/treeLeafValue'
 
 export const VueRouterExports = ['useRoute', 'useRouter']
+export const RuntimeExports = [['_defineLoader', 'defineLoader']]

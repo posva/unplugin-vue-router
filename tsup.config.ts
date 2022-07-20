@@ -6,6 +6,6 @@ export default <Options>{
   format: ['cjs', 'esm'],
   dts: true,
   // sourcemap: 'inline',
-  external: ['@vue/compiler-sfc'],
+  external: ['@vue/compiler-sfc', 'vue', 'vue-router'],
   onSuccess: 'npm run build:fix',
 }

@@ -1,3 +1,22 @@
+<script lang="ts">
+export const useUserData = defineLoader(async (route) => {
+  const user = {
+    name: 'Edu',
+    id: route.params.id || 24,
+  }
+  return { user }
+})
+
+export default {}
+
+const other = 'hello'
+
+export const useOne = defineLoader(async () => ({ one: 'one' }))
+export const useTwo = defineLoader(async () => ({ two: 'two' }))
+
+// export { useOne, useTwo, other }
+</script>
+
 <script lang="ts" setup>
 import { onBeforeRouteLeave, onBeforeRouteUpdate } from '@vue-router'
 import type { RouterTyped, RouteRecordRaw } from '@vue-router'

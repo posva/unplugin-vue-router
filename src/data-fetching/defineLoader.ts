@@ -7,6 +7,9 @@ import {
 import { Ref, ToRefs } from 'vue'
 import { DataLoaderCacheEntry, transferData } from './dataCache'
 
+// NOTE: change if the function is renamed
+export const DEFINE_LOADER_ID = 'defineLoader'
+
 export function defineLoader<P extends Promise<any>>(
   loader: (route: RouteLocationNormalizedLoaded) => P
 ): DataLoader<Awaited<P>> {
