@@ -5,12 +5,13 @@ import {
   useRouter,
 } from 'vue-router'
 import { Ref, ToRefs } from 'vue'
-import { DataLoaderCacheEntry } from './dataCache'
+import { DataLoaderCacheEntry, transferData } from './dataCache'
 
 export function defineLoader<P extends Promise<any>>(
   loader: (route: RouteLocationNormalizedLoaded) => P
 ): DataLoader<Awaited<P>> {
   const dataLoader: DataLoader<Awaited<P>> = (() => {
+    const route = useRoute()
     const entry = cache.get(useRouter())
 
     // TODO: dev only
@@ -18,11 +19,22 @@ export function defineLoader<P extends Promise<any>>(
       throw new Error('no cache entry')
     }
 
-    // TODO: some holder for the data
-    // TODO: retrieve the object from the loader
     const { data, pending, error } = entry
 
-    function refresh() {}
+    function refresh() {
+      pending.value = true
+      error.value = null
+      loader(route)
+        .then((_data) => {
+          transferData(entry!, _data)
+        })
+        .catch((err) => {
+          error.value = err
+        })
+        .finally(() => {
+          pending.value = false
+        })
+    }
 
     return Object.assign(
       {

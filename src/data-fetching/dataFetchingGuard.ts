@@ -31,7 +31,8 @@ export function setupDataFetchingGuard(router: Router) {
         // retrieve all loaders as a flat array
         to.matched
           .flatMap((route) => route.meta[LoaderSymbol])
-          .filter((loaderImport) => !!loaderImport)
+          // loaders are optional
+          .filter((loaderImport) => loaderImport)
           // call the dynamic imports to get the loaders
           .map((loaderImport) =>
             loaderImport!()
@@ -44,6 +45,7 @@ export function setupDataFetchingGuard(router: Router) {
                   cache.key !== loadKey
                 ) {
                   // TODO: ensure others useUserData() (loaders) can be called with a similar approach as pinia
+                  // TODO: error handling + refactor to do it in refresh
                   return loader._.load(to, loadKey).then((data) => {
                     const entry = createDataCacheEntry(loadKey, data)
                     loader._.cache.set(router, entry)

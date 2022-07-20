@@ -1,13 +1,15 @@
-import { EffectScope, ref, ToRefs, effectScope, Ref } from 'vue'
+import { EffectScope, ref, ToRefs, effectScope, Ref, unref } from 'vue'
 
 export interface DataLoaderCacheEntry<T> {
   /**
    * load key associated with a navigation.
+   * @internal
    */
   key: symbol
 
   /**
    * When was the data loaded in ms (Date.now()).
+   * @internal
    */
   when: number
 
@@ -52,6 +54,14 @@ function refsFromObject<T>(data: T): ToRefs<T> {
   }
 
   return result
+}
+
+export function transferData<T>(entry: DataLoaderCacheEntry<T>, data: T) {
+  for (const key in data) {
+    entry.data[key].value =
+      // user can pass in a ref, but we want to make sure we only get the data out of it
+      unref(data[key])
+  }
 }
 
 export let scope: EffectScope | undefined
