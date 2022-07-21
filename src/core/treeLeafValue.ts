@@ -44,6 +44,8 @@ class _TreeLeafValueBase {
     meta?: RouteMeta
   } = {}
 
+  includeLoaderGuard: boolean = false
+
   /**
    * Component path that maps to a view name, which is used for vue-router's named view feature.
    * Use `default` key for the default view.

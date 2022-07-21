@@ -1,24 +1,37 @@
 import {
   RouteLocationNormalizedLoaded,
   Router,
+  RouteRecordName,
   useRoute,
   useRouter,
 } from 'vue-router'
 import { Ref, ToRefs } from 'vue'
 import { DataLoaderCacheEntry, transferData } from './dataCache'
-
-// NOTE: change if the function is renamed
-export const DEFINE_LOADER_ID = 'defineLoader'
+import { _RouteMapGeneric } from '../codegen/generateRouteMap'
+import { RouteLocationNormalizedLoadedTyped } from '../typeExtensions/routeLocation'
 
 export function defineLoader<P extends Promise<any>>(
+  name: RouteRecordName,
   loader: (route: RouteLocationNormalizedLoaded) => P
+): DataLoader<Awaited<P>>
+export function defineLoader<P extends Promise<any>>(
+  loader: (route: RouteLocationNormalizedLoaded) => P
+): DataLoader<Awaited<P>>
+export function defineLoader<P extends Promise<any>>(
+  nameOrLoader: RouteRecordName | ((route: RouteLocationNormalizedLoaded) => P),
+  _loader?: (route: RouteLocationNormalizedLoaded) => P
 ): DataLoader<Awaited<P>> {
+  // TODO: make it DEV only and remove the first argument in production mode
+  const loader = typeof nameOrLoader === 'function' ? nameOrLoader : _loader!
+
   const dataLoader: DataLoader<Awaited<P>> = (() => {
     const route = useRoute()
     const entry = cache.get(useRouter())
 
     // TODO: dev only
     if (!entry) {
+      // with HMR, if the user changes the script section, there is a new cache entry
+      // we need to transfer the old cache and call refresh
       throw new Error('no cache entry')
     }
 
@@ -60,12 +73,17 @@ export function defineLoader<P extends Promise<any>>(
       return loader(route)
     },
   }
+  dataLoader[IsLoader] = true
 
   return dataLoader
 }
 
+const IsLoader = Symbol()
+
 export interface DataLoader<T> {
   (): _DataLoaderResult & ToRefs<T>
+
+  [IsLoader]: true
 
   /**
    * Internal context for the loader.
@@ -109,4 +127,8 @@ export interface _DataLoaderResult {
    * Refresh the data. Returns a promise that resolves when the data is refreshed.
    */
   refresh: () => Promise<void>
+}
+
+export function isDataLoader(loader: any): loader is DataLoader<unknown> {
+  return loader && loader[IsLoader]
 }

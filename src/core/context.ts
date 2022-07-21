@@ -12,6 +12,7 @@ import { getRouteBlock } from './customBlock'
 import { RoutesFolderWatcher, HandlerContext } from './RoutesFolderWatcher'
 import { generateDTS as _generateDTS } from '../codegen/generateDTS'
 import { generateVueRouterProxy as _generateVueRouterProxy } from '../codegen/vueRouterModule'
+import { hasNamedExports } from '../data-fetching/parse'
 
 export function createRoutesContext(options: ResolvedOptions) {
   const { dts: preferDTS, root, routesFolder } = options
@@ -102,7 +103,9 @@ export function createRoutesContext(options: ResolvedOptions) {
       // './' + path
       resolve(root, path)
     )
-    node.mergeCustomRouteBlock(routeBlock)
+    node.setCustomRouteBlock(routeBlock)
+    node.value.includeLoaderGuard = await hasNamedExports(path)
+
     routeMap.set(path, node)
   }
 
@@ -113,8 +116,8 @@ export function createRoutesContext(options: ResolvedOptions) {
       console.warn(`Cannot update "${path}": Not found.`)
       return
     }
-    const routeBlock = await getRouteBlock(path, options)
-    node.mergeCustomRouteBlock(routeBlock)
+    node.setCustomRouteBlock(await getRouteBlock(path, options))
+    node.value.includeLoaderGuard = await hasNamedExports(path)
   }
 
   function removePage({ filePath: path, routePath }: HandlerContext) {
@@ -141,7 +144,10 @@ export function createRoutesContext(options: ResolvedOptions) {
   }
 
   function generateRoutes() {
-    return `export const routes = ${generateRouteRecord(routeTree)}`
+    return `import { _LoaderSymbol } from 'unplugin-vue-router/runtime'
+
+export const routes = ${generateRouteRecord(routeTree)}
+`
   }
 
   function generateDTS(): string {

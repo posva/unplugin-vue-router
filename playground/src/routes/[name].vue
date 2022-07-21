@@ -1,8 +1,15 @@
 <script lang="ts">
-export const useUserData = defineLoader(async (route) => {
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
+export const useUserData = defineLoader('/[name]', async (route) => {
+  await delay(1000)
+  if (route.name === '/[name]') {
+    route.params
+  }
   const user = {
-    name: 'Edu',
+    name: route.params.name || 'Edu',
     id: route.params.id || 24,
+    when: new Date().toUTCString(),
   }
   return { user }
 })
@@ -11,7 +18,14 @@ export default {}
 
 const other = 'hello'
 
-export const useOne = defineLoader(async () => ({ one: 'one' }))
+export const useOne = defineLoader(async (route) => {
+  if (route.name === '/[name]') {
+    route.params.name
+    route.params.id
+  }
+
+  return { one: 'one' }
+})
 export const useTwo = defineLoader(async () => ({ two: 'two' }))
 
 // export { useOne, useTwo, other }
@@ -21,7 +35,11 @@ export const useTwo = defineLoader(async () => ({ two: 'two' }))
 import { onBeforeRouteLeave, onBeforeRouteUpdate } from '@vue-router'
 import type { RouterTyped, RouteRecordRaw } from '@vue-router'
 
+const thing = 'THING'
+
 // const $route = useRoute()
+
+const { user, pending, refresh } = useUserData()
 
 const router = useRouter()
 if (router.currentRoute.value.name === '/[name]') {
@@ -86,18 +104,21 @@ defineRoute((route) => ({
   ],
 }))
 
-defineRouteMeta<{ transition: string }>()
-defineRouteMeta({
-  transition: 'fade' as 'fade' | 'slide',
-})
-defineRouteMeta<{ transition: 'fade' | 'slide' }>({
-  transition: 'fade',
-})
+// defineRouteMeta<{ transition: string }>()
+// defineRouteMeta({
+//   transition: 'fade' as 'fade' | 'slide',
+// })
+// defineRouteMeta<{ transition: 'fade' | 'slide' }>({
+//   transition: 'fade',
+// })
 </script>
 
 <template>
   <main>
     <h1>Param: {{ $route.name === '/[name]' && $route.params.name }}</h1>
     <h2>Param: {{ route.params.name }}</h2>
+    <p v-show="false">{{ thing }}</p>
+    <p v-if="pending">Loading user...</p>
+    <pre v-else>{{ user }}</pre>
   </main>
 </template>

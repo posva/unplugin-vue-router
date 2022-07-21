@@ -10,8 +10,6 @@ const router = createRouter({
   history: createWebHistory(),
 })
 
-console.log(router)
-
 const app = createApp(App)
 
 app.use(router)

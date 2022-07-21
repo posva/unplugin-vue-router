@@ -33,6 +33,9 @@ import type {
   RouterLinkTyped,
   NavigationGuard,
   UseLinkFnTyped,
+
+  // data fetching
+  DataLoader,
 } from 'unplugin-vue-router'
 
 declare module '${routesModule}' {
@@ -83,6 +86,19 @@ declare module '${vueRouterModule}' {
 
   export function onBeforeRouteLeave(guard: NavigationGuard<RouteNamedMap>): void
   export function onBeforeRouteUpdate(guard: NavigationGuard<RouteNamedMap>): void
+
+  export function defineLoader<
+    P extends Promise<any>,
+    Name extends keyof RouteNamedMap = keyof RouteNamedMap
+  >(
+    name: Name,
+    loader: (route: RouteLocationNormalizedLoaded<Name>) => P
+  ): DataLoader<Awaited<P>>
+  export function defineLoader<
+    P extends Promise<any>
+  >(
+    loader: (route: RouteLocationNormalizedLoaded) => P
+  ): DataLoader<Awaited<P>>
 }
 
 declare module 'vue-router' {

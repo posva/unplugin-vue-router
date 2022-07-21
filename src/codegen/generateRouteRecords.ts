@@ -36,7 +36,7 @@ ${node
   .join(',\n')}
 ${indentStr}],`
       : '/* no children */'
-  }${formatMeta(node.meta, indentStr)}
+  }${formatMeta(node, indentStr)}
 ${startIndent}}`
 }
 
@@ -56,12 +56,32 @@ ${files
 ${indentStr}},`
 }
 
-function formatMeta(meta: string, indent: string): string {
+function generateImportList(node: TreeLeaf, indentStr: string) {
+  const files = Array.from(node.value.filePaths)
+
+  return `[
+${files
+  .map(([_key, path]) => `${indentStr}  () => import('${path}')`)
+  .join(',\n')}
+${indentStr}]`
+}
+
+const LOADER_GUARD_RE = /['"]_loaderGuard['"]:.*$/
+
+function formatMeta(node: TreeLeaf, indent: string): string {
+  const meta = node.meta
   const formatted =
     meta &&
     meta
       .split('\n')
-      .map((line) => indent + line)
+      .map(
+        (line) =>
+          indent +
+          line.replace(
+            LOADER_GUARD_RE,
+            '[_LoaderSymbol]: ' + generateImportList(node, indent + '  ') + ','
+          )
+      )
       .join('\n')
 
   return formatted ? '\n' + indent + 'meta: ' + formatted.trimStart() : ''

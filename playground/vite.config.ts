@@ -48,7 +48,7 @@ export default defineConfig({
       imports: [
         {
           '@vue-router': VueRouterExports,
-          'unplugin-vue-router/runtime': RuntimeExports,
+          // 'unplugin-vue-router/runtime': RuntimeExports,
         },
       ],
     }),

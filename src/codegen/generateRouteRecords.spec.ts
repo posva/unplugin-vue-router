@@ -119,7 +119,7 @@ describe('generateRouteRecord', () => {
   it('adds meta data', () => {
     const tree = createPrefixTree(DEFAULT_OPTIONS)
     const node = tree.insert('index.vue')
-    node.mergeCustomRouteBlock({
+    node.setCustomRouteBlock({
       meta: {
         auth: true,
         title: 'Home',

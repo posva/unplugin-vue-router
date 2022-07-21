@@ -38,16 +38,32 @@ const customRoute = useRoute('/deep/nesting/works/custom-path')
   <header>
     <div class="wrapper">
       <nav>
-        <RouterLink to="/users/2">About</RouterLink>
-        <RouterLink :to="{ name: '/articles/[id]', params: { id: 2 } }"
-          >About</RouterLink
-        >
-        <RouterLink :to="{ path: '/articles', query: { test: 'query', n: 2 } }"
-          >About</RouterLink
-        >
+        <ul>
+          <li>
+            <RouterLink to="/">Home</RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/Eduardo">[name]</RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/about">About</RouterLink>
+          </li>
+          <li>
+            <RouterLink :to="{ name: '/articles/[id]', params: { id: 2 } }"
+              >Some Article</RouterLink
+            >
+          </li>
+          <li>
+            <RouterLink
+              :to="{ path: '/articles', query: { test: 'query', n: 2 } }"
+              >Articles with query</RouterLink
+            >
+          </li>
+        </ul>
+
         <button @click="$router.push('/oeu')">Click</button>
-        {{ $route.name === '' }}
-        <RouterLink to="/:name" v-slot="{ route }">
+        <RouterLink to="/named-route" v-slot="{ route }">
+          :name param is:
           {{ (route as RouteLocationNormalizedLoaded<'/[name]'>).params.name }}
         </RouterLink>
       </nav>
@@ -58,3 +74,24 @@ const customRoute = useRoute('/deep/nesting/works/custom-path')
   <hr />
   <RouterView name="named" />
 </template>
+
+<style scoped>
+ul {
+  padding-left: 0;
+}
+ul > li {
+  display: inline-block;
+}
+
+ul > li:not(:first-child) {
+  margin-left: 0.5rem;
+}
+
+li > a {
+  text-decoration: none;
+}
+.router-link-active {
+  text-decoration: underline;
+  font-weight: bold;
+}
+</style>

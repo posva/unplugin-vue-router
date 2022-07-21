@@ -54,10 +54,8 @@ export class TreeLeaf {
     return child
   }
 
-  mergeCustomRouteBlock(routeBlock: CustomRouteBlock | undefined) {
-    if (!routeBlock) return
-
-    this.value.overrides = routeBlock
+  setCustomRouteBlock(routeBlock: CustomRouteBlock | undefined) {
+    this.value.overrides = routeBlock || {}
   }
 
   getSortedChildren() {
@@ -110,8 +108,14 @@ export class TreeLeaf {
   }
 
   get meta() {
-    return this.value.overrides.meta
-      ? JSON.stringify(this.value.overrides.meta, null, 2)
+    const overrideMeta = { ...this.value.overrides.meta }
+
+    if (this.value.includeLoaderGuard) {
+      overrideMeta._loaderGuard = true
+    }
+
+    return Object.keys(overrideMeta).length > 0
+      ? JSON.stringify(overrideMeta, null, 2)
       : ''
   }
 
@@ -135,7 +139,7 @@ export class TreeLeaf {
   toString(): string {
     return `${this.value}${
       this.value.filePaths.size
-        ? ` 📄(${Array.from(this.value.filePaths.keys()).join('|')})`
+        ? ` 📄 (${Array.from(this.value.filePaths.keys()).join(', ')})`
         : ''
     }`
   }

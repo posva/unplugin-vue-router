@@ -99,6 +99,7 @@ export type {
   RouteRecordInfo,
 } from './codegen/generateRouteMap'
 export type {
+  // TODO: mark all of these as internals since the exposed versions are user to use
   RouteLocationAsRelativeTyped,
   RouteLocationAsRelativeTypedList,
   RouteLocationAsPathTyped,
@@ -133,5 +134,13 @@ export { TreeLeaf, createPrefixTree } from './core/tree'
 //   TreeLeafValueStatic,
 // } from './core/treeLeafValue'
 
-export const VueRouterExports = ['useRoute', 'useRouter']
+export type { DataLoader } from './data-fetching/defineLoader'
+
+// TODO: just export the object with @vue-router
+export const VueRouterExports = [
+  'useRoute',
+  'useRouter',
+  'defineLoader',
+  // ['_defineLoader', 'defineLoader'],
+]
 export const RuntimeExports = [['_defineLoader', 'defineLoader']]

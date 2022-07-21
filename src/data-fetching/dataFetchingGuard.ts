@@ -1,4 +1,4 @@
-import type { DataLoader } from './defineLoader'
+import { DataLoader, isDataLoader } from './defineLoader'
 import type { Router } from 'vue-router'
 import { createDataCacheEntry } from './dataCache'
 
@@ -8,9 +8,11 @@ export const LoadKeySymbol = Symbol()
 declare module 'vue-router' {
   export interface RouteMeta {
     /**
-     * List of loaders associated with the route.
+     * List of lazy imports of modules that might have a loader. We need to extract the exports that are actually loaders.
      */
-    [LoaderSymbol]?: Array<() => Promise<DataLoader<unknown>>>
+    [LoaderSymbol]?: Array<
+      () => Promise<Record<string, DataLoader<unknown> | unknown>>
+    >
     [LoadKeySymbol]?: symbol
   }
 }
@@ -32,30 +34,39 @@ export function setupDataFetchingGuard(router: Router) {
         to.matched
           .flatMap((route) => route.meta[LoaderSymbol])
           // loaders are optional
-          .filter((loaderImport) => loaderImport)
+          .filter((moduleImport) => moduleImport)
           // call the dynamic imports to get the loaders
-          .map((loaderImport) =>
-            loaderImport!()
+          .map((moduleImport) =>
+            moduleImport!()
               // fetch or use the cache
-              .then((loader) => {
-                const cache = loader._.cache.get(router)
-                if (
-                  !cache ||
-                  // we are in another navigation, we revalidate the cache
-                  cache.key !== loadKey
-                ) {
-                  // TODO: ensure others useUserData() (loaders) can be called with a similar approach as pinia
-                  // TODO: error handling + refactor to do it in refresh
-                  return loader._.load(to, loadKey).then((data) => {
-                    const entry = createDataCacheEntry(loadKey, data)
-                    loader._.cache.set(router, entry)
-                    return entry
+              .then((mod) => {
+                // check all the exports of the module and keep the loaders
+                const loaders = Object.keys(mod)
+                  .filter((exportName) => isDataLoader(mod[exportName]))
+                  .map((loaderName) => mod[loaderName] as DataLoader<unknown>)
+
+                return Promise.all(
+                  loaders.map((loader) => {
+                    const cache = loader._.cache.get(router)
+                    if (
+                      !cache ||
+                      // we are in another navigation, we revalidate the cache
+                      cache.key !== loadKey
+                    ) {
+                      // TODO: ensure others useUserData() (loaders) can be called with a similar approach as pinia
+                      // TODO: error handling + refactor to do it in refresh
+                      return loader._.load(to, loadKey).then((data) => {
+                        const entry = createDataCacheEntry(loadKey, data)
+                        loader._.cache.set(router, entry)
+                        return entry
+                      })
+                    }
+
+                    // TODO: revalidate cache
+
+                    return cache
                   })
-                }
-
-                // TODO: revalidate cache
-
-                return cache
+                )
               })
               .then((entry) => {})
           )
