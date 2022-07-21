@@ -1,7 +1,9 @@
 // Vitest Snapshot v1
 
 exports[`generates the routes 1`] = `
-"export const routes = [
+"import { _LoaderSymbol } from 'unplugin-vue-router/runtime'
+
+export const routes = [
   {
     path: '/',
     name: '/',
@@ -117,5 +119,6 @@ exports[`generates the routes 1`] = `
     component: () => import('/routes/users.new.vue'),
     /* no children */
   }
-]"
+]
+"
 `;
