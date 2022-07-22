@@ -21,7 +21,7 @@ export interface ResolvedOptions {
    * folders, or an object if you want to define a route prefix. Supports glob patterns but must be a folder, use
    * `extensions` and `exclude` to filter files.
    *
-   * @default "src/routes"
+   * @default "src/pages"
    */
   routesFolder: RoutesFolder
   // TODO: add support for multiple routes folders and prepending a path segment
@@ -74,7 +74,7 @@ export type Options = Partial<ResolvedOptions>
 export const DEFAULT_OPTIONS: ResolvedOptions = {
   extensions: ['.vue'],
   exclude: [],
-  routesFolder: 'src/routes',
+  routesFolder: 'src/pages',
   routeBlockLang: 'json5',
   getRouteName: getFileBasedRouteName,
   root: process.cwd(),

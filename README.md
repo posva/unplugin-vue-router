@@ -151,7 +151,7 @@ Have a glimpse of all the existing configuration options with their correspondin
 VueRouter({
   // Folder(s) to scan for vue components and generate routes. Can be a string, or
   // an object, or an array of those.
-  routesFolder: 'src/routes',
+  routesFolder: 'src/pages',
 
   // allowed extensions to be considered as routes
   extensions: ['.vue'],
@@ -178,12 +178,12 @@ VueRouter({
 
 ## Routes folder structure
 
-By default, this plugins checks the folder at `src/routes` for any `.vue` files and generates the corresponding routing structure basing itself in the file name. This way, you no longer need to maintain a `routes` array when adding routes to your application, **instead just add the new `.vue` component to the routes folder and let this plugin do the rest!**
+By default, this plugins checks the folder at `src/pages` for any `.vue` files and generates the corresponding routing structure basing itself in the file name. This way, you no longer need to maintain a `routes` array when adding routes to your application, **instead just add the new `.vue` component to the routes folder and let this plugin do the rest!**
 
 Let's take a look at a simple example:
 
 ```
-src/routes/
+src/pages/
 ├── index.vue
 ├── about.vue
 └── users/
@@ -202,17 +202,17 @@ This will generate the following routes:
 
 Any `index.vue` file will generate an empty path (similar to `index.html` files):
 
-- `src/routes/index.vue`: generates a `/` route
-- `src/routes/users/index.vue`: generates a `/users` route
+- `src/pages/index.vue`: generates a `/` route
+- `src/pages/users/index.vue`: generates a `/users` route
 
 ### Nested Routes
 
-Nested routes are automatically defined by defining a `.vue` file alongside a folder **with the same name**. If you create both a `src/routes/users/index.vue` and a `src/routes/users.vue` components, the `src/routes/users/index.vue` will be rendered within the `src/routes/users.vue`'s `<RouterView>`.
+Nested routes are automatically defined by defining a `.vue` file alongside a folder **with the same name**. If you create both a `src/pages/users/index.vue` and a `src/pages/users.vue` components, the `src/pages/users/index.vue` will be rendered within the `src/pages/users.vue`'s `<RouterView>`.
 
 In other words, given this folder structure:
 
 ```
-src/routes/
+src/pages/
 ├── users/
 │   └── index.vue
 └── users.vue
@@ -224,15 +224,15 @@ You will get this `routes` array:
 const routes = [
   {
     path: '/users',
-    component: () => import('src/routes/users.vue'),
+    component: () => import('src/pages/users.vue'),
     children: [
-      { path: '', component: () => import('src/routes/users/index.vue') },
+      { path: '', component: () => import('src/pages/users/index.vue') },
     ],
   },
 ]
 ```
 
-While omitting the `src/routes/users.vue` component will generate the following routes:
+While omitting the `src/pages/users.vue` component will generate the following routes:
 
 ```js
 const routes = [
@@ -240,7 +240,7 @@ const routes = [
     path: '/users',
     // notice how there is no component here
     children: [
-      { path: '', component: () => import('src/routes/users/index.vue') },
+      { path: '', component: () => import('src/pages/users/index.vue') },
     ],
   },
 ]
@@ -253,7 +253,7 @@ Note `users/` could be any valid route like `my-[id]-param/`.
 Sometimes you might want to add _nesting to the URL_ in the form of slashes but you don't want it to impact your UI hierarchy. Consider the following folder structure:
 
 ```
-src/routes/
+src/pages/
 ├── users/
 │   ├── index.vue
 │   ├── [id].vue
@@ -267,17 +267,17 @@ All generated routes that have a `component` property will have a `name` propert
 
 ### Dynamic Routes
 
-You can add [route params](https://router.vuejs.org/guide/essentials/dynamic-matching.html) by wrapping the _param name_ with brackets, e.g. `src/routes/users/[id].vue` will create a route with the following path: `/users/:id`.
+You can add [route params](https://router.vuejs.org/guide/essentials/dynamic-matching.html) by wrapping the _param name_ with brackets, e.g. `src/pages/users/[id].vue` will create a route with the following path: `/users/:id`.
 
-You can create [**optional params**](https://router.vuejs.org/guide/essentials/route-matching-syntax.html#optional-parameters) by wrapping the _param name_ with an extra pair of brackets, e.g. `src/routes/users/[[id]].vue` will create a route with the following path: `/users/:id?`.
+You can create [**optional params**](https://router.vuejs.org/guide/essentials/route-matching-syntax.html#optional-parameters) by wrapping the _param name_ with an extra pair of brackets, e.g. `src/pages/users/[[id]].vue` will create a route with the following path: `/users/:id?`.
 
-You can create [**repeatable params**](https://router.vuejs.org/guide/essentials/route-matching-syntax.html#repeatable-params) by adding a plus character (`+`) after the closing bracket, e.g. `src/routes/articles/[slugs]+.vue` will create a route with the following path: `/articles/:slugs+`.
+You can create [**repeatable params**](https://router.vuejs.org/guide/essentials/route-matching-syntax.html#repeatable-params) by adding a plus character (`+`) after the closing bracket, e.g. `src/pages/articles/[slugs]+.vue` will create a route with the following path: `/articles/:slugs+`.
 
-And you can combine both to create optional repeatable params, e.g. `src/routes/articles/[[slugs]]+.vue` will create a route with the following path: `/articles/:slugs*`.
+And you can combine both to create optional repeatable params, e.g. `src/pages/articles/[[slugs]]+.vue` will create a route with the following path: `/articles/:slugs*`.
 
 ### Catch all / 404 Not found route
 
-To create a catch all route prepend 3 dots (`...`) to the param name, e.g. `src/routes/[...path].vue` will create a route with the following path: `/:path(.*)`. This will match any route. Note this can be done inside a folder too, e.g. `src/routes/articles/[...path].vue` will create a route with the following path: `/articles/:path(.*)`.
+To create a catch all route prepend 3 dots (`...`) to the param name, e.g. `src/pages/[...path].vue` will create a route with the following path: `/:path(.*)`. This will match any route. Note this can be done inside a folder too, e.g. `src/pages/articles/[...path].vue` will create a route with the following path: `/articles/:path(.*)`.
 
 ### Multiple routes folders
 
@@ -285,7 +285,7 @@ It's possible to provide multiple routes folders by passing an array to `routesF
 
 ```js
 VueRouter({
-  routesFolder: ['src/routes', 'src/admin/routes'],
+  routesFolder: ['src/pages', 'src/admin/routes'],
 })
 ```
 
@@ -294,7 +294,7 @@ You can also provide a path prefix for each of these folders, it will be used _a
 ```js
 VueRouter({
   routesFolder: [
-    'src/routes',
+    'src/pages',
     {
       src: 'src/admin/routes',
       // note there is always a trailing slash and never a leading one
@@ -398,13 +398,13 @@ userWithId = useRoute('/users/[id]') // 👈  this one is the easiest to write
 
 ## Named views
 
-It is possible to define [named views](https://router.vuejs.org/guide/essentials/named-views.html#named-views) by appending an `@` + a name to their filename, e.g. a file named `src/routes/index@aux.vue` will generate a route of:
+It is possible to define [named views](https://router.vuejs.org/guide/essentials/named-views.html#named-views) by appending an `@` + a name to their filename, e.g. a file named `src/pages/index@aux.vue` will generate a route of:
 
 ```js
 {
   path: '/',
   component: {
-    aux: () => import('src/routes/index@aux.vue')
+    aux: () => import('src/pages/index@aux.vue')
   }
 }
 ```

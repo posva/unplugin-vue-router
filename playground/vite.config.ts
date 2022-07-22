@@ -15,13 +15,20 @@ import AutoImport from 'unplugin-auto-import/vite'
 
 export default defineConfig({
   clearScreen: false,
+  build: {
+    sourcemap: true,
+  },
+  // optimizeDeps: {
+  //   exclude: ['ufo', 'mlly', 'magic-string', 'fsevents'],
+  // },
+
   plugins: [
     Vue({}),
     VueRouter({
       routesFolder: [
         // can add multiple routes folders
         {
-          src: 'src/routes',
+          src: 'src/pages',
           // can even add params
           // path: ':lang/',
         },
@@ -39,9 +46,9 @@ export default defineConfig({
         'ignored',
         '**/__*',
         '**/__**/*',
-        // resolve(__dirname, './src/routes/ignored'),
+        // resolve(__dirname, './src/pages/ignored'),
         //
-        // './src/routes/**/*.spec.ts',
+        // './src/pages/**/*.spec.ts',
       ],
     }),
     AutoImport({
