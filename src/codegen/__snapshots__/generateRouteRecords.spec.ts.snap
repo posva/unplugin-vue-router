@@ -37,21 +37,6 @@ exports[`generateRouteRecord > adds children and name when folder and component 
 ]"
 `;
 
-exports[`generateRouteRecord > adds meta data 1`] = `
-"[
-  {
-    path: '/',
-    name: '/',
-    component: () => import('index.vue'),
-    /* no children */
-    meta: {
-      \\"auth\\": true,
-      \\"title\\": \\"Home\\"
-    }
-  }
-]"
-`;
-
 exports[`generateRouteRecord > correctly names index.vue files 1`] = `
 "[
   {
@@ -404,6 +389,88 @@ exports[`generateRouteRecord > nested children 2`] = `
     path: '/d',
     name: '/d',
     component: () => import('d.vue'),
+    /* no children */
+  }
+]"
+`;
+
+exports[`generateRouteRecord > route block > adds meta data 1`] = `
+"[
+  {
+    path: '/',
+    name: '/',
+    component: () => import('index.vue'),
+    /* no children */
+    meta: {
+      \\"auth\\": true,
+      \\"title\\": \\"Home\\"
+    }
+  }
+]"
+`;
+
+exports[`generateRouteRecord > route block > handles named views with empty route blocks 1`] = `
+"[
+  {
+    path: '/',
+    name: '/',
+    components: {
+      'default': () => import('index.vue'),
+      'named': () => import('index@named.vue')
+    },
+    /* no children */
+    meta: {
+      \\"auth\\": true,
+      \\"title\\": \\"Home\\"
+    }
+  }
+]"
+`;
+
+exports[`generateRouteRecord > route block > merges deep meta properties 1`] = `
+"[
+  {
+    path: '/',
+    name: '/',
+    component: () => import('index.vue'),
+    /* no children */
+    meta: {
+      \\"a\\": {
+        \\"one\\": 1,
+        \\"two\\": 1
+      },
+      \\"b\\": {
+        \\"a\\": [
+          2,
+          3
+        ]
+      }
+    }
+  }
+]"
+`;
+
+exports[`generateRouteRecord > route block > merges multiple meta properties 1`] = `
+"[
+  {
+    path: '/custom',
+    name: 'hello',
+    component: () => import('index.vue'),
+    /* no children */
+    meta: {
+      \\"one\\": true,
+      \\"two\\": true
+    }
+  }
+]"
+`;
+
+exports[`generateRouteRecord > route block > merges regardless of order 1`] = `
+"[
+  {
+    path: '/',
+    name: 'b',
+    component: () => import('index.vue'),
     /* no children */
   }
 ]"

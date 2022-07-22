@@ -1,9 +1,15 @@
-import { RouteMeta } from 'vue-router'
-import { joinPath } from './utils'
+import { RouteRecordRaw } from 'vue-router'
+import { CustomRouteBlock } from './customBlock'
+import { joinPath, mergeRouteRecordOverride } from './utils'
 
 export const enum TreeLeafType {
   static,
   param,
+}
+
+export interface RouteRecordOverride
+  extends Partial<Pick<RouteRecordRaw, 'meta' | 'props' | 'alias' | 'path'>> {
+  name?: string
 }
 
 export type SubSegment = string | TreeRouteParam
@@ -32,17 +38,10 @@ class _TreeLeafValueBase {
    */
   path: string
 
-  overrides: {
-    path?: string
-    /**
-     * Overridden name for this route.
-     */
-    name?: string
-    /**
-     * Meta of the route
-     */
-    meta?: RouteMeta
-  } = {}
+  /**
+   * Overrides defined by each file. The map is necessary to handle named views.
+   */
+  private _overrides = new Map<string, RouteRecordOverride>()
 
   includeLoaderGuard: boolean = false
 
@@ -80,6 +79,20 @@ class _TreeLeafValueBase {
 
   isStatic(): this is TreeLeafValueStatic {
     return this._type === TreeLeafType.static
+  }
+
+  get overrides() {
+    return [...this._overrides.entries()]
+      .sort(([nameA], [nameB]) =>
+        nameA === nameB ? 0 : nameA < nameB ? -1 : 1
+      )
+      .reduce((acc, [_path, routeBlock]) => {
+        return mergeRouteRecordOverride(acc, routeBlock)
+      }, {} as RouteRecordOverride)
+  }
+
+  setOverride(path: string, routeBlock: CustomRouteBlock | undefined) {
+    this._overrides.set(path, routeBlock || {})
   }
 }
 

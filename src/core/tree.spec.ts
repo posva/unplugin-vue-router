@@ -297,31 +297,31 @@ describe('Tree', () => {
   it('allows a custom name', () => {
     const tree = createPrefixTree(DEFAULT_OPTIONS)
     let leaf = tree.insert('[a]-[b].vue')
-    leaf.value.overrides = {
+    leaf.value.setOverride('', {
       name: 'custom',
-    }
+    })
     expect(leaf.name).toBe('custom')
 
     leaf = tree.insert('auth/login.vue')
-    leaf.value.overrides = {
+    leaf.value.setOverride('', {
       name: 'custom-child',
-    }
+    })
     expect(leaf.name).toBe('custom-child')
   })
 
   it('allows a custom path', () => {
     const tree = createPrefixTree(DEFAULT_OPTIONS)
     let leaf = tree.insert('[a]-[b].vue')
-    leaf.value.overrides = {
+    leaf.value.setOverride('', {
       path: '/custom',
-    }
+    })
     expect(leaf.path).toBe('/custom')
     expect(leaf.fullPath).toBe('/custom')
 
     leaf = tree.insert('auth/login.vue')
-    leaf.value.overrides = {
+    leaf.value.setOverride('', {
       path: '/custom-child',
-    }
+    })
     expect(leaf.path).toBe('/custom-child')
     expect(leaf.fullPath).toBe('/custom-child')
   })

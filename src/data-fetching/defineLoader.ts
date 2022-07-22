@@ -31,7 +31,7 @@ export function defineLoader<P extends Promise<any>>(
     // TODO: dev only
     if (!entry) {
       if (import.meta.hot) {
-        // reload the page if the loader is new
+        // reload the page if the loader is new and we have no way to
         // TODO: test with webpack
         import.meta.hot.invalidate()
       }

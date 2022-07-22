@@ -1,5 +1,5 @@
 import { TreeLeaf } from './tree'
-import type { TreeRouteParam } from './treeLeafValue'
+import type { RouteRecordOverride, TreeRouteParam } from './treeLeafValue'
 import { pascalCase } from 'scule'
 
 export type Awaitable<T> = T | PromiseLike<T>
@@ -156,4 +156,52 @@ export function getPascalCaseRouteName(node: TreeLeaf): string {
 export function getFileBasedRouteName(node: TreeLeaf): string {
   if (!node.parent) return ''
   return getFileBasedRouteName(node.parent) + '/' + node.value.rawSegment
+}
+
+export function mergeRouteRecordOverride(
+  a: RouteRecordOverride,
+  b: RouteRecordOverride
+): RouteRecordOverride {
+  const merged: RouteRecordOverride = {}
+  const keys = [
+    ...new Set<keyof RouteRecordOverride>([
+      ...(Object.keys(a) as (keyof RouteRecordOverride)[]),
+      ...(Object.keys(b) as (keyof RouteRecordOverride)[]),
+    ]),
+  ]
+  for (const key of keys) {
+    if (key === 'alias') {
+      merged[key] = [...(a[key] || []), ...(b[key] || [])]
+    } else if (key === 'meta') {
+      merged[key] = mergeDeep(a[key] || {}, b[key] || {})
+    } else {
+      // @ts-expect-error: TS cannot see it's the same key
+      merged[key] = b[key] ?? a[key]
+    }
+  }
+
+  return merged
+}
+
+function isObject(obj: any): obj is Record<any, any> {
+  return obj && typeof obj === 'object'
+}
+
+function mergeDeep(...objects: Array<Record<any, any>>): Record<any, any> {
+  return objects.reduce((prev, obj) => {
+    Object.keys(obj).forEach((key) => {
+      const pVal = prev[key]
+      const oVal = obj[key]
+
+      if (Array.isArray(pVal) && Array.isArray(oVal)) {
+        prev[key] = pVal.concat(...oVal)
+      } else if (isObject(pVal) && isObject(oVal)) {
+        prev[key] = mergeDeep(pVal, oVal)
+      } else {
+        prev[key] = oVal
+      }
+    })
+
+    return prev
+  }, {})
 }

@@ -103,7 +103,7 @@ export function createRoutesContext(options: ResolvedOptions) {
       // './' + path
       resolve(root, path)
     )
-    node.setCustomRouteBlock(routeBlock)
+    node.setCustomRouteBlock(path, routeBlock)
     node.value.includeLoaderGuard = await hasNamedExports(path)
 
     routeMap.set(path, node)
@@ -116,7 +116,7 @@ export function createRoutesContext(options: ResolvedOptions) {
       console.warn(`Cannot update "${path}": Not found.`)
       return
     }
-    node.setCustomRouteBlock(await getRouteBlock(path, options))
+    node.setCustomRouteBlock(path, await getRouteBlock(path, options))
     node.value.includeLoaderGuard = await hasNamedExports(path)
   }
 

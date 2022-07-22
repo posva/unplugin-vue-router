@@ -116,16 +116,121 @@ describe('generateRouteRecord', () => {
     })
   })
 
-  it('adds meta data', () => {
-    const tree = createPrefixTree(DEFAULT_OPTIONS)
-    const node = tree.insert('index.vue')
-    node.setCustomRouteBlock({
-      meta: {
-        auth: true,
-        title: 'Home',
-      },
+  describe('route block', () => {
+    it('adds meta data', async () => {
+      const tree = createPrefixTree(DEFAULT_OPTIONS)
+      const node = tree.insert('index.vue')
+      node.setCustomRouteBlock('index.vue', {
+        meta: {
+          auth: true,
+          title: 'Home',
+        },
+      })
+
+      expect(generateRouteRecord(tree)).toMatchSnapshot()
     })
 
-    expect(generateRouteRecord(tree)).toMatchSnapshot()
+    it('merges multiple meta properties', async () => {
+      const tree = createPrefixTree(DEFAULT_OPTIONS)
+      const node = tree.insert('index.vue')
+      node.setCustomRouteBlock('index.vue', {
+        path: '/custom',
+        meta: {
+          one: true,
+        },
+      })
+      node.setCustomRouteBlock('index@named.vue', {
+        name: 'hello',
+        meta: {
+          two: true,
+        },
+      })
+
+      expect(generateRouteRecord(tree)).toMatchSnapshot()
+    })
+
+    it('merges regardless of order', async () => {
+      const tree = createPrefixTree(DEFAULT_OPTIONS)
+      const node = tree.insert('index.vue')
+      node.setCustomRouteBlock('index.vue', {
+        name: 'a',
+      })
+      node.setCustomRouteBlock('index@named.vue', {
+        name: 'b',
+      })
+
+      const one = generateRouteRecord(tree)
+
+      node.setCustomRouteBlock('index@named.vue', {
+        name: 'b',
+      })
+      node.setCustomRouteBlock('index.vue', {
+        name: 'a',
+      })
+
+      expect(generateRouteRecord(tree)).toBe(one)
+
+      expect(one).toMatchSnapshot()
+    })
+
+    it('handles named views with empty route blocks', () => {
+      const tree = createPrefixTree(DEFAULT_OPTIONS)
+      const node = tree.insert('index.vue')
+      const n2 = tree.insert('index@named.vue')
+      expect(node).toBe(n2)
+      // coming from index.vue
+      node.setCustomRouteBlock('index.vue', {
+        meta: {
+          auth: true,
+          title: 'Home',
+        },
+      })
+      // coming from index@named.vue (no route block)
+      node.setCustomRouteBlock('index@named.vue', undefined)
+
+      expect(generateRouteRecord(tree)).toMatchSnapshot()
+    })
+
+    // FIXME: allow aliases
+    it('merges alias properties', async () => {
+      const tree = createPrefixTree(DEFAULT_OPTIONS)
+      const node = tree.insert('index.vue')
+      node.setCustomRouteBlock('index.vue', {
+        alias: '/one',
+      })
+      node.setCustomRouteBlock('index@named.vue', {
+        alias: ['/two', '/three'],
+      })
+
+      expect(generateRouteRecord(tree)).toMatchInlineSnapshot(`
+        "[
+          {
+            path: '/',
+            name: '/',
+            component: () => import('index.vue'),
+            /* no children */
+          }
+        ]"
+      `)
+    })
+
+    it('merges deep meta properties', async () => {
+      const tree = createPrefixTree(DEFAULT_OPTIONS)
+      const node = tree.insert('index.vue')
+      node.setCustomRouteBlock('index.vue', {
+        meta: {
+          a: { one: 1 },
+          b: { a: [2] },
+        },
+      })
+      node.setCustomRouteBlock('index@named.vue', {
+        meta: {
+          a: { two: 1 },
+          b: { a: [3] },
+        },
+      })
+
+      expect(generateRouteRecord(tree)).toMatchSnapshot()
+    })
   })
 })

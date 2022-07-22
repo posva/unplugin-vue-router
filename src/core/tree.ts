@@ -9,6 +9,7 @@ export class TreeLeaf {
    * value of the node
    */
   value: TreeLeafValue
+
   /**
    * children of the node
    */
@@ -54,8 +55,8 @@ export class TreeLeaf {
     return child
   }
 
-  setCustomRouteBlock(routeBlock: CustomRouteBlock | undefined) {
-    this.value.overrides = routeBlock || {}
+  setCustomRouteBlock(path: string, routeBlock: CustomRouteBlock | undefined) {
+    this.value.setOverride(path, routeBlock)
   }
 
   getSortedChildren() {
