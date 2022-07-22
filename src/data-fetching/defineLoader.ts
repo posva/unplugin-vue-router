@@ -30,9 +30,14 @@ export function defineLoader<P extends Promise<any>>(
 
     // TODO: dev only
     if (!entry) {
+      if (import.meta.hot) {
+        // reload the page if the loader is new
+        // TODO: test with webpack
+        import.meta.hot.invalidate()
+      }
       // with HMR, if the user changes the script section, there is a new cache entry
       // we need to transfer the old cache and call refresh
-      throw new Error('no cache entry')
+      throw new Error('No cache entry: reloading the page')
     }
 
     const { data, pending, error } = entry
