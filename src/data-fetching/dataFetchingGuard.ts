@@ -1,9 +1,8 @@
 import { DataLoader, isDataLoader } from './defineLoader'
 import type { Router } from 'vue-router'
-import { createDataCacheEntry } from './dataCache'
 
+// Symbol used to detect if a route has loaders
 export const LoaderSymbol = Symbol()
-export const LoadKeySymbol = Symbol()
 
 declare module 'vue-router' {
   export interface RouteMeta {
@@ -14,21 +13,20 @@ declare module 'vue-router' {
     [LoaderSymbol]?: Array<
       () => Promise<Record<string, DataLoader<unknown> | unknown>>
     >
-    [LoadKeySymbol]?: symbol
   }
+}
+
+export interface DataFetchingOptions {
+  /**
+   * If true, fetching won't block the navigation. If a number is passed, the fetching will block that many milliseconds
+   * before letting the navigation continue.
+   */
+  lazy?: boolean | number | (() => boolean | number)
 }
 
 export function setupDataFetchingGuard(router: Router) {
   return router.beforeEach((to) => {
-    // TODO: generate a call id so it can be used to identify and group all the calls together and set up a cache?
-    // this allows
-    if (!to.meta[LoadKeySymbol]) {
-      to.meta[LoadKeySymbol] = Symbol()
-    }
-    const loadKey = to.meta[LoadKeySymbol]
-    /**
-     * We run all loaders in parallel
-     */
+    // We run all loaders in parallel
     return (
       Promise.all(
         // retrieve all loaders as a flat array
@@ -46,30 +44,14 @@ export function setupDataFetchingGuard(router: Router) {
                   .filter((exportName) => isDataLoader(mod[exportName]))
                   .map((loaderName) => mod[loaderName] as DataLoader<unknown>)
 
+                // fetch all the loaders
                 return Promise.all(
+                  // load will ensure only one request is happening at a time
                   loaders.map((loader) => {
-                    const cache = loader._.cache.get(router)
-                    if (
-                      !cache ||
-                      // we are in another navigation, we revalidate the cache
-                      cache.key !== loadKey
-                    ) {
-                      // TODO: ensure others useUserData() (loaders) can be called with a similar approach as pinia
-                      // TODO: error handling + refactor to do it in refresh
-                      return loader._.load(to, loadKey).then((data) => {
-                        const entry = createDataCacheEntry(loadKey, data)
-                        loader._.cache.set(router, entry)
-                        return entry
-                      })
-                    }
-
-                    // TODO: revalidate cache
-
-                    return cache
+                    return loader._.load(to, router)
                   })
                 )
               })
-              .then((entry) => {})
           )
       )
         // let the navigation go through

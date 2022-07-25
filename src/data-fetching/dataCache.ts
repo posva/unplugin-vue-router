@@ -1,17 +1,15 @@
 import { EffectScope, ref, ToRefs, effectScope, Ref, unref } from 'vue'
+import { LocationQuery, RouteParams } from 'vue-router'
 
-export interface DataLoaderCacheEntry<T> {
-  /**
-   * load key associated with a navigation.
-   * @internal
-   */
-  key: symbol
-
+export interface DataLoaderCacheEntry<T = unknown> {
   /**
    * When was the data loaded in ms (Date.now()).
    * @internal
    */
   when: number
+
+  params: Partial<RouteParams>
+  query: Partial<LocationQuery>
 
   /**
    * Data stored in the cache.
@@ -31,17 +29,32 @@ export interface DataLoaderCacheEntry<T> {
   error: Ref<any> // any is simply more convenient for errors
 }
 
-export function createDataCacheEntry<T>(
-  loadKey: symbol,
-  data: T
+export function isCacheExpired(entry: DataLoaderCacheEntry, limit: number) {
+  return Date.now() - entry.when > limit
+}
+
+export function createOrUpdateDataCacheEntry<T>(
+  entry: DataLoaderCacheEntry<T> | undefined,
+  data: T,
+  params: Partial<RouteParams>,
+  query: Partial<LocationQuery>
 ): DataLoaderCacheEntry<T> {
-  return withinScope(() => ({
-    pending: ref(false),
-    error: ref<any>(),
-    key: loadKey,
-    when: Date.now(),
-    data: refsFromObject(data),
-  }))
+  if (!entry) {
+    return withinScope(() => ({
+      pending: ref(false),
+      error: ref<any>(),
+      when: Date.now(),
+      data: refsFromObject(data),
+      params,
+      query,
+    }))
+  } else {
+    entry.when = Date.now()
+    entry.params = params
+    entry.query = query
+    transferData(entry, data)
+    return entry
+  }
 }
 
 function refsFromObject<T>(data: T): ToRefs<T> {
@@ -67,9 +80,7 @@ export function transferData<T>(entry: DataLoaderCacheEntry<T>, data: T) {
 export let scope: EffectScope | undefined
 
 export function withinScope<T>(fn: () => T): T {
-  scope = scope || effectScope(true)
-
-  return scope.run(fn)!
+  return (scope = scope || effectScope(true)).run(fn)!
 }
 
 /**

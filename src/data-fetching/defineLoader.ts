@@ -1,14 +1,19 @@
 import {
   RouteLocationNormalizedLoaded,
+  LocationQuery,
   Router,
   RouteRecordName,
   useRoute,
   useRouter,
 } from 'vue-router'
-import { Ref, ToRefs } from 'vue'
-import { DataLoaderCacheEntry, transferData } from './dataCache'
+import type { Ref, ToRefs } from 'vue'
+import {
+  createOrUpdateDataCacheEntry,
+  DataLoaderCacheEntry,
+  isCacheExpired,
+  transferData,
+} from './dataCache'
 import { _RouteMapGeneric } from '../codegen/generateRouteMap'
-import { RouteLocationNormalizedLoadedTyped } from '../typeExtensions/routeLocation'
 
 export function defineLoader<P extends Promise<any>>(
   name: RouteRecordName,
@@ -28,7 +33,10 @@ export function defineLoader<P extends Promise<any>>(
     const route = useRoute()
     const entry = cache.get(useRouter())
 
+    // TODO: is blocking
+
     // TODO: dev only
+    // TODO: detect if this happens during HMR or if the loader is wrongly being used without being exported by a route we are navigating to
     if (!entry) {
       if (import.meta.hot) {
         // reload the page if the loader is new and we have no way to
@@ -45,7 +53,7 @@ export function defineLoader<P extends Promise<any>>(
     function refresh() {
       pending.value = true
       error.value = null
-      loader(route)
+      return loader(route)
         .then((_data) => {
           transferData(entry!, _data)
         })
@@ -57,30 +65,104 @@ export function defineLoader<P extends Promise<any>>(
         })
     }
 
-    return Object.assign(
-      {
-        pending,
-        error,
-        refresh,
-      },
-      data
-    )
+    const commonData: _DataLoaderResult = {
+      pending,
+      error,
+      refresh,
+      invalidate: () => {},
+    }
+
+    return Object.assign(commonData, data)
   }) as DataLoader<Awaited<P>>
 
   const cache = new WeakMap<Router, DataLoaderCacheEntry<Awaited<P>>>()
 
+  let pendingPromise: Promise<void> | undefined | null
   // add the context as one single object
   dataLoader._ = {
     loader,
     cache,
-    load(route: RouteLocationNormalizedLoaded, loadKey: symbol) {
-      // TODO: actual implementation
-      return loader(route)
+    load(route, router) {
+      // the request was already made
+      if (pendingPromise) return pendingPromise
+
+      let entry = cache.get(router)
+      if (
+        !entry ||
+        // TODO: isExpired time
+        // TODO: pass settings to isExpired so we can also have a never-cache option
+        isCacheExpired(entry, 5000) ||
+        needsToFetchAgain(entry, route)
+      ) {
+        // TODO: ensure others useUserData() (loaders) can be called with a similar approach as pinia
+        // TODO: error handling + refactor to do it in refresh
+        const [trackedRoute, params, query] = trackRoute(route)
+        return (pendingPromise = loader(trackedRoute)
+          .then((data) => {
+            entry = createOrUpdateDataCacheEntry(entry, data, params, query)
+            cache.set(router, entry)
+          })
+          .finally(() => {
+            // if an error happen we still have no valid entry and therefor no cache to save
+            // if (entry) {
+            //   entry.paramReads = paramReads
+            //   entry.queryReads = queryReads
+            // }
+            // reset the pending promise
+            pendingPromise = null
+          }))
+      }
+      // this allows us to know that this was requested
+      return (pendingPromise = Promise.resolve().finally(
+        () => (pendingPromise = null)
+      ))
     },
   }
   dataLoader[IsLoader] = true
 
   return dataLoader
+}
+
+function needsToFetchAgain(
+  entry: DataLoaderCacheEntry<any>,
+  route: RouteLocationNormalizedLoaded
+) {
+  return (
+    !includesParams(route.params, entry.params) ||
+    !includesParams(route.query, entry.query)
+  )
+}
+
+// FIXME: this exists in vue-router
+/**
+ * Returns true if `inner` is a subset of `outer`
+ *
+ * @param outer - the bigger params
+ * @param inner - the smaller params
+ */
+function includesParams(
+  outer: LocationQuery,
+  inner: Partial<LocationQuery>
+): boolean {
+  for (const key in inner) {
+    const innerValue = inner[key]
+    const outerValue = outer[key]
+    if (typeof innerValue === 'string') {
+      if (innerValue !== outerValue) return false
+    } else if (!innerValue || !outerValue) {
+      // if one of them is undefined, we need to check if the other is undefined too
+      if (innerValue !== outerValue) return false
+    } else {
+      if (
+        !Array.isArray(outerValue) ||
+        outerValue.length !== innerValue.length ||
+        innerValue.some((value, i) => value !== outerValue[i])
+      )
+        return false
+    }
+  }
+
+  return true
 }
 
 const IsLoader = Symbol()
@@ -106,7 +188,10 @@ export interface _DataLoaderInternals<T> {
   // the loader passed to defineLoader
   loader: (route: RouteLocationNormalizedLoaded) => Promise<T>
 
-  load: (route: RouteLocationNormalizedLoaded, loadKey: symbol) => Promise<T>
+  /**
+   * Loads the data from the cache if possible, otherwise loads it from the loader and awaits it.
+   */
+  load: (route: RouteLocationNormalizedLoaded, router: Router) => Promise<void>
 
   /**
    * The data loaded by the loader associated with the router instance. As one router instance can only be used for one
@@ -132,8 +217,41 @@ export interface _DataLoaderResult {
    * Refresh the data. Returns a promise that resolves when the data is refreshed.
    */
   refresh: () => Promise<void>
+
+  /**
+   * Invalidates the data so it is reloaded on the next request.
+   */
+  invalidate: () => void
 }
 
 export function isDataLoader(loader: any): loader is DataLoader<unknown> {
   return loader && loader[IsLoader]
+}
+
+function trackRoute(route: RouteLocationNormalizedLoaded) {
+  const [params, paramReads] = trackReads(route.params)
+  const [query, queryReads] = trackReads(route.query)
+  return [
+    {
+      ...route,
+      params,
+      query,
+    },
+    paramReads,
+    queryReads,
+  ] as const
+}
+
+function trackReads<T extends Record<string, any>>(obj: T) {
+  const reads: Partial<T> = {}
+  return [
+    new Proxy(obj, {
+      get(target, p: Extract<keyof T, string>, receiver) {
+        const value = Reflect.get(target, p, receiver)
+        reads[p] = value
+        return value
+      },
+    }),
+    reads,
+  ] as const
 }
