@@ -82,18 +82,21 @@ export function defineLoader<P extends Promise<any>>(
   dataLoader._ = {
     loader,
     cache,
-    load(route, router) {
+    load(route, router, force = false) {
+      let entry = cache.get(router)
+
+      const isDifferentRoute = needsToFetchAgain(entry, route)
+
       // the request was already made
       // TODO: should still happen if params are different
-      if (pendingPromise) return pendingPromise
+      if (pendingPromise && !needsToFetchAgain) return pendingPromise
 
-      let entry = cache.get(router)
       if (
         !entry ||
         // TODO: isExpired time
         // TODO: pass settings to isExpired so we can also have a never-cache option
         isCacheExpired(entry, 5000) ||
-        needsToFetchAgain(entry, route)
+        isDifferentRoute
       ) {
         // TODO: ensure others useUserData() (loaders) can be called with a similar approach as pinia
         // TODO: error handling + refactor to do it in refresh
@@ -125,12 +128,13 @@ export function defineLoader<P extends Promise<any>>(
 }
 
 function needsToFetchAgain(
-  entry: DataLoaderCacheEntry<any>,
+  entry: DataLoaderCacheEntry<any> | undefined | null,
   route: RouteLocationNormalizedLoaded
 ) {
   return (
-    !includesParams(route.params, entry.params) ||
-    !includesParams(route.query, entry.query)
+    entry &&
+    (!includesParams(route.params, entry.params) ||
+      !includesParams(route.query, entry.query))
   )
 }
 
