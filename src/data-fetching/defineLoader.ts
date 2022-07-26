@@ -84,6 +84,7 @@ export function defineLoader<P extends Promise<any>>(
     cache,
     load(route, router) {
       // the request was already made
+      // TODO: should still happen if params are different
       if (pendingPromise) return pendingPromise
 
       let entry = cache.get(router)
