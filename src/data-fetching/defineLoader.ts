@@ -82,7 +82,7 @@ export function defineLoader<P extends Promise<any>>(
   dataLoader._ = {
     loader,
     cache,
-    load(route, router, force = false) {
+    load(route, router) {
       let entry = cache.get(router)
 
       const isDifferentRoute = needsToFetchAgain(entry, route)
