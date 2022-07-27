@@ -194,6 +194,71 @@ describe('defineLoader', () => {
       expect(error.value).toBeFalsy()
       expect(user.value).toEqual({ name: 'bob' })
     })
+
+    it('skips loader if used params did not change', async () => {
+      const spy = vi.fn().mockResolvedValue({ name: 'edu' })
+      const useLoader = defineLoader(async ({ params, query }) => {
+        return { user: await spy(params.id, query.other) }
+      })
+
+      await useLoader._.load({ ...route, params: { id: 'edu' } }, router)
+      // same param as before
+      await useLoader._.load({ ...route, params: { id: 'edu' } }, router)
+      // other param changes
+      await useLoader._.load(
+        { ...route, params: { id: 'edu', other: 'new' } },
+        router
+      )
+      await useLoader._.load(
+        { ...route, params: { id: 'edu', other: 'newnew' } },
+        router
+      )
+      // new unused query id
+      await useLoader._.load(
+        { ...route, params: { id: 'edu' }, query: { notused: 'hello' } },
+        router
+      )
+      // remove the query
+      await useLoader._.load(
+        { ...route, params: { id: 'edu' }, query: {} },
+        router
+      )
+      expect(spy).toHaveBeenCalledTimes(1)
+
+      // new query id
+      await useLoader._.load(
+        { ...route, params: { id: 'edu' }, query: { other: 'hello' } },
+        router
+      )
+      expect(spy).toHaveBeenCalledTimes(2)
+      // change param
+      await useLoader._.load(
+        { ...route, params: { id: 'bob' }, query: { other: 'hello' } },
+        router
+      )
+      expect(spy).toHaveBeenCalledTimes(3)
+      // change query
+      await useLoader._.load(
+        { ...route, params: { id: 'bob' }, query: { other: 'new' } },
+        router
+      )
+      expect(spy).toHaveBeenCalledTimes(4)
+      // change both
+      await useLoader._.load(
+        { ...route, params: { id: 'new one' }, query: { other: 'new one' } },
+        router
+      )
+      expect(spy).toHaveBeenCalledTimes(5)
+
+      const { user, refresh, pending, error } = useLoader()
+
+      expect(pending.value).toBe(false)
+      expect(error.value).toBeFalsy()
+      expect(user.value).toEqual({ name: 'edu' })
+
+      await refresh()
+      expect(spy).toHaveBeenCalledTimes(6)
+    })
   })
 
   it.todo('sets errors', async () => {
