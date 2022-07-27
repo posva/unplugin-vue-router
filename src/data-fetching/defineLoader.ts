@@ -101,20 +101,26 @@ export function defineLoader<P extends Promise<any>>(
         // TODO: ensure others useUserData() (loaders) can be called with a similar approach as pinia
         // TODO: error handling + refactor to do it in refresh
         const [trackedRoute, params, query] = trackRoute(route)
-        return (pendingPromise = loader(trackedRoute)
+        const thisPromise = (pendingPromise = loader(trackedRoute)
           .then((data) => {
-            entry = createOrUpdateDataCacheEntry(entry, data, params, query)
-            cache.set(router, entry)
+            if (pendingPromise === thisPromise) {
+              entry = createOrUpdateDataCacheEntry(entry, data, params, query)
+              cache.set(router, entry)
+            }
           })
           .finally(() => {
-            // if an error happen we still have no valid entry and therefor no cache to save
-            // if (entry) {
-            //   entry.paramReads = paramReads
-            //   entry.queryReads = queryReads
-            // }
-            // reset the pending promise
-            pendingPromise = null
+            if (pendingPromise === thisPromise) {
+              // if an error happen we still have no valid entry and therefor no cache to save
+              // if (entry) {
+              //   entry.paramReads = paramReads
+              //   entry.queryReads = queryReads
+              // }
+              // reset the pending promise
+              pendingPromise = null
+            }
           }))
+
+        return thisPromise
       }
       // this allows us to know that this was requested
       return (pendingPromise = Promise.resolve().finally(

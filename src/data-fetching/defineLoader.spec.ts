@@ -140,23 +140,60 @@ describe('defineLoader', () => {
     })
   })
 
-  it('can be interrupted', async () => {
-    const [spy, resolve, reject] = mockPromise({ name: 'edu' })
-    const useLoader = defineLoader(async ({ params }) => {
-      return { user: await spy(params.id) }
+  // loads that get discarded due to new ones
+  describe('discarded loads', () => {
+    it('can be interrupted', async () => {
+      const [spy, resolve, reject] = mockPromise({ name: 'edu' })
+      const useLoader = defineLoader(async ({ params }) => {
+        return { user: await spy(params.id) }
+      })
+
+      let p = useLoader._.load({ ...route, params: { id: 'edu' } }, router)
+      // simulate a second navigation
+      p = useLoader._.load({ ...route, params: { id: 'bob' } }, router)
+      expect(spy).toHaveBeenCalledTimes(2)
+      resolve({ name: 'bob' })
+      await p
+      const { user, refresh, pending, error } = useLoader()
+
+      expect(pending.value).toBe(false)
+      expect(error.value).toBeFalsy()
+      expect(user.value).toEqual({ name: 'bob' })
     })
 
-    let p = useLoader._.load({ ...route, params: { id: 'edu' } }, router)
-    // simulate a second navigation
-    p = useLoader._.load({ ...route, params: { id: 'bob' } }, router)
-    expect(spy).toHaveBeenCalledTimes(2)
-    resolve({ name: 'bob' })
-    await p
-    const { user, refresh, pending, error } = useLoader()
+    it('ignores previous, slower fetch', async () => {
+      // this will be resolved after
+      let resolveSecond: (obj: any) => void
+      const spy = vi.fn().mockImplementationOnce(() => {
+        return new Promise((res, rej) => {
+          resolveSecond = res
+        })
+      })
+      const useLoader = defineLoader(async ({ params }) => {
+        return { user: await spy(params.id) }
+      })
 
-    expect(pending.value).toBe(false)
-    expect(error.value).toBeFalsy()
-    expect(user.value).toEqual({ name: 'bob' })
+      let p = useLoader._.load({ ...route, params: { id: 'edu' } }, router)
+
+      // handle the second fetch
+      let resolveFirst: (obj: any) => void
+      spy.mockImplementationOnce(() => {
+        return new Promise((res, rej) => {
+          resolveFirst = res
+        })
+      })
+      // simulate a second navigation
+      p = useLoader._.load({ ...route, params: { id: 'bob' } }, router)
+      expect(spy).toHaveBeenCalledTimes(2)
+      resolveFirst!({ name: 'bob' })
+      resolveSecond!({ name: 'nope' })
+      await p
+      const { user, refresh, pending, error } = useLoader()
+
+      expect(pending.value).toBe(false)
+      expect(error.value).toBeFalsy()
+      expect(user.value).toEqual({ name: 'bob' })
+    })
   })
 
   it.todo('sets errors', async () => {
