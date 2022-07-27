@@ -15,19 +15,46 @@ import {
 } from './dataCache'
 import { _RouteMapGeneric } from '../codegen/generateRouteMap'
 
+export interface DefineLoaderOptions {
+  /**
+   * How long should we wait to consider the fetched data expired. Amount in ms. Defaults to 5 minutes. A value of 0
+   * means no cache while a value of `Infinity` means cache forever.
+   */
+  cacheTime?: number
+}
+
+const DEFAULT_DEFINE_LOADER_OPTIONS: Required<DefineLoaderOptions> = {
+  cacheTime: 1000 * 5,
+  // cacheTime: 1000 * 60 * 5,
+}
+
+export interface DefineLoaderFn<T> {
+  (route: RouteLocationNormalizedLoaded): T extends Promise<any>
+    ? T
+    : Promise<T>
+}
+
 export function defineLoader<P extends Promise<any>>(
   name: RouteRecordName,
-  loader: (route: RouteLocationNormalizedLoaded) => P
+  loader: DefineLoaderFn<P>,
+  options?: DefineLoaderOptions
 ): DataLoader<Awaited<P>>
 export function defineLoader<P extends Promise<any>>(
-  loader: (route: RouteLocationNormalizedLoaded) => P
+  loader: DefineLoaderFn<P>,
+  options?: DefineLoaderOptions
 ): DataLoader<Awaited<P>>
 export function defineLoader<P extends Promise<any>>(
   nameOrLoader: RouteRecordName | ((route: RouteLocationNormalizedLoaded) => P),
-  _loader?: (route: RouteLocationNormalizedLoaded) => P
+  _loaderOrOptions?: DefineLoaderOptions | DefineLoaderFn<P>,
+  opts?: DefineLoaderOptions
 ): DataLoader<Awaited<P>> {
   // TODO: make it DEV only and remove the first argument in production mode
-  const loader = typeof nameOrLoader === 'function' ? nameOrLoader : _loader!
+  const loader =
+    typeof nameOrLoader === 'function'
+      ? nameOrLoader
+      : (_loaderOrOptions! as DefineLoaderFn<P>)
+  opts = typeof _loaderOrOptions === 'object' ? _loaderOrOptions : opts
+  const options = { ...DEFAULT_DEFINE_LOADER_OPTIONS, ...opts }
 
   const dataLoader: DataLoader<Awaited<P>> = (() => {
     const route = useRoute()
@@ -65,11 +92,15 @@ export function defineLoader<P extends Promise<any>>(
         })
     }
 
+    function invalidate() {
+      entry!.when = 0
+    }
+
     const commonData: _DataLoaderResult = {
       pending,
       error,
       refresh,
-      invalidate: () => {},
+      invalidate,
     }
 
     return Object.assign(commonData, data)
@@ -94,9 +125,13 @@ export function defineLoader<P extends Promise<any>>(
         !entry ||
         // TODO: isExpired time
         // TODO: pass settings to isExpired so we can also have a never-cache option
-        isCacheExpired(entry, 5000) ||
+        isCacheExpired(entry, options) ||
         isDifferentRoute
       ) {
+        if (entry) {
+          entry.pending.value = true
+          entry.error.value = null
+        }
         // TODO: ensure others useUserData() (loaders) can be called with a similar approach as pinia
         // TODO: error handling + refactor to do it in refresh
         const [trackedRoute, params, query] = trackRoute(route)
@@ -107,6 +142,12 @@ export function defineLoader<P extends Promise<any>>(
               cache.set(router, entry)
             }
           })
+          .catch((err) => {
+            if (entry) {
+              entry.error.value = err
+            }
+            return Promise.reject(err)
+          })
           .finally(() => {
             if (pendingPromise === thisPromise) {
               // if an error happen we still have no valid entry and therefor no cache to save
@@ -116,6 +157,9 @@ export function defineLoader<P extends Promise<any>>(
               // }
               // reset the pending promise
               pendingPromise = null
+              if (entry) {
+                entry.pending.value = false
+              }
             }
           }))
 

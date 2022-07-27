@@ -1,5 +1,6 @@
 import { EffectScope, ref, ToRefs, effectScope, Ref, unref } from 'vue'
 import { LocationQuery, RouteParams } from 'vue-router'
+import { DefineLoaderOptions } from './defineLoader'
 
 export interface DataLoaderCacheEntry<T = unknown> {
   /**
@@ -29,8 +30,11 @@ export interface DataLoaderCacheEntry<T = unknown> {
   error: Ref<any> // any is simply more convenient for errors
 }
 
-export function isCacheExpired(entry: DataLoaderCacheEntry, limit: number) {
-  return Date.now() - entry.when > limit
+export function isCacheExpired(
+  entry: DataLoaderCacheEntry,
+  { cacheTime }: Required<DefineLoaderOptions>
+) {
+  return !cacheTime || Date.now() - entry.when >= cacheTime
 }
 
 export function createOrUpdateDataCacheEntry<T>(

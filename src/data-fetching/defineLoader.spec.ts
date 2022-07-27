@@ -46,21 +46,17 @@ function mockPromise<T, E>(resolved: T, rejected?: E) {
     if (!_resolve || !promise)
       throw new Error('Resolve called with no active promise')
     _resolve(resolvedValue ?? resolved)
-    const p = promise
     _resolve = null
     _reject = null
     promise = null
-    return p
   }
   function reject(rejectedValue?: E) {
     if (!_reject || !promise)
       throw new Error('Resolve called with no active promise')
     _reject(rejectedValue ?? rejected)
-    const p = promise
     _resolve = null
     _reject = null
     promise = null
-    return p
   }
 
   let promise: Promise<T> | null = null
@@ -108,6 +104,7 @@ describe('defineLoader', () => {
       reject(e)
       await expect(p).rejects.toBe(e)
 
+      // cannot use a blocking loader that isn't ready
       expect(() => useLoader()).toThrow()
     })
 
@@ -131,6 +128,33 @@ describe('defineLoader', () => {
       expect(spy).toHaveBeenCalledTimes(2)
       expect(pending.value).toBe(true)
       expect(user.value).toEqual({ name: 'edu' })
+
+      resolve({ name: 'bob' })
+      await p
+
+      expect(pending.value).toBe(false)
+      expect(user.value).toEqual({ name: 'bob' })
+    })
+
+    it('updates states when navigating', async () => {
+      const [spy, resolve, reject] = mockPromise({ name: 'edu' })
+      const useLoader = defineLoader(async () => {
+        return { user: await spy() }
+      })
+      let p = useLoader._.load(route, router)
+      expect(spy).toHaveBeenCalledTimes(1)
+      resolve()
+      await p
+
+      const { user, refresh, pending, error, invalidate } = useLoader()
+
+      expect(pending.value).toBe(false)
+      expect(error.value).toBeFalsy()
+      invalidate()
+
+      p = useLoader._.load(route, router)
+      expect(spy).toHaveBeenCalledTimes(2)
+      expect(pending.value).toBe(true)
 
       resolve({ name: 'bob' })
       await p
@@ -261,7 +285,7 @@ describe('defineLoader', () => {
     })
   })
 
-  it.todo('sets errors', async () => {
+  it('sets errors on refresh', async () => {
     const [spy, resolve, reject] = mockPromise({ name: 'edu' })
     const useLoader = defineLoader(async () => {
       return { user: await spy() }
@@ -280,12 +304,70 @@ describe('defineLoader', () => {
 
     const e = new Error()
     reject(e)
-    await expect(p).resolves
+    // refresh doesn't reject
+    await expect(p).resolves.toBe(undefined)
 
-    expect(error.value).toBe(e)
     expect(pending.value).toBe(false)
     // old value
     expect(user.value).toEqual({ name: 'edu' })
+    expect(error.value).toBe(e)
+
+    p = refresh()
+    expect(pending.value).toBe(true)
+    expect(error.value).toBeFalsy()
+    expect(user.value).toEqual({ name: 'edu' })
+
+    resolve({ name: 'bob' })
+    await p
+    expect(pending.value).toBe(false)
+    expect(error.value).toBeFalsy()
+    expect(user.value).toEqual({ name: 'bob' })
+  })
+
+  it('sets errors on new navigations', async () => {
+    const [spy, resolve, reject] = mockPromise({ name: 'edu' })
+    const useLoader = defineLoader(
+      async () => {
+        return { user: await spy() }
+      },
+      { cacheTime: 0 }
+    )
+    let p = useLoader._.load(route, router)
+    // we need to initially resolve once
+    resolve()
+    await p
+    const { user, refresh, pending, error, invalidate } = useLoader()
+
+    p = useLoader._.load(route, router)
+
+    expect(pending.value).toBe(true)
+    expect(error.value).toBeFalsy()
+    // old value
+    expect(user.value).toEqual({ name: 'edu' })
+
+    const e = new Error()
+    reject(e)
+    await expect(p).rejects.toBe(e)
+
+    expect(pending.value).toBe(false)
+    // old value
+    expect(user.value).toEqual({ name: 'edu' })
+    expect(error.value).toBe(e)
+
+    // it can be put into loading state again
+    p = useLoader._.load(route, router)
+
+    expect(pending.value).toBe(true)
+    expect(error.value).toBeFalsy()
+    // old value
+    expect(user.value).toEqual({ name: 'edu' })
+    resolve({ name: 'bob' })
+    await p
+
+    expect(pending.value).toBe(false)
+    // old value
+    expect(user.value).toEqual({ name: 'bob' })
+    expect(error.value).toBeFalsy()
   })
 })
 
