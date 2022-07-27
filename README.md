@@ -121,6 +121,40 @@ createRouter({
 })
 ```
 
+Alternatively, **you can also import the `routes` array** and create the router manually or pass it to some plugin. Here is an example with [Vitesse starter](https://github.com/antfu/vitesse/blob/main/src/main.ts):
+
+<!-- TODO: add notes for data fetching guards -->
+
+```diff
+ import { ViteSSG } from 'vite-ssg'
+ import { setupLayouts } from 'virtual:generated-layouts'
+ import App from './App.vue'
+ import type { UserModule } from './types'
+-import generatedRoutes from '~pages'
++import { routes } from '@vue-router/routes'
+
+ import '@unocss/reset/tailwind.css'
+ import './styles/main.css'
+ import 'uno.css'
+
+-const routes = setupLayouts(generatedRoutes)
+
+ // https://github.com/antfu/vite-ssg
+ export const createApp = ViteSSG(
+   App,
+   {
+-   routes,
++   routes: setupLayouts(routes),
+    base: import.meta.env.BASE_URL
+  },
+   (ctx) => {
+     // install all modules under `modules/`
+     Object.values(import.meta.glob<{ install: UserModule }>('./modules/*.ts', { eager: true }))
+       .forEach(i => i.install?.(ctx))
+   },
+ )
+```
+
 If you are using [unplugin-auto-import](https://github.com/antfu/unplugin-auto-import), make sure to remove the `vue-router` preset and use the one exported by `unplugin-vue-router`:
 
 ```diff
