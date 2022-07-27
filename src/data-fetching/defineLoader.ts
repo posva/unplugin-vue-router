@@ -88,7 +88,6 @@ export function defineLoader<P extends Promise<any>>(
       const isDifferentRoute = needsToFetchAgain(entry, route)
 
       // the request was already made
-      // TODO: should still happen if params are different
       if (pendingPromise && !needsToFetchAgain) return pendingPromise
 
       if (
