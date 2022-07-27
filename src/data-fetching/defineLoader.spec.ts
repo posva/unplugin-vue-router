@@ -39,6 +39,8 @@ vi.mock('vue-router', async () => {
   }
 })
 
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
 function mockPromise<T, E>(resolved: T, rejected?: E) {
   let _resolve: null | ((resolvedValue: T) => void) = null
   let _reject: null | ((rejectedValue?: E) => void) = null
@@ -91,6 +93,24 @@ describe('defineLoader', () => {
       expect(spy).toHaveBeenCalledTimes(1)
       const { user } = useLoader()
       expect(user.value).toEqual({ name: 'edu' })
+    })
+
+    it('can be lazy', async () => {
+      const [spy, resolve, reject] = mockPromise({ name: 'edu' })
+      const useLoader = defineLoader(
+        async () => {
+          return { user: await spy() }
+        },
+        { lazy: true }
+      )
+      expect(spy).not.toHaveBeenCalled()
+      // await but non blocking
+      await useLoader._.load(route, router)
+      expect(spy).toHaveBeenCalledTimes(1)
+      const { data } = useLoader()
+      resolve()
+      await delay(0)
+      expect(data.value).toEqual({ user: { name: 'edu' } })
     })
 
     it('rejects failed initial load', async () => {
@@ -442,4 +462,26 @@ dts(async () => {
     pending: Ref<boolean>
     refresh: () => Promise<void>
   }>(useWithRef())
+
+  async function loaderUser() {
+    const user = {
+      id: 'one',
+      name: 'Edu',
+    }
+
+    return { user }
+  }
+
+  expectType<{ data: Ref<{ user: UserData }> }>(
+    defineLoader(loaderUser, { lazy: true })()
+  )
+  expectType<{ user: Ref<UserData> }>(
+    defineLoader(loaderUser, { cacheTime: 20000 })()
+  )
+  expectType<{ user: Ref<UserData> }>(
+    defineLoader(loaderUser, { cacheTime: 20000, lazy: false })()
+  )
+  expectType<{ user: Ref<UserData> }>(
+    defineLoader(loaderUser, { lazy: false })()
+  )
 })
