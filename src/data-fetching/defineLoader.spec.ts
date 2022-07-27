@@ -168,16 +168,42 @@ describe('defineLoader', () => {
   describe('discarded loads', () => {
     it('can be interrupted', async () => {
       const [spy, resolve, reject] = mockPromise({ name: 'edu' })
-      const useLoader = defineLoader(async ({ params }) => {
-        return { user: await spy(params.id) }
-      })
+      const useLoader = defineLoader(
+        async ({ params }) => {
+          return { user: await spy() }
+        },
+        { cacheTime: 0 }
+      )
 
-      let p = useLoader._.load({ ...route, params: { id: 'edu' } }, router)
-      // simulate a second navigation
-      p = useLoader._.load({ ...route, params: { id: 'bob' } }, router)
+      let p = useLoader._.load(route, router)
+      // simulate a second navigation with a new route
+      p = useLoader._.load({ ...route }, router)
       expect(spy).toHaveBeenCalledTimes(2)
       resolve({ name: 'bob' })
       await p
+      const { user, refresh, pending, error } = useLoader()
+
+      expect(pending.value).toBe(false)
+      expect(error.value).toBeFalsy()
+      expect(user.value).toEqual({ name: 'bob' })
+    })
+
+    it('reuse loads within same navigation', async () => {
+      const [spy, resolve, reject] = mockPromise({ name: 'edu' })
+      const useLoader = defineLoader(
+        async ({ params }) => {
+          return { user: await spy() }
+        },
+        { cacheTime: 0 }
+      )
+
+      let p = useLoader._.load(route, router)
+      // simulate a second navigation with a new route
+      p = useLoader._.load(route, router)
+      expect(spy).toHaveBeenCalledTimes(1)
+      resolve({ name: 'bob' })
+      await p
+      expect(spy).toHaveBeenCalledTimes(1)
       const { user, refresh, pending, error } = useLoader()
 
       expect(pending.value).toBe(false)

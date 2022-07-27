@@ -58,7 +58,8 @@ export function defineLoader<P extends Promise<any>>(
 
   const dataLoader: DataLoader<Awaited<P>> = (() => {
     const route = useRoute()
-    const entry = cache.get(useRouter())
+    const router = useRouter()
+    const entry = cache.get(router)
 
     // TODO: is blocking
 
@@ -78,18 +79,9 @@ export function defineLoader<P extends Promise<any>>(
     const { data, pending, error } = entry
 
     function refresh() {
-      pending.value = true
-      error.value = null
-      return loader(route)
-        .then((_data) => {
-          transferData(entry!, _data)
-        })
-        .catch((err) => {
-          error.value = err
-        })
-        .finally(() => {
-          pending.value = false
-        })
+      invalidate()
+      // discard any error so users can call refresh() in event handlers
+      return load(route, router).catch(() => {})
     }
 
     function invalidate() {
@@ -109,80 +101,89 @@ export function defineLoader<P extends Promise<any>>(
   const cache = new WeakMap<Router, DataLoaderCacheEntry<Awaited<P>>>()
 
   let pendingPromise: Promise<void> | undefined | null
+  let currentNavigation: RouteLocationNormalizedLoaded | undefined | null
+
+  function load(route: RouteLocationNormalizedLoaded, router: Router) {
+    let entry = cache.get(router)
+
+    const needsNewLoad = shouldFetchAgain(entry, route)
+
+    // the request was already made before, let's try to reuse it
+    if (
+      pendingPromise &&
+      // if we need to fetch again due to param/query changes
+      !needsNewLoad &&
+      // if it's a new navigation and there is no entry, we cannot rely on the pendingPromise as we don't know what
+      // params and query were used and could have changed. If we had an entry, then we can rely on the result of
+      // needsToFetchAgain()
+      (currentNavigation === route || entry)
+    ) {
+      return pendingPromise
+    }
+
+    // remember what was the last navigation we fetched this with
+    currentNavigation = route
+
+    if (!entry || isCacheExpired(entry, options) || needsNewLoad) {
+      if (entry) {
+        entry.pending.value = true
+        entry.error.value = null
+      }
+      // TODO: ensure others useUserData() (loaders) can be called with a similar approach as pinia
+      // TODO: error handling + refactor to do it in refresh
+      const [trackedRoute, params, query] = trackRoute(route)
+      const thisPromise = (pendingPromise = loader(trackedRoute)
+        .then((data) => {
+          if (pendingPromise === thisPromise) {
+            entry = createOrUpdateDataCacheEntry(entry, data, params, query)
+            cache.set(router, entry)
+          }
+        })
+        .catch((err) => {
+          if (entry) {
+            entry.error.value = err
+          }
+          return Promise.reject(err)
+        })
+        .finally(() => {
+          // reset the state if we were the last promise
+          if (pendingPromise === thisPromise) {
+            pendingPromise = null
+            if (entry) {
+              entry.pending.value = false
+            }
+          }
+        }))
+
+      return thisPromise
+    }
+    // this allows us to know that this was requested
+    return (pendingPromise = Promise.resolve().finally(
+      () => (pendingPromise = null)
+    ))
+  }
+
   // add the context as one single object
+
   dataLoader._ = {
     loader,
     cache,
-    load(route, router) {
-      let entry = cache.get(router)
-
-      const isDifferentRoute = needsToFetchAgain(entry, route)
-
-      // the request was already made
-      if (pendingPromise && !needsToFetchAgain) return pendingPromise
-
-      if (
-        !entry ||
-        // TODO: isExpired time
-        // TODO: pass settings to isExpired so we can also have a never-cache option
-        isCacheExpired(entry, options) ||
-        isDifferentRoute
-      ) {
-        if (entry) {
-          entry.pending.value = true
-          entry.error.value = null
-        }
-        // TODO: ensure others useUserData() (loaders) can be called with a similar approach as pinia
-        // TODO: error handling + refactor to do it in refresh
-        const [trackedRoute, params, query] = trackRoute(route)
-        const thisPromise = (pendingPromise = loader(trackedRoute)
-          .then((data) => {
-            if (pendingPromise === thisPromise) {
-              entry = createOrUpdateDataCacheEntry(entry, data, params, query)
-              cache.set(router, entry)
-            }
-          })
-          .catch((err) => {
-            if (entry) {
-              entry.error.value = err
-            }
-            return Promise.reject(err)
-          })
-          .finally(() => {
-            if (pendingPromise === thisPromise) {
-              // if an error happen we still have no valid entry and therefor no cache to save
-              // if (entry) {
-              //   entry.paramReads = paramReads
-              //   entry.queryReads = queryReads
-              // }
-              // reset the pending promise
-              pendingPromise = null
-              if (entry) {
-                entry.pending.value = false
-              }
-            }
-          }))
-
-        return thisPromise
-      }
-      // this allows us to know that this was requested
-      return (pendingPromise = Promise.resolve().finally(
-        () => (pendingPromise = null)
-      ))
-    },
+    load,
   }
   dataLoader[IsLoader] = true
 
   return dataLoader
 }
 
-function needsToFetchAgain(
+function shouldFetchAgain(
   entry: DataLoaderCacheEntry<any> | undefined | null,
   route: RouteLocationNormalizedLoaded
 ) {
   return (
     entry &&
-    (!includesParams(route.params, entry.params) ||
+    // manually invalidated
+    (!entry.when ||
+      !includesParams(route.params, entry.params) ||
       !includesParams(route.query, entry.query))
   )
 }
@@ -239,7 +240,7 @@ export interface DataLoader<T> {
  * @internal
  */
 export interface _DataLoaderInternals<T> {
-  // the loader passed to defineLoader
+  // the loader passed to defineLoader as is
   loader: (route: RouteLocationNormalizedLoaded) => Promise<T>
 
   /**
