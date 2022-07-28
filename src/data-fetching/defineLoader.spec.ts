@@ -11,7 +11,15 @@ import {
 import { Ref, shallowRef } from 'vue'
 import { defineLoader } from './defineLoader'
 import { expectType } from 'ts-expect'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest'
 
 vi.mock('vue-router', async () => {
   const { createRouter, createMemoryHistory, START_LOCATION, ...rest } =
@@ -414,6 +422,79 @@ describe('defineLoader', () => {
     // old value
     expect(user.value).toEqual({ name: 'bob' })
     expect(error.value).toBeFalsy()
+  })
+
+  describe('cache', () => {
+    const now = new Date(2000, 0, 1).getTime() // 1 Jan 2000 in local time as number of milliseconds
+    beforeAll(() => {
+      vi.useFakeTimers()
+      vi.setSystemTime(now)
+    })
+
+    afterAll(() => {
+      vi.useRealTimers()
+    })
+
+    it('waits for cache expiration', async () => {
+      const spy = vi.fn().mockResolvedValue({ name: 'edu' })
+      const useLoader = defineLoader(
+        async () => {
+          return { user: await spy() }
+        },
+        { cacheTime: 1000 }
+      )
+      expect(spy).toHaveBeenCalledTimes(0)
+      // do one initial load
+      let p = useLoader._.load(route, router)
+      expect(spy).toHaveBeenCalledTimes(1)
+      await p
+
+      vi.setSystemTime(now + 999)
+      p = useLoader._.load(route, router)
+      // used the cache
+      expect(spy).toHaveBeenCalledTimes(1)
+      await p
+
+      vi.setSystemTime(now + 1000) // hit expiration time
+      p = useLoader._.load(route, router)
+      expect(spy).toHaveBeenCalledTimes(2)
+      await p
+
+      // hits cache again
+      vi.setSystemTime(now + 1999)
+      p = useLoader._.load(route, router)
+      // used the cache
+      expect(spy).toHaveBeenCalledTimes(2)
+      await p
+
+      // hit expiration time again
+      vi.setSystemTime(now + 2000)
+      p = useLoader._.load(route, router)
+      // used the cache
+      expect(spy).toHaveBeenCalledTimes(3)
+      await p
+    })
+
+    it('can have no cache', async () => {
+      const spy = vi.fn().mockResolvedValue({ name: 'edu' })
+      const useLoader = defineLoader(
+        async () => {
+          return { user: await spy() }
+        },
+        { cacheTime: 0 }
+      )
+      expect(spy).toHaveBeenCalledTimes(0)
+      // do one initial load
+      await useLoader._.load(route, router)
+      expect(spy).toHaveBeenCalledTimes(1)
+
+      await useLoader._.load(route, router)
+      // used the cache
+      expect(spy).toHaveBeenCalledTimes(2)
+
+      await useLoader._.load(route, router)
+      expect(spy).toHaveBeenCalledTimes(3)
+    })
   })
 })
 
