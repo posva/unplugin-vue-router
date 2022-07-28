@@ -29,9 +29,6 @@ import type {
 
 declare module '@vue-router/routes' {
   export interface RouteNamedMap {
-    '/chunk1': RouteRecordInfo<'/chunk1', '/chunk1', Record<never, never>, Record<never, never>>,
-    '/chunk2': RouteRecordInfo<'/chunk2', '/chunk2', Record<never, never>, Record<never, never>>,
-    '/HelloWorld': RouteRecordInfo<'/HelloWorld', '/HelloWorld', Record<never, never>, Record<never, never>>,
   }
 }
 

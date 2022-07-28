@@ -7,11 +7,7 @@ module.exports = defineConfig({
     plugins: [
       routerPlugin({
         routesFolder: 'src/pages',
-        // manualChunks: (id) => {
-        //   return id.split('/src')[1] ?? 'default'
-        // }
-        /* options */
       }),
     ],
-  }
+  },
 })

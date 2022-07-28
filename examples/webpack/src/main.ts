@@ -1,6 +1,5 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-// @ts-expect-error
 import { createWebHistory, createRouter } from '@vue-router'
 
 const router = createRouter({
