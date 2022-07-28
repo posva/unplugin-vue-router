@@ -116,6 +116,7 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
       error,
       refresh,
       invalidate,
+      pendingLoad,
     }
 
     return Object.assign(commonData, data)
@@ -125,6 +126,8 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
 
   let pendingPromise: Promise<void> | undefined | null
   let currentNavigation: RouteLocationNormalizedLoaded | undefined | null
+
+  const pendingLoad = () => pendingPromise
 
   function load(route: RouteLocationNormalizedLoaded, router: Router) {
     let entry = cache.get(router)
@@ -329,6 +332,11 @@ export interface _DataLoaderResult {
    * Invalidates the data so it is reloaded on the next request.
    */
   invalidate: () => void
+
+  /**
+   * Get the promise of the current loader if there is one, returns a falsy value otherwise.
+   */
+  pendingLoad: () => Promise<void> | undefined | null
 }
 
 export interface _DataLoaderResultLazy<T> extends _DataLoaderResult {
