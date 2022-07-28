@@ -3,7 +3,6 @@ import App from './App.vue'
 import { createWebHistory, createRouter } from '@vue-router'
 
 const router = createRouter({
-
   history: createWebHistory(),
 })
 
