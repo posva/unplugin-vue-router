@@ -134,7 +134,11 @@ export { TreeLeaf, createPrefixTree } from './core/tree'
 //   TreeLeafValueStatic,
 // } from './core/treeLeafValue'
 
-export type { DataLoader } from './data-fetching/defineLoader'
+// expose for generated type extensions
+export type {
+  DefineLoaderOptions,
+  DataLoader,
+} from './data-fetching/defineLoader'
 
 // TODO: just export the object with @vue-router
 export const VueRouterExports = [

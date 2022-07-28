@@ -8,27 +8,26 @@ export const useUserData = defineLoader('/[name]', async (route) => {
   }
   const user = {
     name: route.params.name || 'Edu',
+    // @ts-expect-error: no id param!
     id: route.params.id || 24,
     when: new Date().toUTCString(),
   }
   return { user }
 })
 
-export default {}
-
 const other = 'hello'
 
 export const useOne = defineLoader(async (route) => {
   if (route.name === '/[name]') {
     route.params.name
-    route.params.id
   }
 
   return { one: 'one' }
 })
-export const useTwo = defineLoader(async () => ({ two: 'two' }))
+export const useTwo = defineLoader(async () => ({ two: 'two' }), { lazy: true })
 
 // export { useOne, useTwo, other }
+export default {}
 </script>
 
 <script lang="ts" setup>
@@ -40,6 +39,9 @@ const thing = 'THING'
 // const $route = useRoute()
 
 const { user, pending, refresh } = useUserData()
+
+const { one } = useOne()
+const { data: two } = useTwo()
 
 const router = useRouter()
 if (router.currentRoute.value.name === '/[name]') {

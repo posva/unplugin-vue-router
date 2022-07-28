@@ -36,6 +36,9 @@ const DEFAULT_DEFINE_LOADER_OPTIONS: Required<DefineLoaderOptions> = {
   // cacheTime: 1000 * 60 * 5,
 }
 
+/**
+ * Loader function that can be passed to `defineLoader()`.
+ */
 export interface DefineLoaderFn<T> {
   (route: RouteLocationNormalizedLoaded): T extends Promise<any>
     ? T
@@ -173,7 +176,6 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
       }
 
       // TODO: ensure others useUserData() (loaders) can be called with a similar approach as pinia
-      // TODO: error handling + refactor to do it in refresh
       const [trackedRoute, params, query] = trackRoute(route)
       const thisPromise = (pendingPromise = loader(trackedRoute)
         .then((data) => {
@@ -217,7 +219,6 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
   }
 
   // add the context as one single object
-
   dataLoader._ = {
     loader,
     cache,
@@ -274,6 +275,14 @@ function includesParams(
 }
 
 const IsLoader = Symbol()
+/**
+ * Check if a value is a `DataLoader`.
+ *
+ * @param loader - the object to check
+ */
+export function isDataLoader(loader: any): loader is DataLoader<unknown> {
+  return loader && loader[IsLoader]
+}
 
 export interface DataLoader<T, isLazy extends boolean = boolean> {
   (): true extends isLazy
@@ -340,11 +349,10 @@ export interface _DataLoaderResult {
 }
 
 export interface _DataLoaderResultLazy<T> extends _DataLoaderResult {
+  /**
+   * Data returned by the loader.
+   */
   data: Ref<T>
-}
-
-export function isDataLoader(loader: any): loader is DataLoader<unknown> {
-  return loader && loader[IsLoader]
 }
 
 function trackRoute(route: RouteLocationNormalizedLoaded) {

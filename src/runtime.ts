@@ -1,4 +1,8 @@
 export { defineLoader as _defineLoader } from './data-fetching/defineLoader'
+export type {
+  DefineLoaderOptions,
+  DataLoader,
+} from './data-fetching/defineLoader'
 export {
   setupDataFetchingGuard as _setupDataFetchingGuard,
   LoaderSymbol as _LoaderSymbol,

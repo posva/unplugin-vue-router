@@ -27,6 +27,7 @@ import type {
 
   // data fetching
   DataLoader,
+  DefineLoaderOptions,
 } from 'unplugin-vue-router'
 
 declare module '@vue-router/routes' {
@@ -109,16 +110,20 @@ declare module '@vue-router' {
 
   export function defineLoader<
     P extends Promise<any>,
-    Name extends keyof RouteNamedMap = keyof RouteNamedMap
+    Name extends keyof RouteNamedMap = keyof RouteNamedMap,
+    isLazy extends boolean = false,
   >(
     name: Name,
-    loader: (route: RouteLocationNormalizedLoaded<Name>) => P
-  ): DataLoader<Awaited<P>>
+    loader: (route: RouteLocationNormalizedLoaded<Name>) => P,
+    options?: DefineLoaderOptions<isLazy>,
+  ): DataLoader<Awaited<P>, isLazy>
   export function defineLoader<
-    P extends Promise<any>
+    P extends Promise<any>,
+    isLazy extends boolean = false,
   >(
-    loader: (route: RouteLocationNormalizedLoaded) => P
-  ): DataLoader<Awaited<P>>
+    loader: (route: RouteLocationNormalizedLoaded) => P,
+    options?: DefineLoaderOptions<isLazy>,
+  ): DataLoader<Awaited<P>, isLazy>
 }
 
 declare module 'vue-router' {
