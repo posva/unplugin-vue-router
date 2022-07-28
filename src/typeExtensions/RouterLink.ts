@@ -16,8 +16,8 @@ import type { _RouterTyped } from './router'
 
 // TODO: could this have a name generic to type the slot? is it possible
 
-import { _RouteMapGeneric } from '../codegen/generateRouteMap'
-import {
+import type { _RouteMapGeneric } from '../codegen/generateRouteMap'
+import type {
   RouteLocationAsPathTyped,
   RouteLocationAsPathTypedList,
   RouteLocationAsRelativeTyped,
