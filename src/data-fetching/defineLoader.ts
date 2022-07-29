@@ -91,6 +91,7 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
       // TODO: dev only
       // TODO: detect if this happens during HMR or if the loader is wrongly being used without being exported by a route we are navigating to
       if (!entry) {
+        // NOTE: maybe call load here? and return a combined object of the promise and the data?
         if (import.meta.hot) {
           // reload the page if the loader is new and we have no way to
           // TODO: test with webpack
@@ -356,8 +357,9 @@ export interface _DataLoaderResultLazy<T> extends _DataLoaderResult {
 }
 
 function trackRoute(route: RouteLocationNormalizedLoaded) {
-  const [params, paramReads] = trackReads(route.params)
-  const [query, queryReads] = trackReads(route.query)
+  const [params, paramReads] = trackObjectReads(route.params)
+  const [query, queryReads] = trackObjectReads(route.query)
+  // TODO: track `hash`
   return [
     {
       ...route,
@@ -369,7 +371,7 @@ function trackRoute(route: RouteLocationNormalizedLoaded) {
   ] as const
 }
 
-function trackReads<T extends Record<string, any>>(obj: T) {
+function trackObjectReads<T extends Record<string, any>>(obj: T) {
   const reads: Partial<T> = {}
   return [
     new Proxy(obj, {
