@@ -328,7 +328,8 @@ describe('defineLoader', () => {
       )
       expect(spy).toHaveBeenCalledTimes(5)
 
-      const { user, refresh, pending, error } = useLoader()
+      const { refresh, pending, error, user } = useLoader()
+      expect(spy).toHaveBeenCalledTimes(5)
 
       expect(pending.value).toBe(false)
       expect(error.value).toBeFalsy()
@@ -336,6 +337,52 @@ describe('defineLoader', () => {
 
       await refresh()
       expect(spy).toHaveBeenCalledTimes(6)
+    })
+
+    it('reloads if lazy loader is called with different params', async () => {
+      const spy = vi.fn().mockResolvedValue({ name: 'edu' })
+      const useLoader = defineLoader(
+        async ({ params, query }) => {
+          return { user: await spy(params.id, query.other) }
+        },
+        { lazy: true }
+      )
+
+      route.params.id = 'one'
+      expect(spy).toHaveBeenCalledTimes(0)
+      const { data, pendingLoad } = useLoader()
+      expect(spy).toHaveBeenCalledTimes(1)
+      await pendingLoad()
+      expect(data.value).toEqual({ user: { name: 'edu' } })
+      expect(spy).toHaveBeenCalledTimes(1)
+
+      // simulate a navigation
+      spy.mockResolvedValue({ name: 'bob' })
+      await useLoader._.load({ ...route, params: { id: 'two' } }, router)
+      await pendingLoad()
+      expect(spy).toHaveBeenCalledTimes(2)
+      expect(data.value).toEqual({ user: { name: 'bob' } })
+    })
+
+    it('skips if lazy loader is called with same params', async () => {
+      const spy = vi.fn().mockResolvedValue({ name: 'edu' })
+      const useLoader = defineLoader(
+        async ({ params, query }) => {
+          return { user: await spy(params.id, query.other) }
+        },
+        { lazy: true }
+      )
+
+      route.params.id = 'one'
+      const { data, pendingLoad } = useLoader()
+      await pendingLoad()
+
+      // simulate a navigation
+      spy.mockResolvedValue({ name: 'bob' })
+      await useLoader._.load({ ...route }, router)
+      await pendingLoad()
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(data.value).toEqual({ user: { name: 'edu' } })
     })
   })
 
