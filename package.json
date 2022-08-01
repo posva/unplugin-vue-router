@@ -48,9 +48,9 @@
       "require": "./dist/esbuild.js",
       "import": "./dist/esbuild.mjs"
     },
-    "./types": {
-      "require": "./dist/types.js",
-      "import": "./dist/types.mjs"
+    "./options": {
+      "require": "./dist/options.js",
+      "import": "./dist/options.mjs"
     },
     "./runtime": {
       "require": "./dist/runtime.js",
