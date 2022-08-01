@@ -26,8 +26,9 @@ export const useOne = defineLoader(async (route) => {
 })
 export const useTwo = defineLoader(async () => ({ two: 'two' }), { lazy: true })
 
-// export { useOne, useTwo, other }
 export default {}
+
+// export { useOne, useTwo, other }
 </script>
 
 <script lang="ts" setup>
