@@ -3,14 +3,17 @@ import {
   LocationQuery,
   Router,
   RouteRecordName,
-  useRoute,
   useRouter,
+  useRoute,
 } from 'vue-router'
-import type { Ref, ToRefs } from 'vue'
+import { isRef, Ref, ToRefs } from 'vue'
 import {
-  createOrUpdateDataCacheEntry,
+  createDataCacheEntry,
   DataLoaderCacheEntry,
+  getCurrentContext,
   isCacheExpired,
+  setCurrentContext,
+  updateDataCacheEntry,
 } from './dataCache'
 import { _RouteMapGeneric } from '../codegen/generateRouteMap'
 
@@ -76,43 +79,65 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
   const options = { ...DEFAULT_DEFINE_LOADER_OPTIONS, ...opts }
 
   const dataLoader: DataLoader<Awaited<P>, isLazy> = (() => {
-    const route = useRoute()
-    const router = useRouter()
-    let entry = cache.get(router)
+    let [parentEntry, _router, _route] = getCurrentContext()
+    const router = _router || useRouter()
+    const route = _route || useRoute()
 
-    const { lazy } = options
+    // this ensures the entry exists
+    // if (!options.lazy && !parentEntry) {
+    //   throw new Error('noooooo')
+    // }
 
-    if (lazy) {
-      // we ensure an entry exists
-      load(route, router)
-      // we are sure that the entry exists now
-      entry = cache.get(router)!
-    } else {
-      // TODO: dev only
-      // TODO: detect if this happens during HMR or if the loader is wrongly being used without being exported by a route we are navigating to
-      if (!entry) {
-        // NOTE: maybe call load here? and return a combined object of the promise and the data?
-        if (import.meta.hot) {
-          // reload the page if the loader is new and we have no way to
-          // TODO: test with webpack
-          import.meta.hot.invalidate()
-        }
-        // with HMR, if the user changes the script section, there is a new cache entry
-        // we need to transfer the old cache and call refresh
-        throw new Error('No cache entry: reloading the page')
-      }
+    if (!cache.has(router)) {
+      load(route, router, parentEntry)
     }
 
-    const { data, pending, error } = entry!
+    const entry = cache.get(router)!
+
+    // TODO: reload the page and figure out a way of detecting it
+
+    // if (lazy) {
+    // } else {
+    //   // TODO: dev only
+    //   // TODO: detect if this happens during HMR or if the loader is wrongly being used without being exported by a route we are navigating to
+    //   if (!entry) {
+    //     // NOTE: maybe call load here? and return a combined object of the promise and the data?
+    //     if (import.meta.hot) {
+    //       // reload the page if the loader is new and we have no way to
+    //       // TODO: test with webpack
+    //       import.meta.hot.invalidate()
+    //     }
+    //     // with HMR, if the user changes the script section, there is a new cache entry
+    //     // we need to transfer the old cache and call refresh
+    //     throw new Error('No cache entry: reloading the page')
+    //   }
+    // }
+
+    const promise = Promise.resolve(pendingPromise)
+      .then(() => {
+        // we need to get the data property once again because it has been updated
+        const { data } = entry
+        return Object.assign(commonData, isRef(data) ? { data } : data)
+      })
+      .finally(() => {
+        // TODO: restore current parent
+        // parent?.dependOn(me)
+        setCurrentContext(parentEntry && [parentEntry, router, route])
+      })
+
+    // entry exists because it's created synchronously in `load()`
+    const { data, pending, error } = entry
 
     function refresh() {
       invalidate()
+      // we cannot return the load because in the case of lazy loads it resolves right away
+      load(route, router, parentEntry)
       // discard any error so users can call refresh() in event handlers
-      return load(route, router).catch(() => {})
+      return pendingPromise!.catch(() => {})
     }
 
     function invalidate() {
-      entry!.when = 0
+      entry.when = 0
     }
 
     const commonData: _DataLoaderResult = {
@@ -122,8 +147,12 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
       invalidate,
       pendingLoad,
     }
+    const dataLoaderResult = Object.assign(
+      commonData,
+      isRef(data) ? { data } : data
+    )
 
-    return Object.assign(commonData, data)
+    return Object.assign(promise, dataLoaderResult)
   }) as DataLoader<Awaited<P>, isLazy>
 
   const cache = new WeakMap<Router, DataLoaderCacheEntry<Awaited<P>>>()
@@ -133,11 +162,21 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
 
   const pendingLoad = () => pendingPromise
 
-  function load(route: RouteLocationNormalizedLoaded, router: Router) {
-    let entry = cache.get(router)
-    const { lazy } = options
+  function load(
+    route: RouteLocationNormalizedLoaded,
+    router: Router,
+    parent?: DataLoaderCacheEntry
+  ) {
+    const hasCacheEntry = cache.has(router)
+    const needsNewLoad =
+      !hasCacheEntry || shouldFetchAgain(cache.get(router)!, route)
 
-    const needsNewLoad = shouldFetchAgain(entry, route)
+    if (!hasCacheEntry) {
+      cache.set(router, createDataCacheEntry({}, {}, options))
+    }
+
+    const entry = cache.get(router)!
+    const { lazy } = options
 
     // the request was already made before, let's try to reuse it
     if (
@@ -146,77 +185,68 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
       !needsNewLoad &&
       // if it's a new navigation and there is no entry, we cannot rely on the pendingPromise as we don't know what
       // params and query were used and could have changed. If we had an entry, then we can rely on the result of
-      // needsToFetchAgain()
-      (currentNavigation === route || entry) &&
-      true
-      // the lazy request still need to create the entry
-      // (!lazy || entry)
+      // `needsNewLoad`
+      currentNavigation === route &&
+      // if we are not ready but we have a pendingPromise, we are already fetching so we can reuse it
+      (!entry.isReady || !isCacheExpired(entry, options))
     ) {
-      // lazy should just resolve
       return lazy ? Promise.resolve() : pendingPromise
     }
 
-    // remember what was the last navigation we fetched this with
-    currentNavigation = route
+    // TODO: refactor the ifs, there seems to be duplications
 
-    if (!entry || isCacheExpired(entry, options) || needsNewLoad) {
-      if (entry) {
-        entry.pending.value = true
-        entry.error.value = null
-        // lazy loaders need to create an entry right away to give access to pending and error states
-      } else if (lazy) {
-        entry = createOrUpdateDataCacheEntry<any>(
-          entry,
-          // initial value of the data
-          undefined,
-          {},
-          {},
-          options
-        )
-        cache.set(router, entry)
-      }
+    if (
+      needsNewLoad ||
+      // if we never finished loading we cannot rely on needsNewLoad
+      (!entry.isReady && currentNavigation !== route) ||
+      // we did a load but the cache expired
+      (entry.isReady && isCacheExpired(entry, options))
+    ) {
+      entry.pending.value = true
+      entry.error.value = null
+      // remember what was the last navigation we fetched this with
+      currentNavigation = route
 
       // TODO: ensure others useUserData() (loaders) can be called with a similar approach as pinia
       const [trackedRoute, params, query] = trackRoute(route)
+      // if there isn't a pending promise, we set the current context so nested loaders can use it
+      if (!pendingPromise) {
+        setCurrentContext([entry, router, trackedRoute])
+      }
       const thisPromise = (pendingPromise = loader(trackedRoute)
         .then((data) => {
           if (pendingPromise === thisPromise) {
-            entry = createOrUpdateDataCacheEntry(
-              entry,
-              data,
-              params,
-              query,
-              options
-            )
-            cache.set(router, entry)
+            updateDataCacheEntry(entry, data, params, query)
           }
         })
         .catch((err) => {
           if (entry) {
             entry.error.value = err
           }
+          // propagate the error so navigation guards can abort
           return Promise.reject(err)
         })
         .finally(() => {
           // reset the state if we were the last promise
           if (pendingPromise === thisPromise) {
             pendingPromise = null
-            if (entry) {
-              entry.pending.value = false
-            }
+            entry.pending.value = false
           }
+          // if this was a nested loader, we need to tell the parent they depend on us
+          if (parent) {
+            parent.loaders.add(entry)
+          }
+
+          // we restore the previous context
+          setCurrentContext(parent && [parent, router, route])
         }))
     }
 
-    // lazy should just resolve
-    return lazy
+    // lazy resolves immediately to not block navigation guards
+    return lazy || !pendingPromise
       ? Promise.resolve()
       : // pendingPromise is thisPromise
-        pendingPromise ||
-          // the data is already loaded and we don't want to load again so we just resolve right away
-          (pendingPromise = Promise.resolve().finally(
-            () => (pendingPromise = null)
-          ))
+        pendingPromise
   }
 
   // add the context as one single object
@@ -231,15 +261,15 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
 }
 
 function shouldFetchAgain(
-  entry: DataLoaderCacheEntry<any> | undefined | null,
+  entry: DataLoaderCacheEntry<any>,
   route: RouteLocationNormalizedLoaded
 ) {
+  // TODO: check entry.loaders
   return (
-    entry &&
     // manually invalidated
-    (!entry.when ||
-      !includesParams(route.params, entry.params) ||
-      !includesParams(route.query, entry.query))
+    !entry.when ||
+    !includesParams(route.params, entry.params) ||
+    !includesParams(route.query, entry.query)
   )
 }
 
@@ -285,10 +315,11 @@ export function isDataLoader(loader: any): loader is DataLoader<unknown> {
   return loader && loader[IsLoader]
 }
 
+type PromiseMerged<T> = T & Promise<T>
 export interface DataLoader<T, isLazy extends boolean = boolean> {
   (): true extends isLazy
-    ? _DataLoaderResultLazy<T>
-    : _DataLoaderResult & ToRefs<T>
+    ? PromiseMerged<_DataLoaderResultLazy<T>>
+    : PromiseMerged<_DataLoaderResult & ToRefs<T>>
 
   [IsLoader]: true
 

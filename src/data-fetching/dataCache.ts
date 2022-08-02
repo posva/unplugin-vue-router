@@ -1,13 +1,10 @@
+import { EffectScope, ref, ToRefs, effectScope, Ref, unref, isRef } from 'vue'
 import {
-  EffectScope,
-  ref,
-  ToRefs,
-  effectScope,
-  Ref,
-  unref,
-  UnwrapRef,
-} from 'vue'
-import { LocationQuery, RouteParams } from 'vue-router'
+  LocationQuery,
+  RouteParams,
+  Router,
+  RouteLocationNormalizedLoaded,
+} from 'vue-router'
 import { DefineLoaderOptions } from './defineLoader'
 
 export interface _DataLoaderCacheEntryBase {
@@ -19,6 +16,8 @@ export interface _DataLoaderCacheEntryBase {
 
   params: Partial<RouteParams>
   query: Partial<LocationQuery>
+  loaders: Set<DataLoaderCacheEntry>
+  // TODO: hash
 
   /**
    * Whether there is an ongoing request.
@@ -31,6 +30,8 @@ export interface _DataLoaderCacheEntryBase {
    * Error if there was an error.
    */
   error: Ref<any> // any is simply more convenient for errors
+
+  isReady: boolean
 }
 
 export interface DataLoaderCacheEntryNonLazy<T = unknown>
@@ -38,7 +39,7 @@ export interface DataLoaderCacheEntryNonLazy<T = unknown>
   /**
    * Data stored in the cache.
    */
-  data: ToRefs<T>
+  data: ToRefs<T> | typeof DATA_PLACEHOLDER
 }
 
 export interface DataLoaderCacheEntryLazy<T = unknown>
@@ -46,48 +47,69 @@ export interface DataLoaderCacheEntryLazy<T = unknown>
   /**
    * Data stored in the cache.
    */
-  data: { data: Ref<UnwrapRef<T>> }
+  data: Ref<T | undefined>
 }
+
+const DATA_PLACEHOLDER: Record<any, never> = {}
 
 export type DataLoaderCacheEntry<T = unknown> =
   | DataLoaderCacheEntryNonLazy<T>
   | DataLoaderCacheEntryLazy<T>
 
+export function isDataCacheEntryLazy<T = unknown>(
+  entry: DataLoaderCacheEntry<T>
+): entry is DataLoaderCacheEntryLazy<T> {
+  return isRef(entry.data)
+}
+
 export function isCacheExpired(
   entry: DataLoaderCacheEntry,
   { cacheTime }: Required<DefineLoaderOptions>
 ) {
-  return !cacheTime || Date.now() - entry.when >= cacheTime
+  // TODO: check entry.loaders
+  return (
+    // cacheTime == 0 means no cache
+    !cacheTime ||
+    // did we hit the expiration time
+    Date.now() - entry.when >= cacheTime
+  )
 }
 
-export function createOrUpdateDataCacheEntry<T>(
-  entry: DataLoaderCacheEntry<T> | undefined,
-  data: T,
+export function createDataCacheEntry<T>(
   params: Partial<RouteParams>,
   query: Partial<LocationQuery>,
   { lazy }: Required<DefineLoaderOptions>
 ): DataLoaderCacheEntry<T> {
-  if (!entry) {
-    return withinScope(() => ({
-      pending: ref(false),
-      error: ref<any>(),
-      when: Date.now(),
-      data: lazy ? { data: ref<T>(data) } : refsFromObject(data),
-      params,
-      query,
-      // this was just to annoying to type
-    })) as DataLoaderCacheEntry<T>
+  return withinScope<DataLoaderCacheEntry<T>>(
+    () =>
+      ({
+        pending: ref(false),
+        error: ref<any>(),
+        when: Date.now(),
+        loaders: new Set(),
+        data: lazy ? ref<T | undefined>() : DATA_PLACEHOLDER,
+        params,
+        query,
+        isReady: false,
+        // this was just too annoying to type
+      } as DataLoaderCacheEntry<T>)
+  )
+}
+
+export function updateDataCacheEntry<T>(
+  entry: DataLoaderCacheEntry<T>,
+  data: T,
+  params: Partial<RouteParams>,
+  query: Partial<LocationQuery>
+) {
+  entry.when = Date.now()
+  entry.params = params
+  entry.query = query
+  entry.isReady = true
+  if (isDataCacheEntryLazy(entry)) {
+    entry.data.value = data
   } else {
-    entry.when = Date.now()
-    entry.params = params
-    entry.query = query
-    if (lazy) {
-      ;(entry as DataLoaderCacheEntryLazy<T>).data.data.value =
-        data as UnwrapRef<T>
-    } else {
-      transferData(entry as DataLoaderCacheEntryNonLazy<T>, data)
-    }
-    return entry
+    transferData(entry, data)
   }
 }
 
@@ -107,10 +129,15 @@ export function transferData<T>(
   entry: DataLoaderCacheEntryNonLazy<T>,
   data: T
 ) {
-  for (const key in data) {
-    entry.data[key].value =
-      // user can pass in a ref, but we want to make sure we only get the data out of it
-      unref(data[key])
+  // create the initial refs
+  if (entry.data === DATA_PLACEHOLDER) {
+    entry.data = refsFromObject(data)
+  } else {
+    for (const key in data) {
+      entry.data[key].value =
+        // user can pass in a ref, but we want to make sure we only get the data out of it
+        unref(data[key])
+    }
   }
 }
 
@@ -129,4 +156,20 @@ export function stopScope() {
     scope.stop()
     scope = undefined
   }
+}
+
+export let currentContext:
+  | [DataLoaderCacheEntry, Router, RouteLocationNormalizedLoaded]
+  | undefined
+  | null
+export function getCurrentContext() {
+  return currentContext || ([] as const)
+}
+export function setCurrentContext(context: typeof currentContext) {
+  currentContext = context
+}
+
+export function withLoaderContext<P extends Promise<any>>(promise: P): P {
+  const context = currentContext
+  return promise.finally(() => (currentContext = context)) as P
 }
