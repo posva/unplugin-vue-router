@@ -209,7 +209,7 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
       currentNavigation = route
 
       // TODO: ensure others useUserData() (loaders) can be called with a similar approach as pinia
-      const [trackedRoute, params, query] = trackRoute(route)
+      const [trackedRoute, params, query, hash] = trackRoute(route)
       // if there isn't a pending promise, we set the current context so nested loaders can use it
       if (!pendingPromise) {
         setCurrentContext([entry, router, trackedRoute])
@@ -217,7 +217,7 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
       const thisPromise = (pendingPromise = loader(trackedRoute)
         .then((data) => {
           if (pendingPromise === thisPromise) {
-            updateDataCacheEntry(entry, data, params, query)
+            updateDataCacheEntry(entry, data, params, query, hash)
           }
         })
         .catch((err) => {
@@ -270,7 +270,8 @@ function shouldFetchAgain(
     // manually invalidated
     !entry.when ||
     !includesParams(route.params, entry.params) ||
-    !includesParams(route.query, entry.query)
+    !includesParams(route.query, entry.query) ||
+    (entry.hash != null && entry.hash !== route.hash)
   )
 }
 
@@ -391,15 +392,21 @@ export interface _DataLoaderResultLazy<T> extends _DataLoaderResult {
 function trackRoute(route: RouteLocationNormalizedLoaded) {
   const [params, paramReads] = trackObjectReads(route.params)
   const [query, queryReads] = trackObjectReads(route.query)
+  let hash: { v: string | null } = { v: null }
   // TODO: track `hash`
   return [
     {
       ...route,
+      // track the hash
+      get hash() {
+        return (hash.v = route.hash)
+      },
       params,
       query,
     },
     paramReads,
     queryReads,
+    hash,
   ] as const
 }
 

@@ -16,6 +16,7 @@ export interface _DataLoaderCacheEntryBase {
 
   params: Partial<RouteParams>
   query: Partial<LocationQuery>
+  hash: string | null
   loaders: Set<DataLoaderCacheEntry>
   // TODO: hash
 
@@ -103,11 +104,13 @@ export function updateDataCacheEntry<T>(
   entry: DataLoaderCacheEntry<T>,
   data: T,
   params: Partial<RouteParams>,
-  query: Partial<LocationQuery>
+  query: Partial<LocationQuery>,
+  hash: { v: string | null }
 ) {
   entry.when = Date.now()
   entry.params = params
   entry.query = query
+  entry.hash = hash.v
   entry.isReady = true
   if (isDataCacheEntryLazy(entry)) {
     entry.data.value = data
