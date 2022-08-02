@@ -155,44 +155,92 @@ describe('defineLoader', () => {
     })
 
     it('can call nested loaders', async () => {
-      const spyUser = vi.fn().mockResolvedValue({ name: 'edu' })
       const spy = vi
         .fn<any[], Promise<{ user: { name: string } }>>()
         .mockResolvedValue({ user: { name: 'edu' } })
       const useOne = defineLoader(spy)
       const useLoader = defineLoader(async () => {
         const { user } = await useOne()
-        // FIXME: can we just return the ref?
-        return { user: user.value, local: user.value.name }
+        return { user, local: user.value.name }
       })
       expect(spy).not.toHaveBeenCalled()
       await useLoader._.load(route, router)
       expect(spy).toHaveBeenCalledTimes(1)
       const { user } = useLoader()
+      // even though we returned a ref
+      expectType<{ name: string }>(user.value)
       expect(user.value).toEqual({ name: 'edu' })
     })
 
-    it.todo(
-      'invalidated nested loaders invalidate a loader (by route params)',
-      async () => {
-        const spyUser = vi.fn().mockResolvedValue({ name: 'edu' })
-        const spy = vi
-          .fn<any[], Promise<{ user: { name: string } }>>()
-          .mockResolvedValue({ user: { name: 'edu' } })
-        const useOne = defineLoader(spy)
-        const useLoader = defineLoader(async () => {
+    it('can call deeply nested loaders', async () => {
+      const one = vi
+        .fn<any[], Promise<{ user: { name: string } }>>()
+        .mockResolvedValue({ user: { name: 'edu' } })
+      const useOne = defineLoader(one)
+      const two = vi
+        .fn<any[], Promise<{ user: { name: string }; local: string }>>()
+        .mockImplementation(async () => {
           const { user } = await useOne()
-          return { user, local: user.value.name }
+          // force the type for the mock
+          return {
+            user: user as unknown as { name: string },
+            local: user.value.name,
+          }
         })
-        await useLoader._.load(route, router)
-        const { user, refresh } = useLoader()
-        const { invalidate } = useOne()
-        expect(spy).toHaveBeenCalledTimes(1)
-        invalidate() // the child
-        await refresh() // the parent
-        expect(spy).toHaveBeenCalledTimes(2)
-      }
-    )
+      const useTwo = defineLoader(two)
+      const useLoader = defineLoader(async () => {
+        const { user } = await useOne()
+        const { local } = await useTwo()
+        return { user, local, when: Date.now() }
+      })
+
+      expect(one).not.toHaveBeenCalled()
+      expect(two).not.toHaveBeenCalled()
+      await useLoader._.load(route, router)
+      expect(one).toHaveBeenCalledTimes(1)
+      expect(two).toHaveBeenCalledTimes(1)
+      const { user } = useLoader()
+      expect(user.value).toEqual({ name: 'edu' })
+    })
+
+    it('invalidated nested loaders invalidate a loader (by cache)', async () => {
+      const spy = vi
+        .fn<any[], Promise<{ user: { name: string } }>>()
+        .mockResolvedValue({ user: { name: 'edu' } })
+      const useOne = defineLoader(spy)
+      const useLoader = defineLoader(async () => {
+        const { user } = await useOne()
+        return { user, local: user.value.name }
+      })
+      await useLoader._.load(route, router)
+      const { user, refresh } = useLoader()
+      const { invalidate } = useOne()
+      expect(spy).toHaveBeenCalledTimes(1)
+      invalidate() // the child
+      await refresh() // the parent
+      expect(spy).toHaveBeenCalledTimes(2)
+    })
+
+    it('invalidated nested loaders invalidate a loader (by route params)', async () => {
+      const spy = vi
+        .fn<any[], Promise<{ user: { name: string } }>>()
+        .mockImplementation(async (route: RouteLocationNormalizedLoaded) => ({
+          user: { name: route.params.id as string },
+        }))
+      const useOne = defineLoader(spy)
+      const useLoader = defineLoader(async () => {
+        const { user } = await useOne()
+        return { user, local: user.value.name }
+      })
+      await useLoader._.load(setRoute({ params: { id: 'edu' } }), router)
+      expect(spy).toHaveBeenCalledTimes(1)
+      // same id
+      await useLoader._.load(setRoute({ params: { id: 'edu' } }), router)
+      expect(spy).toHaveBeenCalledTimes(1)
+      // same id
+      await useLoader._.load(setRoute({ params: { id: 'bob' } }), router)
+      expect(spy).toHaveBeenCalledTimes(2)
+    })
 
     it('nested loaders changes propagate to parent', async () => {
       const spy = vi

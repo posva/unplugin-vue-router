@@ -64,14 +64,17 @@ export function isDataCacheEntryLazy<T = unknown>(
 
 export function isCacheExpired(
   entry: DataLoaderCacheEntry,
-  { cacheTime }: Required<DefineLoaderOptions>
-) {
-  // TODO: check entry.loaders
+  options: Required<DefineLoaderOptions>
+): boolean {
+  const { cacheTime } = options
   return (
     // cacheTime == 0 means no cache
     !cacheTime ||
     // did we hit the expiration time
-    Date.now() - entry.when >= cacheTime
+    Date.now() - entry.when >= cacheTime ||
+    Array.from(entry.loaders).some((childEntry) =>
+      isCacheExpired(childEntry, options)
+    )
   )
 }
 

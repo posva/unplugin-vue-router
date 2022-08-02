@@ -88,7 +88,12 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
     //   throw new Error('noooooo')
     // }
 
-    if (!cache.has(router)) {
+    if (
+      // no cache: we need to load
+      !cache.has(router) ||
+      // invoked by the parent, we should load again
+      parentEntry
+    ) {
       load(route, router, parentEntry)
     }
 
@@ -113,17 +118,11 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
     //   }
     // }
 
-    const promise = Promise.resolve(pendingPromise)
-      .then(() => {
-        // we need to get the data property once again because it has been updated
-        const { data } = entry
-        return Object.assign(commonData, isRef(data) ? { data } : data)
-      })
-      .finally(() => {
-        // TODO: restore current parent
-        // parent?.dependOn(me)
-        setCurrentContext(parentEntry && [parentEntry, router, route])
-      })
+    const promise = Promise.resolve(pendingPromise).then(() => {
+      // we need to get the data property once again because it has been updated
+      const { data } = entry
+      return Object.assign(commonData, isRef(data) ? { data } : data)
+    })
 
     // entry exists because it's created synchronously in `load()`
     const { data, pending, error } = entry
@@ -178,6 +177,8 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
     const entry = cache.get(router)!
     const { lazy } = options
 
+    const isExpired = isCacheExpired(entry, options)
+
     // the request was already made before, let's try to reuse it
     if (
       pendingPromise &&
@@ -188,7 +189,7 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
       // `needsNewLoad`
       currentNavigation === route &&
       // if we are not ready but we have a pendingPromise, we are already fetching so we can reuse it
-      (!entry.isReady || !isCacheExpired(entry, options))
+      (!entry.isReady || !isExpired)
     ) {
       return lazy ? Promise.resolve() : pendingPromise
     }
@@ -200,7 +201,7 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
       // if we never finished loading we cannot rely on needsNewLoad
       (!entry.isReady && currentNavigation !== route) ||
       // we did a load but the cache expired
-      (entry.isReady && isCacheExpired(entry, options))
+      (entry.isReady && isExpired)
     ) {
       entry.pending.value = true
       entry.error.value = null
