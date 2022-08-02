@@ -24,7 +24,18 @@ export interface DataFetchingOptions {
   lazy?: boolean | number | (() => boolean | number)
 }
 
+// dev only check
+let added: boolean = false
+
 export function setupDataFetchingGuard(router: Router) {
+  // TODO: dev only
+  if (added) {
+    console.warn(
+      '[vue-router]: Data fetching guard added twice. Make sure to remove the extra call'
+    )
+    return
+  }
+  added = true
   return router.beforeEach((to) => {
     // We run all loaders in parallel
     return (

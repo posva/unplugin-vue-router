@@ -25,6 +25,7 @@ export default defineConfig({
   plugins: [
     Vue({}),
     VueRouter({
+      dataFetching: true,
       routesFolder: [
         // can add multiple routes folders
         {

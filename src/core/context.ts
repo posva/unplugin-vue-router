@@ -74,7 +74,6 @@ export function createRoutesContext(options: ResolvedOptions) {
           // TODO: do they return the symbolic link path or the original file?
           // followSymbolicLinks: false,
           ignore: options.exclude,
-          // TODO: is this flat necessary?
         })
           .then((files) => files.map((file) => resolve(folder.src, file)))
           .then((files) =>
@@ -104,7 +103,8 @@ export function createRoutesContext(options: ResolvedOptions) {
       resolve(root, path)
     )
     node.setCustomRouteBlock(path, routeBlock)
-    node.value.includeLoaderGuard = await hasNamedExports(path)
+    node.value.includeLoaderGuard =
+      options.dataFetching && (await hasNamedExports(path))
 
     routeMap.set(path, node)
   }
@@ -117,7 +117,8 @@ export function createRoutesContext(options: ResolvedOptions) {
       return
     }
     node.setCustomRouteBlock(path, await getRouteBlock(path, options))
-    node.value.includeLoaderGuard = await hasNamedExports(path)
+    node.value.includeLoaderGuard =
+      options.dataFetching && (await hasNamedExports(path))
   }
 
   function removePage({ filePath: path, routePath }: HandlerContext) {
@@ -144,8 +145,10 @@ export function createRoutesContext(options: ResolvedOptions) {
   }
 
   function generateRoutes() {
-    return `import { _LoaderSymbol } from 'unplugin-vue-router/runtime'
-
+    const imports = options.dataFetching
+      ? `import { _LoaderSymbol } from 'unplugin-vue-router/runtime'\n\n`
+      : ``
+    return `${imports}\
 export const routes = ${generateRouteRecord(routeTree)}
 `
   }
@@ -165,7 +168,7 @@ export const routes = ${generateRouteRecord(routeTree)}
   // NOTE: this code needs to be generated because otherwise it doesn't go through transforms and `@vue-router/routes`
   // cannot be resolved.
   function generateVueRouterProxy() {
-    return _generateVueRouterProxy(MODULE_ROUTES_PATH)
+    return _generateVueRouterProxy(MODULE_ROUTES_PATH, options)
   }
 
   let lastDTS: string | undefined

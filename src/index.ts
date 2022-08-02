@@ -11,6 +11,8 @@ import {
 import { DEFAULT_OPTIONS, Options, ResolvedOptions } from './options'
 import { createViteContext } from './core/vite'
 
+export { Options }
+
 export default createUnplugin<Options>((opt, meta) => {
   const options: ResolvedOptions = { ...DEFAULT_OPTIONS, ...opt }
   const ctx = createRoutesContext(options)
@@ -99,7 +101,8 @@ export type {
   RouteRecordInfo,
 } from './codegen/generateRouteMap'
 export type {
-  // TODO: mark all of these as internals since the exposed versions are user to use
+  // TODO: mark all of these as internals since the dynamically exposed versions are fully typed, these are just helpers
+  // to generate the convenient types
   RouteLocationAsRelativeTyped,
   RouteLocationAsRelativeTypedList,
   RouteLocationAsPathTyped,

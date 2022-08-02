@@ -24,12 +24,16 @@ export interface ResolvedOptions {
    * @default "src/pages"
    */
   routesFolder: RoutesFolder
-  // TODO: add support for multiple routes folders and prepending a path segment
 
   /**
    * Method to generate the name of a route.
    */
   getRouteName: (node: TreeLeaf) => string
+
+  /**
+   * EXPERIMENTAL: add the data fetching meta properties to generated routes.
+   */
+  dataFetching: boolean
 
   // TODO:
   // importMode?:
@@ -77,6 +81,7 @@ export const DEFAULT_OPTIONS: ResolvedOptions = {
   routesFolder: 'src/pages',
   routeBlockLang: 'json5',
   getRouteName: getFileBasedRouteName,
+  dataFetching: false,
   root: process.cwd(),
   dts: isPackageExists('typescript'),
   logs: false,
