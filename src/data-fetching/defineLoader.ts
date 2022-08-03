@@ -118,6 +118,7 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
       const { data } = entry
       return Object.assign(commonData, isRef(data) ? { data } : data)
     })
+    // FIXME: finally to set the currentContext
 
     // entry exists because it's created synchronously in `load()`
     const { data, pending, error } = entry
@@ -231,11 +232,16 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
             pendingPromise = null
             entry.pending.value = false
           }
-          // if this was a nested loader, we need to tell the parent they depend on us
+
+          // FIXME: this section should be moved so it **always** gets appended to a pending promise I need to find a
+          // failing test first: call the nested loader first, then the parent loader and use another nested loader
+          // after the one that was already loaded. Then invalidate the second nested loader and see if the parent
+          // loader still needs to load again if this was a nested loader, we need to tell the parent they depend on us
           if (parent) {
             parent.loaders.add(entry)
           }
 
+          // this part we keep it here because the parent load should unset the context
           // we restore the previous context
           setCurrentContext(parent && [parent, router, route])
         }))
