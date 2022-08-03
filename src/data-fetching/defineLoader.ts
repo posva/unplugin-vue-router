@@ -83,11 +83,6 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
     const router = _router || useRouter()
     const route = _route || useRoute()
 
-    // this ensures the entry exists
-    // if (!options.lazy && !parentEntry) {
-    //   throw new Error('noooooo')
-    // }
-
     if (
       // no cache: we need to load
       !cache.has(router) ||
@@ -212,7 +207,10 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
       const [trackedRoute, params, query, hash] = trackRoute(route)
       // if there isn't a pending promise, we set the current context so nested loaders can use it
       if (!pendingPromise) {
-        setCurrentContext([entry, router, trackedRoute])
+        // we could use trackedRoute here but that would break the comparison between currentRoute and route
+        // we could also just add a private property to check if it's the same navigation, but we actually need
+        // each loader to have its own tracked route and check nested loaders tracked properties within each loader
+        setCurrentContext([entry, router, route])
       }
       const thisPromise = (pendingPromise = loader(trackedRoute)
         .then((data) => {
@@ -264,14 +262,16 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
 function shouldFetchAgain(
   entry: DataLoaderCacheEntry<any>,
   route: RouteLocationNormalizedLoaded
-) {
-  // TODO: check entry.loaders
+): boolean {
   return (
     // manually invalidated
     !entry.when ||
     !includesParams(route.params, entry.params) ||
     !includesParams(route.query, entry.query) ||
-    (entry.hash != null && entry.hash !== route.hash)
+    (entry.hash != null && entry.hash !== route.hash) ||
+    Array.from(entry.loaders).some((childEntry) =>
+      shouldFetchAgain(childEntry, route)
+    )
   )
 }
 

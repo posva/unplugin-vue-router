@@ -207,6 +207,30 @@ describe('defineLoader', () => {
         expect(user.value).toEqual({ name: 'edu' })
       })
 
+      it('only calls reused loaders once', async () => {
+        const spy = vi
+          .fn<any[], Promise<{ user: { name: string } }>>()
+          .mockResolvedValue({ user: { name: 'edu' } })
+        const useOne = defineLoader(spy)
+        const useLoader = defineLoader(async () => {
+          const { user } = await useOne()
+          return { user, local: user.value.name }
+        })
+
+        let p = useLoader._.load(route, router)
+        await useOne._.load(route, router)
+        await p
+        expect(spy).toHaveBeenCalledTimes(1)
+
+        useOne().invalidate()
+        useLoader().invalidate()
+
+        // the reverse order
+        await useOne._.load(route, router)
+        p = useLoader._.load(route, router)
+        expect(spy).toHaveBeenCalledTimes(2)
+      })
+
       it('invalidated nested loaders invalidate a loader (by cache)', async () => {
         const spy = vi
           .fn<any[], Promise<{ user: { name: string } }>>()
