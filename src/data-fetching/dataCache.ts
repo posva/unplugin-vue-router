@@ -18,7 +18,6 @@ export interface _DataLoaderCacheEntryBase {
   query: Partial<LocationQuery>
   hash: string | null
   loaders: Set<DataLoaderCacheEntry>
-  // TODO: hash
 
   /**
    * Whether there is an ongoing request.

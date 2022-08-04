@@ -290,6 +290,33 @@ describe('defineLoader', () => {
         expect(user.value).toEqual({ name: 'bob' })
         expect(userFromOne.value).toEqual({ name: 'bob' })
       })
+
+      it('tracks cached nested loaders', async () => {
+        const spy = vi
+          .fn<
+            [RouteLocationNormalizedLoaded],
+            Promise<{ user: { name: string } }>
+          >()
+          .mockImplementation(async (route) => ({
+            user: { name: route.params.id as string },
+          }))
+        const useOne = defineLoader(spy)
+        const useLoader = defineLoader(async () => {
+          const { user } = await useOne()
+          return { local: user.value.name }
+        })
+
+        // start the useOne first
+        let pOne = useOne._.load(route, router)
+        let p = useLoader._.load(route, router)
+        await p
+        expect(spy).toHaveBeenCalledTimes(1)
+
+        useOne().invalidate()
+
+        p = useLoader._.load(route, router)
+        expect(spy).toHaveBeenCalledTimes(2)
+      })
     })
 
     it('can be refreshed and awaited', async () => {

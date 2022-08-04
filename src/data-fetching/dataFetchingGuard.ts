@@ -31,7 +31,7 @@ export function setupDataFetchingGuard(router: Router) {
   // TODO: dev only
   if (added) {
     console.warn(
-      '[vue-router]: Data fetching guard added twice. Make sure to remove the extra call'
+      '[vue-router]: Data fetching guard added twice. Make sure to remove the extra call.'
     )
     return
   }

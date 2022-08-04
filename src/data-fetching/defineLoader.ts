@@ -86,12 +86,13 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
     if (
       // no cache: we need to load
       !cache.has(router) ||
-      // invoked by the parent, we should load again
+      // invoked by the parent, we should try to load again
       parentEntry
     ) {
       load(route, router, parentEntry)
     }
 
+    // after calling load, we always have an entry
     const entry = cache.get(router)!
 
     // TODO: reload the page and figure out a way of detecting it
@@ -113,12 +114,20 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
     //   }
     // }
 
-    const promise = Promise.resolve(pendingPromise).then(() => {
-      // we need to get the data property once again because it has been updated
-      const { data } = entry
-      return Object.assign(commonData, isRef(data) ? { data } : data)
-    })
-    // FIXME: finally to set the currentContext
+    const promise = Promise.resolve(pendingPromise)
+      .then(() => {
+        // we need to get the data property once again because it has been updated
+        const { data } = entry
+        return Object.assign(commonData, isRef(data) ? { data } : data)
+      })
+      .finally(() => {
+        // loader still needs to load again if this was a nested loader, we need to tell the parent they depend on us
+        if (parentEntry) {
+          parentEntry.loaders.add(entry)
+        }
+        // set the correct context for other nested loaders
+        setCurrentContext(parentEntry && [parentEntry, router, route])
+      })
 
     // entry exists because it's created synchronously in `load()`
     const { data, pending, error } = entry
@@ -144,7 +153,11 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
     }
     const dataLoaderResult = Object.assign(
       commonData,
-      isRef(data) ? { data } : data
+      isRef(data)
+        ? { data }
+        : // TODO: in dev we could replace this with a proxy if the data === PLACEHOLDER
+          // to tell the user they are calling the loader without exporting it OR a nested loader without awaiting
+          data
     )
 
     return Object.assign(promise, dataLoaderResult)
@@ -204,7 +217,6 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
       // remember what was the last navigation we fetched this with
       currentNavigation = route
 
-      // TODO: ensure others useUserData() (loaders) can be called with a similar approach as pinia
       const [trackedRoute, params, query, hash] = trackRoute(route)
       // if there isn't a pending promise, we set the current context so nested loaders can use it
       if (!pendingPromise) {
@@ -233,16 +245,8 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
             entry.pending.value = false
           }
 
-          // FIXME: this section should be moved so it **always** gets appended to a pending promise I need to find a
-          // failing test first: call the nested loader first, then the parent loader and use another nested loader
-          // after the one that was already loaded. Then invalidate the second nested loader and see if the parent
-          // loader still needs to load again if this was a nested loader, we need to tell the parent they depend on us
-          if (parent) {
-            parent.loaders.add(entry)
-          }
-
-          // this part we keep it here because the parent load should unset the context
-          // we restore the previous context
+          // NOTE: unfortunately we need to duplicate this part here and on the `finally()` above
+          // to handle all
           setCurrentContext(parent && [parent, router, route])
         }))
     }
@@ -323,11 +327,11 @@ export function isDataLoader(loader: any): loader is DataLoader<unknown> {
   return loader && loader[IsLoader]
 }
 
-type PromiseMerged<T> = T & Promise<T>
+type _PromiseMerged<T> = T & Promise<T>
 export interface DataLoader<T, isLazy extends boolean = boolean> {
   (): true extends isLazy
-    ? PromiseMerged<_DataLoaderResultLazy<T>>
-    : PromiseMerged<_DataLoaderResult & ToRefs<T>>
+    ? _PromiseMerged<_DataLoaderResultLazy<T>>
+    : _PromiseMerged<_DataLoaderResult & ToRefs<T>>
 
   [IsLoader]: true
 
@@ -399,7 +403,6 @@ function trackRoute(route: RouteLocationNormalizedLoaded) {
   const [params, paramReads] = trackObjectReads(route.params)
   const [query, queryReads] = trackObjectReads(route.query)
   let hash: { v: string | null } = { v: null }
-  // TODO: track `hash`
   return [
     {
       ...route,
