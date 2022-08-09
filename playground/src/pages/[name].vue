@@ -12,7 +12,7 @@ export const useUserData = defineLoader('/[name]', async (route) => {
     id: route.params.id || 24,
     when: new Date().toUTCString(),
   }
-  return { user }
+  return user
 })
 
 const other = 'hello'
@@ -38,9 +38,9 @@ const thing = 'THING'
 
 // const $route = useRoute()
 
-const { user, pending, refresh } = useUserData()
+const { data: user, pending, refresh } = useUserData()
 
-const { one } = useOne()
+const { data: one } = useOne()
 const { data: two } = useTwo()
 
 const router = useRouter()
@@ -101,7 +101,7 @@ defineRoute({
 defineRoute((route) => ({
   ...route,
   children: [
-    ...('children' in route ? route.children : []),
+    ...(route.children ? route.children : []),
     { path: '/cosa', name: 'cosa', component: {} },
   ],
 }))
