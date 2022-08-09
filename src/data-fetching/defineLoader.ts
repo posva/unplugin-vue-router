@@ -174,16 +174,17 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
     route: RouteLocationNormalizedLoaded,
     router: Router,
     parent?: DataLoaderCacheEntry
-  ) {
+  ): Promise<void> {
     const hasCacheEntry = cache.has(router)
     const needsNewLoad =
       !hasCacheEntry || shouldFetchAgain(cache.get(router)!, route)
 
     if (!hasCacheEntry) {
-      cache.set(router, createDataCacheEntry({}, {}, options))
+      cache.set(router, createDataCacheEntry(options))
     }
 
     const entry = cache.get(router)!
+    const { isReady, pending, error } = entry
     const { lazy } = options
 
     const isExpired = isCacheExpired(entry, options)
@@ -198,7 +199,7 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
       // `needsNewLoad`
       currentNavigation === route &&
       // if we are not ready but we have a pendingPromise, we are already fetching so we can reuse it
-      (!entry.isReady || !isExpired)
+      (!isReady || !isExpired)
     ) {
       return lazy ? Promise.resolve() : pendingPromise
     }
@@ -208,12 +209,12 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
     if (
       needsNewLoad ||
       // if we never finished loading we cannot rely on needsNewLoad
-      (!entry.isReady && currentNavigation !== route) ||
+      (!isReady && currentNavigation !== route) ||
       // we did a load but the cache expired
-      (entry.isReady && isExpired)
+      (isReady && isExpired)
     ) {
-      entry.pending.value = true
-      entry.error.value = null
+      pending.value = true
+      error.value = null
       // remember what was the last navigation we fetched this with
       currentNavigation = route
 
@@ -232,9 +233,7 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
           }
         })
         .catch((err) => {
-          if (entry) {
-            entry.error.value = err
-          }
+          error.value = err
           // propagate the error so navigation guards can abort
           return Promise.reject(err)
         })
@@ -242,7 +241,7 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
           // reset the state if we were the last promise
           if (pendingPromise === thisPromise) {
             pendingPromise = null
-            entry.pending.value = false
+            pending.value = false
           }
 
           // NOTE: unfortunately we need to duplicate this part here and on the `finally()` above

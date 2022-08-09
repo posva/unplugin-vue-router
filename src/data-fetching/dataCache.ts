@@ -78,11 +78,9 @@ export function isCacheExpired(
   )
 }
 
-export function createDataCacheEntry<T>(
-  params: Partial<RouteParams>,
-  query: Partial<LocationQuery>,
-  { lazy }: Required<DefineLoaderOptions>
-): DataLoaderCacheEntry<T> {
+export function createDataCacheEntry<T>({
+  lazy,
+}: Required<DefineLoaderOptions>): DataLoaderCacheEntry<T> {
   return withinScope<DataLoaderCacheEntry<T>>(
     () =>
       ({
@@ -91,8 +89,9 @@ export function createDataCacheEntry<T>(
         when: Date.now(),
         loaders: new Set(),
         data: lazy ? ref<T | undefined>() : DATA_PLACEHOLDER,
-        params,
-        query,
+        params: {},
+        query: {},
+        // hash: null,
         isReady: false,
         // this was just too annoying to type
       } as DataLoaderCacheEntry<T>)
