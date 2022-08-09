@@ -39,9 +39,6 @@ export interface DataLoaderCacheEntry<T = unknown, isLazy = boolean> {
   data: false extends isLazy ? Ref<UnwrapRef<T>> : Ref<UnwrapRef<T> | undefined>
 }
 
-
-
-
 export function isCacheExpired(
   entry: DataLoaderCacheEntry,
   options: Required<DefineLoaderOptions>
