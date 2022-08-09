@@ -1,3 +1,51 @@
+# [0.1.0](https://github.com/posva/unplugin-vue-router/compare/v0.0.21...v0.1.0) (2022-08-09)
+
+### Bug Fixes
+
+- deep merge meta properties ([47bce4f](https://github.com/posva/unplugin-vue-router/commit/47bce4f6e9f6e3c4290adb56527abe3df6f46a23))
+- expose options subpath ([#42](https://github.com/posva/unplugin-vue-router/issues/42)) ([b44c32e](https://github.com/posva/unplugin-vue-router/commit/b44c32e662e12f3c62dc5300a76a15dabddf2474))
+- handle nested loaders that were already called ([6887fb2](https://github.com/posva/unplugin-vue-router/commit/6887fb20587ada79a07f89671622eaa32d95eac3))
+- reload the page during dev when no cache entry is available ([918bfd0](https://github.com/posva/unplugin-vue-router/commit/918bfd0cf75f6bf6c5e045722c9b2f831dbc310c))
+- support older browsers with object.assign ([66c7ae0](https://github.com/posva/unplugin-vue-router/commit/66c7ae0bbd27415de1f3339e554692814c676525))
+- trigger loaders only once when nested ([4a13819](https://github.com/posva/unplugin-vue-router/commit/4a13819c635f9cee1e3bcc04bd63c19bf8cbd515))
+
+### Code Refactoring
+
+- rename `[@vue-router](https://github.com/vue-router)` to `vue-router/auto` ([461530a](https://github.com/posva/unplugin-vue-router/commit/461530a439d05e5a9f3e20ca9058160d19580287))
+
+### Features
+
+- add basic data loaders ([9c19fd2](https://github.com/posva/unplugin-vue-router/commit/9c19fd2023db5c31eab21470561e91f07e6029d6))
+- add lazy loaders ([815f875](https://github.com/posva/unplugin-vue-router/commit/815f8759eaff8c293a1cac832f3c020d3c39ce8b))
+- add pendingLoad ([055bc3c](https://github.com/posva/unplugin-vue-router/commit/055bc3c229d95f8e106f486cb35092026f6c8053))
+- allow enabling experimental data fetching ([1b7e6b3](https://github.com/posva/unplugin-vue-router/commit/1b7e6b3a305ea626dcb6046b1ca8f7f6884bfec9))
+- change default route component folder to `src/pages` ([6d6cb13](https://github.com/posva/unplugin-vue-router/commit/6d6cb135e93447141970c37e133db69737a07a25))
+- implement nested sequential loaders ([6d5201f](https://github.com/posva/unplugin-vue-router/commit/6d5201fdf01ba5e8470996693dc55fa3ee413705))
+- track hash reads ([e5583a4](https://github.com/posva/unplugin-vue-router/commit/e5583a458aa24de96d4bf9d893eb86b5c7eef998))
+
+### BREAKING CHANGES
+
+- the module name is now `vue-router/auto` instead of
+  `@vue-router`. To upgrade to this version you only need to replace it:
+
+  ```diff
+  -import { ... } from '@vue-router'
+  +import { ... } from 'vue-router/auto'
+
+  -import { ... } from '@vue-router/routes'
+  +import { ... } from 'vue-router/auto/routes'
+  ```
+
+  This allows stubbing the package in `vue-router` to hint the user
+  towards this plugin.
+
+- the default value of `routesFolder` is changed from
+  `src/routes` to `src/pages`. If you **didn't change this setting**, you
+  will have to either:
+  - rename your `src/routes` folder to `src/pages`
+  - add `routesFolder: 'src/routes'` to the options of the plugin in your
+    vite, webpack, etc config
+
 ## [0.0.21](https://github.com/posva/unplugin-vue-router/compare/v0.0.20...v0.0.21) (2022-07-12)
 
 ### Features
