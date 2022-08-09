@@ -116,12 +116,12 @@ describe('defineLoader', () => {
     it('sets the value', async () => {
       const spy = vi.fn().mockResolvedValue({ name: 'edu' })
       const useLoader = defineLoader(async () => {
-        return { user: await spy() }
+        return spy()
       })
       expect(spy).not.toHaveBeenCalled()
       await useLoader._.load(route, router)
       expect(spy).toHaveBeenCalledTimes(1)
-      const { user } = useLoader()
+      const { data: user } = useLoader()
       expect(user.value).toEqual({ name: 'edu' })
     })
 
@@ -129,7 +129,7 @@ describe('defineLoader', () => {
       const [spy, resolve, reject] = mockPromise({ name: 'edu' })
       const useLoader = defineLoader(
         async () => {
-          return { user: await spy() }
+          return spy()
         },
         { lazy: true }
       )
@@ -142,7 +142,7 @@ describe('defineLoader', () => {
       expect(data.value).toEqual(undefined)
       resolve()
       await pendingLoad()
-      expect(data.value).toEqual({ user: { name: 'edu' } })
+      expect(data.value).toEqual({ name: 'edu' })
     })
 
     it('rejects failed initial load', async () => {
@@ -160,41 +160,41 @@ describe('defineLoader', () => {
     describe('sequential loading', () => {
       it('can call nested loaders', async () => {
         const spy = vi
-          .fn<any[], Promise<{ user: { name: string } }>>()
-          .mockResolvedValue({ user: { name: 'edu' } })
+          .fn<any[], Promise<{ name: string }>>()
+          .mockResolvedValue({ name: 'edu' })
         const useOne = defineLoader(spy)
         const useLoader = defineLoader(async () => {
-          const { user } = await useOne()
-          return { user, local: user.value.name }
+          const { data: user } = await useOne()
+          return { user: user.value, local: user.value.name }
         })
         expect(spy).not.toHaveBeenCalled()
         await useLoader._.load(route, router)
         expect(spy).toHaveBeenCalledTimes(1)
-        const { user } = useLoader()
+        const { data } = useLoader()
         // even though we returned a ref
-        expectType<{ name: string }>(user.value)
-        expect(user.value).toEqual({ name: 'edu' })
+        expectType<{ name: string }>(data.value.user)
+        expect(data.value.user).toEqual({ name: 'edu' })
       })
 
       it('can call deeply nested loaders', async () => {
         const one = vi
-          .fn<any[], Promise<{ user: { name: string } }>>()
-          .mockResolvedValue({ user: { name: 'edu' } })
+          .fn<any[], Promise<{ name: string }>>()
+          .mockResolvedValue({ name: 'edu' })
         const useOne = defineLoader(one)
         const two = vi
-          .fn<any[], Promise<{ user: { name: string }; local: string }>>()
+          .fn<any[], Promise<{ name: string; local: string }>>()
           .mockImplementation(async () => {
-            const { user } = await useOne()
+            const { data: user } = await useOne()
             // force the type for the mock
             return {
-              user: user as unknown as { name: string },
+              name: user.value.name,
               local: user.value.name,
             }
           })
         const useTwo = defineLoader(two)
         const useLoader = defineLoader(async () => {
-          const { user } = await useOne()
-          const { local } = await useTwo()
+          const { data: user } = await useOne()
+          const { data: local } = await useTwo()
           return { user, local, when: Date.now() }
         })
 
@@ -203,17 +203,17 @@ describe('defineLoader', () => {
         await useLoader._.load(route, router)
         expect(one).toHaveBeenCalledTimes(1)
         expect(two).toHaveBeenCalledTimes(1)
-        const { user } = useLoader()
-        expect(user.value).toEqual({ name: 'edu' })
+        const { data } = useLoader()
+        expect(data.value.user).toEqual({ name: 'edu' })
       })
 
       it('only calls reused loaders once', async () => {
         const spy = vi
-          .fn<any[], Promise<{ user: { name: string } }>>()
-          .mockResolvedValue({ user: { name: 'edu' } })
+          .fn<any[], Promise<{ name: string }>>()
+          .mockResolvedValue({ name: 'edu' })
         const useOne = defineLoader(spy)
         const useLoader = defineLoader(async () => {
-          const { user } = await useOne()
+          const { data: user } = await useOne()
           return { user, local: user.value.name }
         })
 
@@ -233,15 +233,15 @@ describe('defineLoader', () => {
 
       it('invalidated nested loaders invalidate a loader (by cache)', async () => {
         const spy = vi
-          .fn<any[], Promise<{ user: { name: string } }>>()
-          .mockResolvedValue({ user: { name: 'edu' } })
+          .fn<any[], Promise<{ name: string }>>()
+          .mockResolvedValue({ name: 'edu' })
         const useOne = defineLoader(spy)
         const useLoader = defineLoader(async () => {
-          const { user } = await useOne()
+          const { data: user } = await useOne()
           return { user, local: user.value.name }
         })
         await useLoader._.load(route, router)
-        const { user, refresh } = useLoader()
+        const { refresh } = useLoader()
         const { invalidate } = useOne()
         expect(spy).toHaveBeenCalledTimes(1)
         invalidate() // the child
@@ -251,13 +251,13 @@ describe('defineLoader', () => {
 
       it('invalidated nested loaders invalidate a loader (by route params)', async () => {
         const spy = vi
-          .fn<any[], Promise<{ user: { name: string } }>>()
+          .fn<any[], Promise<{ name: string }>>()
           .mockImplementation(async (route: RouteLocationNormalizedLoaded) => ({
-            user: { name: route.params.id as string },
+            name: route.params.id as string,
           }))
         const useOne = defineLoader(spy)
         const useLoader = defineLoader(async () => {
-          const { user } = await useOne()
+          const { data: user } = await useOne()
           return { user, local: user.value.name }
         })
         await useLoader._.load(setRoute({ params: { id: 'edu' } }), router)
@@ -272,37 +272,36 @@ describe('defineLoader', () => {
 
       it('nested loaders changes propagate to parent', async () => {
         const spy = vi
-          .fn<any[], Promise<{ user: { name: string } }>>()
-          .mockResolvedValue({ user: { name: 'edu' } })
+          .fn<any[], Promise<{ name: string }>>()
+          .mockResolvedValue({ name: 'edu' })
         const useOne = defineLoader(spy)
         const useLoader = defineLoader(async () => {
-          const { user } = await useOne()
+          const { data: user } = await useOne()
           return { user, local: user.value.name }
         })
         await useLoader._.load(route, router)
-        const { user } = useLoader()
-        const { invalidate, refresh, user: userFromOne } = useOne()
-        expect(user.value).toEqual({ name: 'edu' })
+        const { data } = useLoader()
+        const { invalidate, refresh, data: userFromOne } = useOne()
+        expect(data.value).toEqual({ local: 'edu', user: { name: 'edu' } })
         expect(userFromOne.value).toEqual({ name: 'edu' })
-        spy.mockResolvedValueOnce({ user: { name: 'bob' } })
+        spy.mockResolvedValueOnce({ name: 'bob' })
         invalidate()
         await refresh()
-        expect(user.value).toEqual({ name: 'bob' })
+        expect(data.value.user).toEqual({ name: 'bob' })
+        // old value because we only refreshed the parent
+        expect(data.value.local).toEqual('edu')
         expect(userFromOne.value).toEqual({ name: 'bob' })
       })
 
       it('tracks cached nested loaders', async () => {
         const spy = vi
-          .fn<
-            [RouteLocationNormalizedLoaded],
-            Promise<{ user: { name: string } }>
-          >()
+          .fn<[RouteLocationNormalizedLoaded], Promise<{ name: string }>>()
           .mockImplementation(async (route) => ({
-            user: { name: route.params.id as string },
+            name: route.params.id as string,
           }))
         const useOne = defineLoader(spy)
         const useLoader = defineLoader(async () => {
-          const { user } = await useOne()
+          const { data: user } = await useOne()
           return { local: user.value.name }
         })
 
@@ -322,14 +321,14 @@ describe('defineLoader', () => {
     it('can be refreshed and awaited', async () => {
       const [spy, resolve, reject] = mockPromise({ name: 'edu' })
       const useLoader = defineLoader(async () => {
-        return { user: await spy() }
+        return spy()
       })
       expect(spy).not.toHaveBeenCalled()
       let p = useLoader._.load(route, router)
       expect(spy).toHaveBeenCalledTimes(1)
       resolve()
       await p
-      const { user, refresh, pending, error } = useLoader()
+      const { data: user, refresh, pending, error } = useLoader()
 
       expect(pending.value).toBe(false)
       expect(error.value).toBeFalsy()
@@ -350,14 +349,14 @@ describe('defineLoader', () => {
     it('updates states when navigating', async () => {
       const [spy, resolve, reject] = mockPromise({ name: 'edu' })
       const useLoader = defineLoader(async () => {
-        return { user: await spy() }
+        return spy()
       })
       let p = useLoader._.load(route, router)
       expect(spy).toHaveBeenCalledTimes(1)
       resolve()
       await p
 
-      const { user, refresh, pending, error, invalidate } = useLoader()
+      const { data: user, refresh, pending, error, invalidate } = useLoader()
 
       expect(pending.value).toBe(false)
       expect(error.value).toBeFalsy()
@@ -381,7 +380,7 @@ describe('defineLoader', () => {
       const [spy, resolve, reject] = mockPromise({ name: 'edu' })
       const useLoader = defineLoader(
         async ({ params }) => {
-          return { user: await spy() }
+          return spy()
         },
         { cacheTime: 0 }
       )
@@ -392,7 +391,7 @@ describe('defineLoader', () => {
       expect(spy).toHaveBeenCalledTimes(2)
       resolve({ name: 'bob' })
       await p
-      const { user, refresh, pending, error } = useLoader()
+      const { data: user, refresh, pending, error } = useLoader()
 
       expect(pending.value).toBe(false)
       expect(error.value).toBeFalsy()
@@ -403,7 +402,7 @@ describe('defineLoader', () => {
       const [spy, resolve, reject] = mockPromise({ name: 'edu' })
       const useLoader = defineLoader(
         async ({ params }) => {
-          return { user: await spy() }
+          return spy()
         },
         // force a no cache policy
         { cacheTime: 0 }
@@ -416,7 +415,7 @@ describe('defineLoader', () => {
       resolve({ name: 'bob' })
       await p
       expect(spy).toHaveBeenCalledTimes(1)
-      const { user, refresh, pending, error } = useLoader()
+      const { data: user, refresh, pending, error } = useLoader()
 
       expect(pending.value).toBe(false)
       expect(error.value).toBeFalsy()
@@ -432,7 +431,7 @@ describe('defineLoader', () => {
         })
       })
       const useLoader = defineLoader(async ({ params }) => {
-        return { user: await spy(params.id) }
+        return spy(params.id)
       })
 
       let p = useLoader._.load(setRoute({ params: { id: 'edu' } }), router)
@@ -450,7 +449,7 @@ describe('defineLoader', () => {
       resolveFirst!({ name: 'bob' })
       resolveSecond!({ name: 'nope' })
       await p
-      const { user, refresh, pending, error } = useLoader()
+      const { data: user, refresh, pending, error } = useLoader()
 
       expect(pending.value).toBe(false)
       expect(error.value).toBeFalsy()
@@ -460,7 +459,7 @@ describe('defineLoader', () => {
     it('skips loader if used params/query/hash did not change', async () => {
       const spy = vi.fn().mockResolvedValue({ name: 'edu' })
       const useLoader = defineLoader(async ({ params, query }) => {
-        return { user: await spy(params.id, query.other) }
+        return spy(params.id, query.other)
       })
 
       await useLoader._.load(setRoute({ params: { id: 'edu' } }), router)
@@ -512,7 +511,7 @@ describe('defineLoader', () => {
       )
       expect(spy).toHaveBeenCalledTimes(5)
 
-      const { refresh, pending, error, user } = useLoader()
+      const { refresh, pending, error, data: user } = useLoader()
       expect(spy).toHaveBeenCalledTimes(5)
 
       expect(pending.value).toBe(false)
@@ -523,7 +522,7 @@ describe('defineLoader', () => {
     it('skips loader if used hash did not change', async () => {
       const spy = vi.fn().mockResolvedValue({ name: 'edu' })
       const useLoader = defineLoader(async ({ params, query, hash }) => {
-        return { user: await spy(hash) }
+        return spy(hash)
       })
 
       await useLoader._.load(setRoute({ hash: '#one' }), router)
@@ -537,11 +536,11 @@ describe('defineLoader', () => {
     it('skips nested loader if route is unused', async () => {
       const spy = vi.fn().mockResolvedValue({ name: 'edu' })
       const useOne = defineLoader(async () => {
-        return { user: await spy() }
+        return spy()
       })
 
       const useLoader = defineLoader(async () => {
-        const { user } = await useOne()
+        const { data: user } = await useOne()
         return { name: user.value.name }
       })
 
@@ -557,7 +556,7 @@ describe('defineLoader', () => {
       const spy = vi.fn().mockResolvedValue({ name: 'edu' })
       const useLoader = defineLoader(
         async ({ params, query }) => {
-          return { user: await spy(params.id, query.other) }
+          return spy(params.id, query.other)
         },
         { lazy: true }
       )
@@ -567,7 +566,7 @@ describe('defineLoader', () => {
       const { data, pendingLoad } = useLoader()
       expect(spy).toHaveBeenCalledTimes(1)
       await pendingLoad()
-      expect(data.value).toEqual({ user: { name: 'edu' } })
+      expect(data.value).toEqual({ name: 'edu' })
       expect(spy).toHaveBeenCalledTimes(1)
 
       // simulate a navigation
@@ -575,14 +574,14 @@ describe('defineLoader', () => {
       await useLoader._.load(setRoute({ params: { id: 'two' } }), router)
       await pendingLoad()
       expect(spy).toHaveBeenCalledTimes(2)
-      expect(data.value).toEqual({ user: { name: 'bob' } })
+      expect(data.value).toEqual({ name: 'bob' })
     })
 
     it('skips if lazy loader is called with same params', async () => {
       const spy = vi.fn().mockResolvedValue({ name: 'edu' })
       const useLoader = defineLoader(
         async ({ params, query }) => {
-          return { user: await spy(params.id, query.other) }
+          return spy(params.id, query.other)
         },
         { lazy: true }
       )
@@ -596,20 +595,20 @@ describe('defineLoader', () => {
       await useLoader._.load({ ...route }, router)
       await pendingLoad()
       expect(spy).toHaveBeenCalledTimes(1)
-      expect(data.value).toEqual({ user: { name: 'edu' } })
+      expect(data.value).toEqual({ name: 'edu' })
     })
   })
 
   it('sets errors on refresh', async () => {
     const [spy, resolve, reject] = mockPromise({ name: 'edu' })
     const useLoader = defineLoader(async () => {
-      return { user: await spy() }
+      return spy()
     })
     let p = useLoader._.load(route, router)
     // we need to initially resolve once
     resolve()
     await p
-    const { user, refresh, pending, error } = useLoader()
+    const { data: user, refresh, pending, error } = useLoader()
     // expect(error.value).toBeFalsy()
     // expect(pending.value).toBe(false)
 
@@ -645,7 +644,7 @@ describe('defineLoader', () => {
     const [spy, resolve, reject] = mockPromise({ name: 'edu' })
     const useLoader = defineLoader(
       async () => {
-        return { user: await spy() }
+        return spy()
       },
       { cacheTime: 0 }
     )
@@ -653,7 +652,7 @@ describe('defineLoader', () => {
     // we need to initially resolve once
     resolve()
     await p
-    const { user, refresh, pending, error, invalidate } = useLoader()
+    const { data: user, refresh, pending, error, invalidate } = useLoader()
 
     p = useLoader._.load(route, router)
 
@@ -769,29 +768,29 @@ dts(async () => {
       name: 'Edu',
     }
 
-    return { user }
+    return user
   })
 
-  const { user, error, pending } = useDataLoader()
+  const { data: user, error, pending } = useDataLoader()
 
   expectType<{
-    user: Ref<UserData>
+    data: Ref<UserData>
     error: Ref<unknown>
     pending: Ref<boolean>
     refresh: () => Promise<void>
   }>(useDataLoader())
 
   const useWithRef = defineLoader(async (route) => {
-    const user = shallowRef({
+    const user = shallowRef<UserData>({
       id: route.params.id as string,
       name: 'Edu',
     })
 
-    return { user }
+    return user
   })
 
   expectType<{
-    user: Ref<UserData>
+    data: Ref<UserData>
     error: Ref<unknown>
     pending: Ref<boolean>
     refresh: () => Promise<void>
@@ -803,19 +802,19 @@ dts(async () => {
       name: 'Edu',
     }
 
-    return { user }
+    return user
   }
 
-  expectType<{ data: Ref<{ user: UserData }> }>(
+  expectType<{ data: Ref<UserData | undefined> }>(
     defineLoader(loaderUser, { lazy: true })()
   )
-  expectType<{ user: Ref<UserData> }>(
+  expectType<{ data: Ref<UserData> }>(
     defineLoader(loaderUser, { cacheTime: 20000 })()
   )
-  expectType<{ user: Ref<UserData> }>(
+  expectType<{ data: Ref<UserData> }>(
     defineLoader(loaderUser, { cacheTime: 20000, lazy: false })()
   )
-  expectType<{ user: Ref<UserData> }>(
+  expectType<{ data: Ref<UserData> }>(
     defineLoader(loaderUser, { lazy: false })()
   )
 })

@@ -6,7 +6,7 @@ import {
   useRouter,
   useRoute,
 } from 'vue-router'
-import { isRef, Ref, ToRefs } from 'vue'
+import type { Ref, UnwrapRef } from 'vue'
 import {
   createDataCacheEntry,
   DataLoaderCacheEntry,
@@ -115,11 +115,7 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
     // }
 
     const promise = Promise.resolve(pendingPromise)
-      .then(() => {
-        // we need to get the data property once again because it has been updated
-        const { data } = entry
-        return Object.assign(commonData, isRef(data) ? { data } : data)
-      })
+      .then(() => dataLoaderResult)
       .finally(() => {
         // loader still needs to load again if this was a nested loader, we need to tell the parent they depend on us
         if (parentEntry) {
@@ -144,26 +140,20 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
       entry.when = 0
     }
 
-    const commonData: _DataLoaderResult = {
+    const dataLoaderResult: _DataLoaderResult<Awaited<P>, isLazy> = {
+      data,
       pending,
       error,
       refresh,
       invalidate,
       pendingLoad,
     }
-    const dataLoaderResult = Object.assign(
-      commonData,
-      isRef(data)
-        ? { data }
-        : // TODO: in dev we could replace this with a proxy if the data === PLACEHOLDER
-          // to tell the user they are calling the loader without exporting it OR a nested loader without awaiting
-          data
-    )
 
     return Object.assign(promise, dataLoaderResult)
   }) as DataLoader<Awaited<P>, isLazy>
 
-  const cache = new WeakMap<Router, DataLoaderCacheEntry<Awaited<P>>>()
+  // force the boolean so the code must work with both versions and it's also easier to type
+  const cache = new WeakMap<Router, DataLoaderCacheEntry<Awaited<P>, boolean>>()
 
   let pendingPromise: Promise<void> | undefined | null
   let currentNavigation: RouteLocationNormalizedLoaded | undefined | null
@@ -328,9 +318,7 @@ export function isDataLoader(loader: any): loader is DataLoader<unknown> {
 
 type _PromiseMerged<T> = T & Promise<T>
 export interface DataLoader<T, isLazy extends boolean = boolean> {
-  (): true extends isLazy
-    ? _PromiseMerged<_DataLoaderResultLazy<T>>
-    : _PromiseMerged<_DataLoaderResult & ToRefs<T>>
+  (): _PromiseMerged<_DataLoaderResult<T, isLazy>>
 
   [IsLoader]: true
 
@@ -362,7 +350,7 @@ export interface _DataLoaderInternals<T> {
   cache: WeakMap<Router, DataLoaderCacheEntry<T>>
 }
 
-export interface _DataLoaderResult {
+export interface _DataLoaderResult<T = unknown, isLazy = boolean> {
   /**
    * Whether there is an ongoing request.
    */
@@ -389,13 +377,11 @@ export interface _DataLoaderResult {
    * Get the promise of the current loader if there is one, returns a falsy value otherwise.
    */
   pendingLoad: () => Promise<void> | undefined | null
-}
 
-export interface _DataLoaderResultLazy<T> extends _DataLoaderResult {
   /**
    * Data returned by the loader.
    */
-  data: Ref<T>
+  data: false extends isLazy ? Ref<UnwrapRef<T>> : Ref<UnwrapRef<T> | undefined>
 }
 
 function trackRoute(route: RouteLocationNormalizedLoaded) {

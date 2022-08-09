@@ -1,4 +1,4 @@
-import { EffectScope, ref, ToRefs, effectScope, Ref, unref, isRef } from 'vue'
+import { EffectScope, ref, ToRefs, effectScope, Ref, UnwrapRef } from 'vue'
 import {
   LocationQuery,
   RouteParams,
@@ -7,7 +7,7 @@ import {
 } from 'vue-router'
 import { DefineLoaderOptions } from './defineLoader'
 
-export interface _DataLoaderCacheEntryBase {
+export interface DataLoaderCacheEntry<T = unknown, isLazy = boolean> {
   /**
    * When was the data loaded in ms (Date.now()).
    * @internal
@@ -32,35 +32,15 @@ export interface _DataLoaderCacheEntryBase {
   error: Ref<any> // any is simply more convenient for errors
 
   isReady: boolean
-}
 
-export interface DataLoaderCacheEntryNonLazy<T = unknown>
-  extends _DataLoaderCacheEntryBase {
   /**
    * Data stored in the cache.
    */
-  data: ToRefs<T> | typeof DATA_PLACEHOLDER
+  data: false extends isLazy ? Ref<UnwrapRef<T>> : Ref<UnwrapRef<T> | undefined>
 }
 
-export interface DataLoaderCacheEntryLazy<T = unknown>
-  extends _DataLoaderCacheEntryBase {
-  /**
-   * Data stored in the cache.
-   */
-  data: Ref<T | undefined>
-}
 
-const DATA_PLACEHOLDER: Record<any, never> = {}
 
-export type DataLoaderCacheEntry<T = unknown> =
-  | DataLoaderCacheEntryNonLazy<T>
-  | DataLoaderCacheEntryLazy<T>
-
-export function isDataCacheEntryLazy<T = unknown>(
-  entry: DataLoaderCacheEntry<T>
-): entry is DataLoaderCacheEntryLazy<T> {
-  return isRef(entry.data)
-}
 
 export function isCacheExpired(
   entry: DataLoaderCacheEntry,
@@ -78,24 +58,22 @@ export function isCacheExpired(
   )
 }
 
-export function createDataCacheEntry<T>({
-  lazy,
-}: Required<DefineLoaderOptions>): DataLoaderCacheEntry<T> {
-  return withinScope<DataLoaderCacheEntry<T>>(
-    () =>
-      ({
-        pending: ref(false),
-        error: ref<any>(),
-        when: Date.now(),
-        loaders: new Set(),
-        data: lazy ? ref<T | undefined>() : DATA_PLACEHOLDER,
-        params: {},
-        query: {},
-        // hash: null,
-        isReady: false,
-        // this was just too annoying to type
-      } as DataLoaderCacheEntry<T>)
-  )
+export function createDataCacheEntry<T, isLazy extends boolean = boolean>(
+  options: Required<DefineLoaderOptions<isLazy>>
+): DataLoaderCacheEntry<T, isLazy> {
+  return withinScope<DataLoaderCacheEntry<T, isLazy>>(() => ({
+    pending: ref(false),
+    error: ref<any>(),
+    when: Date.now(),
+    loaders: new Set(),
+    // @ts-expect-error: data always start as empty
+    data: ref(),
+    params: {},
+    query: {},
+    // hash: null,
+    isReady: false,
+    // this was just too annoying to type
+  }))
 }
 
 export function updateDataCacheEntry<T>(
@@ -110,11 +88,8 @@ export function updateDataCacheEntry<T>(
   entry.query = query
   entry.hash = hash.v
   entry.isReady = true
-  if (isDataCacheEntryLazy(entry)) {
-    entry.data.value = data
-  } else {
-    transferData(entry, data)
-  }
+  // @ts-expect-error: unwrapping magic
+  entry.data.value = data
 }
 
 function refsFromObject<T>(data: T): ToRefs<T> {
@@ -129,21 +104,7 @@ function refsFromObject<T>(data: T): ToRefs<T> {
   return result
 }
 
-export function transferData<T>(
-  entry: DataLoaderCacheEntryNonLazy<T>,
-  data: T
-) {
-  // create the initial refs
-  if (entry.data === DATA_PLACEHOLDER) {
-    entry.data = refsFromObject(data)
-  } else {
-    for (const key in data) {
-      entry.data[key].value =
-        // user can pass in a ref, but we want to make sure we only get the data out of it
-        unref(data[key])
-    }
-  }
-}
+// local scope
 
 export let scope: EffectScope | undefined
 

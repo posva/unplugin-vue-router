@@ -1,4 +1,6 @@
 __build__
 dist
+.nuxt
+.output
 coverage
 typed-router.d.ts
