@@ -1,3 +1,9 @@
+## [0.1.1](https://github.com/posva/unplugin-vue-router/compare/v0.1.0...v0.1.1) (2022-08-09)
+
+### Bug Fixes
+
+- **types:** declaration of auto module ([e5ac67c](https://github.com/posva/unplugin-vue-router/commit/e5ac67c41fffb7f0f0997230c40c1b3a2d717f93))
+
 # [0.1.0](https://github.com/posva/unplugin-vue-router/compare/v0.0.21...v0.1.0) (2022-08-09)
 
 ### Bug Fixes
