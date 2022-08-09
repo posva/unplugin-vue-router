@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { useLink, useRoute } from '@vue-router'
-import type { RouteNamedMap } from '@vue-router/routes'
+import { useLink, useRoute } from 'vue-router/auto'
+import type { RouteNamedMap } from 'vue-router/auto/routes'
 import type {
   RouteLocationNormalizedLoaded,
   RouteLocationResolved,
   RouteLocation,
-} from '@vue-router'
+} from 'vue-router/auto'
 import { ref } from 'vue'
 
 function test(

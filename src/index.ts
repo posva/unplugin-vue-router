@@ -67,7 +67,7 @@ export default createUnplugin<Options>((opt, meta) => {
         return ctx.generateRoutes()
       }
 
-      // we need to use a virtual module so that vite resolves the @vue-router/routes
+      // we need to use a virtual module so that vite resolves the vue-router/auto/routes
       // dependency correctly
       if (resolvedId === MODULE_VUE_ROUTER) {
         return ctx.generateVueRouterProxy()
@@ -143,7 +143,7 @@ export type {
   DataLoader,
 } from './data-fetching/defineLoader'
 
-// TODO: just export the object with @vue-router
+// TODO: just export the object with vue-router/auto
 export const VueRouterExports = [
   'useRoute',
   'useRouter',

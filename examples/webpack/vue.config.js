@@ -13,7 +13,7 @@ module.exports = defineConfig({
       autoImport({
         imports: [
           {
-            '@vue-router': VueRouterExports,
+            'vue-router/auto': VueRouterExports,
           },
         ],
       }),

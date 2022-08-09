@@ -32,8 +32,8 @@ export default {}
 </script>
 
 <script lang="ts" setup>
-import { onBeforeRouteLeave, onBeforeRouteUpdate } from '@vue-router'
-import type { RouterTyped, RouteRecordRaw } from '@vue-router'
+import { onBeforeRouteLeave, onBeforeRouteUpdate } from 'vue-router/auto'
+import type { RouterTyped, RouteRecordRaw } from 'vue-router/auto'
 
 const thing = 'THING'
 

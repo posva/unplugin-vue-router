@@ -55,7 +55,7 @@ export default defineConfig({
     AutoImport({
       imports: [
         {
-          '@vue-router': VueRouterExports,
+          'vue-router/auto': VueRouterExports,
           // 'unplugin-vue-router/runtime': RuntimeExports,
         },
       ],

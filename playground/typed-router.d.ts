@@ -30,7 +30,7 @@ import type {
   DefineLoaderOptions,
 } from 'unplugin-vue-router'
 
-declare module '@vue-router/routes' {
+declare module 'vue-router/auto/routes' {
   export interface RouteNamedMap {
     'home': RouteRecordInfo<'home', '/', Record<never, never>, Record<never, never>>,
     '/[name]': RouteRecordInfo<'/[name]', '/:name', { name: ParamValue<true> }, { name: ParamValue<false> }>,
@@ -63,8 +63,8 @@ declare module '@vue-router/routes' {
   }
 }
 
-declare module '@vue-router' {
-  import type { RouteNamedMap } from '@vue-router/routes'
+declare module 'vue-router/auto' {
+  import type { RouteNamedMap } from 'vue-router/auto/routes'
 
   export type RouterTyped = _RouterTyped<RouteNamedMap>
 
@@ -127,7 +127,7 @@ declare module '@vue-router' {
 }
 
 declare module 'vue-router' {
-  import type { RouteNamedMap } from '@vue-router/routes'
+  import type { RouteNamedMap } from 'vue-router/auto/routes'
 
   export interface TypesConfig {
     beforeRouteUpdate: NavigationGuard<RouteNamedMap>

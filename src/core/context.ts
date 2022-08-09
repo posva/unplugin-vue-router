@@ -165,7 +165,7 @@ export const routes = ${generateRouteRecord(routeTree)}
     })
   }
 
-  // NOTE: this code needs to be generated because otherwise it doesn't go through transforms and `@vue-router/routes`
+  // NOTE: this code needs to be generated because otherwise it doesn't go through transforms and `vue-router/auto/routes`
   // cannot be resolved.
   function generateVueRouterProxy() {
     return _generateVueRouterProxy(MODULE_ROUTES_PATH, options)

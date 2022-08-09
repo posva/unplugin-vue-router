@@ -108,11 +108,11 @@ build({
 
 <br></details>
 
-Then, you can run your dev server (usually `npm run dev` to generate the first version of the types) you can replace your imports from `vue-router` to `@vue-router`:
+Then, you can run your dev server (usually `npm run dev` to generate the first version of the types) you can replace your imports from `vue-router` to `vue-router/auto`:
 
 ```diff
 -import { createRouter, createWebHistory } from 'vue-router'
-+import { createRouter, createWebHistory } from '@vue-router'
++import { createRouter, createWebHistory } from 'vue-router/auto'
 
 createRouter({
   history: createWebHistory(),
@@ -131,7 +131,7 @@ Alternatively, **you can also import the `routes` array** and create the router 
  import App from './App.vue'
  import type { UserModule } from './types'
 -import generatedRoutes from '~pages'
-+import { routes } from '@vue-router/routes'
++import { routes } from 'vue-router/auto/routes'
 
  import '@unocss/reset/tailwind.css'
  import './styles/main.css'
@@ -168,7 +168,7 @@ If you are using [unplugin-auto-import](https://github.com/antfu/unplugin-auto-i
      AutoImport({
        imports: [
 -        'vue-router',
-+        { '@vue-router': VueRouterExports },
++        { 'vue-router/auto': VueRouterExports },
        ],
      }),
    ],
@@ -361,7 +361,7 @@ This plugin generates a `d.ts` file with all the typing overrides when the dev o
 }
 ```
 
-Then, you will be able to import from `@vue-router` (instead of `vue-router`) to get access to the typed APIs. You can commit the `typed-router.d.ts` file to your repository to make your life easier.
+Then, you will be able to import from `vue-router/auto` (instead of `vue-router`) to get access to the typed APIs. You can commit the `typed-router.d.ts` file to your repository to make your life easier.
 
 ### Extra types
 
@@ -372,13 +372,13 @@ You can always take a look at the generated `typed-router.d.ts` file to inspect 
 The `RouteNamedMap` interface gives you access to all the metadata associated with a route. It can also be extended to enable types for **dynamic routes** that are added during runtime.
 
 ```ts
-import type { RouteNamedMap } from '@vue-router/routes'
+import type { RouteNamedMap } from 'vue-router/auto/routes'
 ```
 
 Extending types with dynamically added routes:
 
 ```ts
-declare module '@vue-router/routes' {
+declare module 'vue-router/auto/routes' {
   import type {
     RouteRecordInfo,
     ParamValue,
@@ -406,12 +406,12 @@ declare module '@vue-router/routes' {
 The `RouterTyped` type gives you access to the typed version of the router instance. It's also the _ReturnType_ of the `useRouter()` function.
 
 ```ts
-import type { RouterTyped } from '@vue-router'
+import type { RouterTyped } from 'vue-router/auto'
 ```
 
 #### `RouterLocationResolved`
 
-The `RouterLocationResolved` type exposed by `@vue-router` allows passing a generic (which autocomplete) to type a route **whenever checking the name doesn't makes sense because you know the type**. This is useful for cases like `<RouterLink v-slot="{ route }">`:
+The `RouterLocationResolved` type exposed by `vue-router/auto` allows passing a generic (which autocomplete) to type a route **whenever checking the name doesn't makes sense because you know the type**. This is useful for cases like `<RouterLink v-slot="{ route }">`:
 
 ```vue
 <RouterLink v-slot="{ route }">
@@ -421,7 +421,7 @@ The `RouterLocationResolved` type exposed by `@vue-router` allows passing a gene
 
 This type corresponds to the return type of `router.resolve()`.
 
-You have the same equivalents for `RouterLocation`, `RouterLocationNormalized`, and `RouterLocationNormalizedLoaded`. All of them exist in `vue-router` but the one exposed by `@vue-router` accept a generic:
+You have the same equivalents for `RouterLocation`, `RouterLocationNormalized`, and `RouterLocationNormalizedLoaded`. All of them exist in `vue-router` but the one exposed by `vue-router/auto` accept a generic:
 
 ```ts
 // these are all valid
@@ -469,7 +469,7 @@ Note you can specify the language to use with `<route lang="yaml">`. By default,
 You can extend existing routes by passing an `extendRoutes` function to `createRouter()`. **This should be used as a last resort** (or until a feature is natively available here):
 
 ```js
-import { createWebHistory, createRouter } from '@vue-router'
+import { createWebHistory, createRouter } from 'vue-router/auto'
 
 const router = createRouter({
   extendRoutes: (routes) => {
@@ -490,7 +490,7 @@ As this plugin evolves, this function should be used less and less and only beco
 One example of this is using [vite-plugin-vue-layouts](https://github.com/JohnCampionJr/vite-plugin-vue-layouts) which can only be used alongside `extendRoutes()`:
 
 ```ts
-import { createRouter } from '@vue-router'
+import { createRouter } from 'vue-router/auto'
 import { setupLayouts } from 'virtual:generated-layouts'
 
 const router = createRouter({
