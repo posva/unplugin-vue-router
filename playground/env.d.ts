@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
-declare module '@vue-router/routes' {
+declare module 'vue-router/auto/routes' {
   import type {
     RouteRecordInfo,
     ParamValue,
