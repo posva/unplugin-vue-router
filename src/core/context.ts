@@ -6,7 +6,7 @@ import { generateRouteNamedMap } from '../codegen/generateRouteMap'
 import { MODULE_ROUTES_PATH, MODULE_VUE_ROUTER } from './moduleConstants'
 import { generateRouteRecord } from '../codegen/generateRouteRecords'
 import fg from 'fast-glob'
-import { resolve } from 'pathe'
+import { resolve, normalize as slash } from 'pathe'
 import { ServerContext } from '../options'
 import { getRouteBlock } from './customBlock'
 import { RoutesFolderWatcher, HandlerContext } from './RoutesFolderWatcher'
@@ -93,6 +93,7 @@ export function createRoutesContext(options: ResolvedOptions) {
   }
 
   async function addPage({ filePath: path, routePath }: HandlerContext) {
+    path = slash(path)
     const routeBlock = await getRouteBlock(path, options)
     log(`added "${routePath}" for "${path}"`)
     if (routeBlock) log(routeBlock)
@@ -110,6 +111,7 @@ export function createRoutesContext(options: ResolvedOptions) {
   }
 
   async function updatePage({ filePath: path, routePath }: HandlerContext) {
+    path = slash(path)
     log(`updated "${routePath}" for "${path}"`)
     const node = routeMap.get(path)
     if (!node) {
@@ -122,6 +124,7 @@ export function createRoutesContext(options: ResolvedOptions) {
   }
 
   function removePage({ filePath: path, routePath }: HandlerContext) {
+    path = slash(path)
     log(`remove "${routePath}" for "${path}"`)
     routeTree.remove(routePath)
     routeMap.delete(path)
