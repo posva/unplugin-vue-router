@@ -1,3 +1,9 @@
+## [0.1.2](https://github.com/posva/unplugin-vue-router/compare/v0.1.1...v0.1.2) (2022-08-10)
+
+### Features
+
+- **ssr:** support SSR ([5578f7d](https://github.com/posva/unplugin-vue-router/commit/5578f7d9d067c8d0664d7fb73860bbd9d2c93e1b))
+
 ## [0.1.1](https://github.com/posva/unplugin-vue-router/compare/v0.1.0...v0.1.1) (2022-08-09)
 
 ### Bug Fixes
