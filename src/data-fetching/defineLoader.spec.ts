@@ -748,6 +748,35 @@ describe('defineLoader', () => {
       expect(spy).toHaveBeenCalledTimes(3)
     })
   })
+
+  describe('ssr initialState', () => {
+    it('skips the load function if there is an initial state', async () => {
+      const spy = vi.fn().mockResolvedValue({ name: 'edu' })
+      const useLoader = defineLoader(spy, { key: 'id' })
+
+      await useLoader._.load(route, router, undefined, { id: { name: 'edu' } })
+      expect(spy).toHaveBeenCalledTimes(0)
+    })
+
+    it('always calls the loader after hydration', async () => {
+      const spy = vi.fn().mockResolvedValue({ name: 'edu' })
+      const useLoader = defineLoader(spy, { key: 'id' })
+
+      await useLoader._.load(route, router, undefined, { id: { name: 'edu' } })
+      await useLoader._.load(route, router)
+      expect(spy).toHaveBeenCalledTimes(1)
+    })
+
+    it('calls the loader with refresh', async () => {
+      const spy = vi.fn().mockResolvedValue({ name: 'edu' })
+      const useLoader = defineLoader(spy, { key: 'id' })
+
+      await useLoader._.load(route, router, undefined, { id: { name: 'edu' } })
+      const { refresh } = useLoader()
+      await refresh()
+      expect(spy).toHaveBeenCalledTimes(1)
+    })
+  })
 })
 
 // dts testing

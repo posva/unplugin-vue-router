@@ -16,27 +16,26 @@ declare module 'vue-router' {
   }
 }
 
-export interface DataFetchingOptions {
-  /**
-   * If true, fetching won't block the navigation. If a number is passed, the fetching will block that many milliseconds
-   * before letting the navigation continue.
-   */
-  lazy?: boolean | number | (() => boolean | number)
-}
-
 // dev only check
-let added: boolean = false
+const ADDED_SYMBOL = Symbol()
 
-export function setupDataFetchingGuard(router: Router) {
+export function setupDataFetchingGuard(
+  router: Router,
+  initialState?: Record<string, unknown>
+) {
   // TODO: dev only
-  if (added) {
+  if (ADDED_SYMBOL in router) {
     console.warn(
       '[vue-router]: Data fetching guard added twice. Make sure to remove the extra call.'
     )
     return
   }
-  added = true
-  return router.beforeEach((to) => {
+  // @ts-expect-error: doesn't exist
+  router[ADDED_SYMBOL] = true
+
+  const fetchedState: Record<string, unknown> = {}
+
+  router.beforeEach((to) => {
     // We run all loaders in parallel
     return (
       Promise.all(
@@ -59,14 +58,35 @@ export function setupDataFetchingGuard(router: Router) {
                 return Promise.all(
                   // load will ensure only one request is happening at a time
                   loaders.map((loader) => {
-                    return loader._.load(to, router)
+                    const {
+                      options: { key },
+                      cache,
+                    } = loader._
+                    return loader._.load(
+                      to,
+                      router,
+                      undefined,
+                      initialState
+                    ).then(() => {
+                      if (!initialState) {
+                        // TODO: warn if we have an incomplete initialState
+                        if (key) {
+                          fetchedState[key] = cache.get(router)!.data.value
+                        }
+                      }
+                    })
                   })
                 )
               })
           )
       )
-        // let the navigation go through
-        .then(() => true)
+        // let the navigation go through by returning true or void
+        .then(() => {
+          // reset the initial state as it can only be used once
+          initialState = undefined
+        })
     )
   })
+
+  return initialState ? null : fetchedState
 }

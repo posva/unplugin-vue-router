@@ -31,11 +31,17 @@ export interface DefineLoaderOptions<isLazy extends boolean = boolean> {
    * instead of all the individual properties returned by the loader.
    */
   lazy?: isLazy
+
+  /**
+   * SSR Key to store the data in an object that can be serialized later to the HTML page.
+   */
+  key?: string
 }
 
 const DEFAULT_DEFINE_LOADER_OPTIONS: Required<DefineLoaderOptions> = {
   cacheTime: 1000 * 5,
   lazy: false,
+  key: '',
   // cacheTime: 1000 * 60 * 5,
 }
 
@@ -163,17 +169,28 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
   function load(
     route: RouteLocationNormalizedLoaded,
     router: Router,
-    parent?: DataLoaderCacheEntry
+    parent?: DataLoaderCacheEntry,
+    initialState?: Record<string, unknown>
   ): Promise<void> {
     const hasCacheEntry = cache.has(router)
-    const needsNewLoad =
-      !hasCacheEntry || shouldFetchAgain(cache.get(router)!, route)
+
+    const initialData =
+      initialState && (initialState[options.key] as Awaited<P>)
 
     if (!hasCacheEntry) {
-      cache.set(router, createDataCacheEntry(options))
+      cache.set(router, createDataCacheEntry(options, initialData))
     }
 
     const entry = cache.get(router)!
+
+    if (initialData) {
+      // invalidate the entry because we don't have the params it was created with
+      entry.when = 0
+      return Promise.resolve()
+    }
+
+    const needsNewLoad = !hasCacheEntry || shouldFetchAgain(entry, route)
+
     const { isReady, pending, error } = entry
     const { lazy } = options
 
@@ -235,7 +252,7 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
           }
 
           // NOTE: unfortunately we need to duplicate this part here and on the `finally()` above
-          // to handle all
+          // to handle different call scenarios
           setCurrentContext(parent && [parent, router, route])
         }))
     }
@@ -252,6 +269,7 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
     loader,
     cache,
     load,
+    options,
   }
   dataLoader[IsLoader] = true
 
@@ -341,13 +359,23 @@ export interface _DataLoaderInternals<T> {
   /**
    * Loads the data from the cache if possible, otherwise loads it from the loader and awaits it.
    */
-  load: (route: RouteLocationNormalizedLoaded, router: Router) => Promise<void>
+  load: (
+    route: RouteLocationNormalizedLoaded,
+    router: Router,
+    parent?: DataLoaderCacheEntry,
+    initialState?: Record<string, unknown>
+  ) => Promise<void>
 
   /**
    * The data loaded by the loader associated with the router instance. As one router instance can only be used for one
    * app, it ensures the cache is not shared among requests.
    */
   cache: WeakMap<Router, DataLoaderCacheEntry<T>>
+
+  /**
+   * Resolved options for the loader.
+   */
+  options: Required<DefineLoaderOptions>
 }
 
 export interface _DataLoaderResult<T = unknown, isLazy = boolean> {
