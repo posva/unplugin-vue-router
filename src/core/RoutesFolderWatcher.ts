@@ -1,4 +1,5 @@
 import chokidar from 'chokidar'
+import { normalize } from 'pathe'
 import { ResolvedOptions, RoutesFolderOption } from '../options'
 
 export class RoutesFolderWatcher {
@@ -41,7 +42,7 @@ export class RoutesFolderWatcher {
         return
       }
       handler({
-        filePath,
+        filePath: normalize(filePath),
         routePath: this.asRoutePath(filePath),
       })
     })
