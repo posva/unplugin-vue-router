@@ -33,6 +33,7 @@ export class RoutesFolderWatcher {
     handler: (context: HandlerContext) => void
   ) {
     this.watcher.on(event, (filePath) => {
+      // ensure consistent path for Windows and Unix
       filePath = normalize(filePath)
       // skip other extensions
       if (
