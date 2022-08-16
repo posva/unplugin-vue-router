@@ -17,17 +17,32 @@ ${node
   // TODO: should meta be defined a different way to allow preserving imports?
   // const meta = node.value.overrides.meta
 
+  // path
   return `${startIndent}{
 ${indentStr}path: '${node.path}',
 ${indentStr}${
     node.value.filePaths.size ? `name: '${node.name}',` : '/* no name */'
   }
-${indentStr}${
+${
+  // component
+  indentStr
+}${
     node.value.filePaths.size
       ? generateRouteRecordComponent(node, indentStr)
       : '/* no component */'
   }
-${indentStr}${
+${
+  // props
+  indentStr
+}${
+    node.value.overrides.props != null
+      ? `props: ${node.value.overrides.props},`
+      : '/* no props */'
+  }
+${
+  // children
+  indentStr
+}${
     node.children.size > 0
       ? `children: [
 ${node
