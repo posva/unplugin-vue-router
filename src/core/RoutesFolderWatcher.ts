@@ -33,6 +33,7 @@ export class RoutesFolderWatcher {
     handler: (context: HandlerContext) => void
   ) {
     this.watcher.on(event, (filePath) => {
+      filePath = normalize(filePath)
       // skip other extensions
       if (
         this.options.extensions.every(
@@ -42,7 +43,7 @@ export class RoutesFolderWatcher {
         return
       }
       handler({
-        filePath: normalize(filePath),
+        filePath,
         routePath: this.asRoutePath(filePath),
       })
     })
