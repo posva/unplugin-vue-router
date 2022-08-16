@@ -1,4 +1,5 @@
 import chokidar from 'chokidar'
+import { normalize } from 'pathe'
 import { ResolvedOptions, RoutesFolderOption } from '../options'
 
 export class RoutesFolderWatcher {
@@ -32,6 +33,8 @@ export class RoutesFolderWatcher {
     handler: (context: HandlerContext) => void
   ) {
     this.watcher.on(event, (filePath) => {
+      // ensure consistent path for Windows and Unix
+      filePath = normalize(filePath)
       // skip other extensions
       if (
         this.options.extensions.every(
