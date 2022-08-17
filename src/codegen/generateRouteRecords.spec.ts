@@ -208,6 +208,7 @@ describe('generateRouteRecord', () => {
             path: '/',
             name: '/',
             component: () => import('index.vue'),
+            /* no props */
             /* no children */
           }
         ]"
