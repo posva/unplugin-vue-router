@@ -235,6 +235,7 @@ This will generate the following routes:
 - `/about`: -> renders the `about.vue` component
 - `/users`: -> renders the `users/index.vue` component
 - `/users/:id`: -> renders the `users/[id].vue` component. `id` becomes a route param.
+- `/users/:id/view -> renders the `users/[id].view.vue` component. `id` becomes a route param.
 
 ### Index Routes
 
