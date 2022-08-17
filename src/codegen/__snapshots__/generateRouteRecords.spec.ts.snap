@@ -69,6 +69,104 @@ exports[`generateRouteRecord > correctly names index.vue files 1`] = `
 ]"
 `;
 
+exports[`generateRouteRecord > generate custom imports 1`] = `
+"[
+  {
+    path: '/a',
+    name: '/a',
+    component: _page_a_vue,
+    /* no props */
+    /* no children */
+  },
+  {
+    path: '/b',
+    name: '/b',
+    component: () => import('b.vue'),
+    /* no props */
+    /* no children */
+  },
+  {
+    path: '/nested',
+    /* no name */
+    /* no component */
+    /* no props */
+    children: [
+      {
+        path: 'file',
+        /* no name */
+        /* no component */
+        /* no props */
+        children: [
+          {
+            path: 'c',
+            name: '/nested/file/c',
+            component: () => import('nested/file/c.vue'),
+            /* no props */
+            /* no children */
+          }
+        ],
+      }
+    ],
+  }
+]"
+`;
+
+exports[`generateRouteRecord > generate custom imports 2`] = `
+Map {
+  "a.vue" => "_page_a_vue",
+}
+`;
+
+exports[`generateRouteRecord > generate static imports 1`] = `
+"[
+  {
+    path: '/a',
+    name: '/a',
+    component: _page_a_vue,
+    /* no props */
+    /* no children */
+  },
+  {
+    path: '/b',
+    name: '/b',
+    component: _page_b_vue,
+    /* no props */
+    /* no children */
+  },
+  {
+    path: '/nested',
+    /* no name */
+    /* no component */
+    /* no props */
+    children: [
+      {
+        path: 'file',
+        /* no name */
+        /* no component */
+        /* no props */
+        children: [
+          {
+            path: 'c',
+            name: '/nested/file/c',
+            component: _page_nested_file_c_vue,
+            /* no props */
+            /* no children */
+          }
+        ],
+      }
+    ],
+  }
+]"
+`;
+
+exports[`generateRouteRecord > generate static imports 2`] = `
+Map {
+  "a.vue" => "_page_a_vue",
+  "b.vue" => "_page_b_vue",
+  "nested/file/c.vue" => "_page_nested_file_c_vue",
+}
+`;
+
 exports[`generateRouteRecord > handles multiple named views 1`] = `
 "[
   {

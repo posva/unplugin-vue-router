@@ -35,11 +35,10 @@ export interface ResolvedOptions {
    */
   dataFetching: boolean
 
-  // TODO:
-  // importMode?:
-  //   | 'sync'
-  //   | 'async'
-  //   | ((path: string, resolvedOptions: Options) => 'sync' | 'async')
+  /**
+   * Defines how page components should be imported. Defaults to dynamic imports to enable lazy loading of pages.
+   */
+  importMode: _OptionsImportMode
 
   /**
    * Array of file globs to ignore. Defaults to `[]`.
@@ -73,6 +72,14 @@ export interface ResolvedOptions {
   logs: boolean
 }
 
+/**
+ * @internal
+ */
+export type _OptionsImportMode =
+  | 'sync'
+  | 'async'
+  | ((filepath: string) => 'sync' | 'async')
+
 export type Options = Partial<ResolvedOptions>
 
 export const DEFAULT_OPTIONS: ResolvedOptions = {
@@ -82,6 +89,7 @@ export const DEFAULT_OPTIONS: ResolvedOptions = {
   routeBlockLang: 'json5',
   getRouteName: getFileBasedRouteName,
   dataFetching: false,
+  importMode: 'async',
   root: process.cwd(),
   dts: isPackageExists('typescript'),
   logs: false,

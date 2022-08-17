@@ -207,6 +207,10 @@ VueRouter({
   // Customizes the default langage for `<route>` blocks
   // json5 is just a more permissive version of json
   routeBlockLang: 'json5',
+
+  // Change the import mode of page components. Can be 'async', 'sync', or a function with the following signature:
+  // (filepath: string) => 'async' | 'sync'
+  importMode: 'async',
 })
 ```
 

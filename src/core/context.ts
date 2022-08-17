@@ -145,11 +145,29 @@ export function createRoutesContext(options: ResolvedOptions) {
   }
 
   function generateRoutes() {
-    const imports = options.dataFetching
-      ? `import { _LoaderSymbol } from 'unplugin-vue-router/runtime'\n\n`
-      : ``
+    const importList = new Map<string, string>()
+
+    const routesExport = `export const routes = ${generateRouteRecord(
+      routeTree,
+      options,
+      importList
+    )}`
+
+    let imports = ''
+    if (options.dataFetching) {
+      imports += `import { _LoaderSymbol } from 'unplugin-vue-router/runtime'\n`
+    }
+    for (const [path, name] of importList) {
+      imports += `import ${name} from '${path}'\n`
+    }
+
+    // add an empty line for readability
+    if (imports) {
+      imports += '\n'
+    }
+
     return `${imports}\
-export const routes = ${generateRouteRecord(routeTree)}
+${routesExport}
 `
   }
 
