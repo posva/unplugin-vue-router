@@ -37,5 +37,7 @@ ${
 }
   return router
 }
+
+export function definePage() {}
 `
 }

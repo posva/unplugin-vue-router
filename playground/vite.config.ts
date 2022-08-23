@@ -3,6 +3,7 @@ import { defineConfig } from 'vite'
 import Inspect from 'vite-plugin-inspect'
 // @ts-ignore: the plugin should not be checked in the playground
 import VueRouter from '../src/vite'
+import { TransformMacroPlugin } from '../src'
 import {
   getFileBasedRouteName,
   getPascalCaseRouteName,
@@ -52,7 +53,15 @@ export default defineConfig({
         // './src/pages/**/*.spec.ts',
       ],
     }),
+    TransformMacroPlugin.vite({
+      sourcemap: true,
+      dev: false,
+      macros: {
+        definePage: 'meta',
+      },
+    }),
     AutoImport({
+      // include: [/\.[jt]sx?$/, /\.vue$/, /\.vue\?vue/, /\.vue\?macro=true/],
       imports: [
         {
           'vue-router/auto': VueRouterExports,

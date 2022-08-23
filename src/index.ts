@@ -148,6 +148,9 @@ export const VueRouterExports = [
   'useRoute',
   'useRouter',
   'defineLoader',
+  'definePage',
   // ['_defineLoader', 'defineLoader'],
 ]
 export const RuntimeExports = [['_defineLoader', 'defineLoader']]
+
+export { TransformMacroPlugin } from './core/macros'

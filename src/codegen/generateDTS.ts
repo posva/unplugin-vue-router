@@ -88,6 +88,9 @@ declare module '${vueRouterModule}' {
   export function onBeforeRouteLeave(guard: NavigationGuard<RouteNamedMap>): void
   export function onBeforeRouteUpdate(guard: NavigationGuard<RouteNamedMap>): void
 
+  // TODO: extend with known types
+  export function definePage(route: Partial<RouteRecordRaw>): void
+
   export function defineLoader<
     P extends Promise<any>,
     Name extends keyof RouteNamedMap = keyof RouteNamedMap,

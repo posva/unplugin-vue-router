@@ -2,6 +2,7 @@
 export {}
 declare global {
   const defineLoader: typeof import('vue-router/auto')['defineLoader']
+  const definePage: typeof import('vue-router/auto')['definePage']
   const useRoute: typeof import('vue-router/auto')['useRoute']
   const useRouter: typeof import('vue-router/auto')['useRouter']
 }

@@ -17,3 +17,7 @@ declare module 'vue-router/auto/routes' {
     >
   }
 }
+
+declare module '*.vue?macro=.vue' {
+  export const meta: any
+}

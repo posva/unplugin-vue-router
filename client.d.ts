@@ -20,4 +20,12 @@ declare module 'vue-router/auto' {
     extendRoutes?: (routes: RouteRecordRaw[]) => RouteRecordRaw[] | void
   }
   export function createRouter(options: _RouterOptions): Router
+
+  /**
+   * Define extra information about the route associated with the current page component. This can only be used inside a
+   * Vue component within the pages folder.
+   *
+   * @param route - Partial route
+   */
+  export function definePage(route: Partial<RouteRecordRaw>): void
 }
