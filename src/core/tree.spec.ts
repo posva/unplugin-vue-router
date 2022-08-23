@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_OPTIONS } from '../options'
 import { createPrefixTree } from './tree'
-import { TreeLeafType } from './treeLeafValue'
+import { TreeNodeType } from './treeNodeValue'
 
 describe('Tree', () => {
   it('creates an empty tree', () => {
@@ -18,7 +18,7 @@ describe('Tree', () => {
     expect(child.value).toMatchObject({
       rawSegment: 'foo',
       path: '/foo',
-      _type: TreeLeafType.static,
+      _type: TreeNodeType.static,
     })
     expect(child.children.size).toBe(0)
   })
@@ -33,7 +33,7 @@ describe('Tree', () => {
       rawSegment: '[id]',
       params: [{ paramName: 'id' }],
       path: '/:id',
-      _type: TreeLeafType.param,
+      _type: TreeNodeType.param,
     })
     expect(child.children.size).toBe(0)
   })
@@ -237,7 +237,7 @@ describe('Tree', () => {
       params: [{ paramName: 'id', modifier: '+' }],
       path: '/:id+',
       pathSegment: ':id+',
-      _type: TreeLeafType.param,
+      _type: TreeNodeType.param,
     })
     expect(child.children.size).toBe(0)
   })

@@ -4,10 +4,10 @@ import type {
   RouteParams,
   RouterLinkProps as _RouterLinkProps,
 } from 'vue-router'
-import type { TreeLeaf } from '../core/tree'
+import type { TreeNode } from '../core/tree'
 import { generateRouteParams } from './generateRouteParams'
 
-export function generateRouteNamedMap(node: TreeLeaf): string {
+export function generateRouteNamedMap(node: TreeNode): string {
   // root
   if (node.isRoot()) {
     return `export interface RouteNamedMap {
@@ -26,7 +26,7 @@ ${node.getSortedChildren().map(generateRouteNamedMap).join('')}}`
   )
 }
 
-export function generateRouteRecordInfo(node: TreeLeaf) {
+export function generateRouteRecordInfo(node: TreeNode) {
   return `RouteRecordInfo<'${node.name}', '${
     node.fullPath
   }', ${generateRouteParams(node, true)}, ${generateRouteParams(node, false)}>`

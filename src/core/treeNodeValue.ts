@@ -2,7 +2,7 @@ import { RouteRecordRaw } from 'vue-router'
 import { CustomRouteBlock } from './customBlock'
 import { joinPath, mergeRouteRecordOverride } from './utils'
 
-export const enum TreeLeafType {
+export const enum TreeNodeType {
   static,
   param,
 }
@@ -14,11 +14,11 @@ export interface RouteRecordOverride
 
 export type SubSegment = string | TreeRouteParam
 
-class _TreeLeafValueBase {
+class _TreeNodeValueBase {
   /**
    * flag based on the type of the segment
    */
-  _type: TreeLeafType
+  _type: TreeNodeType
   /**
    * segment as defined by the file structure
    */
@@ -53,7 +53,7 @@ class _TreeLeafValueBase {
 
   constructor(
     rawSegment: string,
-    parent: TreeLeafValue | undefined,
+    parent: TreeNodeValue | undefined,
     pathSegment: string = rawSegment,
     subSegments: SubSegment[] = [rawSegment]
   ) {
@@ -73,12 +73,12 @@ class _TreeLeafValueBase {
     return this.pathSegment || '<index>'
   }
 
-  isParam(): this is TreeLeafValueParam {
-    return !!(this._type & TreeLeafType.param)
+  isParam(): this is TreeNodeValueParam {
+    return !!(this._type & TreeNodeType.param)
   }
 
-  isStatic(): this is TreeLeafValueStatic {
-    return this._type === TreeLeafType.static
+  isStatic(): this is TreeNodeValueStatic {
+    return this._type === TreeNodeType.static
   }
 
   get overrides() {
@@ -96,12 +96,12 @@ class _TreeLeafValueBase {
   }
 }
 
-export class TreeLeafValueStatic extends _TreeLeafValueBase {
-  _type: TreeLeafType.static = TreeLeafType.static
+export class TreeNodeValueStatic extends _TreeNodeValueBase {
+  _type: TreeNodeType.static = TreeNodeType.static
 
   constructor(
     rawSegment: string,
-    parent: TreeLeafValue | undefined,
+    parent: TreeNodeValue | undefined,
     pathSegment = rawSegment
   ) {
     super(rawSegment, parent, pathSegment)
@@ -116,13 +116,13 @@ export interface TreeRouteParam {
   isSplat: boolean
 }
 
-export class TreeLeafValueParam extends _TreeLeafValueBase {
+export class TreeNodeValueParam extends _TreeNodeValueBase {
   params: TreeRouteParam[]
-  _type: TreeLeafType.param = TreeLeafType.param
+  _type: TreeNodeType.param = TreeNodeType.param
 
   constructor(
     rawSegment: string,
-    parent: TreeLeafValue | undefined,
+    parent: TreeNodeValue | undefined,
     params: TreeRouteParam[],
     pathSegment: string,
     subSegments: SubSegment[]
@@ -132,20 +132,20 @@ export class TreeLeafValueParam extends _TreeLeafValueBase {
   }
 }
 
-export type TreeLeafValue = TreeLeafValueStatic | TreeLeafValueParam
+export type TreeNodeValue = TreeNodeValueStatic | TreeNodeValueParam
 
-export function createTreeLeafValue(
+export function createTreeNodeValue(
   segment: string,
-  parent?: TreeLeafValue
-): TreeLeafValue {
+  parent?: TreeNodeValue
+): TreeNodeValue {
   if (!segment || segment === 'index') {
-    return new TreeLeafValueStatic('', parent)
+    return new TreeNodeValueStatic('', parent)
   }
 
   const [pathSegment, params, subSegments] = parseSegment(segment)
 
   if (params.length) {
-    return new TreeLeafValueParam(
+    return new TreeNodeValueParam(
       segment,
       parent,
       params,
@@ -154,7 +154,7 @@ export function createTreeLeafValue(
     )
   }
 
-  return new TreeLeafValueStatic(segment, parent, pathSegment)
+  return new TreeNodeValueStatic(segment, parent, pathSegment)
 }
 
 const enum ParseSegmentState {

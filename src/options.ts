@@ -1,6 +1,6 @@
 import { isPackageExists } from 'local-pkg'
 import { getFileBasedRouteName, isArray } from './core/utils'
-import type { TreeLeaf } from './core/tree'
+import type { TreeNode } from './core/tree'
 
 export interface RoutesFolderOption {
   src: string
@@ -28,7 +28,7 @@ export interface ResolvedOptions {
   /**
    * Method to generate the name of a route.
    */
-  getRouteName: (node: TreeLeaf) => string
+  getRouteName: (node: TreeNode) => string
 
   /**
    * EXPERIMENTAL: add the data fetching meta properties to generated routes.

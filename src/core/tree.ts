@@ -1,47 +1,47 @@
 import type { ResolvedOptions } from '../options'
-import { createTreeLeafValue, TreeRouteParam } from './treeLeafValue'
-import type { TreeLeafValue } from './treeLeafValue'
+import { createTreeNodeValue, TreeRouteParam } from './treeNodeValue'
+import type { TreeNodeValue } from './treeNodeValue'
 import { trimExtension } from './utils'
 import { CustomRouteBlock } from './customBlock'
 
-export class TreeLeaf {
+export class TreeNode {
   /**
    * value of the node
    */
-  value: TreeLeafValue
+  value: TreeNodeValue
 
   /**
    * children of the node
    */
-  children: Map<string, TreeLeaf> = new Map()
+  children: Map<string, TreeNode> = new Map()
 
   /**
    * Parent node.
    */
-  parent?: TreeLeaf
+  parent?: TreeNode
 
   /**
    * Plugin options taken into account by the tree.
    */
   options: ResolvedOptions
 
-  constructor(options: ResolvedOptions, filePath: string, parent?: TreeLeaf) {
+  constructor(options: ResolvedOptions, filePath: string, parent?: TreeNode) {
     this.options = options
     this.parent = parent
-    this.value = createTreeLeafValue(filePath, parent?.value)
+    this.value = createTreeNodeValue(filePath, parent?.value)
   }
 
   /**
    * Adds a path to the tree. `path` cannot start with a `/`.
    *
-   * @param path - route path of the file
+   * @param path - route path segment to insert
    * @param filePath - file path, defaults to path for convenience and testing
    */
-  insert(path: string, filePath: string = path): TreeLeaf {
+  insert(path: string, filePath: string = path): TreeNode {
     const { tail, segment, viewName, isComponent } = splitFilePath(path)
 
     if (!this.children.has(segment)) {
-      this.children.set(segment, new TreeLeaf(this.options, segment, this))
+      this.children.set(segment, new TreeNode(this.options, segment, this))
     }
     const child = this.children.get(segment)!
 
@@ -65,6 +65,11 @@ export class TreeLeaf {
     )
   }
 
+  /**
+   * Remove a route from the tree.
+   *
+   * @param path - file path of the file
+   */
   remove(path: string) {
     const { tail, segment, viewName, isComponent } = splitFilePath(path)
 
@@ -93,6 +98,9 @@ export class TreeLeaf {
     }
   }
 
+  /**
+   * Returns the route path of the node without parent paths.
+   */
   get path() {
     return (
       this.value.overrides.path ??
@@ -100,6 +108,9 @@ export class TreeLeaf {
     )
   }
 
+  /**
+   * Returns the route path of the node including parent paths.
+   */
   get fullPath() {
     return this.value.overrides.path ?? this.value.path
   }
@@ -147,7 +158,7 @@ export class TreeLeaf {
 }
 
 export function createPrefixTree(options: ResolvedOptions) {
-  return new TreeLeaf(options, '')
+  return new TreeNode(options, '')
 }
 
 /**

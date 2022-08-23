@@ -1,5 +1,5 @@
 import { normalizeRoutesFolderOption, ResolvedOptions } from '../options'
-import { createPrefixTree, TreeLeaf } from './tree'
+import { createPrefixTree, TreeNode } from './tree'
 import { promises as fs } from 'fs'
 import { logTree, throttle } from './utils'
 import { generateRouteNamedMap } from '../codegen/generateRouteMap'
@@ -24,7 +24,7 @@ export function createRoutesContext(options: ResolvedOptions) {
       : resolve(root, preferDTS)
 
   const routeTree = createPrefixTree(options)
-  const routeMap = new Map<string, TreeLeaf>()
+  const routeMap = new Map<string, TreeNode>()
 
   function log(...args: any[]) {
     if (options.logs) {

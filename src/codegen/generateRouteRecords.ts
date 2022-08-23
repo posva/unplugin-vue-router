@@ -1,9 +1,9 @@
-import type { TreeLeaf } from '../core/tree'
+import type { TreeNode } from '../core/tree'
 import { ResolvedOptions, _OptionsImportMode } from '../options'
 import { basename } from 'pathe'
 
 export function generateRouteRecord(
-  node: TreeLeaf,
+  node: TreeNode,
   options: ResolvedOptions,
   importList: Map<string, string>,
   indent = 0
@@ -68,7 +68,7 @@ ${startIndent}}`
 }
 
 function generateRouteRecordComponent(
-  node: TreeLeaf,
+  node: TreeNode,
   indentStr: string,
   importMode: _OptionsImportMode,
   importList: Map<string, string>
@@ -115,7 +115,7 @@ function generatePageImport(
   }
 }
 
-function generateImportList(node: TreeLeaf, indentStr: string) {
+function generateImportList(node: TreeNode, indentStr: string) {
   const files = Array.from(node.value.filePaths)
 
   return `[
@@ -127,7 +127,7 @@ ${indentStr}]`
 
 const LOADER_GUARD_RE = /['"]_loaderGuard['"]:.*$/
 
-function formatMeta(node: TreeLeaf, indent: string): string {
+function formatMeta(node: TreeNode, indent: string): string {
   const meta = node.meta
   const formatted =
     meta &&

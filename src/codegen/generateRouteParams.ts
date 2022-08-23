@@ -1,6 +1,6 @@
-import { TreeLeaf } from '../core/tree'
+import { TreeNode } from '../core/tree'
 
-export function generateRouteParams(node: TreeLeaf, isRaw: boolean): string {
+export function generateRouteParams(node: TreeNode, isRaw: boolean): string {
   const nodeParams = node.params
   return node.params.length > 0
     ? `{ ${node.params

@@ -1,5 +1,5 @@
-import { TreeLeaf } from './tree'
-import type { RouteRecordOverride, TreeRouteParam } from './treeLeafValue'
+import { TreeNode } from './tree'
+import type { RouteRecordOverride, TreeRouteParam } from './treeNodeValue'
 import { pascalCase } from 'scule'
 
 export type Awaitable<T> = T | PromiseLike<T>
@@ -8,13 +8,13 @@ export type LiteralStringUnion<LiteralType, BaseType extends string = string> =
   | LiteralType
   | (BaseType & Record<never, never>)
 
-export function logTree(tree: TreeLeaf, log: (str: string) => any) {
+export function logTree(tree: TreeNode, log: (str: string) => any) {
   log(printTree(tree))
 }
 
 const MAX_LEVEL = 1000
 function printTree(
-  tree: TreeLeaf | TreeLeaf['children'],
+  tree: TreeNode | TreeNode['children'],
   level = 0,
   parentPre = '',
   treeStr = ''
@@ -121,7 +121,7 @@ function paramToName({ paramName, modifier, isSplat }: TreeRouteParam) {
  * @param parent - the parent node
  * @returns a route name
  */
-export function getPascalCaseRouteName(node: TreeLeaf): string {
+export function getPascalCaseRouteName(node: TreeNode): string {
   if (node.parent?.isRoot() && node.value.pathSegment === '') return 'Root'
 
   let name = node.value.subSegments
@@ -153,7 +153,7 @@ export function getPascalCaseRouteName(node: TreeLeaf): string {
  * @param node - the node to get the path from
  * @returns a route name
  */
-export function getFileBasedRouteName(node: TreeLeaf): string {
+export function getFileBasedRouteName(node: TreeNode): string {
   if (!node.parent) return ''
   return getFileBasedRouteName(node.parent) + '/' + node.value.rawSegment
 }

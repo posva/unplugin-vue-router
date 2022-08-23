@@ -130,12 +130,13 @@ export type {
   ParamValueZeroOrMore,
   ParamValueZeroOrOne,
 } from './codegen/generateRouteParams'
-export { TreeLeaf, createPrefixTree } from './core/tree'
-// export {
-//   createTreeLeafValue,
-//   TreeLeafValueParam,
-//   TreeLeafValueStatic,
-// } from './core/treeLeafValue'
+
+export { TreeNode, createPrefixTree } from './core/tree'
+export {
+  createTreeNodeValue,
+  TreeNodeValueParam,
+  TreeNodeValueStatic,
+} from './core/treeNodeValue'
 
 // expose for generated type extensions
 export type {
