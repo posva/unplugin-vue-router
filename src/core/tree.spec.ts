@@ -267,7 +267,7 @@ describe('Tree', () => {
     expect(tree.children.size).toBe(0)
   })
 
-  it('insert returns the leaf', () => {
+  it('insert returns the node', () => {
     const tree = createPrefixTree(DEFAULT_OPTIONS)
     const a = tree.insert('a.vue')
     expect(tree.children.get('a')).toBe(a)
@@ -296,33 +296,33 @@ describe('Tree', () => {
 
   it('allows a custom name', () => {
     const tree = createPrefixTree(DEFAULT_OPTIONS)
-    let leaf = tree.insert('[a]-[b].vue')
-    leaf.value.setOverride('', {
+    let node = tree.insert('[a]-[b].vue')
+    node.value.setOverride('', {
       name: 'custom',
     })
-    expect(leaf.name).toBe('custom')
+    expect(node.name).toBe('custom')
 
-    leaf = tree.insert('auth/login.vue')
-    leaf.value.setOverride('', {
+    node = tree.insert('auth/login.vue')
+    node.value.setOverride('', {
       name: 'custom-child',
     })
-    expect(leaf.name).toBe('custom-child')
+    expect(node.name).toBe('custom-child')
   })
 
   it('allows a custom path', () => {
     const tree = createPrefixTree(DEFAULT_OPTIONS)
-    let leaf = tree.insert('[a]-[b].vue')
-    leaf.value.setOverride('', {
+    let node = tree.insert('[a]-[b].vue')
+    node.value.setOverride('', {
       path: '/custom',
     })
-    expect(leaf.path).toBe('/custom')
-    expect(leaf.fullPath).toBe('/custom')
+    expect(node.path).toBe('/custom')
+    expect(node.fullPath).toBe('/custom')
 
-    leaf = tree.insert('auth/login.vue')
-    leaf.value.setOverride('', {
+    node = tree.insert('auth/login.vue')
+    node.value.setOverride('', {
       path: '/custom-child',
     })
-    expect(leaf.path).toBe('/custom-child')
-    expect(leaf.fullPath).toBe('/custom-child')
+    expect(node.path).toBe('/custom-child')
+    expect(node.fullPath).toBe('/custom-child')
   })
 })
