@@ -30,6 +30,8 @@ const { data: user } = useUserData()
 </script>
 
 <template>
-  <h1>User {{ $route.params.id }}</h1>
-  <pre>{{ user }}</pre>
+  <div>
+    <h1>User {{ $route.params.id }}</h1>
+    <pre>{{ user }}</pre>
+  </div>
 </template>
