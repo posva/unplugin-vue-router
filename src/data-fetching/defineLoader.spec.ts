@@ -26,7 +26,7 @@ import { setCurrentContext } from './dataCache'
 
 vi.mock('vue-router', async () => {
   const { createRouter, createMemoryHistory, START_LOCATION, ...rest } =
-    await vi.importActual('vue-router')
+    await vi.importActual<typeof import('vue-router')>('vue-router')
 
   let route: RouteLocationNormalizedLoaded = { ...START_LOCATION }
 
