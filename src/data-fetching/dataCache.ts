@@ -57,7 +57,7 @@ export function isCacheExpired(
 
 export function createDataCacheEntry<T, isLazy extends boolean = boolean>(
   options: Required<DefineLoaderOptions<isLazy>>,
-  initialState?: T
+  initialData?: T
 ): DataLoaderCacheEntry<T, isLazy> {
   return withinScope<DataLoaderCacheEntry<T, isLazy>>(() => ({
     pending: ref(false),
@@ -65,7 +65,7 @@ export function createDataCacheEntry<T, isLazy extends boolean = boolean>(
     when: Date.now(),
     loaders: new Set(),
     // @ts-expect-error: data always start as empty
-    data: ref(initialState),
+    data: ref(initialData),
     params: {},
     query: {},
     // hash: null,

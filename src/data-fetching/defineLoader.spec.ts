@@ -749,7 +749,7 @@ describe('defineLoader', () => {
     })
   })
 
-  describe('ssr initialState', () => {
+  describe('ssr initialData', () => {
     it('skips the load function if there is an initial state', async () => {
       const spy = vi.fn().mockResolvedValue({ name: 'edu' })
       const useLoader = defineLoader(spy, { key: 'id' })

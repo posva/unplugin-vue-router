@@ -170,12 +170,12 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
     route: RouteLocationNormalizedLoaded,
     router: Router,
     parent?: DataLoaderCacheEntry,
-    initialState?: Record<string, unknown>
+    initialRootData?: Record<string, unknown>
   ): Promise<void> {
     const hasCacheEntry = cache.has(router)
 
     const initialData =
-      initialState && (initialState[options.key] as Awaited<P>)
+      initialRootData && (initialRootData[options.key] as Awaited<P>)
 
     if (!hasCacheEntry) {
       cache.set(router, createDataCacheEntry(options, initialData))
@@ -363,7 +363,7 @@ export interface _DataLoaderInternals<T> {
     route: RouteLocationNormalizedLoaded,
     router: Router,
     parent?: DataLoaderCacheEntry,
-    initialState?: Record<string, unknown>
+    initialRootData?: Record<string, unknown>
   ) => Promise<void>
 
   /**
