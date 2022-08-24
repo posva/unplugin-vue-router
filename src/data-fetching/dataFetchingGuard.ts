@@ -1,5 +1,6 @@
 import { DataLoader, isDataLoader } from './defineLoader'
-import type { Router } from 'vue-router'
+import type { RouteLocationNormalized, Router } from 'vue-router'
+import { Awaitable } from '../core/utils'
 
 // Symbol used to detect if a route has loaders
 export const LoaderSymbol = Symbol()
@@ -19,9 +20,32 @@ declare module 'vue-router' {
 // dev only check
 const ADDED_SYMBOL = Symbol()
 
+// TODO:
+type NavigationResult = any
+
+export interface SetupDataFetchingGuardOptions {
+  /**
+   * Initial data to skip the initial data loaders. This is useful for SSR and should be set only on client side.
+   */
+  initialData?: Record<string, unknown>
+
+  /**
+   * Hook that is called before each data loader is called. Can return a promise to delay the data loader call.
+   */
+  beforeLoad?: (route: RouteLocationNormalized) => Promise<unknown>
+
+  /**
+   * Called if any data loader returns a `NavigationResult` with an array of them. Should decide what is the outcome of
+   * the data fetching guard. Note this isn't called if no data loaders return a `NavigationResult`.
+   */
+  selectNavigationResult?: (
+    results: NavigationResult[]
+  ) => Awaitable<NavigationResult | undefined | void>
+}
+
 export function setupDataFetchingGuard(
   router: Router,
-  initialState?: Record<string, unknown>
+  { initialData }: SetupDataFetchingGuardOptions = {}
 ) {
   // TODO: dev only
   if (ADDED_SYMBOL in router) {
@@ -66,10 +90,10 @@ export function setupDataFetchingGuard(
                       to,
                       router,
                       undefined,
-                      initialState
+                      initialData
                     ).then(() => {
-                      if (!initialState) {
-                        // TODO: warn if we have an incomplete initialState
+                      if (!initialData) {
+                        // TODO: warn if we have an incomplete initialData
                         if (key) {
                           fetchedState[key] = cache.get(router)!.data.value
                         }
@@ -83,10 +107,10 @@ export function setupDataFetchingGuard(
         // let the navigation go through by returning true or void
         .then(() => {
           // reset the initial state as it can only be used once
-          initialState = undefined
+          initialData = undefined
         })
     )
   })
 
-  return initialState ? null : fetchedState
+  return initialData ? null : fetchedState
 }
