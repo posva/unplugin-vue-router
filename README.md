@@ -293,10 +293,28 @@ Sometimes you might want to add _nesting to the URL_ in the form of slashes but 
 ```
 src/pages/
 ├── users/
-│   ├── index.vue
 │   ├── [id].vue
 │   └── index.vue
 └── users.vue
+```
+
+If you want to add a new route `/users/create` you could add a new file `src/pages/users/create.vue` but that would nest the `create.vue` component within the `users.vue` component. To avoid this you can instead create a file `src/pages/users.create.vue`. The `.` will become a `/` when generating the routes:
+
+```js
+const routes = [
+  {
+    path: '/users',
+    component: () => import('src/pages/users.vue'),
+    children: [
+      { path: '', component: () => import('src/pages/users/index.vue') },
+      { path: ':id', component: () => import('src/pages/users/[id].vue') },
+    ],
+  },
+  {
+    path: '/users/create',
+    component: () => import('src/pages/users.create.vue'),
+  },
+]
 ```
 
 ### Named routes
