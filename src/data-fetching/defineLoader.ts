@@ -1,6 +1,5 @@
 import {
   RouteLocationNormalizedLoaded,
-  LocationQuery,
   Router,
   RouteRecordName,
   useRouter,
@@ -16,6 +15,7 @@ import {
   updateDataCacheEntry,
 } from './dataCache'
 import { _RouteMapGeneric } from '../codegen/generateRouteMap'
+import { includesParams } from './locationUtils'
 
 export interface DefineLoaderOptions<isLazy extends boolean = boolean> {
   /**
@@ -290,38 +290,6 @@ function shouldFetchAgain(
       shouldFetchAgain(childEntry, route)
     )
   )
-}
-
-// FIXME: this exists in vue-router
-/**
- * Returns true if `inner` is a subset of `outer`
- *
- * @param outer - the bigger params
- * @param inner - the smaller params
- */
-function includesParams(
-  outer: LocationQuery,
-  inner: Partial<LocationQuery>
-): boolean {
-  for (const key in inner) {
-    const innerValue = inner[key]
-    const outerValue = outer[key]
-    if (typeof innerValue === 'string') {
-      if (innerValue !== outerValue) return false
-    } else if (!innerValue || !outerValue) {
-      // if one of them is undefined, we need to check if the other is undefined too
-      if (innerValue !== outerValue) return false
-    } else {
-      if (
-        !Array.isArray(outerValue) ||
-        outerValue.length !== innerValue.length ||
-        innerValue.some((value, i) => value !== outerValue[i])
-      )
-        return false
-    }
-  }
-
-  return true
 }
 
 const IsLoader = Symbol()
