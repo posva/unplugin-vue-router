@@ -17,16 +17,16 @@ export const useUserData = defineLoader('/[name]', async (route) => {
 
 const other = 'hello'
 
-export const useOne = defineLoader(async (route) => {
+const useOne = defineLoader(async (route) => {
   if (route.name === '/[name]') {
     route.params.name
   }
 
   return { one: 'one' }
 })
-export const useTwo = defineLoader(async () => ({ two: 'two' }), { lazy: true })
+const useTwo = defineLoader(async () => ({ two: 'two' }), { lazy: true })
 
-// export { useOne, useTwo, other }
+export { useOne, other }
 export default {}
 </script>
 

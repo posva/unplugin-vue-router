@@ -88,6 +88,10 @@
     ]
   },
   "dependencies": {
+    "@babel/types": "^7.18.13",
+    "@rollup/pluginutils": "^4.2.1",
+    "@vue-macros/common": "^0.10.0",
+    "ast-walker-scope": "^0.2.1",
     "chokidar": "^3.5.3",
     "fast-glob": "^3.2.11",
     "json5": "^2.2.1",
