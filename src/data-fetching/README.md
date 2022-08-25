@@ -113,7 +113,7 @@ The configuration of `setupDataFetchingGuard()` depends on the SSR configuration
 
 ```ts
 import { ViteSSG } from 'vite-ssg'
-import { setupDataFetchingGuard } from 'vue-router'
+import { setupDataFetchingGuard } from 'vue-router/auto'
 import App from './App.vue'
 import { routes } from './routes'
 
