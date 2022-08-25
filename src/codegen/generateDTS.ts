@@ -87,8 +87,15 @@ declare module '${vueRouterModule}' {
 
   export function onBeforeRouteLeave(guard: NavigationGuard<RouteNamedMap>): void
   export function onBeforeRouteUpdate(guard: NavigationGuard<RouteNamedMap>): void
+}
 
-  export function defineLoader<
+declare module 'unplugin-vue-router/runtime' {
+  import type { RouteNamedMap } from '${routesModule}'
+  import type {
+    RouteLocationNormalizedLoaded,
+  } from '${vueRouterModule}'
+
+  export function _defineLoader<
     P extends Promise<any>,
     Name extends keyof RouteNamedMap = keyof RouteNamedMap,
     isLazy extends boolean = false,
@@ -97,7 +104,7 @@ declare module '${vueRouterModule}' {
     loader: (route: RouteLocationNormalizedLoaded<Name>) => P,
     options?: DefineLoaderOptions<isLazy>,
   ): DataLoader<Awaited<P>, isLazy>
-  export function defineLoader<
+  export function _defineLoader<
     P extends Promise<any>,
     isLazy extends boolean = false,
   >(

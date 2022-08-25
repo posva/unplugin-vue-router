@@ -6,8 +6,8 @@ import VueRouter from '../src/vite'
 import {
   getFileBasedRouteName,
   getPascalCaseRouteName,
-  VueRouterExports,
-  RuntimeExports,
+  VueRouterAutoImports,
+  DefinePage,
 } from '../src'
 import Vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
@@ -23,9 +23,10 @@ export default defineConfig({
   // },
 
   plugins: [
+    DefinePage.vite(),
     Vue({}),
     VueRouter({
-      dataFetching: true,
+      dataFetching: false,
       routesFolder: [
         // can add multiple routes folders
         {
@@ -53,12 +54,7 @@ export default defineConfig({
       ],
     }),
     AutoImport({
-      imports: [
-        {
-          'vue-router/auto': VueRouterExports,
-          // 'unplugin-vue-router/runtime': RuntimeExports,
-        },
-      ],
+      imports: [VueRouterAutoImports],
     }),
     Inspect(),
   ],

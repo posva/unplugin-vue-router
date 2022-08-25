@@ -31,7 +31,7 @@ export interface ResolvedOptions {
   getRouteName: (node: TreeNode) => string
 
   /**
-   * EXPERIMENTAL: add the data fetching meta properties to generated routes.
+   * @deprecated: MUST be `false`. See https://github.com/posva/unplugin-vue-router/tree/main/src/data-fetching
    */
   dataFetching: boolean
 

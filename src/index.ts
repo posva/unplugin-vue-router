@@ -144,11 +144,33 @@ export type {
   DataLoader,
 } from './data-fetching/defineLoader'
 
-// TODO: just export the object with vue-router/auto
-export const VueRouterExports = [
-  'useRoute',
-  'useRouter',
-  'defineLoader',
-  // ['_defineLoader', 'defineLoader'],
+export { DefinePage } from './data-fetching/transform'
+
+/**
+ * @deprecated use `VueRouterAutoImports` instead
+ */
+export const VueRouterExports = ['useRoute', 'useRouter']
+
+/**
+ * @deprecated use `VueRouterAutoImports` instead
+ */
+export const RuntimeExports: [string, string][] = [
+  ['_defineLoader', 'defineLoader'],
+  ['_definePage', 'definePage'],
 ]
-export const RuntimeExports = [['_defineLoader', 'defineLoader']]
+
+/**
+ * Adds useful auto imports to the AutoImport config:
+ * @example
+ * ```js
+ * import { VueRouterAutoImports } from 'unplugin-vue-router'
+ *
+ * AutoImport({
+ *   imports: [VueRouterAutoImports],
+ * }),
+ * ```
+ */
+export const VueRouterAutoImports = {
+  'vue-router/auto': VueRouterExports,
+  'unplugin-vue-router/runtime': RuntimeExports,
+}
