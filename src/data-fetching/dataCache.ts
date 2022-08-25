@@ -90,18 +90,6 @@ export function updateDataCacheEntry<T>(
   entry.data.value = data
 }
 
-function refsFromObject<T>(data: T): ToRefs<T> {
-  const result = {} as ToRefs<T>
-  for (const key in data) {
-    // @ts-expect-error: the key is good
-    result[key] =
-      // to type check this line
-      ref(data[key])
-  }
-
-  return result
-}
-
 // local scope
 
 export let scope: EffectScope | undefined
