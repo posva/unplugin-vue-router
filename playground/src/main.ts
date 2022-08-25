@@ -1,6 +1,10 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import { createWebHistory, createRouter } from 'vue-router/auto'
+import {
+  createWebHistory,
+  createRouter,
+  setupDataFetchingGuard,
+} from 'vue-router/auto'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -9,6 +13,8 @@ const router = createRouter({
     return routes
   },
 })
+
+setupDataFetchingGuard(router)
 
 const app = createApp(App)
 

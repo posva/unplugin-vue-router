@@ -5,16 +5,11 @@ import type { ResolvedOptions } from '../options'
 // cannot be resolved.
 export function generateVueRouterProxy(
   routesModule: string,
-  { dataFetching }: ResolvedOptions
+  options: ResolvedOptions
 ) {
   return `
 import { routes } from '${routesModule}'
 import { createRouter as _createRouter } from 'vue-router'
-${
-  dataFetching
-    ? `import { _setupDataFetchingGuard } from 'unplugin-vue-router/runtime'`
-    : ``
-}
 
 export * from 'vue-router'
 export {
@@ -32,13 +27,7 @@ export function createRouter(options) {
     options,
     { routes: typeof extendRoutes === 'function' ? extendRoutes(routes) : routes },
   ))
-${
-  dataFetching
-    ? `
-  _setupDataFetchingGuard(router)
-`
-    : ``
-}
+
   return router
 }
 `
