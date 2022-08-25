@@ -10,7 +10,6 @@ import {
   DefinePage,
 } from '../src'
 import Vue from '@vitejs/plugin-vue'
-import { resolve } from 'path'
 import AutoImport from 'unplugin-auto-import/vite'
 
 export default defineConfig({
