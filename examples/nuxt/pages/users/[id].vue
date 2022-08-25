@@ -1,6 +1,4 @@
 <script lang="ts">
-import { _defineLoader as defineLoader } from 'unplugin-vue-router/runtime'
-
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 export const useUserData = defineLoader(

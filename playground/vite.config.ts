@@ -26,7 +26,7 @@ export default defineConfig({
     DefinePage.vite(),
     Vue({}),
     VueRouter({
-      dataFetching: false,
+      dataFetching: true,
       routesFolder: [
         // can add multiple routes folders
         {

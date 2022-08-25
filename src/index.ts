@@ -140,23 +140,21 @@ export {
 
 // expose for generated type extensions
 export type {
-  DefineLoaderOptions,
-  DataLoader,
+  DefineLoaderOptions as _DefineLoaderOptions,
+  DataLoader as _DataLoader,
 } from './data-fetching/defineLoader'
 
+// TODO: THIS IS JUST FOR TESTING
 export { DefinePage } from './data-fetching/transform'
 
 /**
  * @deprecated use `VueRouterAutoImports` instead
  */
-export const VueRouterExports = ['useRoute', 'useRouter']
-
-/**
- * @deprecated use `VueRouterAutoImports` instead
- */
-export const RuntimeExports: [string, string][] = [
-  ['_defineLoader', 'defineLoader'],
-  ['_definePage', 'definePage'],
+export const VueRouterExports: Array<string | [string, string]> = [
+  'useRoute',
+  'useRouter',
+  'defineLoader',
+  'definePage',
 ]
 
 /**
@@ -172,5 +170,4 @@ export const RuntimeExports: [string, string][] = [
  */
 export const VueRouterAutoImports = {
   'vue-router/auto': VueRouterExports,
-  'unplugin-vue-router/runtime': RuntimeExports,
 }

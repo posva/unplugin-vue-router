@@ -160,7 +160,7 @@ If you are using [unplugin-auto-import](https://github.com/antfu/unplugin-auto-i
 ```diff
  import { defineConfig } from 'vite'
  import AutoImport from 'unplugin-auto-import/vite'
-+import { VueRouterExports } from 'unplugin-vue-router'
++import { VueRouterAutoImports } from 'unplugin-vue-router'
 
  export default defineConfig({
    plugins: [
@@ -168,7 +168,7 @@ If you are using [unplugin-auto-import](https://github.com/antfu/unplugin-auto-i
      AutoImport({
        imports: [
 -        'vue-router',
-+        { 'vue-router/auto': VueRouterExports },
++        VueRouterAutoImports,
        ],
      }),
    ],

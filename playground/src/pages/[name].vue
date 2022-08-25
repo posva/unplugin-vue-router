@@ -106,6 +106,10 @@ defineRoute((route) => ({
   ],
 }))
 
+definePage({
+  alias: ['/haha'],
+})
+
 // defineRouteMeta<{ transition: string }>()
 // defineRouteMeta({
 //   transition: 'fade' as 'fade' | 'slide',

@@ -1,6 +1,5 @@
 import type { TreeNode } from '../core/tree'
 import { ResolvedOptions, _OptionsImportMode } from '../options'
-import { basename } from 'pathe'
 
 export function generateRouteRecord(
   node: TreeNode,
