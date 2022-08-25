@@ -137,7 +137,9 @@ function formatMeta(node: TreeNode, indent: string): string {
           indent +
           line.replace(
             LOADER_GUARD_RE,
-            '[_LoaderSymbol]: ' + generateImportList(node, indent + '  ') + ','
+            '[_HasDataLoaderMeta]: ' +
+              generateImportList(node, indent + '  ') +
+              ','
           )
       )
       .join('\n')

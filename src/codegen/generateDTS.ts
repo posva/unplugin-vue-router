@@ -109,7 +109,7 @@ declare module '${vueRouterModule}' {
 
   export {
     _definePage as definePage,
-    _LoaderSymbol as LoaderSymbol,
+    _HasDataLoaderMeta as HasDataLoaderMeta,
     _setupDataFetchingGuard as setupDataFetchingGuard,
     _stopDataFetchingScope as stopDataFetchingScope,
   } from 'unplugin-vue-router/runtime'

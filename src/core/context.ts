@@ -155,7 +155,7 @@ export function createRoutesContext(options: ResolvedOptions) {
 
     let imports = ''
     if (options.dataFetching) {
-      imports += `import { _LoaderSymbol } from 'unplugin-vue-router/runtime'\n`
+      imports += `import { _HasDataLoaderMeta } from 'unplugin-vue-router/runtime'\n`
     }
     for (const [path, name] of importList) {
       imports += `import ${name} from '${path}'\n`

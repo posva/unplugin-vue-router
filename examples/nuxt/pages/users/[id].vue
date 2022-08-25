@@ -19,10 +19,10 @@ export const useUserData = defineLoader(
 </script>
 
 <script setup lang="ts">
-import { _LoaderSymbol } from 'unplugin-vue-router/runtime'
+import { HasDataLoaderMeta } from 'vue-router/auto'
 
 definePageMeta({
-  [_LoaderSymbol]: [() => import('/pages/users/[id].vue')],
+  [HasDataLoaderMeta]: [() => import('/pages/users/[id].vue')],
 })
 
 const { data: user } = useUserData()

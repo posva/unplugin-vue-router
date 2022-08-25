@@ -3,7 +3,7 @@ import type { RouteLocationNormalized, Router } from 'vue-router'
 import { Awaitable } from '../core/utils'
 
 // Symbol used to detect if a route has loaders
-export const LoaderSymbol = Symbol()
+export const HasDataLoaderMeta = Symbol()
 
 declare module 'vue-router' {
   export interface RouteMeta {
@@ -11,7 +11,7 @@ declare module 'vue-router' {
      * List of lazy imports of modules that might have a loader. We need to extract the exports that are actually
      * loaders.
      */
-    [LoaderSymbol]?: Array<
+    [HasDataLoaderMeta]?: Array<
       () => Promise<Record<string, DataLoader<unknown> | unknown>>
     >
   }
@@ -65,7 +65,7 @@ export function setupDataFetchingGuard(
       Promise.all(
         // retrieve all loaders as a flat array
         to.matched
-          .flatMap((route) => route.meta[LoaderSymbol])
+          .flatMap((route) => route.meta[HasDataLoaderMeta])
           // loaders are optional
           .filter((moduleImport) => moduleImport)
           // call the dynamic imports to get the loaders

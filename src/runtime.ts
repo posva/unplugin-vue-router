@@ -7,7 +7,7 @@ export type {
 } from './data-fetching/defineLoader'
 export {
   setupDataFetchingGuard as _setupDataFetchingGuard,
-  LoaderSymbol as _LoaderSymbol,
+  HasDataLoaderMeta as _HasDataLoaderMeta,
 } from './data-fetching/dataFetchingGuard'
 export { stopScope as _stopDataFetchingScope } from './data-fetching/dataCache'
 
