@@ -26,6 +26,7 @@ import { _LoaderSymbol } from 'unplugin-vue-router/runtime'
 definePageMeta({
   [_LoaderSymbol]: [() => import('/pages/users/[id].vue')],
 })
+
 const { data: user } = useUserData()
 </script>
 

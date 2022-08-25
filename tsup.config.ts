@@ -1,6 +1,6 @@
-import type { Options } from 'tsup'
+import { defineConfig } from 'tsup'
 
-export default <Options>{
+export default defineConfig({
   entryPoints: ['src/*.ts'],
   clean: true,
   format: ['cjs', 'esm'],
@@ -8,4 +8,4 @@ export default <Options>{
   // sourcemap: 'inline',
   external: ['@vue/compiler-sfc', 'vue', 'vue-router'],
   onSuccess: 'npm run build:fix',
-}
+})
