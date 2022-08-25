@@ -1,11 +1,10 @@
 import { defineConfig } from 'tsup'
 
 export default defineConfig({
-  entryPoints: ['src/*.ts'],
+  entry: ['src/*.ts'],
   clean: true,
   format: ['cjs', 'esm'],
   dts: true,
-  // sourcemap: 'inline',
   external: ['@vue/compiler-sfc', 'vue', 'vue-router'],
   onSuccess: 'npm run build:fix',
 })

@@ -1,6 +1,6 @@
 import { DataLoader, isDataLoader } from './defineLoader'
 import type { RouteLocationNormalized, Router } from 'vue-router'
-import { Awaitable } from '../core/utils'
+import { Awaitable, __DEV__ } from '../core/utils'
 
 // Symbol used to detect if a route has loaders
 export const HasDataLoaderMeta = Symbol()
@@ -47,17 +47,19 @@ export function setupDataFetchingGuard(
   router: Router,
   { initialData }: SetupDataFetchingGuardOptions = {}
 ) {
-  // TODO: dev only
-  if (ADDED_SYMBOL in router) {
-    console.warn(
-      '[vue-router]: Data fetching guard added twice. Make sure to remove the extra call.'
-    )
-    return
+  if (__DEV__) {
+    if (ADDED_SYMBOL in router) {
+      console.warn(
+        '[vue-router]: Data fetching guard added twice. Make sure to remove the extra call.'
+      )
+      return
+    }
+    // @ts-expect-error: doesn't exist
+    router[ADDED_SYMBOL] = true
   }
-  // @ts-expect-error: doesn't exist
-  router[ADDED_SYMBOL] = true
 
   const fetchedState: Record<string, unknown> = {}
+  let isFetched: undefined | boolean
 
   router.beforeEach((to) => {
     // We run all loaders in parallel
@@ -97,6 +99,9 @@ export function setupDataFetchingGuard(
                         if (key) {
                           fetchedState[key] = cache.get(router)!.data.value
                         }
+                      } else if (__DEV__ && !key && !isFetched) {
+                        // TODO: find a way to warn on client when initialData is empty when it shouldn't
+                        // console.warn()
                       }
                     })
                   })
@@ -108,6 +113,8 @@ export function setupDataFetchingGuard(
         .then(() => {
           // reset the initial state as it can only be used once
           initialData = undefined
+          // NOTE: could this be dev only?
+          isFetched = true
         })
     )
   })
