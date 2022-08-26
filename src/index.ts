@@ -46,6 +46,7 @@ export default createUnplugin<Options>((opt, meta) => {
         return asVirtualId(id)
       }
 
+      // this allows us to skip the route block module as a whole since we already parse it
       if (routeBlockQueryRE.test(id)) {
         return ROUTE_BLOCK_ID
       }
@@ -65,13 +66,16 @@ export default createUnplugin<Options>((opt, meta) => {
     },
 
     load(id) {
+      // we need to use a virtual module so that vite resolves the vue-router/auto/routes
+      // dependency correctly
       const resolvedId = getVirtualId(id)
+
+      // vue-router/auto/routes
       if (resolvedId === MODULE_ROUTES_PATH) {
         return ctx.generateRoutes()
       }
 
-      // we need to use a virtual module so that vite resolves the vue-router/auto/routes
-      // dependency correctly
+      // vue-router/auto
       if (resolvedId === MODULE_VUE_ROUTER) {
         return ctx.generateVueRouterProxy()
       }
@@ -88,6 +92,7 @@ export default createUnplugin<Options>((opt, meta) => {
       return null
     },
 
+    // improves DX
     vite: {
       configureServer(server) {
         ctx.setServerContext(createViteContext(server))

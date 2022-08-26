@@ -84,6 +84,8 @@ export function transform(code: string, id: string): Thenable<TransformResult> {
       setupOffset + definePageNode.end!
     )
 
+    // TODO: notify the tree that this file has more route info
+
     return getTransformResult(s, id)
   }
 }
@@ -93,6 +95,7 @@ const filter = createFilter(/\.vue/, undefined)
 export const DefinePage = createUnplugin(() => {
   return {
     name: 'unplugin-define-page',
+
     transformInclude(id) {
       return filter(id)
     },
