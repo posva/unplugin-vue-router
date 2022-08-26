@@ -24,7 +24,7 @@ ${node
   // const meta = node.value.overrides.meta
 
   // path
-  return `${startIndent}{
+  const routeRecord = `${startIndent}{
 ${indentStr}path: '${node.path}',
 ${indentStr}${
     node.value.filePaths.size ? `name: '${node.name}',` : '/* no name */'
@@ -64,6 +64,24 @@ ${indentStr}],`
       : '/* no children */'
   }${formatMeta(node, indentStr)}
 ${startIndent}}`
+
+  if (node.hasDefinePage) {
+    const definePageDataList: string[] = []
+    for (const [name, filePath] of node.value.filePaths) {
+      const definePageData = `_definePage_${name}_${importList.size}`
+      definePageDataList.push(definePageData)
+      importList.set(`${filePath}?definePage&vue`, definePageData)
+    }
+
+    if (definePageDataList.length) {
+      return `  _mergeRouteRecord(
+${routeRecord},
+  ${definePageDataList.join(',\n')}
+  )`
+    }
+  }
+
+  return routeRecord
 }
 
 function generateRouteRecordComponent(

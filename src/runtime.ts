@@ -1,4 +1,4 @@
-import type { RouteRecordRaw } from 'vue-router'
+import type { RouteRecordRaw, RouteRecordRedirectOption } from 'vue-router'
 
 export { defineLoader as _defineLoader } from './data-fetching/defineLoader'
 export type {
@@ -19,3 +19,19 @@ export { stopScope as _stopDataFetchingScope } from './data-fetching/dataCache'
 export function _definePage(
   route: Partial<Omit<RouteRecordRaw, 'children' | 'components' | 'component'>>
 ) {}
+
+export function _mergeRouteRecord(
+  main: RouteRecordRaw,
+  ...routeRecords: Partial<RouteRecordRaw>[]
+): RouteRecordRaw {
+  // @ts-expect-error: complicated types
+  return routeRecords.reduce((acc, routeRecord) => {
+    const meta = Object.assign({}, acc.meta, routeRecord.meta)
+    // TODO: other nested properties
+    // const props = Object.assign({}, acc.props, routeRecord.props)
+
+    Object.assign(acc, routeRecord)
+    acc.meta = meta
+    return acc
+  }, main)
+}

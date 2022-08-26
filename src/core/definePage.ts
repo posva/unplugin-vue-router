@@ -5,25 +5,19 @@ import {
   MagicString,
   checkInvalidScopeReference,
 } from '@vue-macros/common'
-import {
-  createUnplugin,
-  Thenable,
-  TransformResult,
-  UnpluginContext,
-  UnpluginOptions,
-} from 'unplugin'
-import { createFilter } from '@rollup/pluginutils'
+import { Thenable, TransformResult } from 'unplugin'
 import type { CallExpression, Node, Statement } from '@babel/types'
 import { walkAST } from 'ast-walker-scope'
-import { asVirtualId } from './moduleConstants'
-import fs from 'node:fs/promises'
 
 const MACRO_DEFINE_PAGE = 'definePage'
 
-export function definePageTransform(
-  code: string,
+export function definePageTransform({
+  code,
+  id,
+}: {
+  code: string
   id: string
-): Thenable<TransformResult> {
+}): Thenable<TransformResult> {
   if (!code.includes(MACRO_DEFINE_PAGE)) return
 
   const sfc = parseSFC(code, id)
@@ -50,7 +44,6 @@ export function definePageTransform(
 
   // we only want the page info
   if (id.includes(MACRO_DEFINE_PAGE)) {
-    console.log(`😎 transform custom`)
     const s = new MagicString(code)
     // remove everything except the page info
 
@@ -87,39 +80,9 @@ export function definePageTransform(
       setupOffset + definePageNode.end!
     )
 
-    // TODO: notify the tree that this file has more route info
-
     return getTransformResult(s, id)
   }
 }
-
-const filter = createFilter(/\.vue/, undefined)
-
-// FIXME: Delete
-export const DefinePage = createUnplugin(() => {
-  return {
-    name: 'unplugin-define-page',
-
-    transformInclude(id) {
-      return filter(id)
-    },
-
-    loadInclude(id) {
-      return id.includes(MACRO_DEFINE_PAGE)
-    },
-
-    transform(code, id) {
-      return definePageTransform(code, id)
-    },
-
-    async load(id) {
-      return definePageTransform(
-        await fs.readFile(id.split('?')[0], 'utf8'),
-        id
-      )
-    },
-  }
-})
 
 const getIdentifiers = (stmts: Statement[]) => {
   let ids: string[] = []

@@ -25,6 +25,11 @@ export class TreeNode {
    */
   options: ResolvedOptions
 
+  /**
+   * Should this page import the page info
+   */
+  hasDefinePage: boolean = false
+
   constructor(options: ResolvedOptions, filePath: string, parent?: TreeNode) {
     this.options = options
     this.parent = parent
@@ -150,10 +155,13 @@ export class TreeNode {
 
   toString(): string {
     return `${this.value}${
-      this.value.filePaths.size
-        ? ` 📄 (${Array.from(this.value.filePaths.keys()).join(', ')})`
+      // either we have multiple names
+      this.value.filePaths.size > 1 ||
+      // or we have one name and it's not default
+      (this.value.filePaths.size === 1 && !this.value.filePaths.get('default'))
+        ? ` ⎈(${Array.from(this.value.filePaths.keys()).join(', ')})`
         : ''
-    }`
+    }${this.hasDefinePage ? ' ⚑ definePage()' : ''}`
   }
 }
 

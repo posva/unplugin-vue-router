@@ -100,6 +100,9 @@ export function createRoutesContext(options: ResolvedOptions) {
       options.dataFetching && (await hasNamedExports(path))
 
     routeMap.set(path, node)
+    // FIXME: do once
+    const content = await fs.readFile(path, 'utf8')
+    node.hasDefinePage = content.includes('definePage')
   }
 
   async function updatePage({ filePath: path, routePath }: HandlerContext) {
@@ -109,6 +112,9 @@ export function createRoutesContext(options: ResolvedOptions) {
       console.warn(`Cannot update "${path}": Not found.`)
       return
     }
+    // FIXME: do once
+    const content = await fs.readFile(path, 'utf8')
+    node.hasDefinePage = content.includes('definePage')
     node.setCustomRouteBlock(path, await getRouteBlock(path, options))
     node.value.includeLoaderGuard =
       options.dataFetching && (await hasNamedExports(path))
@@ -148,7 +154,7 @@ export function createRoutesContext(options: ResolvedOptions) {
 
     let imports = ''
     if (options.dataFetching) {
-      imports += `import { _HasDataLoaderMeta } from 'unplugin-vue-router/runtime'\n`
+      imports += `import { _HasDataLoaderMeta, _mergeRouteRecord } from 'unplugin-vue-router/runtime'\n`
     }
     for (const [path, name] of importList) {
       imports += `import ${name} from '${path}'\n`
@@ -222,6 +228,11 @@ ${routesExport}
     generateRoutes,
     generateVueRouterProxy,
 
-    definePageTransform,
+    definePageTransform(code: string, id: string) {
+      return definePageTransform({
+        code,
+        id,
+      })
+    },
   }
 }

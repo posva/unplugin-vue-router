@@ -68,8 +68,6 @@ export default createUnplugin<Options>((opt, meta) => {
       if (routeBlockQueryRE.test(id)) {
         return ROUTE_BLOCK_ID
       }
-
-      return null
     },
 
     buildStart() {
@@ -118,9 +116,6 @@ export default createUnplugin<Options>((opt, meta) => {
           map: null,
         }
       }
-
-      // fallback
-      // return null
     },
 
     // improves DX
@@ -182,9 +177,6 @@ export type {
   DefineLoaderOptions as _DefineLoaderOptions,
   DataLoader as _DataLoader,
 } from './data-fetching/defineLoader'
-
-// TODO: THIS IS JUST FOR TESTING
-export { DefinePage } from './core/definePage'
 
 /**
  * @deprecated use `VueRouterAutoImports` instead
