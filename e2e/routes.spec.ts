@@ -16,7 +16,7 @@ it('generates the routes', async () => {
     // dts: join(__dirname, './__types.d.ts'),
     dts: false,
     logs: false,
-    routesFolder: join(__dirname, './fixtures/filenames/routes'),
+    routesFolder: [{ src: join(__dirname, './fixtures/filenames/routes') }],
   })
 
   await context.scanPages()
