@@ -1,3 +1,23 @@
+# [0.2.0](https://github.com/posva/unplugin-vue-router/compare/v0.1.2...v0.2.0) (2022-08-26)
+
+## Introducing Experimental Data fetching
+
+Refer to https://github.com/posva/unplugin-vue-router/tree/main/src/data-fetching
+for up to date information on how to use the data fetching.
+
+### Bug Fixes
+
+- slash some path for windows ([#48](https://github.com/posva/unplugin-vue-router/issues/48)) ([bc152e3](https://github.com/posva/unplugin-vue-router/commit/bc152e38705185aa39a84a85dd787ad9e4c18cde))
+
+### Features
+
+- add setupNavigationGuard options ([0656e35](https://github.com/posva/unplugin-vue-router/commit/0656e3500f78dda7f3056777c43fc8698054d64a))
+- explicitly allow for the data fetching guard ([5f672b2](https://github.com/posva/unplugin-vue-router/commit/5f672b2bb8ca7fef944da3eb4a30bdc8aeb7f471))
+- importMode option ([9aa2e33](https://github.com/posva/unplugin-vue-router/commit/9aa2e33bd5354549639bb4610f3ae0621d0b7a5a)), closes [#47](https://github.com/posva/unplugin-vue-router/issues/47)
+- one single auto import ([c82e964](https://github.com/posva/unplugin-vue-router/commit/c82e9647a59469b2a67ccae92e31d17f5493b0c3))
+- parse definePage ([b2470a6](https://github.com/posva/unplugin-vue-router/commit/b2470a66b4364879ffb9d979c5ffd18c22cea785))
+- support props to route blocks ([073c29c](https://github.com/posva/unplugin-vue-router/commit/073c29cca6e96fec54f149c6160405b3a7760383)), closes [#49](https://github.com/posva/unplugin-vue-router/issues/49)
+
 ## [0.1.2](https://github.com/posva/unplugin-vue-router/compare/v0.1.1...v0.1.2) (2022-08-10)
 
 ### Features
