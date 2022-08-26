@@ -20,6 +20,8 @@ This build-time plugin simplifies your routing setup **and** makes it safer and 
 npm i -D unplugin-vue-router
 ```
 
+Add VueRouter plugin **before** Vue plugin:
+
 <details>
 <summary>Vite</summary><br>
 
@@ -32,6 +34,8 @@ export default defineConfig({
     VueRouter({
       /* options */
     }),
+    // ⚠️ Vue must be placed after VueRouter()
+    Vue(),
   ],
 })
 ```
@@ -52,6 +56,8 @@ export default {
     VueRouter({
       /* options */
     }),
+    // ⚠️ Vue must be placed after VueRouter()
+    Vue(),
   ],
 }
 ```

@@ -148,6 +148,7 @@ If you use [unplugin-auto-import](https://github.com/antfu/unplugin-auto-import)
 
 ```ts
 // vite.config.ts
+import Vue from '@vitejs/plugin-vue'
 import { VueRouterAutoImports } from 'unplugin-vue-router'
 
 export default defineConfig({
@@ -156,6 +157,8 @@ export default defineConfig({
     VueRouter({
       dataFetching: true,
     }),
+    // ⚠️ Vue must be placed after VueRouter()
+    Vue(),
     AutoImport({
       imports: [VueRouterAutoImports],
     }),

@@ -22,8 +22,7 @@ export default defineConfig({
   // },
 
   plugins: [
-    DefinePage.vite(),
-    Vue({}),
+    // DefinePage.vite(),
     VueRouter({
       dataFetching: true,
       routesFolder: [
@@ -52,6 +51,7 @@ export default defineConfig({
         // './src/pages/**/*.spec.ts',
       ],
     }),
+    Vue({}),
     AutoImport({
       imports: [VueRouterAutoImports],
     }),
