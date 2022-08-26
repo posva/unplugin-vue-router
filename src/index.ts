@@ -12,7 +12,6 @@ import { Options, resolveOptions } from './options'
 import { createViteContext } from './core/vite'
 import { createFilter } from '@rollup/pluginutils'
 import { join } from 'pathe'
-import { transform } from './data-fetching/transform'
 
 export { Options }
 
@@ -30,6 +29,25 @@ export default createUnplugin<Options>((opt, meta) => {
     if (options._inspect) return id
     return _asVirtualId(id)
   }
+
+  // create the transform filter to detect `definePage()` inside page component
+  const pageFilePattern =
+    `**/*` +
+    (options.extensions.length === 1
+      ? options.extensions[0]
+      : `.{${options.extensions
+          .map((extension) => extension.replace('.', ''))
+          .join(',')}}`)
+  const filterPageComponents = createFilter(
+    [
+      ...options.routesFolder.map((routeOption) =>
+        join(routeOption.src, pageFilePattern)
+      ),
+      // importing the definePage block
+      /definePage\&vue$/,
+    ],
+    options.exclude
+  )
 
   return {
     name: 'unplugin-vue-router',
@@ -65,6 +83,19 @@ export default createUnplugin<Options>((opt, meta) => {
       ctx.stopWatcher()
     },
 
+    // we only need to transform page components
+    transformInclude(id) {
+      // console.log('filtering ' + id, filterPageComponents(id) ? '✅' : '❌')
+      return filterPageComponents(id)
+    },
+
+    transform(code, id) {
+      // console.log('👋 ', id)
+      return ctx.definePageTransform(code, id)
+    },
+
+    // TODO: is it worth having a loadInclude?
+
     load(id) {
       // we need to use a virtual module so that vite resolves the vue-router/auto/routes
       // dependency correctly
@@ -89,7 +120,7 @@ export default createUnplugin<Options>((opt, meta) => {
       }
 
       // fallback
-      return null
+      // return null
     },
 
     // improves DX
@@ -153,7 +184,7 @@ export type {
 } from './data-fetching/defineLoader'
 
 // TODO: THIS IS JUST FOR TESTING
-export { DefinePage } from './data-fetching/transform'
+export { DefinePage } from './core/definePage'
 
 /**
  * @deprecated use `VueRouterAutoImports` instead

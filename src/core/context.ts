@@ -13,6 +13,7 @@ import { RoutesFolderWatcher, HandlerContext } from './RoutesFolderWatcher'
 import { generateDTS as _generateDTS } from '../codegen/generateDTS'
 import { generateVueRouterProxy as _generateVueRouterProxy } from '../codegen/vueRouterModule'
 import { hasNamedExports } from '../data-fetching/parse'
+import { definePageTransform } from './definePage'
 
 export function createRoutesContext(options: ResolvedOptions) {
   const { dts: preferDTS, root, routesFolder } = options
@@ -220,5 +221,7 @@ ${routesExport}
 
     generateRoutes,
     generateVueRouterProxy,
+
+    definePageTransform,
   }
 }

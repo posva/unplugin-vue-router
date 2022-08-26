@@ -15,12 +15,15 @@ import {
 import { createFilter } from '@rollup/pluginutils'
 import type { CallExpression, Node, Statement } from '@babel/types'
 import { walkAST } from 'ast-walker-scope'
-import { asVirtualId } from '../core/moduleConstants'
+import { asVirtualId } from './moduleConstants'
 import fs from 'node:fs/promises'
 
 const MACRO_DEFINE_PAGE = 'definePage'
 
-export function transform(code: string, id: string): Thenable<TransformResult> {
+export function definePageTransform(
+  code: string,
+  id: string
+): Thenable<TransformResult> {
   if (!code.includes(MACRO_DEFINE_PAGE)) return
 
   const sfc = parseSFC(code, id)
@@ -92,6 +95,7 @@ export function transform(code: string, id: string): Thenable<TransformResult> {
 
 const filter = createFilter(/\.vue/, undefined)
 
+// FIXME: Delete
 export const DefinePage = createUnplugin(() => {
   return {
     name: 'unplugin-define-page',
@@ -105,11 +109,14 @@ export const DefinePage = createUnplugin(() => {
     },
 
     transform(code, id) {
-      return transform(code, id)
+      return definePageTransform(code, id)
     },
 
     async load(id) {
-      return transform(await fs.readFile(id.split('?')[0], 'utf8'), id)
+      return definePageTransform(
+        await fs.readFile(id.split('?')[0], 'utf8'),
+        id
+      )
     },
   }
 })
