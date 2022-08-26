@@ -1,6 +1,7 @@
 import { isPackageExists } from 'local-pkg'
 import { getFileBasedRouteName, isArray } from './core/utils'
 import type { TreeNode } from './core/tree'
+import { resolve } from 'pathe'
 
 export interface RoutesFolderOption {
   src: string
@@ -23,7 +24,7 @@ export interface ResolvedOptions {
    *
    * @default "src/pages"
    */
-  routesFolder: RoutesFolder
+  routesFolder: RoutesFolderOption[]
 
   /**
    * Method to generate the name of a route.
@@ -31,7 +32,7 @@ export interface ResolvedOptions {
   getRouteName: (node: TreeNode) => string
 
   /**
-   * @deprecated: MUST be `false`. See https://github.com/posva/unplugin-vue-router/tree/main/src/data-fetching
+   * Enables EXPERIMENTAL data fetching. See https://github.com/posva/unplugin-vue-router/tree/main/src/data-fetching
    */
   dataFetching: boolean
 
@@ -80,9 +81,12 @@ export type _OptionsImportMode =
   | 'async'
   | ((filepath: string) => 'sync' | 'async')
 
-export type Options = Partial<ResolvedOptions>
+export interface Options
+  extends Partial<Omit<ResolvedOptions, 'routesFolder'>> {
+  routesFolder?: RoutesFolder
+}
 
-export const DEFAULT_OPTIONS: ResolvedOptions = {
+export const DEFAULT_OPTIONS: Required<Options> = {
   extensions: ['.vue'],
   exclude: [],
   routesFolder: 'src/pages',
@@ -101,11 +105,35 @@ export interface ServerContext {
   reload: () => void
 }
 
-export function normalizeRoutesFolderOption(
-  routesFolder: ResolvedOptions['routesFolder']
+function normalizeRoutesFolderOption(
+  routesFolder: RoutesFolder
 ): RoutesFolderOption[] {
   return (isArray(routesFolder) ? routesFolder : [routesFolder]).map(
     (routeOption) =>
       typeof routeOption === 'string' ? { src: routeOption } : routeOption
   )
+}
+
+/**
+ * Normalize user options with defaults and resolved paths.
+ *
+ * @param options - user provided options
+ * @returns normalized options
+ */
+export function resolveOptions(options: Options): ResolvedOptions {
+  const root = options.root || DEFAULT_OPTIONS.root
+
+  // normalize the paths with the root
+  const routesFolder = normalizeRoutesFolderOption(
+    options.routesFolder || DEFAULT_OPTIONS.routesFolder
+  ).map((routeOption) => ({
+    ...routeOption,
+    src: resolve(root, routeOption.src),
+  }))
+
+  return {
+    ...DEFAULT_OPTIONS,
+    ...options,
+    routesFolder,
+  }
 }

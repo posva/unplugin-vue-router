@@ -8,13 +8,16 @@ import {
   routeBlockQueryRE,
   ROUTE_BLOCK_ID,
 } from './core/moduleConstants'
-import { DEFAULT_OPTIONS, Options, ResolvedOptions } from './options'
+import { Options, resolveOptions } from './options'
 import { createViteContext } from './core/vite'
+import { createFilter } from '@rollup/pluginutils'
+import { join } from 'pathe'
+import { transform } from './data-fetching/transform'
 
 export { Options }
 
 export default createUnplugin<Options>((opt, meta) => {
-  const options: ResolvedOptions = { ...DEFAULT_OPTIONS, ...opt }
+  const options = resolveOptions(opt)
   const ctx = createRoutesContext(options)
 
   function getVirtualId(id: string) {

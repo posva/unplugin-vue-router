@@ -1,4 +1,4 @@
-import { normalizeRoutesFolderOption, ResolvedOptions } from '../options'
+import { ResolvedOptions } from '../options'
 import { createPrefixTree, TreeNode } from './tree'
 import { promises as fs } from 'fs'
 import { logTree, throttle } from './utils'
@@ -32,14 +32,6 @@ export function createRoutesContext(options: ResolvedOptions) {
     }
   }
 
-  // it's important to resolve the path before the watcher is created so it give full paths in the handler
-  const resolvedRoutesFolders = normalizeRoutesFolderOption(routesFolder).map(
-    (routeOption) => ({
-      ...routeOption,
-      src: resolve(root, routeOption.src),
-    })
-  )
-
   // populated by the initial scan pages
   const watchers: RoutesFolderWatcher[] = []
 
@@ -64,7 +56,7 @@ export function createRoutesContext(options: ResolvedOptions) {
             .join(',')}}`)
 
     await Promise.all(
-      resolvedRoutesFolders.map((folder) => {
+      routesFolder.map((folder) => {
         const watcher = new RoutesFolderWatcher(folder, options)
         setupWatcher(watcher)
         watchers.push(watcher)
