@@ -3,7 +3,7 @@ import { generateRouteNamedMap } from './generateRouteMap'
 import { createPrefixTree } from '../core/tree'
 import { resolveOptions } from '../options'
 
-const DEFAULT_OPTIONS = resolveOptions()
+const DEFAULT_OPTIONS = resolveOptions({})
 
 function formatExports(exports: string) {
   return exports
