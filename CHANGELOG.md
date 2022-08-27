@@ -1,3 +1,9 @@
+## [0.2.1](https://github.com/posva/unplugin-vue-router/compare/v0.2.0...v0.2.1) (2022-08-27)
+
+### Bug Fixes
+
+- simplify import names ([7c01822](https://github.com/posva/unplugin-vue-router/commit/7c01822424bf1004f7d14813a712312dcec19520)), closes [#47](https://github.com/posva/unplugin-vue-router/issues/47)
+
 # [0.2.0](https://github.com/posva/unplugin-vue-router/compare/v0.1.2...v0.2.0) (2022-08-26)
 
 ## Introducing Experimental Data fetching
