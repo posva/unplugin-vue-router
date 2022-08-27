@@ -68,9 +68,9 @@ ${startIndent}}`
   if (node.hasDefinePage) {
     const definePageDataList: string[] = []
     for (const [name, filePath] of node.value.filePaths) {
-      const definePageData = `_definePage_${name}_${importList.size}`
-      definePageDataList.push(definePageData)
-      importList.set(`${filePath}?definePage&vue`, definePageData)
+      const pageDataImport = `_definePage_${name}_${importList.size}`
+      definePageDataList.push(pageDataImport)
+      importList.set(pageDataImport, `${filePath}?definePage&vue`)
     }
 
     if (definePageDataList.length) {
@@ -126,8 +126,8 @@ function generatePageImport(
   if (mode === 'async') {
     return `() => import('${filepath}')`
   } else {
-    const importName = `_page_${filepath.replace(/[\/\.]/g, '_')}`
-    importList.set(filepath, importName)
+    const importName = `_page_${importList.size}`
+    importList.set(importName, filepath)
     return importName
   }
 }

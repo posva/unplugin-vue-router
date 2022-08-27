@@ -144,6 +144,7 @@ export function createRoutesContext(options: ResolvedOptions) {
   }
 
   function generateRoutes() {
+    // keys are import names while values are paths import __ from __
     const importList = new Map<string, string>()
 
     const routesExport = `export const routes = ${generateRouteRecord(
@@ -156,7 +157,7 @@ export function createRoutesContext(options: ResolvedOptions) {
     if (options.dataFetching) {
       imports += `import { _HasDataLoaderMeta, _mergeRouteRecord } from 'unplugin-vue-router/runtime'\n`
     }
-    for (const [path, name] of importList) {
+    for (const [name, path] of importList) {
       imports += `import ${name} from '${path}'\n`
     }
 

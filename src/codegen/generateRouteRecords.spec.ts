@@ -1,8 +1,10 @@
 import { basename } from 'pathe'
 import { describe, expect, it } from 'vitest'
 import { createPrefixTree, TreeNode } from '../core/tree'
-import { DEFAULT_OPTIONS, ResolvedOptions } from '../options'
+import { ResolvedOptions, resolveOptions } from '../options'
 import { generateRouteRecord } from './generateRouteRecords'
+
+const DEFAULT_OPTIONS = resolveOptions({})
 
 describe('generateRouteRecord', () => {
   function generateRouteRecordSimple(tree: TreeNode) {

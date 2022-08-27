@@ -74,7 +74,7 @@ exports[`generateRouteRecord > generate custom imports 1`] = `
   {
     path: '/a',
     name: '/a',
-    component: _page_a_vue,
+    component: _page_0,
     /* no props */
     /* no children */
   },
@@ -113,7 +113,7 @@ exports[`generateRouteRecord > generate custom imports 1`] = `
 
 exports[`generateRouteRecord > generate custom imports 2`] = `
 Map {
-  "a.vue" => "_page_a_vue",
+  "_page_0" => "a.vue",
 }
 `;
 
@@ -122,14 +122,14 @@ exports[`generateRouteRecord > generate static imports 1`] = `
   {
     path: '/a',
     name: '/a',
-    component: _page_a_vue,
+    component: _page_0,
     /* no props */
     /* no children */
   },
   {
     path: '/b',
     name: '/b',
-    component: _page_b_vue,
+    component: _page_1,
     /* no props */
     /* no children */
   },
@@ -148,7 +148,7 @@ exports[`generateRouteRecord > generate static imports 1`] = `
           {
             path: 'c',
             name: '/nested/file/c',
-            component: _page_nested_file_c_vue,
+            component: _page_2,
             /* no props */
             /* no children */
           }
@@ -161,9 +161,9 @@ exports[`generateRouteRecord > generate static imports 1`] = `
 
 exports[`generateRouteRecord > generate static imports 2`] = `
 Map {
-  "a.vue" => "_page_a_vue",
-  "b.vue" => "_page_b_vue",
-  "nested/file/c.vue" => "_page_nested_file_c_vue",
+  "_page_0" => "a.vue",
+  "_page_1" => "b.vue",
+  "_page_2" => "nested/file/c.vue",
 }
 `;
 
