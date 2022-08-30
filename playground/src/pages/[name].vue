@@ -107,7 +107,7 @@ defineRoute((route) => ({
 }))
 
 definePage({
-  alias: ['/haha'],
+  alias: ['/n/:name'],
 })
 
 // defineRouteMeta<{ transition: string }>()
