@@ -8,6 +8,6 @@
   },
   "devDependencies": {
     "nuxt": "3.0.0-rc.6",
-    "unplugin-vue-router": "workspace:^0.1.2"
+    "unplugin-vue-router": "workspace:*"
   }
 }

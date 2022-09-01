@@ -16,9 +16,9 @@ export { stopScope as _stopDataFetchingScope } from './data-fetching/dataCache'
  *
  * @param route - route information to be added to this page
  */
-export function _definePage(
+export const _definePage = (
   route: Partial<Omit<RouteRecordRaw, 'children' | 'components' | 'component'>>
-) {}
+) => route
 
 export function _mergeRouteRecord(
   main: RouteRecordRaw,
