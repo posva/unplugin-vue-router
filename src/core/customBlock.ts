@@ -13,11 +13,7 @@ export async function getRouteBlock(path: string, options: ResolvedOptions) {
 
   if (!blockStr) return
 
-  let result
-
-  if (blockStr) {
-    result = parseCustomBlock(blockStr, path, options)
-  }
+  let result = parseCustomBlock(blockStr, path, options)
 
   // validation
   if (result) {
@@ -72,7 +68,7 @@ function parseCustomBlock(
     }
   } else {
     console.error(
-      `Invalid "lang" of <${block.type}> in ${filePath}. Supported languages are: json5, json, yaml, yml.`
+      `⚠️  unplugin-vue-router: Invalid "lang" of <${block.type}> in ${filePath}. Supported languages are: json5, json, yaml, yml.`
     )
   }
 }
