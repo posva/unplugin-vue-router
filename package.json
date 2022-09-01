@@ -111,6 +111,7 @@
     }
   },
   "devDependencies": {
+    "@volar/vue-language-core": "^0.40.5",
     "c8": "^7.12.0",
     "chalk": "^5.0.1",
     "conventional-changelog-cli": "^2.2.2",

@@ -14,6 +14,10 @@
     }
   },
 
+  "vueCompilerOptions": {
+    "plugins": ["../volar"]
+  },
+
   "references": [
     {
       "path": "./tsconfig.config.json"

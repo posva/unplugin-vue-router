@@ -6,6 +6,7 @@ importers:
     specifiers:
       '@babel/types': ^7.18.13
       '@rollup/pluginutils': ^4.2.1
+      '@volar/vue-language-core': ^0.40.5
       '@vue-macros/common': ^0.11.1
       ast-walker-scope: ^0.2.3
       c8: ^7.12.0
@@ -56,6 +57,7 @@ importers:
       unplugin: 0.9.5_iv2q2nodpeqgpw774ikwvmglca
       yaml: 2.1.1
     devDependencies:
+      '@volar/vue-language-core': 0.40.5
       c8: 7.12.0
       chalk: 5.0.1
       conventional-changelog-cli: 2.2.2
@@ -1290,6 +1292,30 @@ packages:
     dependencies:
       vite: 3.0.9
       vue: 3.2.38
+    dev: true
+
+  /@volar/code-gen/0.40.5:
+    resolution: {integrity: sha512-M3D/2pmvjyGYalmldcyvTqVXhUnDxMYA2HtThmdQ8pVsTW4BVVzqrjnJAvHKNfM/zU0XA+fzIh1tfJ4Cssoe5w==}
+    dependencies:
+      '@volar/source-map': 0.40.5
+    dev: true
+
+  /@volar/source-map/0.40.5:
+    resolution: {integrity: sha512-HNO+svbNHXmJtDs82muusI1ErWnMpmNPDpz0Hmex5XDEa+q3NlWFXPMAxCflg294fkCfdOizyCxXYqh3UKz3VA==}
+    dependencies:
+      '@vue/reactivity': 3.2.37
+    dev: true
+
+  /@volar/vue-language-core/0.40.5:
+    resolution: {integrity: sha512-4EpMQdLaORWg3EBZtgqzgkNRm1+qvyvCyLbnWHT2SPkUuHObPcbyA3giXbOEnPB0pnQpr2nVTv+tRLWvksXdyA==}
+    dependencies:
+      '@volar/code-gen': 0.40.5
+      '@volar/source-map': 0.40.5
+      '@vue/compiler-core': 3.2.38
+      '@vue/compiler-dom': 3.2.38
+      '@vue/compiler-sfc': 3.2.38
+      '@vue/reactivity': 3.2.38
+      '@vue/shared': 3.2.38
     dev: true
 
   /@vue-macros/common/0.11.1_vue@3.2.38:
