@@ -1,3 +1,3 @@
-import unplugin from '.'
+import unplugin, { Options } from '.'
 
-export default unplugin.esbuild
+export default unplugin.esbuild as (options?: Options) => any;
