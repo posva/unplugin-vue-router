@@ -1,7 +1,7 @@
 {
   "name": "unplugin-vue-router",
   "version": "0.2.1",
-  "packageManager": "pnpm@7.9.5",
+  "packageManager": "pnpm@7.11.0",
   "description": "File based typed routing for Vue Router",
   "keywords": [
     "vue-router",
@@ -88,16 +88,16 @@
     ]
   },
   "dependencies": {
-    "@babel/types": "^7.18.13",
+    "@babel/types": "^7.19.0",
     "@rollup/pluginutils": "^4.2.1",
-    "@vue-macros/common": "^0.11.1",
+    "@vue-macros/common": "^0.11.2",
     "ast-walker-scope": "^0.2.3",
     "chokidar": "^3.5.3",
-    "fast-glob": "^3.2.11",
+    "fast-glob": "^3.2.12",
     "json5": "^2.2.1",
     "local-pkg": "^0.4.2",
     "mlly": "^0.5.14",
-    "pathe": "^0.3.5",
+    "pathe": "^0.3.7",
     "scule": "^0.3.2",
     "unplugin": "^0.9.5",
     "yaml": "^2.1.1"
@@ -111,7 +111,7 @@
     }
   },
   "devDependencies": {
-    "@volar/vue-language-core": "^0.40.5",
+    "@volar/vue-language-core": "^0.40.13",
     "c8": "^7.12.0",
     "chalk": "^5.0.1",
     "conventional-changelog-cli": "^2.2.2",
@@ -128,11 +128,11 @@
     "semver": "^7.3.7",
     "ts-expect": "^1.3.0",
     "tsup": "^6.2.3",
-    "typescript": "^4.8.2",
+    "typescript": "^4.8.3",
     "unplugin-auto-import": "^0.11.2",
-    "vite": "^3.0.9",
-    "vitest": "^0.22.1",
-    "vue": "^3.2.38",
+    "vite": "^3.1.0",
+    "vitest": "^0.23.2",
+    "vue": "^3.2.39",
     "vue-router": "^4.1.5",
     "webpack": "^5.74.0",
     "yorkie": "^2.0.0"
