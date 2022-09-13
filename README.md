@@ -502,7 +502,7 @@ import { createWebHistory, createRouter } from 'vue-router/auto'
 const router = createRouter({
   extendRoutes: (routes) => {
     const adminRoute = routes.find((r) => r.name === '/admin')
-    if (!adminRoute) {
+    if (adminRoute) {
       adminRoute.meta ??= {}
       adminRoute.meta.requiresAuth = true
     }
