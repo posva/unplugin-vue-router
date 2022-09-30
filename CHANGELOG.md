@@ -1,3 +1,15 @@
+## [0.2.2](https://github.com/posva/unplugin-vue-router/compare/v0.2.1...v0.2.2) (2022-09-30)
+
+### Bug Fixes
+
+- **types:** for auto import ([49ffe81](https://github.com/posva/unplugin-vue-router/commit/49ffe81d27dd16d279e6c63d3cbc18f75c5dbda8))
+- **types:** remove trailing slash in path for nested routes ([f0cfb36](https://github.com/posva/unplugin-vue-router/commit/f0cfb362f161b696f08aa6dcfe19bbd373328b8c)), closes [#70](https://github.com/posva/unplugin-vue-router/issues/70)
+
+### Features
+
+- allow not passing a config ([80fd444](https://github.com/posva/unplugin-vue-router/commit/80fd4445ccecd6ee890e7ca15b18b1cb25e42cce)), closes [#59](https://github.com/posva/unplugin-vue-router/issues/59)
+- **types:** RouteLocationRaw ([731e9dd](https://github.com/posva/unplugin-vue-router/commit/731e9dd4bfb407617803109ffbd12c463e7dfe68)), closes [#66](https://github.com/posva/unplugin-vue-router/issues/66)
+
 ## [0.2.1](https://github.com/posva/unplugin-vue-router/compare/v0.2.0...v0.2.1) (2022-08-27)
 
 ### Bug Fixes
