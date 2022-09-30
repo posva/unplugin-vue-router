@@ -15,11 +15,13 @@ function formatExports(exports: string) {
 describe('generateRouteNamedMap', () => {
   it('works with some paths at root', () => {
     const tree = createPrefixTree(DEFAULT_OPTIONS)
+    tree.insert('index.vue')
     tree.insert('a.vue')
     tree.insert('b.vue')
     tree.insert('c.vue')
     expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
       "export interface RouteNamedMap {
+        '/': RouteRecordInfo<'/', '/', Record<never, never>, Record<never, never>>,
         '/a': RouteRecordInfo<'/a', '/a', Record<never, never>, Record<never, never>>,
         '/b': RouteRecordInfo<'/b', '/b', Record<never, never>, Record<never, never>>,
         '/c': RouteRecordInfo<'/c', '/c', Record<never, never>, Record<never, never>>,
@@ -57,7 +59,7 @@ describe('generateRouteNamedMap', () => {
     tree.insert('n/[a]/[c]/other-[d].vue')
     expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
       "export interface RouteNamedMap {
-        '/n/[a]/': RouteRecordInfo<'/n/[a]/', '/n/:a/', { a: ParamValue<true> }, { a: ParamValue<false> }>,
+        '/n/[a]/': RouteRecordInfo<'/n/[a]/', '/n/:a', { a: ParamValue<true> }, { a: ParamValue<false> }>,
         '/n/[a]/[b]': RouteRecordInfo<'/n/[a]/[b]', '/n/:a/:b', { a: ParamValue<true>, b: ParamValue<true> }, { a: ParamValue<false>, b: ParamValue<false> }>,
         '/n/[a]/[c]/other-[d]': RouteRecordInfo<'/n/[a]/[c]/other-[d]', '/n/:a/:c/other-:d', { a: ParamValue<true>, c: ParamValue<true>, d: ParamValue<true> }, { a: ParamValue<false>, c: ParamValue<false>, d: ParamValue<false> }>,
         '/n/[a]/other': RouteRecordInfo<'/n/[a]/other', '/n/:a/other', { a: ParamValue<true> }, { a: ParamValue<false> }>,

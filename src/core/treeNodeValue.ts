@@ -65,8 +65,10 @@ class _TreeNodeValueBase {
     this.rawSegment = rawSegment
     this.pathSegment = pathSegment
     this.subSegments = subSegments
+    const parentPath = parent?.path
     this.path =
-      !parent?.path && this.pathSegment === ''
+      // both the root record and the index record have a path of /
+      (!parentPath || parentPath === '/') && this.pathSegment === ''
         ? '/'
         : joinPath(parent?.path || '', this.pathSegment)
     this.filePaths = new Map()

@@ -199,6 +199,7 @@ describe('Tree', () => {
     const index = tree.children.get('index')!
     expect(index.value).toMatchObject({
       rawSegment: '',
+      // the root should have a '/' instead of '' for the autocompletion
       path: '/',
     })
     expect(index).toBeDefined()
@@ -215,7 +216,7 @@ describe('Tree', () => {
     expect(Array.from(aIndex.children.keys())).toEqual([])
     expect(aIndex.value).toMatchObject({
       rawSegment: '',
-      path: '/a/',
+      path: '/a',
     })
 
     tree.insert('a.vue')
@@ -324,5 +325,26 @@ describe('Tree', () => {
     })
     expect(node.path).toBe('/custom-child')
     expect(node.fullPath).toBe('/custom-child')
+  })
+
+  it('removes trailing slash from path but not from name', () => {
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    tree.insert('a/index.vue')
+    tree.insert('a/a.vue')
+    let child = tree.children.get('a')!
+    expect(child).toBeDefined()
+    expect(child.fullPath).toBe('/a')
+
+    child = tree.children.get('a')!.children.get('index')!
+    expect(child).toBeDefined()
+    expect(child.name).toBe('/a/')
+    expect(child.fullPath).toBe('/a')
+
+    // it stays the same with a parent component in the parent route record
+    tree.insert('a.vue')
+    child = tree.children.get('a')!.children.get('index')!
+    expect(child).toBeDefined()
+    expect(child.name).toBe('/a/')
+    expect(child.fullPath).toBe('/a')
   })
 })

@@ -87,6 +87,16 @@ describe('generateRouteRecord', () => {
     expect(generateRouteRecordSimple(tree)).toMatchSnapshot()
   })
 
+  it('removes trailing slashes', () => {
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    tree.insert('users/index.vue')
+    tree.insert('users/other.vue')
+    tree.insert('nested.vue')
+    tree.insert('nested/index.vue')
+    tree.insert('nested/other.vue')
+    expect(generateRouteRecordSimple(tree)).toMatchSnapshot()
+  })
+
   it('generate static imports', () => {
     const options: ResolvedOptions = {
       ...DEFAULT_OPTIONS,

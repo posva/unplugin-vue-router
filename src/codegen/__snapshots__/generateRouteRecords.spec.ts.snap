@@ -546,6 +546,55 @@ exports[`generateRouteRecord > nested children 2`] = `
 ]"
 `;
 
+exports[`generateRouteRecord > removes trailing slashes 1`] = `
+"[
+  {
+    path: '/nested',
+    name: '/nested',
+    component: () => import('nested.vue'),
+    /* no props */
+    children: [
+      {
+        path: '',
+        name: '/nested/',
+        component: () => import('nested/index.vue'),
+        /* no props */
+        /* no children */
+      },
+      {
+        path: 'other',
+        name: '/nested/other',
+        component: () => import('nested/other.vue'),
+        /* no props */
+        /* no children */
+      }
+    ],
+  },
+  {
+    path: '/users',
+    /* no name */
+    /* no component */
+    /* no props */
+    children: [
+      {
+        path: '',
+        name: '/users/',
+        component: () => import('users/index.vue'),
+        /* no props */
+        /* no children */
+      },
+      {
+        path: 'other',
+        name: '/users/other',
+        component: () => import('users/other.vue'),
+        /* no props */
+        /* no children */
+      }
+    ],
+  }
+]"
+`;
+
 exports[`generateRouteRecord > route block > adds meta data 1`] = `
 "[
   {

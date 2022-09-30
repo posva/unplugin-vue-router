@@ -94,8 +94,8 @@ export function joinPath(...paths: string[]): string {
   for (const path of paths) {
     result =
       result.replace(TRAILING_SLASH_RE, '') +
-      '/' +
-      path.replace(LEADING_SLASH_RE, '')
+      // check path to avoid adding a trailing slash when joining an empty string
+      (path && '/' + path.replace(LEADING_SLASH_RE, ''))
   }
   return result
 }
