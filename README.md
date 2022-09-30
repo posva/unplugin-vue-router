@@ -226,7 +226,7 @@ By default, this plugins checks the folder at `src/pages` for any `.vue` files a
 
 Let's take a look at a simple example:
 
-```
+```text
 src/pages/
 ├── index.vue
 ├── about.vue
@@ -255,7 +255,7 @@ Nested routes are automatically defined by defining a `.vue` file alongside a fo
 
 In other words, given this folder structure:
 
-```
+```text
 src/pages/
 ├── users/
 │   └── index.vue
@@ -290,13 +290,13 @@ const routes = [
 ]
 ```
 
-Note `users/` could be any valid route like `my-[id]-param/`.
+Note the folder and file's name `users/` could be any valid naming like `my-[id]-param/`.
 
 #### Nested routes without nesting layouts
 
 Sometimes you might want to add _nesting to the URL_ in the form of slashes but you don't want it to impact your UI hierarchy. Consider the following folder structure:
 
-```
+```text
 src/pages/
 ├── users/
 │   ├── [id].vue
@@ -351,7 +351,7 @@ VueRouter({
 })
 ```
 
-You can also provide a path prefix for each of these folders, it will be used _as is_, and can therefor **not end in a `/`** and even contain any params you want:
+You can also provide a path prefix for each of these folders, it will be used _as is_, and **cannot start with a `/`** but can contain any params you want or even **not finish with a `/`**:
 
 ```js
 VueRouter({
@@ -361,21 +361,25 @@ VueRouter({
       src: 'src/admin/routes',
       // note there is always a trailing slash and never a leading one
       path: 'admin/',
+      // src/admin/routes/dashboard.vue -> /admin/dashboard
     },
     {
       src: 'src/docs',
+      // you can add parameters
       path: 'docs/:lang/',
+      // src/docs/introduction.vue -> /docs/:lang/introduction
     },
     {
       src: 'src/promos',
-      // produces paths like /promos-some-file-name
+      // you can omit the trailing slash
       path: 'promos-',
+      // src/promos/black-friday.vue -> /promos-black-friday
     },
   ],
 })
 ```
 
-Note that the provided folders must be separate and one _route folder_ cannot contain another specified _route folder_.
+Note that the provided folders must be separate and one _route folder_ cannot contain another specified _route folder_. If you need further customization, give [definePage()](#definepage-in-script) a try.
 
 ## TypeScript
 
@@ -447,15 +451,16 @@ The `RouterLocationResolved` type exposed by `vue-router/auto` allows passing a 
 </RouterLink>
 ```
 
-This type corresponds to the return type of `router.resolve()`.
+This type is also the return type of `router.resolve()`.
 
-You have the same equivalents for `RouterLocation`, `RouterLocationNormalized`, and `RouterLocationNormalizedLoaded`. All of them exist in `vue-router` but the one exposed by `vue-router/auto` accept a generic:
+You have the same equivalents for `RouterLocation`, `RouterLocationNormalized`, and `RouterLocationNormalizedLoaded`. All of them exist in `vue-router` but `vue-router/auto` override them to provide a type safe version of them. In addition to that, you can pass the name of the route as a generic:
 
 ```ts
 // these are all valid
 let userWithId: RouterLocationNormalizedLoaded<'/users/[id]'> = useRoute()
 userWithId = useRoute<'/users/[id]'>()
-userWithId = useRoute('/users/[id]') // 👈  this one is the easiest to write
+// 👇 this one is the easiest to write because it autocomplete
+userWithId = useRoute('/users/[id]')
 ```
 
 ## Named views
@@ -474,6 +479,25 @@ It is possible to define [named views](https://router.vuejs.org/guide/essentials
 Note that by default a non named route is named `default` and that you don't need to name your file `index@default.vue` even if there are other named views (e.g. having `index@aux.vue` and `index.vue` is the same as having `index@aux.vue` and `index@default.vue`).
 
 ## Extending existing routes
+
+### `definePage()` in `<script>`
+
+The macro `definePage()` allows you to define any extra properties related to the route. It is useful when you need to customize the `path`, the `name`, `meta`, etc
+
+```vue
+<script setup>
+definePage({
+  name: 'my-own-name',
+  path: '/absolute-with-:param',
+  alias: ['/a/:param'],
+  meta: {
+    custom: 'data',
+  },
+})
+</script>
+```
+
+Note you cannot use variables in `definePage()` as its passed parameter gets extracted at build time and is removed from `<script setup>`. You can also use [the `<route>` block](#sfc-route-custom-block) which allows other formats like yaml.
 
 ### SFC `<route>` custom block
 
