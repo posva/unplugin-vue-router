@@ -1,9 +1,7 @@
-import type { VueLanguagePlugin } from '@volar/vue-language-core'
-
-const plugin: VueLanguagePlugin = () => {
+const plugin = () => {
   return {
     getEmbeddedFileNames(fileName, sfc) {
-      const fileNames: string[] = []
+      const fileNames = []
       for (let i = 0; i < sfc.customBlocks.length; i++) {
         const block = sfc.customBlocks[i]
         if (block.type === 'route' && block.lang === 'ts') {
@@ -45,4 +43,4 @@ const plugin: VueLanguagePlugin = () => {
   }
 }
 
-export default plugin
+module.exports = plugin
