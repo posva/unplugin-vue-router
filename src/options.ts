@@ -86,10 +86,10 @@ export interface Options
   routesFolder?: RoutesFolder
 }
 
-export const DEFAULT_OPTIONS: Required<Options> = {
+export const DEFAULT_OPTIONS: ResolvedOptions = {
   extensions: ['.vue'],
   exclude: [],
-  routesFolder: 'src/pages',
+  routesFolder: [{ src: 'src/pages' }],
   routeBlockLang: 'json5',
   getRouteName: getFileBasedRouteName,
   dataFetching: false,
