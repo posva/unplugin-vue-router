@@ -15,7 +15,7 @@ import { join } from 'pathe'
 
 export { Options }
 
-export default createUnplugin<Options>((opt, meta) => {
+export default createUnplugin<Options | undefined>((opt = {}, meta) => {
   const options = resolveOptions(opt)
   const ctx = createRoutesContext(options)
 
