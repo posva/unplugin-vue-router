@@ -43,6 +43,9 @@ class _TreeNodeValueBase {
    */
   private _overrides = new Map<string, RouteRecordOverride>()
 
+  /**
+   * Should this add the loader guard in the route record.
+   */
   includeLoaderGuard: boolean = false
 
   /**
