@@ -14,3 +14,17 @@ const MY_VAL = 'INSIDE SETUP TEST'
     <p>{{ MY_VAL }}</p>
   </main>
 </template>
+
+<route lang="ts">
+const a = 20 as 20 | 30
+
+console.log('WITHIN ROUTE_BLOCK', a)
+
+export default {
+  alias: '/u/:id',
+  meta: {
+    a,
+    other: 'other',
+  },
+}
+</route>
