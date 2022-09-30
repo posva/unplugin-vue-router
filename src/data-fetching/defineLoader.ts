@@ -39,10 +39,10 @@ export interface DefineLoaderOptions<isLazy extends boolean = boolean> {
 }
 
 const DEFAULT_DEFINE_LOADER_OPTIONS: Required<DefineLoaderOptions> = {
-  cacheTime: 1000 * 5,
+  cacheTime: 1000 * 5, // 5s
   lazy: false,
+  // same as no key
   key: '',
-  // cacheTime: 1000 * 60 * 5,
 }
 
 /**
@@ -257,8 +257,8 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
         }))
     }
 
-    // lazy resolves immediately to not block navigation guards
-    return lazy || !pendingPromise
+    return lazy || // lazy resolves immediately to not block navigation guards
+      !pendingPromise // There was a cache and we skipped the loading
       ? Promise.resolve()
       : // pendingPromise is thisPromise
         pendingPromise
