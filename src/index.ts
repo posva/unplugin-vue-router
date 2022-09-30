@@ -185,7 +185,8 @@ export const VueRouterExports: Array<string | [string, string]> = [
   'useRoute',
   'useRouter',
   'defineLoader',
-  'definePage',
+  // NOTE: the typing seems broken locally, so instead we export it directly from unplugin-vue-router/runtime
+  // 'definePage',
 ]
 
 /**
@@ -199,6 +200,10 @@ export const VueRouterExports: Array<string | [string, string]> = [
  * }),
  * ```
  */
-export const VueRouterAutoImports = {
+export const VueRouterAutoImports: Record<
+  string,
+  Array<string | [string, string]>
+> = {
   'vue-router/auto': VueRouterExports,
+  'unplugin-vue-router/runtime': [['_definePage', 'definePage']],
 }
