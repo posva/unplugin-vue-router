@@ -1,3 +1,9 @@
+## [0.2.3](https://github.com/posva/unplugin-vue-router/compare/v0.2.2...v0.2.3) (2022-10-05)
+
+### Bug Fixes
+
+- merge route record ([f1e7c8b](https://github.com/posva/unplugin-vue-router/commit/f1e7c8b76741b33530cf1968d32aa35b37b3adfd))
+
 ## [0.2.2](https://github.com/posva/unplugin-vue-router/compare/v0.2.1...v0.2.2) (2022-09-30)
 
 ### Bug Fixes
