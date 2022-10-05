@@ -145,6 +145,7 @@ export function createRoutesContext(options: ResolvedOptions) {
 
   function generateRoutes() {
     // keys are import names while values are paths import __ from __
+    // TODO: reverse the order and make a list of named imports and another for defaults?
     const importList = new Map<string, string>()
 
     const routesExport = `export const routes = ${generateRouteRecord(
@@ -154,7 +155,8 @@ export function createRoutesContext(options: ResolvedOptions) {
     )}`
 
     let imports = ''
-    if (options.dataFetching) {
+    // FIXME: after demo
+    if (true || options.dataFetching) {
       imports += `import { _HasDataLoaderMeta, _mergeRouteRecord } from 'unplugin-vue-router/runtime'\n`
     }
     for (const [name, path] of importList) {
