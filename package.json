@@ -1,7 +1,7 @@
 {
   "name": "unplugin-vue-router",
   "version": "0.2.3",
-  "packageManager": "pnpm@7.13.4",
+  "packageManager": "pnpm@7.13.5",
   "description": "File based typed routing for Vue Router",
   "keywords": [
     "vue-router",
@@ -90,7 +90,7 @@
   "dependencies": {
     "@babel/types": "^7.19.4",
     "@rollup/pluginutils": "^4.2.1",
-    "@vue-macros/common": "^0.12.0",
+    "@vue-macros/common": "^0.12.1",
     "ast-walker-scope": "^0.2.3",
     "chokidar": "^3.5.3",
     "fast-glob": "^3.2.12",
