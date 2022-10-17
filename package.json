@@ -89,7 +89,7 @@
   },
   "dependencies": {
     "@babel/types": "^7.19.4",
-    "@rollup/pluginutils": "^4.2.1",
+    "@rollup/pluginutils": "^5.0.1",
     "@vue-macros/common": "^0.12.1",
     "ast-walker-scope": "^0.2.3",
     "chokidar": "^3.5.3",
