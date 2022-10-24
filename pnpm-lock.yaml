@@ -27,7 +27,7 @@ importers:
       pathe: ^0.3.9
       prettier: ^2.7.1
       rimraf: ^3.0.2
-      rollup: ^2.79.1
+      rollup: ^3.2.3
       scule: ^0.3.2
       semver: ^7.3.8
       ts-expect: ^1.3.0
@@ -44,7 +44,7 @@ importers:
       yorkie: ^2.0.0
     dependencies:
       '@babel/types': 7.19.4
-      '@rollup/pluginutils': 5.0.2_rollup@2.79.1
+      '@rollup/pluginutils': 5.0.2_rollup@3.2.3
       '@vue-macros/common': 0.12.2
       ast-walker-scope: 0.2.3
       chokidar: 3.5.3
@@ -70,7 +70,7 @@ importers:
       p-series: 3.0.0
       prettier: 2.7.1
       rimraf: 3.0.2
-      rollup: 2.79.1
+      rollup: 3.2.3
       semver: 7.3.8
       ts-expect: 1.3.0
       tsup: 6.3.0_typescript@4.8.4
@@ -1010,7 +1010,7 @@ packages:
       picomatch: 2.3.1
     dev: true
 
-  /@rollup/pluginutils/5.0.2_rollup@2.79.1:
+  /@rollup/pluginutils/5.0.2_rollup@3.2.3:
     resolution: {integrity: sha512-pTd9rIsP92h+B6wWwFbW8RkZv4hiR/xKsqre4SIuAOaOEQRxi0lqLke9k2/7WegC85GgUs9pjmOjCUi3In4vwA==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
@@ -1022,7 +1022,7 @@ packages:
       '@types/estree': 1.0.0
       estree-walker: 2.0.2
       picomatch: 2.3.1
-      rollup: 2.79.1
+      rollup: 3.2.3
     dev: false
 
   /@sideway/address/4.1.4:
@@ -8078,6 +8078,14 @@ packages:
   /rollup/2.79.1:
     resolution: {integrity: sha512-uKxbd0IhMZOhjAiD5oAFp7BqvkA4Dv47qpOCtaNvng4HBwdbWtdOh8f5nZNuk2rp51PMGk3bzfWu5oayNEuYnw==}
     engines: {node: '>=10.0.0'}
+    hasBin: true
+    optionalDependencies:
+      fsevents: 2.3.2
+    dev: true
+
+  /rollup/3.2.3:
+    resolution: {integrity: sha512-qfadtkY5kl0F5e4dXVdj2D+GtOdifasXHFMiL1SMf9ADQDv5Eti6xReef9FKj+iQPR2pvtqWna57s/PjARY4fg==}
+    engines: {node: '>=14.18.0', npm: '>=8.0.0'}
     hasBin: true
     optionalDependencies:
       fsevents: 2.3.2
