@@ -1,6 +1,6 @@
 import { DataLoader, isDataLoader } from './defineLoader'
 import type { RouteLocationNormalized, Router } from 'vue-router'
-import { Awaitable, __DEV__ } from '../core/utils'
+import { Awaitable } from '../core/utils'
 
 // Symbol used to detect if a route has loaders
 export const HasDataLoaderMeta = Symbol()

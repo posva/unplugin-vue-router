@@ -205,5 +205,3 @@ function mergeDeep(...objects: Array<Record<any, any>>): Record<any, any> {
     return prev
   }, {})
 }
-
-export const __DEV__ = process.env.NODE_ENV !== 'production'
