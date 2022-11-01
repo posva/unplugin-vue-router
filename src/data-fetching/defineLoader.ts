@@ -84,6 +84,17 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
   opts = typeof _loaderOrOptions === 'object' ? _loaderOrOptions : opts
   const options = { ...DEFAULT_DEFINE_LOADER_OPTIONS, ...opts }
 
+  // force the boolean so the code must work with both versions and it's also easier to type
+  const entries = new WeakMap<
+    Router,
+    DataLoaderCacheEntry<Awaited<P>, boolean>
+  >()
+
+  let pendingPromise: Promise<void> | undefined | null
+  let currentNavigation: RouteLocationNormalizedLoaded | undefined | null
+
+  const pendingLoad = () => pendingPromise
+
   const dataLoader: DataLoader<Awaited<P>, isLazy> = (() => {
     let [parentEntry, _router, _route] = getCurrentContext()
     const router = _router || useRouter()
@@ -91,7 +102,7 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
 
     if (
       // no cache: we need to load
-      !cache.has(router) ||
+      !entries.has(router) ||
       // invoked by the parent, we should try to load again
       parentEntry
     ) {
@@ -99,7 +110,7 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
     }
 
     // after calling load, we always have an entry
-    const entry = cache.get(router)!
+    const entry = entries.get(router)!
 
     // TODO: reload the page and figure out a way of detecting it
 
@@ -158,33 +169,25 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
     return Object.assign(promise, dataLoaderResult)
   }) as DataLoader<Awaited<P>, isLazy>
 
-  // force the boolean so the code must work with both versions and it's also easier to type
-  const cache = new WeakMap<Router, DataLoaderCacheEntry<Awaited<P>, boolean>>()
-
-  let pendingPromise: Promise<void> | undefined | null
-  let currentNavigation: RouteLocationNormalizedLoaded | undefined | null
-
-  const pendingLoad = () => pendingPromise
-
   function load(
     route: RouteLocationNormalizedLoaded,
     router: Router,
     parent?: DataLoaderCacheEntry,
     initialRootData?: Record<string, unknown>
   ): Promise<void> {
-    const hasCacheEntry = cache.has(router)
+    const hasCacheEntry = entries.has(router)
 
     const initialData =
       initialRootData && (initialRootData[options.key] as Awaited<P>)
 
+    // initialize the entry and retrieve the instance
     if (!hasCacheEntry) {
-      cache.set(router, createDataCacheEntry(options, initialData))
+      entries.set(router, createDataCacheEntry(options, initialData))
     }
-
-    const entry = cache.get(router)!
+    const entry = entries.get(router)!
 
     if (initialData) {
-      // invalidate the entry because we don't have the params it was created with
+      // invalidate the entry because we don't have the params it was created with but resolve immediately
       entry.when = 0
       return Promise.resolve()
     }
@@ -267,7 +270,7 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
   // add the context as one single object
   dataLoader._ = {
     loader,
-    cache,
+    entries,
     load,
     options,
   }
@@ -303,6 +306,10 @@ export function isDataLoader(loader: any): loader is DataLoader<unknown> {
 }
 
 type _PromiseMerged<T> = T & Promise<T>
+
+/**
+ * Returned Composable of `defineDataLoader()`
+ */
 export interface DataLoader<T, isLazy extends boolean = boolean> {
   (): _PromiseMerged<_DataLoaderResult<T, isLazy>>
 
@@ -321,7 +328,7 @@ export interface DataLoader<T, isLazy extends boolean = boolean> {
  * @internal
  */
 export interface _DataLoaderInternals<T> {
-  // the loader passed to defineLoader as is
+  // the original loader passed to defineLoader
   loader: (route: RouteLocationNormalizedLoaded) => Promise<T>
 
   /**
@@ -338,7 +345,7 @@ export interface _DataLoaderInternals<T> {
    * The data loaded by the loader associated with the router instance. As one router instance can only be used for one
    * app, it ensures the cache is not shared among requests.
    */
-  cache: WeakMap<Router, DataLoaderCacheEntry<T>>
+  entries: WeakMap<Router, DataLoaderCacheEntry<T>>
 
   /**
    * Resolved options for the loader.
@@ -400,7 +407,7 @@ function trackRoute(route: RouteLocationNormalizedLoaded) {
   ] as const
 }
 
-function trackObjectReads<T extends Record<string, any>>(obj: T) {
+function trackObjectReads<T extends Record<string, unknown>>(obj: T) {
   const reads: Partial<T> = {}
   return [
     new Proxy(obj, {

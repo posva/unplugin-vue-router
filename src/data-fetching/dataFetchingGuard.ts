@@ -86,7 +86,7 @@ export function setupDataFetchingGuard(
                   loaders.map((loader) => {
                     const {
                       options: { key },
-                      cache,
+                      entries,
                     } = loader._
                     return loader._.load(
                       to,
@@ -98,7 +98,7 @@ export function setupDataFetchingGuard(
                       if (!initialData) {
                         // TODO: warn if we have an incomplete initialData
                         if (key) {
-                          fetchedState[key] = cache.get(router)!.data.value
+                          fetchedState[key] = entries.get(router)!.data.value
                         }
                       } else if (__DEV__ && !key && !isFetched) {
                         // TODO: find a way to warn on client when initialData is empty when it shouldn't
