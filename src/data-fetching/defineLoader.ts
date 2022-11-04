@@ -8,7 +8,7 @@ import {
 import type { Ref, UnwrapRef } from 'vue'
 import {
   createDataCacheEntry,
-  DataLoaderCacheEntry,
+  DataLoaderEntry,
   getCurrentContext,
   isCacheExpired,
   setCurrentContext,
@@ -85,10 +85,7 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
   const options = { ...DEFAULT_DEFINE_LOADER_OPTIONS, ...opts }
 
   // force the boolean so the code must work with both versions and it's also easier to type
-  const entries = new WeakMap<
-    Router,
-    DataLoaderCacheEntry<Awaited<P>, boolean>
-  >()
+  const entries = new WeakMap<Router, DataLoaderEntry<Awaited<P>, boolean>>()
 
   let pendingPromise: Promise<void> | undefined | null
   let currentNavigation: RouteLocationNormalizedLoaded | undefined | null
@@ -136,7 +133,7 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
       .finally(() => {
         // loader still needs to load again if this was a nested loader, we need to tell the parent they depend on us
         if (parentEntry) {
-          parentEntry.loaders.add(entry)
+          parentEntry.children.add(entry)
         }
         // set the correct context for other nested loaders
         setCurrentContext(parentEntry && [parentEntry, router, route])
@@ -172,7 +169,7 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
   function load(
     route: RouteLocationNormalizedLoaded,
     router: Router,
-    parent?: DataLoaderCacheEntry,
+    parent?: DataLoaderEntry,
     initialRootData?: Record<string, unknown>
   ): Promise<void> {
     const hasCacheEntry = entries.has(router)
@@ -188,6 +185,7 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
 
     if (initialData) {
       // invalidate the entry because we don't have the params it was created with but resolve immediately
+      // TODO: this is done when creating the data cache entry so it shouldn't be necessary anymore. Remove it and verify
       entry.when = 0
       return Promise.resolve()
     }
@@ -280,7 +278,7 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
 }
 
 function shouldFetchAgain(
-  entry: DataLoaderCacheEntry<any>,
+  entry: DataLoaderEntry<any>,
   route: RouteLocationNormalizedLoaded
 ): boolean {
   return (
@@ -289,7 +287,7 @@ function shouldFetchAgain(
     !includesParams(route.params, entry.params) ||
     !includesParams(route.query, entry.query) ||
     (entry.hash != null && entry.hash !== route.hash) ||
-    Array.from(entry.loaders).some((childEntry) =>
+    Array.from(entry.children).some((childEntry) =>
       shouldFetchAgain(childEntry, route)
     )
   )
@@ -337,7 +335,7 @@ export interface _DataLoaderInternals<T> {
   load: (
     route: RouteLocationNormalizedLoaded,
     router: Router,
-    parent?: DataLoaderCacheEntry,
+    parent?: DataLoaderEntry,
     initialRootData?: Record<string, unknown>
   ) => Promise<void>
 
@@ -345,7 +343,7 @@ export interface _DataLoaderInternals<T> {
    * The data loaded by the loader associated with the router instance. As one router instance can only be used for one
    * app, it ensures the cache is not shared among requests.
    */
-  entries: WeakMap<Router, DataLoaderCacheEntry<T>>
+  entries: WeakMap<Router, DataLoaderEntry<T>>
 
   /**
    * Resolved options for the loader.

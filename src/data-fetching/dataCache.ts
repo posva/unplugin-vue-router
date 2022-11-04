@@ -7,17 +7,34 @@ import {
 } from 'vue-router'
 import { DefineLoaderOptions } from './defineLoader'
 
-export interface DataLoaderCacheEntry<T = unknown, isLazy = boolean> {
+/**
+ * `DataLoaderEntry` groups all of the properties that can be relied on by the data fetching guard. Any extended loader
+ * should implement this interface. Each loaders has their own set of entries attached to an app instance.
+ */
+export interface DataLoaderEntry<T = unknown, isLazy = boolean> {
   /**
    * When was the data loaded in ms (Date.now()).
    * @internal
    */
   when: number
 
+  /**
+   * Location's params that were used to load the data.
+   */
   params: Partial<RouteParams>
+  /**
+   * Location's query that was used to load the data.
+   */
   query: Partial<LocationQuery>
+  /**
+   * Location's hash that was used to load the data.
+   */
   hash: string | null
-  loaders: Set<DataLoaderCacheEntry>
+
+  /**
+   * Other data loaders that depend on this one. This is used to invalidate the data when a dependency is invalidated.
+   */
+  children: Set<DataLoaderEntry>
 
   /**
    * Whether there is an ongoing request.
@@ -31,16 +48,19 @@ export interface DataLoaderCacheEntry<T = unknown, isLazy = boolean> {
    */
   error: Ref<any> // any is simply more convenient for errors
 
+  /**
+   * Is the entry ready with data. This is set to `true` the first time the entry is updated with data.
+   */
   isReady: boolean
 
   /**
-   * Data stored in the cache.
+   * Data stored in the entry.
    */
   data: false extends isLazy ? Ref<UnwrapRef<T>> : Ref<UnwrapRef<T> | undefined>
 }
 
 export function isCacheExpired(
-  entry: DataLoaderCacheEntry,
+  entry: DataLoaderEntry,
   options: Required<DefineLoaderOptions>
 ): boolean {
   const { cacheTime } = options
@@ -49,7 +69,7 @@ export function isCacheExpired(
     !cacheTime ||
     // did we hit the expiration time
     Date.now() - entry.when >= cacheTime ||
-    Array.from(entry.loaders).some((childEntry) =>
+    Array.from(entry.children).some((childEntry) =>
       isCacheExpired(childEntry, options)
     )
   )
@@ -58,12 +78,13 @@ export function isCacheExpired(
 export function createDataCacheEntry<T, isLazy extends boolean = boolean>(
   options: Required<DefineLoaderOptions<isLazy>>,
   initialData?: T
-): DataLoaderCacheEntry<T, isLazy> {
-  return withinScope<DataLoaderCacheEntry<T, isLazy>>(() => ({
+): DataLoaderEntry<T, isLazy> {
+  return withinScope<DataLoaderEntry<T, isLazy>>(() => ({
     pending: ref(false),
     error: ref<any>(),
-    when: Date.now(),
-    loaders: new Set(),
+    // set to 0 to when there is an initialData so the next request will always trigger the data loaders
+    when: initialData === undefined ? Date.now() : 0,
+    children: new Set(),
     // @ts-expect-error: data always start as empty
     data: ref(initialData),
     params: {},
@@ -75,7 +96,7 @@ export function createDataCacheEntry<T, isLazy extends boolean = boolean>(
 }
 
 export function updateDataCacheEntry<T>(
-  entry: DataLoaderCacheEntry<T>,
+  entry: DataLoaderEntry<T>,
   data: T,
   params: Partial<RouteParams>,
   query: Partial<LocationQuery>,
@@ -110,7 +131,7 @@ export function stopScope() {
 }
 
 export let currentContext:
-  | [DataLoaderCacheEntry, Router, RouteLocationNormalizedLoaded]
+  | [DataLoaderEntry, Router, RouteLocationNormalizedLoaded]
   | undefined
   | null
 
