@@ -69,10 +69,10 @@ export function setupDataFetchingGuard(
         to.matched
           .flatMap((route) => route.meta[HasDataLoaderMeta])
           // loaders are optional
-          .filter((moduleImport) => moduleImport)
+          .filter(Boolean as unknown as <T>(v: T) => v is NonNullable<T>)
           // call the dynamic imports to get the loaders
           .map((moduleImport) =>
-            moduleImport!()
+            moduleImport()
               // fetch or use the cache
               .then((mod) => {
                 // check all the exports of the module and keep the loaders
