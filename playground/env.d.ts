@@ -1,5 +1,6 @@
 /// <reference types="vite/client" />
 
+// manual extension of route types
 declare module 'vue-router/auto/routes' {
   import type {
     RouteRecordInfo,
@@ -8,6 +9,7 @@ declare module 'vue-router/auto/routes' {
     ParamValueZeroOrMore,
     ParamValueZeroOrOne,
   } from 'unplugin-vue-router'
+
   export interface RouteNamedMap {
     'custom-dynamic-name': RouteRecordInfo<
       'custom-dynamic-name',
