@@ -88,6 +88,12 @@ export function setupDataFetchingGuard(
                       options: { key },
                       entries,
                     } = loader._
+                    /**
+                     * We need to:
+                     * 1. ssrKey
+                     * 2. getCurrentData (entries.get)
+                     * 3. load()
+                     */
                     return loader._.load(
                       to,
                       router,

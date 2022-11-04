@@ -267,7 +267,7 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
 
   // add the context as one single object
   dataLoader._ = {
-    loader,
+    // loader,
     entries,
     load,
     options,
@@ -321,13 +321,14 @@ export interface DataLoader<T, isLazy extends boolean = boolean> {
 }
 
 /**
- * Holds internal state of a loader.
+ * Holds internal state of a loader. Used by the data fetching navigation guard.
  *
  * @internal
  */
 export interface _DataLoaderInternals<T> {
   // the original loader passed to defineLoader
-  loader: (route: RouteLocationNormalizedLoaded) => Promise<T>
+  // TODO: if this is really useful it should be exposed somewhere else
+  // loader: (route: RouteLocationNormalizedLoaded) => Promise<T>
 
   /**
    * Loads the data from the cache if possible, otherwise loads it from the loader and awaits it.
