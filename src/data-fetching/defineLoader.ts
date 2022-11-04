@@ -7,12 +7,12 @@ import {
 } from 'vue-router'
 import type { Ref, UnwrapRef } from 'vue'
 import {
-  createDataCacheEntry,
+  createDataLoaderEntry,
   DataLoaderEntry,
   getCurrentContext,
   isCacheExpired,
   setCurrentContext,
-  updateDataCacheEntry,
+  updateDataLoaderEntry,
 } from './dataCache'
 import { _RouteMapGeneric } from '../codegen/generateRouteMap'
 import { includesParams } from './locationUtils'
@@ -179,7 +179,7 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
 
     // initialize the entry and retrieve the instance
     if (!hasCacheEntry) {
-      entries.set(router, createDataCacheEntry(options, initialData))
+      entries.set(router, createDataLoaderEntry(options, initialData))
     }
     const entry = entries.get(router)!
 
@@ -237,7 +237,7 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
       const thisPromise = (pendingPromise = loader(trackedRoute)
         .then((data) => {
           if (pendingPromise === thisPromise) {
-            updateDataCacheEntry(entry, data, params, query, hash)
+            updateDataLoaderEntry(entry, data, params, query, hash)
           }
         })
         .catch((err) => {
@@ -293,6 +293,8 @@ function shouldFetchAgain(
   )
 }
 
+type _PromiseMerged<T> = T & Promise<T>
+
 const IsLoader = Symbol()
 /**
  * Check if a value is a `DataLoader`.
@@ -302,8 +304,6 @@ const IsLoader = Symbol()
 export function isDataLoader(loader: any): loader is DataLoader<unknown> {
   return loader && loader[IsLoader]
 }
-
-type _PromiseMerged<T> = T & Promise<T>
 
 /**
  * Returned Composable of `defineDataLoader()`
@@ -351,6 +351,9 @@ export interface _DataLoaderInternals<T> {
   options: Required<DefineLoaderOptions>
 }
 
+/**
+ * Return value of a loader defined with `defineDataLoader()`.
+ */
 export interface _DataLoaderResult<T = unknown, isLazy = boolean> {
   /**
    * Whether there is an ongoing request.

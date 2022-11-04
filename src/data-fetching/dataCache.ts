@@ -75,7 +75,7 @@ export function isCacheExpired(
   )
 }
 
-export function createDataCacheEntry<T, isLazy extends boolean = boolean>(
+export function createDataLoaderEntry<T, isLazy extends boolean = boolean>(
   options: Required<DefineLoaderOptions<isLazy>>,
   initialData?: T
 ): DataLoaderEntry<T, isLazy> {
@@ -95,7 +95,7 @@ export function createDataCacheEntry<T, isLazy extends boolean = boolean>(
   }))
 }
 
-export function updateDataCacheEntry<T>(
+export function updateDataLoaderEntry<T>(
   entry: DataLoaderEntry<T>,
   data: T,
   params: Partial<RouteParams>,
@@ -136,6 +136,7 @@ export let currentContext:
   | null
 
 export function getCurrentContext() {
+  // an empty array allows destructuring without checking if it's undefined
   return currentContext || ([] as const)
 }
 export function setCurrentContext(context: typeof currentContext) {
