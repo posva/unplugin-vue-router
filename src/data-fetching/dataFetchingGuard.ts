@@ -47,7 +47,7 @@ export function setupDataFetchingGuard(
   router: Router,
   { initialData }: SetupDataFetchingGuardOptions = {}
 ) {
-  if (__DEV__) {
+  if (process.env.NODE_ENV !== 'production') {
     if (ADDED_SYMBOL in router) {
       console.warn(
         '[vue-router]: Data fetching guard added twice. Make sure to remove the extra call.'
@@ -100,7 +100,11 @@ export function setupDataFetchingGuard(
                         if (key) {
                           fetchedState[key] = entries.get(router)!.data.value
                         }
-                      } else if (__DEV__ && !key && !isFetched) {
+                      } else if (
+                        process.env.NODE_ENV !== 'production' &&
+                        !key &&
+                        !isFetched
+                      ) {
                         // TODO: find a way to warn on client when initialData is empty when it shouldn't
                         // console.warn()
                       }
