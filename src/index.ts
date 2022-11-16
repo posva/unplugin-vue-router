@@ -74,6 +74,13 @@ export default createUnplugin<Options | undefined>((opt = {}, meta) => {
       return ctx.scanPages()
     },
 
+    // https://rollupjs.org/guide/en/#direct-plugin-communication
+    api: {
+      getRouteMap() {
+        return ctx.routeMap
+      },
+    },
+
     buildEnd() {
       if (options.logs) {
         console.log('🛑 stopping watcher')

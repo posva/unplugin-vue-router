@@ -222,6 +222,7 @@ ${routesExport}
   }
 
   return {
+    routeMap,
     scanPages,
     writeConfigFiles,
 
