@@ -181,6 +181,21 @@ If you are using [unplugin-auto-import](https://github.com/antfu/unplugin-auto-i
  })
 ```
 
+Note that the `vue-router` preset might export less things than the one exported by `unplugin-vue-router` so you might need to add any other imports you were relying on manually:
+
+```diff
+     AutoImport({
+       imports: [
+-        'vue-router',
++        VueRouterAutoImports,
++        {
++           // add any other imports you were relying on
++           'vue-router/auto': ['useLink']
++        },
+       ],
+     }),
+```
+
 Make sure to also check and follow [the TypeScript section](#typescript) below **if you are using TypeScript or have a `jsconfig.json` file**.
 
 ## Configuration
