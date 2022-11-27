@@ -1,3 +1,4 @@
+// TODO: remove the import in nuxt 3
 import { defineNuxtConfig } from 'nuxt'
 import { _HasDataLoaderMeta } from 'unplugin-vue-router/runtime'
 
