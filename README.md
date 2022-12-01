@@ -456,23 +456,23 @@ The `RouterTyped` type gives you access to the typed version of the router insta
 import type { RouterTyped } from 'vue-router/auto'
 ```
 
-#### `RouterLocationResolved`
+#### `RouteLocationResolved`
 
-The `RouterLocationResolved` type exposed by `vue-router/auto` allows passing a generic (which autocomplete) to type a route **whenever checking the name doesn't makes sense because you know the type**. This is useful for cases like `<RouterLink v-slot="{ route }">`:
+The `RouteLocationResolved` type exposed by `vue-router/auto` allows passing a generic (which autocomplete) to type a route **whenever checking the name doesn't makes sense because you know the type**. This is useful for cases like `<RouterLink v-slot="{ route }">`:
 
 ```vue
 <RouterLink v-slot="{ route }">
-  User {{ (route as RouterLocationResolved<'/users/[id]'>).params.id }}
+  User {{ (route as RouteLocationResolved<'/users/[id]'>).params.id }}
 </RouterLink>
 ```
 
 This type is also the return type of `router.resolve()`.
 
-You have the same equivalents for `RouterLocation`, `RouterLocationNormalized`, and `RouterLocationNormalizedLoaded`. All of them exist in `vue-router` but `vue-router/auto` override them to provide a type safe version of them. In addition to that, you can pass the name of the route as a generic:
+You have the same equivalents for `RouteLocation`, `RouteLocationNormalized`, and `RouteLocationNormalizedLoaded`. All of them exist in `vue-router` but `vue-router/auto` override them to provide a type safe version of them. In addition to that, you can pass the name of the route as a generic:
 
 ```ts
 // these are all valid
-let userWithId: RouterLocationNormalizedLoaded<'/users/[id]'> = useRoute()
+let userWithId: RouteLocationNormalizedLoaded<'/users/[id]'> = useRoute()
 userWithId = useRoute<'/users/[id]'>()
 // 👇 this one is the easiest to write because it autocomplete
 userWithId = useRoute('/users/[id]')
