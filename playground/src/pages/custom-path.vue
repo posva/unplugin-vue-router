@@ -3,3 +3,7 @@
   "path": "/surprise-:id(\\d+)"
 }
 </route>
+
+<template>
+  custom names
+</template>

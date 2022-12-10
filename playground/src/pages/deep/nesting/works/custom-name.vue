@@ -3,3 +3,7 @@
   "name": "deep a rebel"
 }
 </route>
+
+<template>
+  custom name
+</template>

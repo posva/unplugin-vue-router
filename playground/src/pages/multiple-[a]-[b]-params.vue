@@ -1,0 +1,3 @@
+<template>
+  mulitple params
+</template>

@@ -6,3 +6,7 @@
   }
 }
 </route>
+
+<template>
+  custom names
+</template>

@@ -1,0 +1,3 @@
+<template>
+  docs index
+</template>

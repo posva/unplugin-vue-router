@@ -1,0 +1,3 @@
+<template>
+  user index
+</template>

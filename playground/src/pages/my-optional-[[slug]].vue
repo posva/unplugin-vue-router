@@ -1,0 +1,3 @@
+<template>
+  optional slug
+</template>
