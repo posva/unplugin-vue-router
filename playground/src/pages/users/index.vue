@@ -1,3 +1,1 @@
-<template>
-  user index
-</template>
+<template>user index</template>

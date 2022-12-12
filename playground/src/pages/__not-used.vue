@@ -1,7 +1,3 @@
-<script lang="ts" setup>
+<script lang="ts" setup></script>
 
-</script>
-
-<template>
-  Not used
-</template>
+<template>Not used</template>

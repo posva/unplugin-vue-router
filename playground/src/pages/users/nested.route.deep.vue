@@ -1,3 +1,1 @@
-<template>
-  nested route deep
-</template>
+<template>nested route deep</template>

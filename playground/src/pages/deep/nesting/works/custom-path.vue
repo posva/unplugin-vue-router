@@ -4,6 +4,4 @@
 }
 </route>
 
-<template>
-  custom path
-</template>
+<template>custom path</template>

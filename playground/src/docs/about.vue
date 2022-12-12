@@ -1,3 +1,1 @@
-<template>
-  docs about
-</template>
+<template>docs about</template>

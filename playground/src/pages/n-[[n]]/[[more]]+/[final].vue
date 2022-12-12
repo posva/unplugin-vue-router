@@ -1,3 +1,1 @@
-<template>
-  final
-</template>
+<template>final</template>

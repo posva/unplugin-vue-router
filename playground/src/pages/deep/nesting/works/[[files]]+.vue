@@ -1,3 +1,1 @@
-<template>
-  deep with files+
-</template>
+<template>deep with files+</template>

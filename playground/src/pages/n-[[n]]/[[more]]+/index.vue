@@ -1,3 +1,1 @@
-<template>
-  more
-</template>
+<template>more</template>

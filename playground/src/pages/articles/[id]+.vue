@@ -1,3 +1,1 @@
-<template>
-  articles id+
-</template>
+<template>articles id+</template>

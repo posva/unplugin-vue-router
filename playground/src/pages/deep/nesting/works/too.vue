@@ -1,3 +1,1 @@
-<template>
-   deep too
-</template>
+<template>deep too</template>

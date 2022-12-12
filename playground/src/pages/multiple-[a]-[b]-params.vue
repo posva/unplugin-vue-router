@@ -1,3 +1,1 @@
-<template>
-  mulitple params
-</template>
+<template>mulitple params</template>

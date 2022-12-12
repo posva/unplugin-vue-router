@@ -4,6 +4,4 @@
 }
 </route>
 
-<template>
-  custom names
-</template>
+<template>custom names</template>

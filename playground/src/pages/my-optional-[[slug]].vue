@@ -1,3 +1,1 @@
-<template>
-  optional slug
-</template>
+<template>optional slug</template>

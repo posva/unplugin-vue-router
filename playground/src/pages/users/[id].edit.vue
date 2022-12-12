@@ -1,3 +1,1 @@
-<template>
-  id.edit
-</template>
+<template>id.edit</template>
