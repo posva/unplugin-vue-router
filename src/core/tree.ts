@@ -39,7 +39,8 @@ export class TreeNode {
   /**
    * Adds a path to the tree. `path` cannot start with a `/`.
    *
-   * @param path - route path segment to insert
+   * @param path - path segment to insert. **It must contain the file extension** this allows to
+   * differentiate between folders and files.
    * @param filePath - file path, defaults to path for convenience and testing
    */
   insert(path: string, filePath: string = path): TreeNode {
@@ -76,7 +77,7 @@ export class TreeNode {
   /**
    * Remove a route from the tree.
    *
-   * @param path - file path of the file
+   * @param path - path segment of the file
    */
   remove(path: string) {
     const { tail, segment, viewName, isComponent } = splitFilePath(
