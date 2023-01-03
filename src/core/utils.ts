@@ -1,6 +1,7 @@
 import { TreeNode } from './tree'
 import type { RouteRecordOverride, TreeRouteParam } from './treeNodeValue'
 import { pascalCase } from 'scule'
+import { ResolvedOptions } from '../options'
 
 export type Awaitable<T> = T | PromiseLike<T>
 
@@ -29,7 +30,7 @@ function printTree(
       const hasNext = index++ < total - 1
       const { children } = child
 
-      treeStr += `${`${parentPre}${hasNext ? '├' : '└'}── `}${child}\n`
+      treeStr += `${`${parentPre}${hasNext ? '├' : '└'}─ `}${child}\n`
 
       if (children) {
         treeStr += printTree(
@@ -57,9 +58,20 @@ function printTree(
 export const isArray: (arg: ArrayLike<any> | any) => arg is ReadonlyArray<any> =
   Array.isArray
 
-export function trimExtension(path: string) {
-  const lastDot = path.lastIndexOf('.')
-  return lastDot < 0 ? path : path.slice(0, lastDot)
+export function trimExtension(
+  path: string,
+  extensions: ResolvedOptions['extensions']
+) {
+  for (const extension of extensions) {
+    const lastDot = path.lastIndexOf(extension)
+    if (lastDot > -1) {
+      // usually only one extension should match
+      return path.slice(0, lastDot)
+    }
+  }
+
+  // no extension found, return the original path
+  return path
 }
 
 export function throttle(fn: () => void, wait: number, initialWait: number) {

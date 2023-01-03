@@ -121,7 +121,6 @@ export function extractDefinePageNameAndPath(
   }
 
   const definePageNode = definePageNodes[0]
-  const setupOffset = scriptSetup.loc.start.offset
 
   const routeRecord = definePageNode.arguments[0]
   if (routeRecord.type !== 'ObjectExpression') {

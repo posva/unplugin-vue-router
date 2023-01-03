@@ -131,6 +131,12 @@ export function resolveOptions(options: Options): ResolvedOptions {
     src: resolve(root, routeOption.src),
   }))
 
+  if (options.extensions) {
+    // sort extensions by length to ensure that the longest one is used first
+    // e.g. ['.vue', '.page.vue'] -> ['.page.vue', '.vue'] as both would match and order matters
+    options.extensions.sort((a, b) => b.length - a.length)
+  }
+
   return {
     ...DEFAULT_OPTIONS,
     ...options,

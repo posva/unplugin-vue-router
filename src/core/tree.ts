@@ -43,7 +43,10 @@ export class TreeNode {
    * @param filePath - file path, defaults to path for convenience and testing
    */
   insert(path: string, filePath: string = path): TreeNode {
-    const { tail, segment, viewName, isComponent } = splitFilePath(path)
+    const { tail, segment, viewName, isComponent } = splitFilePath(
+      path,
+      this.options
+    )
 
     if (!this.children.has(segment)) {
       this.children.set(segment, new TreeNode(this.options, segment, this))
@@ -76,7 +79,10 @@ export class TreeNode {
    * @param path - file path of the file
    */
   remove(path: string) {
-    const { tail, segment, viewName, isComponent } = splitFilePath(path)
+    const { tail, segment, viewName, isComponent } = splitFilePath(
+      path,
+      this.options
+    )
 
     const child = this.children.get(segment)
     if (!child) {
@@ -175,7 +181,7 @@ export function createPrefixTree(options: ResolvedOptions) {
  *
  * @param filePath - filePath to split
  */
-function splitFilePath(filePath: string) {
+function splitFilePath(filePath: string, options: ResolvedOptions) {
   const slashPos = filePath.indexOf('/')
   let head = slashPos < 0 ? filePath : filePath.slice(0, slashPos)
   const tail = slashPos < 0 ? '' : filePath.slice(slashPos + 1)
@@ -183,7 +189,7 @@ function splitFilePath(filePath: string) {
   let segment = head
   // only the last segment can be a filename with an extension
   if (!tail) {
-    segment = trimExtension(head)
+    segment = trimExtension(head, options.extensions)
   }
   let viewName = 'default'
 

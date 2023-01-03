@@ -347,4 +347,38 @@ describe('Tree', () => {
     expect(child.name).toBe('/a/')
     expect(child.fullPath).toBe('/a')
   })
+
+  it('handles long extensions', () => {
+    const tree = createPrefixTree({
+      ...DEFAULT_OPTIONS,
+      extensions: ['.page.vue'],
+    })
+    tree.insert('a.page.vue')
+    tree.insert('nested/b/c.page.vue')
+    expect(tree.children.size).toBe(2)
+
+    console.log(tree.children.keys())
+
+    const a = tree.children.get('a')!
+    expect(a).toBeDefined()
+    expect(a.value.filePaths.get('default')).toBe('a.page.vue')
+    expect(a.fullPath).toBe('/a')
+
+    const nested = tree.children.get('nested')!
+    expect(nested).toBeDefined()
+    expect(nested.children.size).toBe(1)
+    const b = nested.children.get('b')!
+    expect(b).toBeDefined()
+    expect(b.children.size).toBe(1)
+    const c = b.children.get('c')!
+    expect(c).toBeDefined()
+    expect(c.value.filePaths.get('default')).toBe('nested/b/c.page.vue')
+    expect(c.fullPath).toBe('/nested/b/c')
+
+    tree.insert('a/nested.page.vue')
+    const aNested = a.children.get('nested')!
+    expect(aNested).toBeDefined()
+    expect(aNested.value.filePaths.get('default')).toBe('a/nested.page.vue')
+    expect(aNested.fullPath).toBe('/a/nested')
+  })
 })

@@ -7,7 +7,6 @@ import {
   getFileBasedRouteName,
   getPascalCaseRouteName,
   VueRouterAutoImports,
-  DefinePage,
 } from '../src'
 import Vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
@@ -25,6 +24,7 @@ export default defineConfig({
     // DefinePage.vite(),
     VueRouter({
       dataFetching: true,
+      extensions: ['.page.vue', '.vue'],
       routesFolder: [
         // can add multiple routes folders
         {
