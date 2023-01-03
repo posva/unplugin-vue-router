@@ -13,7 +13,7 @@ import { RoutesFolderWatcher, HandlerContext } from './RoutesFolderWatcher'
 import { generateDTS as _generateDTS } from '../codegen/generateDTS'
 import { generateVueRouterProxy as _generateVueRouterProxy } from '../codegen/vueRouterModule'
 import { hasNamedExports } from '../data-fetching/parse'
-import { definePageTransform } from './definePage'
+import { definePageTransform, extractDefinePageNameAndPath } from './definePage'
 
 export function createRoutesContext(options: ResolvedOptions) {
   const { dts: preferDTS, root, routesFolder } = options
@@ -85,24 +85,33 @@ export function createRoutesContext(options: ResolvedOptions) {
     await _writeConfigFiles()
   }
 
+  async function writeRouteInfoToNode(node: TreeNode, path: string) {
+    const content = await fs.readFile(path, 'utf8')
+    // TODO: cache the result of parsing the SFC so the transform can reuse the parsing
+    node.hasDefinePage = content.includes('definePage')
+    const [definedPageNameAndPath, routeBlock] = await Promise.all([
+      extractDefinePageNameAndPath(content, path),
+      getRouteBlock(path, options),
+    ])
+    // TODO: should warn if hasDefinePage and customRouteBlock
+    // if (routeBlock) log(routeBlock)
+    node.setCustomRouteBlock(path, { ...routeBlock, ...definedPageNameAndPath })
+    node.value.includeLoaderGuard =
+      options.dataFetching && (await hasNamedExports(path))
+  }
+
   async function addPage({ filePath: path, routePath }: HandlerContext) {
-    const routeBlock = await getRouteBlock(path, options)
     log(`added "${routePath}" for "${path}"`)
-    if (routeBlock) log(routeBlock)
     // TODO: handle top level named view HMR
     const node = routeTree.insert(
       routePath,
       // './' + path
       resolve(root, path)
     )
-    node.setCustomRouteBlock(path, routeBlock)
-    node.value.includeLoaderGuard =
-      options.dataFetching && (await hasNamedExports(path))
+
+    await writeRouteInfoToNode(node, path)
 
     routeMap.set(path, node)
-    // FIXME: do once
-    const content = await fs.readFile(path, 'utf8')
-    node.hasDefinePage = content.includes('definePage')
   }
 
   async function updatePage({ filePath: path, routePath }: HandlerContext) {
@@ -112,12 +121,7 @@ export function createRoutesContext(options: ResolvedOptions) {
       console.warn(`Cannot update "${path}": Not found.`)
       return
     }
-    // FIXME: do once
-    const content = await fs.readFile(path, 'utf8')
-    node.hasDefinePage = content.includes('definePage')
-    node.setCustomRouteBlock(path, await getRouteBlock(path, options))
-    node.value.includeLoaderGuard =
-      options.dataFetching && (await hasNamedExports(path))
+    writeRouteInfoToNode(node, path)
   }
 
   function removePage({ filePath: path, routePath }: HandlerContext) {
@@ -193,7 +197,7 @@ ${routesExport}
 
   let lastDTS: string | undefined
   async function _writeConfigFiles() {
-    log('writing')
+    log('💾 writing...')
     logTree(routeTree, log)
     if (dts) {
       const content = generateDTS()
