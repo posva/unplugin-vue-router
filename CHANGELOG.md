@@ -1,3 +1,15 @@
+# [0.3.0](https://github.com/posva/unplugin-vue-router/compare/v0.2.3...v0.3.0) (2023-01-03)
+
+### Bug Fixes
+
+- **build:** remove **DEV** ([a50b713](https://github.com/posva/unplugin-vue-router/commit/a50b713b3c11f3b3be5bba7a41d558fa2522caaa))
+- read name and path from definePage ([dffcc61](https://github.com/posva/unplugin-vue-router/commit/dffcc613462e8165c7c676f40a7da6d5554d1e8b)), closes [#74](https://github.com/posva/unplugin-vue-router/issues/74)
+
+### Features
+
+- add guards to auto imports ([bfbe240](https://github.com/posva/unplugin-vue-router/commit/bfbe240cf4f8aab2b464d1783e70fe5eba32302d)), closes [#100](https://github.com/posva/unplugin-vue-router/issues/100)
+- export RouterLink component ([#105](https://github.com/posva/unplugin-vue-router/issues/105)) ([53b276d](https://github.com/posva/unplugin-vue-router/commit/53b276d45a5da4aa2611e3bc979971932639fa67))
+
 ## [0.2.3](https://github.com/posva/unplugin-vue-router/compare/v0.2.2...v0.2.3) (2022-10-05)
 
 ### Bug Fixes
