@@ -63,8 +63,8 @@ export function trimExtension(
   extensions: ResolvedOptions['extensions']
 ) {
   for (const extension of extensions) {
-    const lastDot = path.lastIndexOf(extension)
-    if (lastDot > -1) {
+    const lastDot = path.endsWith(extension) ? -extension.length : 0
+    if (lastDot < 0) {
       // usually only one extension should match
       return path.slice(0, lastDot)
     }
