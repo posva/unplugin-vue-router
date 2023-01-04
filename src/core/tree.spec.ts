@@ -357,8 +357,6 @@ describe('Tree', () => {
     tree.insert('nested/b/c.page.vue')
     expect(tree.children.size).toBe(2)
 
-    console.log(tree.children.keys())
-
     const a = tree.children.get('a')!
     expect(a).toBeDefined()
     expect(a.value.filePaths.get('default')).toBe('a.page.vue')

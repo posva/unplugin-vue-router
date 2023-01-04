@@ -111,7 +111,7 @@ export class TreeNode {
   }
 
   /**
-   * Returns the route path of the node without parent paths.
+   * Returns the route path of the node without parent paths. If the path was overridden, it returns the override.
    */
   get path() {
     return (
@@ -146,6 +146,7 @@ export class TreeNode {
   get params(): TreeRouteParam[] {
     const params = this.value.isParam() ? [...this.value.params] : []
     let node = this.parent
+    // add all the params from the parents
     while (node) {
       if (node.value.isParam()) {
         params.unshift(...node.value.params)
@@ -156,6 +157,11 @@ export class TreeNode {
     return params
   }
 
+  /**
+   * Returns wether this tree node is the root node of the tree.
+   *
+   * @returns true if the node is the root node
+   */
   isRoot() {
     return this.value.path === '/' && !this.value.filePaths.size
   }

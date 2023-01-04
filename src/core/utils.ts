@@ -52,7 +52,7 @@ function printTree(
 }
 
 /**
- * Typesafe alternative to Array.isArray
+ * Type safe alternative to Array.isArray
  * https://github.com/microsoft/TypeScript/pull/48228
  */
 export const isArray: (arg: ArrayLike<any> | any) => arg is ReadonlyArray<any> =

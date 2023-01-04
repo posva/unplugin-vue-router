@@ -42,7 +42,7 @@ export interface ResolvedOptions {
   importMode: _OptionsImportMode
 
   /**
-   * Array of file globs to ignore. Defaults to `[]`.
+   * Array of `picomatch` globs to ignore. Defaults to `[]`.
    */
   exclude: string[]
 
