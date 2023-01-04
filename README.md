@@ -214,6 +214,7 @@ VueRouter({
   // list of glob files to exclude from the routes generation
   // e.g. ['**/__*'] will exclude all files starting with `__`
   // e.g. ['**/__*/**/*'] will exclude all files within folders starting with `__`
+  // e.g. ['*.component.vue'] will exclude components ending with `.component.vue`
   exclude: [],
 
   // Path for the generated types. Defaults to `./typed-router.d.ts` if typescript
