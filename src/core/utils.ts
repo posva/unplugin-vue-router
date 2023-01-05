@@ -30,13 +30,15 @@ function printTree(
       const hasNext = index++ < total - 1
       const { children } = child
 
-      treeStr += `${`${parentPre}${hasNext ? '├' : '└'}─ `}${child}\n`
+      treeStr += `${`${parentPre}${hasNext ? '├' : '└'}${
+        '─' + (children.size > 0 ? '┬' : '')
+      } `}${child}\n`
 
       if (children) {
         treeStr += printTree(
           children,
           level + 1,
-          `${parentPre}${hasNext ? '│' : ' '}   `
+          `${parentPre}${hasNext ? '│' : ' '} `
         )
       }
     }
