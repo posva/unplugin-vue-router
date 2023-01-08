@@ -13,3 +13,17 @@ const b = 1
 </template>
       "
 `;
+
+exports[`definePage > works if file is named definePage 1`] = `
+"
+<script setup>
+const a = 1
+
+const b = 1
+</script>
+
+<template>
+  <div>hello</div>
+</template>
+      "
+`;

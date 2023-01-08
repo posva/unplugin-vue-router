@@ -80,4 +80,35 @@ const b = 1
 
     expect(result).toBe('export default {}')
   })
+
+  it('works if file is named definePage', async () => {
+    const result = (await definePageTransform({
+      code: sampleCode,
+      id: 'src/pages/definePage.vue',
+    })) as Exclude<TransformResult, string>
+
+    expect(result).toHaveProperty('code')
+    // should be the sfc without the definePage call
+    expect(result?.code).toMatchSnapshot()
+
+    expect(
+      await definePageTransform({
+        code: sampleCode,
+        id: 'src/pages/definePage?definePage.vue',
+      })
+    ).toMatchObject({
+      code: `\
+export default {
+  name: 'custom',
+  path: '/custom',
+}`,
+    })
+
+    expect(
+      await extractDefinePageNameAndPath(sampleCode, 'src/pages/definePage.vue')
+    ).toEqual({
+      name: 'custom',
+      path: '/custom',
+    })
+  })
 })

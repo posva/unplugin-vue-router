@@ -17,6 +17,7 @@ import { walkAST } from 'ast-walker-scope'
 import { CustomRouteBlock } from './customBlock'
 
 const MACRO_DEFINE_PAGE = 'definePage'
+const MACRO_DEFINE_PAGE_QUERY = /[?&]definePage\b/
 
 function isStringLiteral(node: Node | null | undefined): node is StringLiteral {
   return node?.type === 'StringLiteral'
@@ -35,7 +36,7 @@ export function definePageTransform({
   if (!sfc.scriptSetup) return
 
   // are we extracting only the definePage object
-  const isExtractingDefinePage = id.includes(MACRO_DEFINE_PAGE)
+  const isExtractingDefinePage = MACRO_DEFINE_PAGE_QUERY.test(id)
 
   const { script, scriptSetup, scriptCompiled } = sfc
 
