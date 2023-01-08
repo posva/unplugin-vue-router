@@ -1,3 +1,15 @@
+## [0.3.1](https://github.com/posva/unplugin-vue-router/compare/v0.3.0...v0.3.1) (2023-01-08)
+
+### Bug Fixes
+
+- parse non modules with definePage ([ce70048](https://github.com/posva/unplugin-vue-router/commit/ce70048e0628795273fa7aff645d2a1e16712c21)), closes [#114](https://github.com/posva/unplugin-vue-router/issues/114)
+- stricter extension check ([f5f508a](https://github.com/posva/unplugin-vue-router/commit/f5f508ae75752f71f937d0d1b60ecd7037a6bb3a))
+- work with files named definePage ([178107b](https://github.com/posva/unplugin-vue-router/commit/178107bed3d9352e5d9e64855fb0704613bf6d9d))
+
+### Features
+
+- handle long extensions ([d93db33](https://github.com/posva/unplugin-vue-router/commit/d93db33277063a962adcb525ee551f1cd30dd31c)), closes [#101](https://github.com/posva/unplugin-vue-router/issues/101)
+
 # [0.3.0](https://github.com/posva/unplugin-vue-router/compare/v0.2.3...v0.3.0) (2023-01-03)
 
 ### Bug Fixes

@@ -1,6 +1,6 @@
 {
   "name": "unplugin-vue-router",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "packageManager": "pnpm@7.21.0",
   "description": "File based typed routing for Vue Router",
   "keywords": [
