@@ -1,10 +1,8 @@
+import { TransformResult } from 'vite'
 import { expect, describe, it } from 'vitest'
 import { definePageTransform, extractDefinePageNameAndPath } from './definePage'
 
-describe('definePage', () => {
-  it('removes definePage', async () => {
-    const result = await definePageTransform({
-      code: `
+const sampleCode = `
 <script setup>
 const a = 1
 definePage({
@@ -13,38 +11,26 @@ definePage({
 })
 const b = 1
 </script>
-      `,
+
+<template>
+  <div>hello</div>
+</template>
+      `
+
+describe('definePage', () => {
+  it('removes definePage', async () => {
+    const result = (await definePageTransform({
+      code: sampleCode,
       id: 'src/pages/basic.vue',
-    })
+    })) as Exclude<TransformResult, string>
 
-    const code = typeof result === 'string' ? result : result?.code
-
-    expect(code).toMatchInlineSnapshot(`
-      "
-      <script setup>
-      const a = 1
-
-      const b = 1
-      </script>
-            "
-    `)
+    expect(result).toHaveProperty('code')
+    expect(result?.code).toMatchSnapshot()
   })
 
   it('extracts name and path', async () => {
     expect(
-      await extractDefinePageNameAndPath(
-        `
-<script setup>
-const a = 1
-definePage({
-  name: 'custom',
-  path: '/custom',
-})
-const b = 1
-</script>
-      `,
-        'src/pages/basic.vue'
-      )
+      await extractDefinePageNameAndPath(sampleCode, 'src/pages/basic.vue')
     ).toEqual({
       name: 'custom',
       path: '/custom',
@@ -59,9 +45,39 @@ const b = 1
 const a = 1
 const b = 1
 </script>
+
+<template>
+  <div>hello</div>
+</template>
       `,
         'src/pages/basic.vue'
       )
-    ).toEqual(undefined)
+    ).toBeFalsy()
+  })
+
+  it('works with comments', async () => {
+    const code = `
+<script setup>
+// definePage
+</script>
+
+<template>
+  <div>hello</div>
+</template>
+      `
+    // no need to transform
+    let result = (await definePageTransform({
+      code,
+      id: 'src/pages/basic.vue',
+    })) as Exclude<TransformResult, string>
+    expect(result).toBeFalsy()
+
+    // should give an empty object
+    result = (await definePageTransform({
+      code,
+      id: 'src/pages/basic.vue?definePage&vue',
+    })) as Exclude<TransformResult, string>
+
+    expect(result).toBe('export default {}')
   })
 })

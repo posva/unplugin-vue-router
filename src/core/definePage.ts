@@ -32,12 +32,14 @@ export function definePageTransform({
   if (!code.includes(MACRO_DEFINE_PAGE)) return
 
   const sfc = parseSFC(code, id)
-
   if (!sfc.scriptSetup) return
+
+  // are we extracting only the definePage object
+  const isExtractingDefinePage = id.includes(MACRO_DEFINE_PAGE)
 
   const { script, scriptSetup, scriptCompiled } = sfc
 
-  const definePageNodes = (scriptCompiled.scriptSetupAst as Node[])
+  const definePageNodes = (scriptCompiled?.scriptSetupAst || ([] as Node[]))
     .map((node) => {
       if (node.type === 'ExpressionStatement') node = node.expression
       return isCallOf(node, MACRO_DEFINE_PAGE) ? node : null
@@ -45,7 +47,11 @@ export function definePageTransform({
     .filter((node): node is CallExpression => !!node)
 
   if (!definePageNodes.length) {
-    return
+    return isExtractingDefinePage
+      ? // e.g. index.vue?definePage that contains a commented `definePage()
+        'export default {}'
+      : // e.g. index.vue that contains a commented `definePage()
+        null
   } else if (definePageNodes.length > 1) {
     throw new SyntaxError(`duplicate definePage() call`)
   }
@@ -54,7 +60,7 @@ export function definePageTransform({
   const setupOffset = scriptSetup.loc.start.offset
 
   // we only want the page info
-  if (id.includes(MACRO_DEFINE_PAGE)) {
+  if (isExtractingDefinePage) {
     const s = new MagicString(code)
     // remove everything except the page info
 
@@ -107,7 +113,7 @@ export function extractDefinePageNameAndPath(
 
   const { script, scriptSetup, scriptCompiled } = sfc
 
-  const definePageNodes = (scriptCompiled.scriptSetupAst as Node[])
+  const definePageNodes = (scriptCompiled?.scriptSetupAst ?? ([] as Node[]))
     .map((node) => {
       if (node.type === 'ExpressionStatement') node = node.expression
       return isCallOf(node, MACRO_DEFINE_PAGE) ? node : null

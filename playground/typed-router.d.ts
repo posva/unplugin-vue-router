@@ -43,6 +43,7 @@ declare module 'vue-router/auto/routes' {
     '/articles/': RouteRecordInfo<'/articles/', '/articles', Record<never, never>, Record<never, never>>,
     '/articles/[id]': RouteRecordInfo<'/articles/[id]', '/articles/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
     '/articles/[id]+': RouteRecordInfo<'/articles/[id]+', '/articles/:id+', { id: ParamValueOneOrMore<true> }, { id: ParamValueOneOrMore<false> }>,
+    '/custom-definePage': RouteRecordInfo<'/custom-definePage', '/custom-definePage', Record<never, never>, Record<never, never>>,
     'a rebel': RouteRecordInfo<'a rebel', '/custom-name', Record<never, never>, Record<never, never>>,
     '/deep/nesting/works/[[files]]+': RouteRecordInfo<'/deep/nesting/works/[[files]]+', '/deep/nesting/works/:files*', { files?: ParamValueZeroOrMore<true> }, { files?: ParamValueZeroOrMore<false> }>,
     'deep the most rebel': RouteRecordInfo<'deep the most rebel', '/deep-most-rebel', Record<never, never>, Record<never, never>>,

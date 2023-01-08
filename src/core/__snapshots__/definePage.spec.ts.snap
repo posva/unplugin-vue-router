@@ -1,0 +1,15 @@
+// Vitest Snapshot v1
+
+exports[`definePage > removes definePage 1`] = `
+"
+<script setup>
+const a = 1
+
+const b = 1
+</script>
+
+<template>
+  <div>hello</div>
+</template>
+      "
+`;
