@@ -1,3 +1,9 @@
+## [0.3.2](https://github.com/posva/unplugin-vue-router/compare/v0.3.1...v0.3.2) (2023-01-09)
+
+### Bug Fixes
+
+- sfc parsing update ([e75d678](https://github.com/posva/unplugin-vue-router/commit/e75d678e6082fbb10b499fec2f7499b0da36c064)), closes [#116](https://github.com/posva/unplugin-vue-router/issues/116)
+
 ## [0.3.1](https://github.com/posva/unplugin-vue-router/compare/v0.3.0...v0.3.1) (2023-01-08)
 
 ### Bug Fixes
