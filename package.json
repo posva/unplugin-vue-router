@@ -90,7 +90,7 @@
   "dependencies": {
     "@babel/types": "^7.20.7",
     "@rollup/pluginutils": "^5.0.2",
-    "@vue-macros/common": "^0.13.5",
+    "@vue-macros/common": "^0.13.6",
     "ast-walker-scope": "^0.3.1",
     "chokidar": "^3.5.3",
     "fast-glob": "^3.2.12",
@@ -111,7 +111,7 @@
     }
   },
   "devDependencies": {
-    "@volar/vue-language-core": "^1.0.22",
+    "@volar/vue-language-core": "^1.0.24",
     "c8": "^7.12.0",
     "chalk": "^5.2.0",
     "conventional-changelog-cli": "^2.2.2",

@@ -38,9 +38,9 @@ export function definePageTransform({
   // are we extracting only the definePage object
   const isExtractingDefinePage = MACRO_DEFINE_PAGE_QUERY.test(id)
 
-  const { script, scriptSetup, scriptCompiled } = sfc
+  const { script, scriptSetup, setupAst } = sfc
 
-  const definePageNodes = (scriptCompiled?.scriptSetupAst || ([] as Node[]))
+  const definePageNodes = (setupAst?.body || ([] as Node[]))
     .map((node) => {
       if (node.type === 'ExpressionStatement') node = node.expression
       return isCallOf(node, MACRO_DEFINE_PAGE) ? node : null
@@ -67,9 +67,7 @@ export function definePageTransform({
 
     const routeRecord = definePageNode.arguments[0]
 
-    const scriptBindings = sfc.scriptCompiled.scriptSetupAst
-      ? getIdentifiers(sfc.scriptCompiled.scriptSetupAst as any)
-      : []
+    const scriptBindings = setupAst?.body ? getIdentifiers(setupAst.body) : []
 
     checkInvalidScopeReference(routeRecord, MACRO_DEFINE_PAGE, scriptBindings)
 
@@ -112,9 +110,9 @@ export function extractDefinePageNameAndPath(
 
   if (!sfc.scriptSetup) return
 
-  const { script, scriptSetup, scriptCompiled } = sfc
+  const { setupAst } = sfc
 
-  const definePageNodes = (scriptCompiled?.scriptSetupAst ?? ([] as Node[]))
+  const definePageNodes = (setupAst?.body ?? ([] as Node[]))
     .map((node) => {
       if (node.type === 'ExpressionStatement') node = node.expression
       return isCallOf(node, MACRO_DEFINE_PAGE) ? node : null
