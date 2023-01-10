@@ -132,9 +132,22 @@ export function resolveOptions(options: Options): ResolvedOptions {
   }))
 
   if (options.extensions) {
-    // sort extensions by length to ensure that the longest one is used first
-    // e.g. ['.vue', '.page.vue'] -> ['.page.vue', '.vue'] as both would match and order matters
-    options.extensions.sort((a, b) => b.length - a.length)
+    options.extensions = options.extensions
+      // ensure that extensions start with a dot or warn the user
+      // this is needed when filtering the files with the pattern .{vue,js,ts}
+      // in src/index.ts
+      .map((ext) => {
+        if (!ext.startsWith('.')) {
+          console.warn(
+            `[unplugin-vue-router]: Invalid extension "${ext}". Extensions must start with a dot.`
+          )
+          return '.' + ext
+        }
+        return ext
+      })
+      // sort extensions by length to ensure that the longest one is used first
+      // e.g. ['.vue', '.page.vue'] -> ['.page.vue', '.vue'] as both would match and order matters
+      .sort((a, b) => b.length - a.length)
   }
 
   return {
