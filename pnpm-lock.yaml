@@ -7,8 +7,8 @@ importers:
       '@babel/types': ^7.20.7
       '@rollup/pluginutils': ^5.0.2
       '@volar/vue-language-core': ^1.0.24
-      '@vue-macros/common': ^0.13.8
-      ast-walker-scope: ^0.3.1
+      '@vue-macros/common': ^1.0.0
+      ast-walker-scope: ^0.4.0
       c8: ^7.12.0
       chalk: ^5.2.0
       chokidar: ^3.5.3
@@ -45,8 +45,8 @@ importers:
     dependencies:
       '@babel/types': 7.20.7
       '@rollup/pluginutils': 5.0.2_rollup@3.12.0
-      '@vue-macros/common': 0.13.8_vue@3.2.45
-      ast-walker-scope: 0.3.1
+      '@vue-macros/common': 1.0.0_vue@3.2.45
+      ast-walker-scope: 0.4.0
       chokidar: 3.5.3
       fast-glob: 3.2.12
       json5: 2.2.3
@@ -477,7 +477,6 @@ packages:
     hasBin: true
     dependencies:
       '@babel/types': 7.20.7
-    dev: true
 
   /@babel/parser/7.20.5:
     resolution: {integrity: sha512-r27t/cy/m9uKLXQNWWebeCUHgnAZq0CpG1OwKRxzJMP1vpSU4bSIK2hq+/cp0bQxetkXx38n09rNu8jVkcK/zA==}
@@ -485,6 +484,7 @@ packages:
     hasBin: true
     dependencies:
       '@babel/types': 7.20.7
+    dev: true
 
   /@babel/parser/7.20.7:
     resolution: {integrity: sha512-T3Z9oHybU+0vZlY9CiDSJQTD5ZapcW18ZctFMi0MOAl/4BjFF4ul7NVSARLdbGO5vDqy9eQiGTV0LtKfvCYvcg==}
@@ -1860,8 +1860,8 @@ packages:
       vue-template-compiler: 2.7.14
     dev: true
 
-  /@vue-macros/common/0.13.8_vue@3.2.45:
-    resolution: {integrity: sha512-Fs8PNCR117MpR4MQYLupG6qary3n6ZKIkuuaJbmYJ+n3QUiO9LmBs1GgF9L+RQ+M4UDdfuk7LbvZwnWJ89MABA==}
+  /@vue-macros/common/1.0.0_vue@3.2.45:
+    resolution: {integrity: sha512-KclEa1Q7tx3xPIGxOgL+LghfIFdjOtzPik0bPsC8KmGOYp8qFmImGjWobUiS9LLr6PLCSsetsGUp1m8Hu9kIxg==}
     engines: {node: '>=14.19.0'}
     peerDependencies:
       vue: ^2.7.0 || ^3.2.25
@@ -2701,11 +2701,11 @@ packages:
     resolution: {integrity: sha512-jgsaNduz+ndvGyFt3uSuWqvy4lCnIJiovtouQN5JZHOKCS2QuhEdbcQHFhVksz2N2U9hXJo8odG7ETyWlEeuDw==}
     dev: true
 
-  /ast-walker-scope/0.3.1:
-    resolution: {integrity: sha512-c+tWaEoA+b4yJp0NUI8/hYKUv1ELqpCMU/fogGazXxu7EXlry37q1wdfhaQqVmQn4l4agMeo4ek76LyKFIxkKA==}
+  /ast-walker-scope/0.4.0:
+    resolution: {integrity: sha512-THVisYmmqkcopZXJDniGgVW6BRKtjutRLytqAgw0XDabYZmxC0GfFggTFZouMhvNT7jPBkx0vOy/2Y+udCDwgg==}
     engines: {node: '>=14.19.0'}
     dependencies:
-      '@babel/parser': 7.20.5
+      '@babel/parser': 7.20.13
       '@babel/types': 7.20.7
     dev: false
 

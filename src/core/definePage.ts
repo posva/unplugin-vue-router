@@ -38,7 +38,8 @@ export function definePageTransform({
   // are we extracting only the definePage object
   const isExtractingDefinePage = MACRO_DEFINE_PAGE_QUERY.test(id)
 
-  const { script, scriptSetup, setupAst } = sfc
+  const { script, scriptSetup, getSetupAst } = sfc
+  const setupAst = getSetupAst()
 
   const definePageNodes = (setupAst?.body || ([] as Node[]))
     .map((node) => {
@@ -110,7 +111,8 @@ export function extractDefinePageNameAndPath(
 
   if (!sfc.scriptSetup) return
 
-  const { setupAst } = sfc
+  const { getSetupAst } = sfc
+  const setupAst = getSetupAst()
 
   const definePageNodes = (setupAst?.body ?? ([] as Node[]))
     .map((node) => {

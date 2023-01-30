@@ -38,6 +38,7 @@ declare module 'vue-router/auto/routes' {
     'home': RouteRecordInfo<'home', '/', Record<never, never>, Record<never, never>>,
     '/[name]': RouteRecordInfo<'/[name]', '/:name', { name: ParamValue<true> }, { name: ParamValue<false> }>,
     '/[...path]': RouteRecordInfo<'/[...path]', '/:path(.*)', { path: ParamValue<true> }, { path: ParamValue<false> }>,
+    '/@[profileId]': RouteRecordInfo<'/@[profileId]', '/@:profileId', { profileId: ParamValue<true> }, { profileId: ParamValue<false> }>,
     '/about': RouteRecordInfo<'/about', '/about', Record<never, never>, Record<never, never>>,
     '/articles': RouteRecordInfo<'/articles', '/articles', Record<never, never>, Record<never, never>>,
     '/articles/': RouteRecordInfo<'/articles/', '/articles', Record<never, never>, Record<never, never>>,
@@ -64,6 +65,7 @@ declare module 'vue-router/auto/routes' {
     '/users/[id]': RouteRecordInfo<'/users/[id]', '/users/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
     '/users/[id].edit': RouteRecordInfo<'/users/[id].edit', '/users/:id/edit', { id: ParamValue<true> }, { id: ParamValue<false> }>,
     '/users/nested.route.deep': RouteRecordInfo<'/users/nested.route.deep', '/users/nested/route/deep', Record<never, never>, Record<never, never>>,
+    '/vuefire-tests/get-doc': RouteRecordInfo<'/vuefire-tests/get-doc', '/vuefire-tests/get-doc', Record<never, never>, Record<never, never>>,
     '/with-extension': RouteRecordInfo<'/with-extension', '/with-extension', Record<never, never>, Record<never, never>>,
   }
 }
