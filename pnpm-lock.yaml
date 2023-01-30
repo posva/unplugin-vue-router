@@ -7,7 +7,7 @@ importers:
       '@babel/types': ^7.20.7
       '@rollup/pluginutils': ^5.0.2
       '@volar/vue-language-core': ^1.0.24
-      '@vue-macros/common': ^0.13.8
+      '@vue-macros/common': ^1.0.0
       ast-walker-scope: ^0.3.1
       c8: ^7.12.0
       chalk: ^5.2.0
@@ -45,7 +45,7 @@ importers:
     dependencies:
       '@babel/types': 7.20.7
       '@rollup/pluginutils': 5.0.2_rollup@3.10.1
-      '@vue-macros/common': 0.13.8_vue@3.2.45
+      '@vue-macros/common': 1.0.0_vue@3.2.45
       ast-walker-scope: 0.3.1
       chokidar: 3.5.3
       fast-glob: 3.2.12
@@ -1634,8 +1634,8 @@ packages:
       vue-template-compiler: 2.7.14
     dev: true
 
-  /@vue-macros/common/0.13.8_vue@3.2.45:
-    resolution: {integrity: sha512-Fs8PNCR117MpR4MQYLupG6qary3n6ZKIkuuaJbmYJ+n3QUiO9LmBs1GgF9L+RQ+M4UDdfuk7LbvZwnWJ89MABA==}
+  /@vue-macros/common/1.0.0_vue@3.2.45:
+    resolution: {integrity: sha512-KclEa1Q7tx3xPIGxOgL+LghfIFdjOtzPik0bPsC8KmGOYp8qFmImGjWobUiS9LLr6PLCSsetsGUp1m8Hu9kIxg==}
     engines: {node: '>=14.19.0'}
     peerDependencies:
       vue: ^2.7.0 || ^3.2.25
