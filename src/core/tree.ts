@@ -6,6 +6,11 @@ import { CustomRouteBlock } from './customBlock'
 
 export class TreeNode {
   /**
+   * File path that created the node if any.
+   */
+  filePath?: string
+
+  /**
    * value of the node
    */
   value: TreeNodeValue
@@ -53,6 +58,7 @@ export class TreeNode {
       this.children.set(segment, new TreeNode(this.options, segment, this))
     }
     const child = this.children.get(segment)!
+    child.filePath = segment
 
     if (isComponent) {
       child.value.filePaths.set(viewName, filePath)
@@ -75,7 +81,19 @@ export class TreeNode {
   }
 
   /**
-   * Remove a route from the tree.
+   * Delete itself and all its children.
+   */
+  delete() {
+    // TODO: rename remove to removeChild
+    if (!this.parent || !this.filePath) {
+      throw new Error('Cannot delete the root node.')
+    }
+    this.parent.children.delete(this.filePath)
+  }
+
+  /**
+   * Remove a route from the tree. The path shouldn't start with a `/` but it can be a nested one. e.g. `foo/bar.vue`.
+   * The `path` should be relative to the page folder.
    *
    * @param path - path segment of the file
    */
@@ -127,16 +145,32 @@ export class TreeNode {
     return this.value.overrides.path ?? this.value.path
   }
 
+  /**
+   * Returns the route name of the node. If the name was overridden, it returns the override.
+   */
   get name() {
     return this.value.overrides.name || this.options.getRouteName(this)
   }
 
-  get meta() {
-    const overrideMeta = { ...this.value.overrides.meta }
-
-    if (this.value.includeLoaderGuard) {
-      overrideMeta._loaderGuard = true
+  /**
+   * Returns the meta property as an object.
+   */
+  get metaAsObject() {
+    const meta = {
+      ...this.value.overrides.meta,
     }
+    if (this.value.includeLoaderGuard) {
+      meta._loaderGuard = true
+    }
+    return meta
+  }
+
+  /**
+   * Returns the JSON string of the meta object of the node. If the meta was overridden, it returns the override. If
+   * there is no override, it returns an empty string.
+   */
+  get meta() {
+    const overrideMeta = this.metaAsObject
 
     return Object.keys(overrideMeta).length > 0
       ? JSON.stringify(overrideMeta, null, 2)
@@ -170,11 +204,11 @@ export class TreeNode {
     return `${this.value}${
       // either we have multiple names
       this.value.filePaths.size > 1 ||
-      // or we have one name and it's not default
-      (this.value.filePaths.size === 1 && !this.value.filePaths.get('default'))
+        // or we have one name and it's not default
+        (this.value.filePaths.size === 1 && !this.value.filePaths.get('default'))
         ? ` ⎈(${Array.from(this.value.filePaths.keys()).join(', ')})`
         : ''
-    }${this.hasDefinePage ? ' ⚑ definePage()' : ''}`
+      }${this.hasDefinePage ? ' ⚑ definePage()' : ''}`
   }
 }
 

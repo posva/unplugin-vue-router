@@ -178,6 +178,18 @@ describe('Tree', () => {
     expect(tree.children.get('index')).toBeUndefined()
   })
 
+  it('can remove itself from the tree', () => {
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    tree.insert('index.vue').insert('nested.vue')
+    tree.insert('a.vue').insert('nested.vue')
+    tree.insert('b.vue')
+    expect(tree.children.size).toBe(3)
+    tree.children.get('a')!.delete()
+    expect(tree.children.size).toBe(2)
+    tree.children.get('index')!.delete()
+    expect(tree.children.size).toBe(1)
+  })
+
   it('handles multiple params', () => {
     const tree = createPrefixTree(DEFAULT_OPTIONS)
     tree.insert('[a]-[b].vue')

@@ -14,6 +14,7 @@ import { generateDTS as _generateDTS } from '../codegen/generateDTS'
 import { generateVueRouterProxy as _generateVueRouterProxy } from '../codegen/vueRouterModule'
 import { hasNamedExports } from '../data-fetching/parse'
 import { definePageTransform, extractDefinePageNameAndPath } from './definePage'
+import { EditableTreeNode } from './extendRoutes'
 
 export function createRoutesContext(options: ResolvedOptions) {
   const { dts: preferDTS, root, routesFolder } = options
@@ -21,8 +22,8 @@ export function createRoutesContext(options: ResolvedOptions) {
     preferDTS === false
       ? false
       : preferDTS === true
-      ? resolve(root, 'typed-router.d.ts')
-      : resolve(root, preferDTS)
+        ? resolve(root, 'typed-router.d.ts')
+        : resolve(root, preferDTS)
 
   const routeTree = createPrefixTree(options)
   const routeMap = new Map<string, TreeNode>()
@@ -53,8 +54,8 @@ export function createRoutesContext(options: ResolvedOptions) {
       (options.extensions.length === 1
         ? options.extensions[0]
         : `.{${options.extensions
-            .map((extension) => extension.replace('.', ''))
-            .join(',')}}`)
+          .map((extension) => extension.replace('.', ''))
+          .join(',')}}`)
 
     await Promise.all(
       routesFolder.map((folder) => {
@@ -124,6 +125,7 @@ export function createRoutesContext(options: ResolvedOptions) {
     writeRouteInfoToNode(node, path)
   }
 
+  // TODO: the map should be integrated with the root tree to have one source of truth only
   function removePage({ filePath: path, routePath }: HandlerContext) {
     log(`remove "${routePath}" for "${path}"`)
     routeTree.remove(routePath)
@@ -198,6 +200,10 @@ ${routesExport}
   let lastDTS: string | undefined
   async function _writeConfigFiles() {
     log('💾 writing...')
+
+    // TODO: extendRoutes
+    // const editable = new EditableTreeNode(routeTree)
+
     logTree(routeTree, log)
     if (dts) {
       const content = generateDTS()
