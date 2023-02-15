@@ -22,11 +22,10 @@ export function createRoutesContext(options: ResolvedOptions) {
     preferDTS === false
       ? false
       : preferDTS === true
-        ? resolve(root, 'typed-router.d.ts')
-        : resolve(root, preferDTS)
+      ? resolve(root, 'typed-router.d.ts')
+      : resolve(root, preferDTS)
 
   const routeTree = createPrefixTree(options)
-  const routeMap = new Map<string, TreeNode>()
 
   function log(...args: any[]) {
     if (options.logs) {
@@ -54,8 +53,8 @@ export function createRoutesContext(options: ResolvedOptions) {
       (options.extensions.length === 1
         ? options.extensions[0]
         : `.{${options.extensions
-          .map((extension) => extension.replace('.', ''))
-          .join(',')}}`)
+            .map((extension) => extension.replace('.', ''))
+            .join(',')}}`)
 
     await Promise.all(
       routesFolder.map((folder) => {
@@ -104,20 +103,14 @@ export function createRoutesContext(options: ResolvedOptions) {
   async function addPage({ filePath: path, routePath }: HandlerContext) {
     log(`added "${routePath}" for "${path}"`)
     // TODO: handle top level named view HMR
-    const node = routeTree.insert(
-      routePath,
-      // './' + path
-      resolve(root, path)
-    )
+    const node = routeTree.insert(routePath, path)
 
     await writeRouteInfoToNode(node, path)
-
-    routeMap.set(path, node)
   }
 
   async function updatePage({ filePath: path, routePath }: HandlerContext) {
     log(`updated "${routePath}" for "${path}"`)
-    const node = routeMap.get(path)
+    const node = routeTree.getChild(path)
     if (!node) {
       console.warn(`Cannot update "${path}": Not found.`)
       return
@@ -128,8 +121,7 @@ export function createRoutesContext(options: ResolvedOptions) {
   // TODO: the map should be integrated with the root tree to have one source of truth only
   function removePage({ filePath: path, routePath }: HandlerContext) {
     log(`remove "${routePath}" for "${path}"`)
-    routeTree.remove(routePath)
-    routeMap.delete(path)
+    routeTree.removeChild(path)
   }
 
   function setupWatcher(watcher: RoutesFolderWatcher) {

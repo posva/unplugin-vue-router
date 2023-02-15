@@ -6,11 +6,6 @@ import { CustomRouteBlock } from './customBlock'
 
 export class TreeNode {
   /**
-   * File path that created the node if any.
-   */
-  filePath?: string
-
-  /**
    * value of the node
    */
   value: TreeNodeValue
@@ -58,7 +53,6 @@ export class TreeNode {
       this.children.set(segment, new TreeNode(this.options, segment, this))
     }
     const child = this.children.get(segment)!
-    child.filePath = segment
 
     if (isComponent) {
       child.value.filePaths.set(viewName, filePath)
@@ -81,14 +75,16 @@ export class TreeNode {
   }
 
   /**
-   * Delete itself and all its children.
+   * Delete and detach itself from the tree.
    */
   delete() {
     // TODO: rename remove to removeChild
-    if (!this.parent || !this.filePath) {
+    if (!this.parent) {
       throw new Error('Cannot delete the root node.')
     }
-    this.parent.children.delete(this.filePath)
+    this.parent.children.delete(this.value.rawSegment)
+    // clear link to parent
+    this.parent = undefined
   }
 
   /**
@@ -204,16 +200,50 @@ export class TreeNode {
     return `${this.value}${
       // either we have multiple names
       this.value.filePaths.size > 1 ||
-        // or we have one name and it's not default
-        (this.value.filePaths.size === 1 && !this.value.filePaths.get('default'))
+      // or we have one name and it's not default
+      (this.value.filePaths.size === 1 && !this.value.filePaths.get('default'))
         ? ` ⎈(${Array.from(this.value.filePaths.keys()).join(', ')})`
         : ''
-      }${this.hasDefinePage ? ' ⚑ definePage()' : ''}`
+    }${this.hasDefinePage ? ' ⚑ definePage()' : ''}`
+  }
+}
+
+/**
+ * Creates a new prefix tree. This is meant to only be the root node. It has access to extra methods that only make
+ * sense on the root node.
+ */
+export class PrefixTree extends TreeNode {
+  map = new Map<string, TreeNode>()
+
+  constructor(options: ResolvedOptions) {
+    super(options, '')
+  }
+
+  insert(path: string, filePath: string = path) {
+    const node = super.insert(path, filePath)
+    this.map.set(filePath, node)
+
+    return node
+  }
+
+  getChild(filePath: string) {
+    return this.map.get(filePath)
+  }
+
+  /**
+   *
+   * @param filePath -
+   */
+  removeChild(filePath: string) {
+    if (this.map.has(filePath)) {
+      this.map.get(filePath)!.delete()
+      this.map.delete(filePath)
+    }
   }
 }
 
 export function createPrefixTree(options: ResolvedOptions) {
-  return new TreeNode(options, '')
+  return new PrefixTree(options)
 }
 
 /**

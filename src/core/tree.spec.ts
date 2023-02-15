@@ -210,7 +210,7 @@ describe('Tree', () => {
     expect(Array.from(tree.children.keys())).toEqual(['index', 'a'])
     const index = tree.children.get('index')!
     expect(index.value).toMatchObject({
-      rawSegment: '',
+      rawSegment: 'index',
       // the root should have a '/' instead of '' for the autocompletion
       path: '/',
     })
@@ -227,7 +227,7 @@ describe('Tree', () => {
     expect(aIndex).toBeDefined()
     expect(Array.from(aIndex.children.keys())).toEqual([])
     expect(aIndex.value).toMatchObject({
-      rawSegment: '',
+      rawSegment: 'index',
       path: '/a',
     })
 

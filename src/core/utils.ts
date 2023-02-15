@@ -30,9 +30,8 @@ function printTree(
       const hasNext = index++ < total - 1
       const { children } = child
 
-      treeStr += `${`${parentPre}${hasNext ? '├' : '└'}${
-        '─' + (children.size > 0 ? '┬' : '')
-      } `}${child}\n`
+      treeStr += `${`${parentPre}${hasNext ? '├' : '└'}${'─' + (children.size > 0 ? '┬' : '')
+        } `}${child}\n`
 
       if (children) {
         treeStr += printTree(
@@ -115,17 +114,15 @@ export function joinPath(...paths: string[]): string {
 }
 
 function paramToName({ paramName, modifier, isSplat }: TreeRouteParam) {
-  return `${isSplat ? '$' : ''}${
-    paramName.charAt(0).toUpperCase() + paramName.slice(1)
-  }${
-    modifier
+  return `${isSplat ? '$' : ''}${paramName.charAt(0).toUpperCase() + paramName.slice(1)
+    }${modifier
     // ? modifier === '+'
     //   ? 'OneOrMore'
     //   : modifier === '?'
     //   ? 'ZeroOrOne'
     //   : 'ZeroOrMore'
     // : ''
-  }`
+    }`
 }
 
 /**
@@ -169,7 +166,13 @@ export function getPascalCaseRouteName(node: TreeNode): string {
  */
 export function getFileBasedRouteName(node: TreeNode): string {
   if (!node.parent) return ''
-  return getFileBasedRouteName(node.parent) + '/' + node.value.rawSegment
+  return (
+    getFileBasedRouteName(node.parent) +
+    '/' +
+    (node.value.rawSegment === 'index'
+      ? ''
+      : node.value.rawSegment)
+  )
 }
 
 export function mergeRouteRecordOverride(

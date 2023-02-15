@@ -24,6 +24,12 @@ export class RoutesFolderWatcher {
     })
   }
 
+  /**
+   * Returns a route path to be used by the router with any defined prefix from an absolute path to a file.
+   *
+   * @param path - absolute path to file
+   * @returns a route path to be used by the router with any defined prefix
+   */
   asRoutePath(path: string) {
     return this.pathPrefix + path.slice(this.src.length + 1)
   }
@@ -32,7 +38,7 @@ export class RoutesFolderWatcher {
     event: 'add' | 'change' | 'unlink',
     handler: (context: HandlerContext) => void
   ) {
-    this.watcher.on(event, (filePath) => {
+    this.watcher.on(event, (filePath: string) => {
       // ensure consistent path for Windows and Unix
       filePath = normalize(filePath)
       // skip other extensions

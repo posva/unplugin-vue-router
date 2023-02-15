@@ -20,11 +20,12 @@ class _TreeNodeValueBase {
    */
   _type: TreeNodeType
   /**
-   * segment as defined by the file structure
+   * segment as defined by the file structure e.g. keeps the `index` name
    */
   rawSegment: string
   /**
-   * transformed version of the segment into a vue-router path
+   * transformed version of the segment into a vue-router path. e.g. `'index'` becomes `''` and `[param]` becomes
+   * `:param`
    */
   pathSegment: string
 
@@ -58,7 +59,7 @@ class _TreeNodeValueBase {
     rawSegment: string,
     parent: TreeNodeValue | undefined,
     pathSegment: string = rawSegment,
-    subSegments: SubSegment[] = [rawSegment]
+    subSegments: SubSegment[] = [pathSegment]
   ) {
     // type should be defined in child
     this._type = 0
@@ -144,7 +145,7 @@ export function createTreeNodeValue(
   parent?: TreeNodeValue
 ): TreeNodeValue {
   if (!segment || segment === 'index') {
-    return new TreeNodeValueStatic('', parent)
+    return new TreeNodeValueStatic(segment, parent, '')
   }
 
   const [pathSegment, params, subSegments] = parseSegment(segment)
@@ -197,12 +198,11 @@ function parseSegment(
           ? '*'
           : '?'
         : currentTreeRouteParam.repeatable
-        ? '+'
-        : ''
+          ? '+'
+          : ''
       buffer = ''
-      pathSegment += `:${currentTreeRouteParam.paramName}${
-        currentTreeRouteParam.isSplat ? '(.*)' : ''
-      }${currentTreeRouteParam.modifier}`
+      pathSegment += `:${currentTreeRouteParam.paramName}${currentTreeRouteParam.isSplat ? '(.*)' : ''
+        }${currentTreeRouteParam.modifier}`
       params.push(currentTreeRouteParam)
       subSegments.push(currentTreeRouteParam)
       currentTreeRouteParam = createEmptyRouteParam()
