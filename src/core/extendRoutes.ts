@@ -3,7 +3,7 @@ import { CustomRouteBlock } from './customBlock'
 import { type TreeNode } from './tree'
 
 /**
- * A route node that can be modified by the user.
+ * A route node that can be modified by the user. The tree can be traversed with a `for of` loop.
  *
  * @experimental
  */
@@ -23,11 +23,12 @@ export class EditableTreeNode {
   }
 
   /**
-   * Inserts a new route as a child of this route.
+   * Inserts a new route as a child of this route. This route cannot use `definePage()`. If it was meant to be included,
+   * add it to the `routesFolder` option.
    */
   insert(path: string, filePath: string) {
     const node = this.node.insert(path, filePath)
-    // TODO: read definePage from file
+    // TODO: read definePage from file or is this fine?
     return new EditableTreeNode(node)
   }
 
@@ -93,7 +94,6 @@ export class EditableTreeNode {
     return this.node.path
   }
 
-  // TODO: implement if needed. It requires to add logic to the generation of routes to include an alias
   /**
    * Alias of the route.
    */
