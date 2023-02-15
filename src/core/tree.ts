@@ -3,6 +3,7 @@ import { createTreeNodeValue, TreeRouteParam } from './treeNodeValue'
 import type { TreeNodeValue } from './treeNodeValue'
 import { trimExtension } from './utils'
 import { CustomRouteBlock } from './customBlock'
+import { RouteMeta } from 'vue-router'
 
 export class TreeNode {
   /**
@@ -51,11 +52,11 @@ export class TreeNode {
 
     if (!this.children.has(segment)) {
       this.children.set(segment, new TreeNode(this.options, segment, this))
-    }
+    } // TODO: else error or still override?
     const child = this.children.get(segment)!
 
     if (isComponent) {
-      child.value.filePaths.set(viewName, filePath)
+      child.value.components.set(viewName, filePath)
     }
 
     if (tail) {
@@ -109,16 +110,16 @@ export class TreeNode {
     if (tail) {
       child.remove(tail)
       // if the child doesn't create any route
-      if (child.children.size === 0 && child.value.filePaths.size === 0) {
+      if (child.children.size === 0 && child.value.components.size === 0) {
         this.children.delete(segment)
       }
     } else {
       // it can only be component because we only listen for removed files, not folders
       if (isComponent) {
-        child.value.filePaths.delete(viewName)
+        child.value.components.delete(viewName)
       }
       // this is the file we wanted to remove
-      if (child.children.size === 0 && child.value.filePaths.size === 0) {
+      if (child.children.size === 0 && child.value.components.size === 0) {
         this.children.delete(segment)
       }
     }
@@ -151,7 +152,7 @@ export class TreeNode {
   /**
    * Returns the meta property as an object.
    */
-  get metaAsObject() {
+  get metaAsObject(): Readonly<RouteMeta> {
     const meta = {
       ...this.value.overrides.meta,
     }
@@ -193,16 +194,17 @@ export class TreeNode {
    * @returns true if the node is the root node
    */
   isRoot() {
-    return this.value.path === '/' && !this.value.filePaths.size
+    return this.value.path === '/' && !this.value.components.size
   }
 
   toString(): string {
     return `${this.value}${
       // either we have multiple names
-      this.value.filePaths.size > 1 ||
+      this.value.components.size > 1 ||
       // or we have one name and it's not default
-      (this.value.filePaths.size === 1 && !this.value.filePaths.get('default'))
-        ? ` ⎈(${Array.from(this.value.filePaths.keys()).join(', ')})`
+      (this.value.components.size === 1 &&
+        !this.value.components.get('default'))
+        ? ` ⎈(${Array.from(this.value.components.keys()).join(', ')})`
         : ''
     }${this.hasDefinePage ? ' ⚑ definePage()' : ''}`
   }

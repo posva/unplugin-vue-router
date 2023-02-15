@@ -6,13 +6,11 @@ exports[`generateRouteRecord > adds children and name when folder and component 
     path: '/a',
     name: '/a',
     component: () => import('a.vue'),
-    /* no props */
     children: [
       {
         path: 'c',
         name: '/a/c',
         component: () => import('a/c.vue'),
-        /* no props */
         /* no children */
       }
     ],
@@ -21,13 +19,11 @@ exports[`generateRouteRecord > adds children and name when folder and component 
     path: '/b',
     /* no name */
     /* no component */
-    /* no props */
     children: [
       {
         path: 'c',
         name: '/b/c',
         component: () => import('b/c.vue'),
-        /* no props */
         /* no children */
       }
     ],
@@ -36,7 +32,6 @@ exports[`generateRouteRecord > adds children and name when folder and component 
     path: '/d',
     name: '/d',
     component: () => import('d.vue'),
-    /* no props */
     /* no children */
   }
 ]"
@@ -48,20 +43,17 @@ exports[`generateRouteRecord > correctly names index.vue files 1`] = `
     path: '/',
     name: '/',
     component: () => import('index.vue'),
-    /* no props */
     /* no children */
   },
   {
     path: '/b',
     /* no name */
     /* no component */
-    /* no props */
     children: [
       {
         path: '',
         name: '/b/',
         component: () => import('b/index.vue'),
-        /* no props */
         /* no children */
       }
     ],
@@ -75,33 +67,28 @@ exports[`generateRouteRecord > generate custom imports 1`] = `
     path: '/a',
     name: '/a',
     component: _page_0,
-    /* no props */
     /* no children */
   },
   {
     path: '/b',
     name: '/b',
     component: () => import('b.vue'),
-    /* no props */
     /* no children */
   },
   {
     path: '/nested',
     /* no name */
     /* no component */
-    /* no props */
     children: [
       {
         path: 'file',
         /* no name */
         /* no component */
-        /* no props */
         children: [
           {
             path: 'c',
             name: '/nested/file/c',
             component: () => import('nested/file/c.vue'),
-            /* no props */
             /* no children */
           }
         ],
@@ -123,33 +110,28 @@ exports[`generateRouteRecord > generate static imports 1`] = `
     path: '/a',
     name: '/a',
     component: _page_0,
-    /* no props */
     /* no children */
   },
   {
     path: '/b',
     name: '/b',
     component: _page_1,
-    /* no props */
     /* no children */
   },
   {
     path: '/nested',
     /* no name */
     /* no component */
-    /* no props */
     children: [
       {
         path: 'file',
         /* no name */
         /* no component */
-        /* no props */
         children: [
           {
             path: 'c',
             name: '/nested/file/c',
             component: _page_2,
-            /* no props */
             /* no children */
           }
         ],
@@ -177,7 +159,6 @@ exports[`generateRouteRecord > handles multiple named views 1`] = `
       'a': () => import('foo@a.vue'),
       'b': () => import('foo@b.vue')
     },
-    /* no props */
     /* no children */
   }
 ]"
@@ -189,33 +170,28 @@ exports[`generateRouteRecord > handles non nested routes 1`] = `
     path: '/users',
     name: '/users',
     component: () => import('users.vue'),
-    /* no props */
     children: [
       {
         path: '',
         name: '/users/',
         component: () => import('users/index.vue'),
-        /* no props */
         /* no children */
       },
       {
         path: ':id',
         name: '/users/[id]',
         component: () => import('users/[id].vue'),
-        /* no props */
         children: [
           {
             path: '',
             name: '/users/[id]/',
             component: () => import('users/[id]/index.vue'),
-            /* no props */
             /* no children */
           },
           {
             path: 'other',
             name: '/users/[id]/other',
             component: () => import('users/[id]/other.vue'),
-            /* no props */
             /* no children */
           }
         ],
@@ -224,14 +200,12 @@ exports[`generateRouteRecord > handles non nested routes 1`] = `
         path: ':id/not-nested',
         name: '/users/[id].not-nested',
         component: () => import('users/[id].not-nested.vue'),
-        /* no props */
         /* no children */
       },
       {
         path: 'other',
         name: '/users/other',
         component: () => import('users/other.vue'),
-        /* no props */
         /* no children */
       }
     ],
@@ -240,14 +214,12 @@ exports[`generateRouteRecord > handles non nested routes 1`] = `
     path: '/users/:id/also-not-nested',
     name: '/users.[id].also-not-nested',
     component: () => import('users.[id].also-not-nested.vue'),
-    /* no props */
     /* no children */
   },
   {
     path: '/users/not-nested',
     name: '/users.not-nested',
     component: () => import('users.not-nested.vue'),
-    /* no props */
     /* no children */
   }
 ]"
@@ -261,7 +233,6 @@ exports[`generateRouteRecord > handles single named views 1`] = `
     components: {
       'a': () => import('foo@a.vue')
     },
-    /* no props */
     /* no children */
   }
 ]"
@@ -273,34 +244,29 @@ exports[`generateRouteRecord > names > creates multi word names 1`] = `
     path: '/',
     name: '/',
     component: () => import('index.vue'),
-    /* no props */
     /* no children */
   },
   {
     path: '/my-users',
     name: '/my-users',
     component: () => import('my-users.vue'),
-    /* no props */
     /* no children */
   },
   {
     path: '/MyPascalCaseUsers',
     name: '/MyPascalCaseUsers',
     component: () => import('MyPascalCaseUsers.vue'),
-    /* no props */
     /* no children */
   },
   {
     path: '/some-nested',
     /* no name */
     /* no component */
-    /* no props */
     children: [
       {
         path: 'file-with-:id-in-the-middle',
         name: '/some-nested/file-with-[id]-in-the-middle',
         component: () => import('some-nested/file-with-[id]-in-the-middle.vue'),
-        /* no props */
         /* no children */
       }
     ],
@@ -314,40 +280,34 @@ exports[`generateRouteRecord > names > creates single word names 1`] = `
     path: '/',
     name: '/',
     component: () => import('index.vue'),
-    /* no props */
     /* no children */
   },
   {
     path: '/about',
     name: '/about',
     component: () => import('about.vue'),
-    /* no props */
     /* no children */
   },
   {
     path: '/users',
     /* no name */
     /* no component */
-    /* no props */
     children: [
       {
         path: '',
         name: '/users/',
         component: () => import('users/index.vue'),
-        /* no props */
         /* no children */
       },
       {
         path: ':id',
         name: '/users/[id]',
         component: () => import('users/[id].vue'),
-        /* no props */
         children: [
           {
             path: 'edit',
             name: '/users/[id]/edit',
             component: () => import('users/[id]/edit.vue'),
-            /* no props */
             /* no children */
           }
         ],
@@ -356,7 +316,6 @@ exports[`generateRouteRecord > names > creates single word names 1`] = `
         path: 'new',
         name: '/users/new',
         component: () => import('users/new.vue'),
-        /* no props */
         /* no children */
       }
     ],
@@ -370,33 +329,28 @@ exports[`generateRouteRecord > names > works with nested views 1`] = `
     path: '/',
     name: '/',
     component: () => import('index.vue'),
-    /* no props */
     /* no children */
   },
   {
     path: '/users',
     name: '/users',
     component: () => import('users.vue'),
-    /* no props */
     children: [
       {
         path: '',
         name: '/users/',
         component: () => import('users/index.vue'),
-        /* no props */
         /* no children */
       },
       {
         path: ':id',
         name: '/users/[id]',
         component: () => import('users/[id].vue'),
-        /* no props */
         children: [
           {
             path: 'edit',
             name: '/users/[id]/edit',
             component: () => import('users/[id]/edit.vue'),
-            /* no props */
             /* no children */
           }
         ],
@@ -412,27 +366,23 @@ exports[`generateRouteRecord > nested children 1`] = `
     path: '/a',
     /* no name */
     /* no component */
-    /* no props */
     children: [
       {
         path: 'a',
         name: '/a/a',
         component: () => import('a/a.vue'),
-        /* no props */
         /* no children */
       },
       {
         path: 'b',
         name: '/a/b',
         component: () => import('a/b.vue'),
-        /* no props */
         /* no children */
       },
       {
         path: 'c',
         name: '/a/c',
         component: () => import('a/c.vue'),
-        /* no props */
         /* no children */
       }
     ],
@@ -441,27 +391,23 @@ exports[`generateRouteRecord > nested children 1`] = `
     path: '/b',
     /* no name */
     /* no component */
-    /* no props */
     children: [
       {
         path: 'b',
         name: '/b/b',
         component: () => import('b/b.vue'),
-        /* no props */
         /* no children */
       },
       {
         path: 'c',
         name: '/b/c',
         component: () => import('b/c.vue'),
-        /* no props */
         /* no children */
       },
       {
         path: 'd',
         name: '/b/d',
         component: () => import('b/d.vue'),
-        /* no props */
         /* no children */
       }
     ],
@@ -475,27 +421,23 @@ exports[`generateRouteRecord > nested children 2`] = `
     path: '/a',
     /* no name */
     /* no component */
-    /* no props */
     children: [
       {
         path: 'a',
         name: '/a/a',
         component: () => import('a/a.vue'),
-        /* no props */
         /* no children */
       },
       {
         path: 'b',
         name: '/a/b',
         component: () => import('a/b.vue'),
-        /* no props */
         /* no children */
       },
       {
         path: 'c',
         name: '/a/c',
         component: () => import('a/c.vue'),
-        /* no props */
         /* no children */
       }
     ],
@@ -504,27 +446,23 @@ exports[`generateRouteRecord > nested children 2`] = `
     path: '/b',
     /* no name */
     /* no component */
-    /* no props */
     children: [
       {
         path: 'b',
         name: '/b/b',
         component: () => import('b/b.vue'),
-        /* no props */
         /* no children */
       },
       {
         path: 'c',
         name: '/b/c',
         component: () => import('b/c.vue'),
-        /* no props */
         /* no children */
       },
       {
         path: 'd',
         name: '/b/d',
         component: () => import('b/d.vue'),
-        /* no props */
         /* no children */
       }
     ],
@@ -533,14 +471,12 @@ exports[`generateRouteRecord > nested children 2`] = `
     path: '/c',
     name: '/c',
     component: () => import('c.vue'),
-    /* no props */
     /* no children */
   },
   {
     path: '/d',
     name: '/d',
     component: () => import('d.vue'),
-    /* no props */
     /* no children */
   }
 ]"
@@ -552,20 +488,17 @@ exports[`generateRouteRecord > removes trailing slashes 1`] = `
     path: '/nested',
     name: '/nested',
     component: () => import('nested.vue'),
-    /* no props */
     children: [
       {
         path: '',
         name: '/nested/',
         component: () => import('nested/index.vue'),
-        /* no props */
         /* no children */
       },
       {
         path: 'other',
         name: '/nested/other',
         component: () => import('nested/other.vue'),
-        /* no props */
         /* no children */
       }
     ],
@@ -574,20 +507,17 @@ exports[`generateRouteRecord > removes trailing slashes 1`] = `
     path: '/users',
     /* no name */
     /* no component */
-    /* no props */
     children: [
       {
         path: '',
         name: '/users/',
         component: () => import('users/index.vue'),
-        /* no props */
         /* no children */
       },
       {
         path: 'other',
         name: '/users/other',
         component: () => import('users/other.vue'),
-        /* no props */
         /* no children */
       }
     ],
@@ -601,7 +531,6 @@ exports[`generateRouteRecord > route block > adds meta data 1`] = `
     path: '/',
     name: '/',
     component: () => import('index.vue'),
-    /* no props */
     /* no children */
     meta: {
       \\"auth\\": true,
@@ -620,7 +549,6 @@ exports[`generateRouteRecord > route block > handles named views with empty rout
       'default': () => import('index.vue'),
       'named': () => import('index@named.vue')
     },
-    /* no props */
     /* no children */
     meta: {
       \\"auth\\": true,
@@ -636,7 +564,6 @@ exports[`generateRouteRecord > route block > merges deep meta properties 1`] = `
     path: '/',
     name: '/',
     component: () => import('index.vue'),
-    /* no props */
     /* no children */
     meta: {
       \\"a\\": {
@@ -660,7 +587,6 @@ exports[`generateRouteRecord > route block > merges multiple meta properties 1`]
     path: '/custom',
     name: 'hello',
     component: () => import('index.vue'),
-    /* no props */
     /* no children */
     meta: {
       \\"one\\": true,
@@ -676,7 +602,6 @@ exports[`generateRouteRecord > route block > merges regardless of order 1`] = `
     path: '/',
     name: 'b',
     component: () => import('index.vue'),
-    /* no props */
     /* no children */
   }
 ]"
@@ -688,21 +613,18 @@ exports[`generateRouteRecord > works with some paths at root 1`] = `
     path: '/a',
     name: '/a',
     component: () => import('a.vue'),
-    /* no props */
     /* no children */
   },
   {
     path: '/b',
     name: '/b',
     component: () => import('b.vue'),
-    /* no props */
     /* no children */
   },
   {
     path: '/c',
     name: '/c',
     component: () => import('c.vue'),
-    /* no props */
     /* no children */
   }
 ]"

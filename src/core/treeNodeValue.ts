@@ -14,6 +14,9 @@ export interface RouteRecordOverride
 
 export type SubSegment = string | TreeRouteParam
 
+// internal name used for overrides done by the user at build time
+export const EDITS_OVERRIDE_NAME = '@@edits'
+
 class _TreeNodeValueBase {
   /**
    * flag based on the type of the segment
@@ -45,15 +48,15 @@ class _TreeNodeValueBase {
   private _overrides = new Map<string, RouteRecordOverride>()
 
   /**
-   * Should this add the loader guard in the route record.
+   * Should we add the loader guard to the route record.
    */
   includeLoaderGuard: boolean = false
 
   /**
-   * Component path that maps to a view name, which is used for vue-router's named view feature.
-   * Use `default` key for the default view.
+   * View name (Vue Router feature) mapped to their corresponding file. By default, the view name is `default` unless
+   * specified with a `@` e.g. `index@aux.vue` will have a view name of `aux`.
    */
-  filePaths: Map<string, string>
+  components = new Map<string, string>()
 
   constructor(
     rawSegment: string,
@@ -72,7 +75,6 @@ class _TreeNodeValueBase {
       (!parentPath || parentPath === '/') && this.pathSegment === ''
         ? '/'
         : joinPath(parent?.path || '', this.pathSegment)
-    this.filePaths = new Map()
   }
 
   toString(): string {
@@ -90,7 +92,13 @@ class _TreeNodeValueBase {
   get overrides() {
     return [...this._overrides.entries()]
       .sort(([nameA], [nameB]) =>
-        nameA === nameB ? 0 : nameA < nameB ? -1 : 1
+        nameA === nameB
+          ? 0
+          : // EDITS_OVERRIDE_NAME should always be last
+          nameA !== EDITS_OVERRIDE_NAME &&
+            (nameA < nameB || nameB === EDITS_OVERRIDE_NAME)
+          ? -1
+          : 1
       )
       .reduce((acc, [_path, routeBlock]) => {
         return mergeRouteRecordOverride(acc, routeBlock)
@@ -99,6 +107,28 @@ class _TreeNodeValueBase {
 
   setOverride(path: string, routeBlock: CustomRouteBlock | undefined) {
     this._overrides.set(path, routeBlock || {})
+  }
+
+  /**
+   * Remove all overrides for a given key.
+   *
+   * @param key - key to remove from the override
+   */
+  removeOverride(key: keyof CustomRouteBlock) {
+    this._overrides.forEach((routeBlock) => {
+      // @ts-expect-error
+      delete routeBlock[key]
+    })
+  }
+
+  mergeOverride(path: string, routeBlock: CustomRouteBlock) {
+    const existing = this._overrides.get(path) || {}
+    this._overrides.set(path, mergeRouteRecordOverride(existing, routeBlock))
+  }
+
+  addEditOverride(routeBlock: CustomRouteBlock) {
+    console.log('add edit', routeBlock)
+    return this.mergeOverride(EDITS_OVERRIDE_NAME, routeBlock)
   }
 }
 
@@ -198,11 +228,12 @@ function parseSegment(
           ? '*'
           : '?'
         : currentTreeRouteParam.repeatable
-          ? '+'
-          : ''
+        ? '+'
+        : ''
       buffer = ''
-      pathSegment += `:${currentTreeRouteParam.paramName}${currentTreeRouteParam.isSplat ? '(.*)' : ''
-        }${currentTreeRouteParam.modifier}`
+      pathSegment += `:${currentTreeRouteParam.paramName}${
+        currentTreeRouteParam.isSplat ? '(.*)' : ''
+      }${currentTreeRouteParam.modifier}`
       params.push(currentTreeRouteParam)
       subSegments.push(currentTreeRouteParam)
       currentTreeRouteParam = createEmptyRouteParam()

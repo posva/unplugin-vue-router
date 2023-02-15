@@ -26,6 +26,7 @@ export function createRoutesContext(options: ResolvedOptions) {
       : resolve(root, preferDTS)
 
   const routeTree = createPrefixTree(options)
+  const editableRoutes = new EditableTreeNode(routeTree)
 
   function log(...args: any[]) {
     if (options.logs) {
@@ -56,8 +57,10 @@ export function createRoutesContext(options: ResolvedOptions) {
             .map((extension) => extension.replace('.', ''))
             .join(',')}}`)
 
+    // get the initial list of pages
     await Promise.all(
       routesFolder.map((folder) => {
+        // TODO: skip creating watchers during build
         const watcher = new RoutesFolderWatcher(folder, options)
         setupWatcher(watcher)
         watchers.push(watcher)
@@ -82,6 +85,11 @@ export function createRoutesContext(options: ResolvedOptions) {
       })
     )
 
+    for (const route of editableRoutes) {
+      await options.extendRoute?.(route)
+    }
+
+    // immediately write the files without the throttle
     await _writeConfigFiles()
   }
 
@@ -100,28 +108,35 @@ export function createRoutesContext(options: ResolvedOptions) {
       options.dataFetching && (await hasNamedExports(path))
   }
 
-  async function addPage({ filePath: path, routePath }: HandlerContext) {
-    log(`added "${routePath}" for "${path}"`)
+  async function addPage(
+    { filePath, routePath }: HandlerContext,
+    triggerExtendRoute = false
+  ) {
+    log(`added "${routePath}" for "${filePath}"`)
     // TODO: handle top level named view HMR
-    const node = routeTree.insert(routePath, path)
+    const node = routeTree.insert(routePath, filePath)
 
-    await writeRouteInfoToNode(node, path)
+    await writeRouteInfoToNode(node, filePath)
+
+    if (triggerExtendRoute) {
+      await options.extendRoute?.(new EditableTreeNode(node))
+    }
   }
 
-  async function updatePage({ filePath: path, routePath }: HandlerContext) {
-    log(`updated "${routePath}" for "${path}"`)
-    const node = routeTree.getChild(path)
+  async function updatePage({ filePath, routePath }: HandlerContext) {
+    log(`updated "${routePath}" for "${filePath}"`)
+    const node = routeTree.getChild(filePath)
     if (!node) {
-      console.warn(`Cannot update "${path}": Not found.`)
+      console.warn(`Cannot update "${filePath}": Not found.`)
       return
     }
-    writeRouteInfoToNode(node, path)
+    await writeRouteInfoToNode(node, filePath)
+    await options.extendRoute?.(new EditableTreeNode(node))
   }
 
-  // TODO: the map should be integrated with the root tree to have one source of truth only
-  function removePage({ filePath: path, routePath }: HandlerContext) {
-    log(`remove "${routePath}" for "${path}"`)
-    routeTree.removeChild(path)
+  function removePage({ filePath, routePath }: HandlerContext) {
+    log(`remove "${routePath}" for "${filePath}"`)
+    routeTree.removeChild(filePath)
   }
 
   function setupWatcher(watcher: RoutesFolderWatcher) {
@@ -132,7 +147,7 @@ export function createRoutesContext(options: ResolvedOptions) {
         writeConfigFiles()
       })
       .on('add', async (ctx) => {
-        await addPage(ctx)
+        await addPage(ctx, true)
         writeConfigFiles()
       })
       .on('unlink', async (ctx) => {

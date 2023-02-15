@@ -23,17 +23,20 @@ ${node
   // TODO: should meta be defined a different way to allow preserving imports?
   // const meta = node.value.overrides.meta
 
+  // compute once since it's a getter
+  const overrides = node.value.overrides
+
   // path
   const routeRecord = `${startIndent}{
 ${indentStr}path: '${node.path}',
 ${indentStr}${
-    node.value.filePaths.size ? `name: '${node.name}',` : '/* no name */'
+    node.value.components.size ? `name: '${node.name}',` : '/* no name */'
   }
 ${
   // component
   indentStr
 }${
-    node.value.filePaths.size
+    node.value.components.size
       ? generateRouteRecordComponent(
           node,
           indentStr,
@@ -42,18 +45,14 @@ ${
         )
       : '/* no component */'
   }
-${
-  // props
-  indentStr
-}${
-    node.value.overrides.props != null
-      ? `props: ${node.value.overrides.props},`
-      : '/* no props */'
-  }
-${
-  // children
-  indentStr
-}${
+${overrides.props != null ? indentStr + `props: ${overrides.props},\n` : ''}${
+    overrides.alias != null
+      ? indentStr + `alias: ${JSON.stringify(overrides.alias)},\n`
+      : ''
+  }${
+    // children
+    indentStr
+  }${
     node.children.size > 0
       ? `children: [
 ${node
@@ -67,7 +66,7 @@ ${startIndent}}`
 
   if (node.hasDefinePage) {
     const definePageDataList: string[] = []
-    for (const [name, filePath] of node.value.filePaths) {
+    for (const [name, filePath] of node.value.components) {
       const pageDataImport = `_definePage_${name}_${importList.size}`
       definePageDataList.push(pageDataImport)
       importList.set(pageDataImport, `${filePath}?definePage&vue`)
@@ -90,7 +89,7 @@ function generateRouteRecordComponent(
   importMode: _OptionsImportMode,
   importList: Map<string, string>
 ): string {
-  const files = Array.from(node.value.filePaths)
+  const files = Array.from(node.value.components)
   const isDefaultExport = files.length === 1 && files[0][0] === 'default'
   return isDefaultExport
     ? `component: ${generatePageImport(files[0][1], importMode, importList)},`
@@ -133,7 +132,7 @@ function generatePageImport(
 }
 
 function generateImportList(node: TreeNode, indentStr: string) {
-  const files = Array.from(node.value.filePaths)
+  const files = Array.from(node.value.components)
 
   return `[
 ${files

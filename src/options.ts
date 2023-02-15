@@ -1,7 +1,8 @@
 import { isPackageExists } from 'local-pkg'
-import { getFileBasedRouteName, isArray } from './core/utils'
+import { Awaitable, getFileBasedRouteName, isArray } from './core/utils'
 import type { TreeNode } from './core/tree'
 import { resolve } from 'pathe'
+import { EditableTreeNode } from './core/extendRoutes'
 
 export interface RoutesFolderOption {
   src: string
@@ -30,6 +31,15 @@ export interface ResolvedOptions {
    * Method to generate the name of a route.
    */
   getRouteName: (node: TreeNode) => string
+
+  /**
+   * Allows to extend a route by modifying its node, adding children, or even deleting it. This will be invoked once for
+   * each route.
+   *
+   * @param route - {@link EditableTreeNode} of the route to extend
+   * @returns
+   */
+  extendRoute?: (route: EditableTreeNode) => Awaitable<void>
 
   /**
    * Enables EXPERIMENTAL data fetching. See https://github.com/posva/unplugin-vue-router/tree/main/src/data-fetching

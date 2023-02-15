@@ -131,7 +131,7 @@ describe('Tree', () => {
     tree.insert('not.nested.path@b.vue')
     tree.insert('deep/not.nested.path@a.vue')
     tree.insert('deep/not.nested.path@b.vue')
-    expect([...tree.children.get('index')!.value.filePaths.keys()]).toEqual([
+    expect([...tree.children.get('index')!.value.components.keys()]).toEqual([
       'default',
       'a',
       'b',
@@ -140,29 +140,29 @@ describe('Tree', () => {
       ...tree.children
         .get('nested')!
         .children.get('foo')!
-        .value.filePaths.keys(),
+        .value.components.keys(),
     ]).toEqual(['a', 'b'])
     expect([
       ...tree.children
         .get('nested')!
         .children.get('[id]')!
-        .value.filePaths.keys(),
+        .value.components.keys(),
     ]).toEqual(['a', 'b'])
     expect([
-      ...tree.children.get('not.nested.path')!.value.filePaths.keys(),
+      ...tree.children.get('not.nested.path')!.value.components.keys(),
     ]).toEqual(['a', 'b'])
     expect([
       ...tree.children
         .get('deep')!
         .children.get('not.nested.path')!
-        .value.filePaths.keys(),
+        .value.components.keys(),
     ]).toEqual(['a', 'b'])
   })
 
   it('handles single named views that are not default', () => {
     const tree = createPrefixTree(DEFAULT_OPTIONS)
     tree.insert('index@a.vue')
-    expect([...tree.children.get('index')!.value.filePaths.keys()]).toEqual([
+    expect([...tree.children.get('index')!.value.components.keys()]).toEqual([
       'a',
     ])
   })
@@ -217,7 +217,7 @@ describe('Tree', () => {
     expect(index).toBeDefined()
     const a = tree.children.get('a')!
     expect(a).toBeDefined()
-    expect(a.value.filePaths.get('default')).toBeUndefined()
+    expect(a.value.components.get('default')).toBeUndefined()
     expect(a.value).toMatchObject({
       rawSegment: 'a',
       path: '/a',
@@ -232,7 +232,7 @@ describe('Tree', () => {
     })
 
     tree.insert('a.vue')
-    expect(a.value.filePaths.get('default')).toBe('a.vue')
+    expect(a.value.components.get('default')).toBe('a.vue')
     expect(a.value).toMatchObject({
       rawSegment: 'a',
       path: '/a',
@@ -371,7 +371,7 @@ describe('Tree', () => {
 
     const a = tree.children.get('a')!
     expect(a).toBeDefined()
-    expect(a.value.filePaths.get('default')).toBe('a.page.vue')
+    expect(a.value.components.get('default')).toBe('a.page.vue')
     expect(a.fullPath).toBe('/a')
 
     const nested = tree.children.get('nested')!
@@ -382,13 +382,13 @@ describe('Tree', () => {
     expect(b.children.size).toBe(1)
     const c = b.children.get('c')!
     expect(c).toBeDefined()
-    expect(c.value.filePaths.get('default')).toBe('nested/b/c.page.vue')
+    expect(c.value.components.get('default')).toBe('nested/b/c.page.vue')
     expect(c.fullPath).toBe('/nested/b/c')
 
     tree.insert('a/nested.page.vue')
     const aNested = a.children.get('nested')!
     expect(aNested).toBeDefined()
-    expect(aNested.value.filePaths.get('default')).toBe('a/nested.page.vue')
+    expect(aNested.value.components.get('default')).toBe('a/nested.page.vue')
     expect(aNested.fullPath).toBe('/a/nested')
   })
 })
