@@ -208,8 +208,9 @@ ${routesExport}
   async function _writeConfigFiles() {
     log('💾 writing...')
 
-    // TODO: extendRoutes
-    // const editable = new EditableTreeNode(routeTree)
+    if (options.beforeWriteFiles) {
+      await options.beforeWriteFiles(editableRoutes)
+    }
 
     logTree(routeTree, log)
     if (dts) {

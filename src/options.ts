@@ -42,6 +42,14 @@ export interface ResolvedOptions {
   extendRoute?: (route: EditableTreeNode) => Awaitable<void>
 
   /**
+   * Allows to do some changes before writing the files. This will be invoked **every time** the files need to be written.
+   *
+   * @param rootRoute - {@link EditableTreeNode} of the root route
+   * @returns
+   */
+  beforeWriteFiles?: (rootRoute: EditableTreeNode) => Awaitable<void>
+
+  /**
    * Enables EXPERIMENTAL data fetching. See https://github.com/posva/unplugin-vue-router/tree/main/src/data-fetching
    */
   dataFetching: boolean
