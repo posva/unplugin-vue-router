@@ -1,4 +1,8 @@
-import type { RouteRecordRaw, RouteRecordRedirectOption } from 'vue-router'
+import type {
+  RouteMeta,
+  RouteRecordRaw,
+  RouteRecordRedirectOption,
+} from 'vue-router'
 
 export { defineLoader as _defineLoader } from './data-fetching/defineLoader'
 export type {
@@ -27,11 +31,17 @@ export function _mergeRouteRecord(
   // @ts-expect-error: complicated types
   return routeRecords.reduce((acc, routeRecord) => {
     const meta = Object.assign({}, acc.meta, routeRecord.meta)
+    const alias: string[] = ([] as string[]).concat(
+      acc.alias || [],
+      routeRecord.alias || []
+    )
+
     // TODO: other nested properties
     // const props = Object.assign({}, acc.props, routeRecord.props)
 
     Object.assign(acc, routeRecord)
     acc.meta = meta
+    acc.alias = alias
     return acc
   }, main)
 }
