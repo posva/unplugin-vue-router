@@ -53,6 +53,7 @@ export interface ResolvedOptions {
 
   /**
    * Enables EXPERIMENTAL data fetching. See https://github.com/posva/unplugin-vue-router/tree/main/src/data-fetching
+   * @experimental
    */
   dataFetching: boolean
 
