@@ -68,7 +68,7 @@ function parseCustomBlock(
     }
   } else {
     console.error(
-      `⚠️  unplugin-vue-router: Invalid "lang" of <${block.type}> in ${filePath}. Supported languages are: json5, json, yaml, yml.`
+      `⚠️  unplugin-vue-router: Language "${lang}" for <${block.type}> is not supported. Supported languages are: json5, json, yaml, yml. Found in in ${filePath}.`
     )
   }
 }
