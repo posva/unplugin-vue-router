@@ -1,3 +1,19 @@
+## [0.3.3](https://github.com/posva/unplugin-vue-router/compare/v0.3.2...v0.3.3) (2023-02-15)
+
+🙌 This version introduces the ability to extend the routes with the `extendRoutes` option. Please refer to [the relevant issue](https://github.com/posva/unplugin-vue-router/issues/43) for use cases and share any problems you might have.
+
+### Bug Fixes
+
+- **runtime:** merge aliases ([73bacd9](https://github.com/posva/unplugin-vue-router/commit/73bacd90df0bea1c595e94080b283781d9a57415))
+
+### Features
+
+- beforeWriteFiles ([cc12c24](https://github.com/posva/unplugin-vue-router/commit/cc12c2493f9ebbdc0a57dbdcdc32c6394d471fe4))
+- extendRoute ([ff0195f](https://github.com/posva/unplugin-vue-router/commit/ff0195f6fd049cd05590a9d886ed2b9d89bda829))
+- **warn:** improve invalid lang warn for route block ([5c8c7df](https://github.com/posva/unplugin-vue-router/commit/5c8c7dfae4c741925e6ad17563c8ff262ff4cf4c))
+- **warn:** missing dots in extensions ([18f30a1](https://github.com/posva/unplugin-vue-router/commit/18f30a1071b588ccd61b82c98bce59d46ad7ec59)), closes [#117](https://github.com/posva/unplugin-vue-router/issues/117)
+- wip extendroutes ([627f417](https://github.com/posva/unplugin-vue-router/commit/627f417b0435cebad8e07f5ac80ab27134eaa9ff))
+
 ## [0.3.2](https://github.com/posva/unplugin-vue-router/compare/v0.3.1...v0.3.2) (2023-01-09)
 
 ### Bug Fixes
@@ -56,7 +72,7 @@
 
 ## Introducing Experimental Data fetching
 
-Refer to https://github.com/posva/unplugin-vue-router/tree/main/src/data-fetching
+Refer to <https://github.com/posva/unplugin-vue-router/tree/main/src/data-fetching>
 for up to date information on how to use the data fetching.
 
 ### Bug Fixes
