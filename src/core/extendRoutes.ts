@@ -96,6 +96,19 @@ export class EditableTreeNode {
   }
 
   /**
+   * Override the path of the route. You must ensure `params` match with the existing path.
+   */
+  set path(path: string) {
+    if (!path.startsWith('/')) {
+      warn(
+        `Only absolute paths are supported. Make sure that "${path}" starts with a slash "/".`
+      )
+      return
+    }
+    this.node.value.addEditOverride({ path })
+  }
+
+  /**
    * Alias of the route.
    */
   get alias() {
