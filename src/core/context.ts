@@ -37,7 +37,7 @@ export function createRoutesContext(options: ResolvedOptions) {
   // populated by the initial scan pages
   const watchers: RoutesFolderWatcher[] = []
 
-  async function scanPages() {
+  async function scanPages(startWatchers = true) {
     if (options.extensions.length < 1) {
       throw new Error(
         '"extensions" cannot be empty. Please specify at least one extension.'
@@ -61,6 +61,7 @@ export function createRoutesContext(options: ResolvedOptions) {
     await Promise.all(
       routesFolder.map((folder) => {
         // TODO: skip creating watchers during build
+        // that will require refactoring the `watcher.asRoutePath()`
         const watcher = new RoutesFolderWatcher(folder, options)
         setupWatcher(watcher)
         watchers.push(watcher)
