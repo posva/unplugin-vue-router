@@ -1,8 +1,4 @@
-import type {
-  RouteMeta,
-  RouteRecordRaw,
-  RouteRecordRedirectOption,
-} from 'vue-router'
+import type { RouteRecordRaw } from 'vue-router'
 
 export { defineLoader as _defineLoader } from './data-fetching/defineLoader'
 export type {
@@ -24,6 +20,15 @@ export const _definePage = (
   route: Partial<Omit<RouteRecordRaw, 'children' | 'components' | 'component'>>
 ) => route
 
+/**
+ * Merges route records.
+ *
+ * @internal
+ *
+ * @param main - main route record
+ * @param routeRecords - route records to merge
+ * @returns merged route record
+ */
 export function _mergeRouteRecord(
   main: RouteRecordRaw,
   ...routeRecords: Partial<RouteRecordRaw>[]

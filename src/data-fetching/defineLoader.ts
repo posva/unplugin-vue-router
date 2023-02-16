@@ -54,6 +54,17 @@ export interface DefineLoaderFn<T> {
     : Promise<T>
 }
 
+/**
+ * Creates a data loader composables that can be exported by pages to attach the data loading to a route. This returns a
+ * composable that can be used in any component.
+ *
+ * @experimental
+ * Still under development and subject to change. See https://github.com/vuejs/rfcs/discussions/460
+ *
+ * @param name - optional name of the route to narrow down the type of the `to` argument
+ * @param loader - loader function that returns the data to be loaded
+ * @param options - options to configure the loader
+ */
 export function defineLoader<
   P extends Promise<any>,
   isLazy extends boolean = false
@@ -63,6 +74,16 @@ export function defineLoader<
   options?: DefineLoaderOptions<isLazy>
 ): DataLoader<Awaited<P>, isLazy>
 
+/**
+ * Creates a data loader composables that can be exported by pages to attach the data loading to a route. This returns a
+ * composable that can be used in any component.
+ *
+ * @experimental
+ * Still under development and subject to change. See https://github.com/vuejs/rfcs/discussions/460
+ *
+ * @param loader - loader function that returns the data to be loaded
+ * @param options - options to configure the loader
+ */
 export function defineLoader<
   P extends Promise<any>,
   isLazy extends boolean = false
@@ -306,7 +327,7 @@ export function isDataLoader(loader: any): loader is DataLoader<unknown> {
 }
 
 /**
- * Returned Composable of `defineDataLoader()`
+ * Composable returned by `defineDataLoader()`.
  */
 export interface DataLoader<T, isLazy extends boolean = boolean> {
   (): _PromiseMerged<_DataLoaderResult<T, isLazy>>
@@ -353,7 +374,7 @@ export interface _DataLoaderInternals<T> {
 }
 
 /**
- * Return value of a loader defined with `defineDataLoader()`.
+ * Return value of a loader composable defined with `defineDataLoader()`.
  */
 export interface _DataLoaderResult<T = unknown, isLazy = boolean> {
   /**
@@ -384,7 +405,7 @@ export interface _DataLoaderResult<T = unknown, isLazy = boolean> {
   pendingLoad: () => Promise<void> | undefined | null
 
   /**
-   * Data returned by the loader.
+   * Data returned by the loader. If the data loader is lazy, it will be undefined until the first load.
    */
   data: false extends isLazy ? Ref<UnwrapRef<T>> : Ref<UnwrapRef<T> | undefined>
 }
