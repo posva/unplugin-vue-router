@@ -33,6 +33,7 @@ export default {}
 <script lang="ts" setup>
 import { onBeforeRouteLeave, onBeforeRouteUpdate } from 'vue-router/auto'
 import type { RouterTyped, RouteRecordRaw } from 'vue-router/auto'
+import type { RouteLocationNormalized } from 'vue-router/auto'
 
 const thing = 'THING'
 
@@ -87,6 +88,11 @@ useRoute<'/about'>('/about').params.never
 definePage({
   // name: 'my-name',
   alias: ['/n/:name'],
+  meta: {
+    // hello: 'there',
+    mySymbol: Symbol(),
+    // test: (to: RouteLocationNormalized) => console.log(to.name === '/[name]' ? to.params.name : 'nope'),
+  },
 })
 
 // defineRouteMeta<{ transition: string }>()
@@ -105,5 +111,13 @@ definePage({
     <p v-show="false">{{ thing }}</p>
     <p v-if="pending">Loading user...</p>
     <pre v-else>{{ user }}</pre>
-  </main>
+</main>
 </template>
+
+<route lang="json">
+{
+  "meta": {
+    "hello": "there"
+  }
+}
+</route>
