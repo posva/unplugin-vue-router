@@ -5,8 +5,18 @@ import { resolve } from 'pathe'
 import { EditableTreeNode } from './core/extendRoutes'
 
 export interface RoutesFolderOption {
+  /**
+   * Path to the folder containing the components that should be used for routes.
+   */
   src: string
+
+  /**
+   * Prefix to add to the route path. Defaults to `''`. Must **end with a slash** and **start without one**.
+   */
   path?: string
+
+  // TODO: exclude
+  // TODO: files? probably more useful than exclude
 }
 
 export type _RoutesFolder = string | RoutesFolderOption
