@@ -1,3 +1,18 @@
+# [0.5.0](https://github.com/posva/unplugin-vue-router/compare/v0.4.1...v0.5.0) (2023-02-16)
+
+- feat!: allow set operations on meta ([a84d659](https://github.com/posva/unplugin-vue-router/commit/a84d659e5c84ab3d47f7c041d0d5cf91e9bf3d0f))
+
+### Features
+
+- **types:** improve routeBlockLang ([19bd892](https://github.com/posva/unplugin-vue-router/commit/19bd8927faf8f1bf40272ad9d6f2f392ab826ea2))
+
+### BREAKING CHANGES
+
+- if you were setting directly `route.meta` within
+  `extendRoute()`, you know need to use `route.addToMeta()` instead to
+  have the same merging behavior. Directly setting `route.meta` now
+  replaces the `meta` property completely.
+
 ## [0.4.1](https://github.com/posva/unplugin-vue-router/compare/v0.4.0...v0.4.1) (2023-02-16)
 
 ### Bug Fixes
