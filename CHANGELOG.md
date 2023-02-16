@@ -1,3 +1,9 @@
+## [0.4.1](https://github.com/posva/unplugin-vue-router/compare/v0.4.0...v0.4.1) (2023-02-16)
+
+### Bug Fixes
+
+- **webpack:** handle loadInclude ([9a43b63](https://github.com/posva/unplugin-vue-router/commit/9a43b6339d26337ad4418fb500a805138147c12f))
+
 # [0.4.0](https://github.com/posva/unplugin-vue-router/compare/v0.3.3...v0.4.0) (2023-02-16)
 
 ### Bug Fixes
