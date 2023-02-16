@@ -114,7 +114,9 @@ build({
 
 <br></details>
 
-Then, you can run your dev server (usually `npm run dev` to generate the first version of the types) you can replace your imports from `vue-router` to `vue-router/auto`:
+## Setup
+
+After installing, **you should run your dev server** (usually `npm run dev`) **to generate the first version of the types**. Then, you should replace your imports from `vue-router` to `vue-router/auto`:
 
 ```diff
 -import { createRouter, createWebHistory } from 'vue-router'
@@ -126,6 +128,18 @@ createRouter({
   // the plugin writes it for you 🤖
 })
 ```
+
+> **Note**
+> You can exclude `vue-router` from VSCode import suggestions by adding this setting to your `.vscode/settings.json`:
+>
+> ```json
+> {
+>   "typescript.preferences.autoImportFileExcludePatterns": [
+>     "vue-router"
+>   ]
+> }
+>
+> This will ensure VSCode only suggests `vue-router/auto` for imports. Alternatively, you can also configure [auto imports](#auto-imports).
 
 Alternatively, **you can also import the `routes` array** and create the router manually or pass it to some plugin. Here is an example with [Vitesse starter](https://github.com/antfu/vitesse/blob/main/src/main.ts):
 
@@ -160,6 +174,8 @@ Alternatively, **you can also import the `routes` array** and create the router 
    },
  )
 ```
+
+### Auto Imports
 
 If you are using [unplugin-auto-import](https://github.com/antfu/unplugin-auto-import), make sure to remove the `vue-router` preset and use the one exported by `unplugin-vue-router`:
 
