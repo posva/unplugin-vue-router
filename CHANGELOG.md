@@ -1,3 +1,20 @@
+# [0.4.0](https://github.com/posva/unplugin-vue-router/compare/v0.3.3...v0.4.0) (2023-02-16)
+
+### Bug Fixes
+
+- handle insertions with leading slash in extendRoute ([d1287b8](https://github.com/posva/unplugin-vue-router/commit/d1287b8c5ee3076e1dd0a9582933a0c6bd68496a))
+
+- feat!: rename EditableTreeNode `files` to `components` ([5c359c9](https://github.com/posva/unplugin-vue-router/commit/5c359c92caec08495735c9152e8c64768d8f4ab9))
+
+### Features
+
+- add internal name in virtual files as comments ([326156d](https://github.com/posva/unplugin-vue-router/commit/326156d44af0b9552bff6277c3cbc8f875ce87c9))
+- allow changing the path in extendRoute ([a9d0c77](https://github.com/posva/unplugin-vue-router/commit/a9d0c77c76ac66aa6a38d0091c4ec5cb83906bb9))
+
+### BREAKING CHANGES
+
+- the property `files` in `EditableTreeNode` (e.g. within `extendRoute`) is now named `components` to match the route record name.
+
 ## [0.3.3](https://github.com/posva/unplugin-vue-router/compare/v0.3.2...v0.3.3) (2023-02-15)
 
 🙌 This version introduces the ability to extend the routes with the `extendRoutes` option. Please refer to [the relevant issue](https://github.com/posva/unplugin-vue-router/issues/43) for use cases and share any problems you might have.
