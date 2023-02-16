@@ -93,16 +93,25 @@ export class EditableTreeNode {
   /**
    * Meta property of the route as an object. Note this property is readonly and will be serialized as JSON. It won't contain the meta properties defined with `definePage()` as it could contain expressions **but it does contain the meta properties defined with `<route>` blocks**.
    */
-  get meta() {
+  get meta(): Readonly<RouteMeta> {
     return this.node.metaAsObject
   }
 
   /**
-   * Override the meta property of the route. The passed object will be deeply merged with the existing meta object if any.
-   * Note that the meta property is later on serialized as JSON so you can't pass functions or any other
-   * non-serializable value.
+   * Override the meta property of the route. This will discard any other meta property defined with `<route>` blocks or
+   * through other means.
    */
   set meta(meta: RouteMeta) {
+    this.node.value.removeOverride('meta')
+    this.node.value.setEditOverride('meta', meta)
+  }
+
+  /**
+   * Add meta properties to the route keeping the existing ones. The passed object will be deeply merged with the
+   * existing meta object if any. Note that the meta property is later on serialized as JSON so you can't pass functions
+   * or any other non-serializable value.
+   */
+  addToMeta(meta: Partial<RouteMeta>) {
     this.node.value.addEditOverride({ meta })
   }
 
