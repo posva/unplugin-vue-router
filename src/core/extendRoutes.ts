@@ -28,9 +28,29 @@ export class EditableTreeNode {
    * add it to the `routesFolder` option.
    */
   insert(path: string, filePath: string) {
+    const extDotIndex = filePath.lastIndexOf('.')
+    const ext = filePath.slice(extDotIndex)
+    if (!path.endsWith(ext)) {
+      path += ext
+    }
+    // adapt paths as they should match a file system
+    let addBackLeadingSlash = false
+    if (path.startsWith('/')) {
+      // at the root of the tree, the path is relative to the root so we remove
+      // the leading slash
+      path = path.slice(1)
+      // but in other places we need to instruct the path is at the root so we change it afterwards
+      addBackLeadingSlash = !this.node.isRoot()
+    }
+    console.log('insert', path, filePath, this.node.isRoot())
     const node = this.node.insert(path, filePath)
+    const editable = new EditableTreeNode(node)
+    if (addBackLeadingSlash) {
+      editable.path = '/' + node.path
+      console.log('got back the slash', editable.path)
+    }
     // TODO: read definePage from file or is this fine?
-    return new EditableTreeNode(node)
+    return editable
   }
 
   /**
