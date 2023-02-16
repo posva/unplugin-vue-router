@@ -1,5 +1,5 @@
 import { isPackageExists } from 'local-pkg'
-import { Awaitable, getFileBasedRouteName, isArray } from './core/utils'
+import { Awaitable, getFileBasedRouteName, isArray, warn } from './core/utils'
 import type { TreeNode } from './core/tree'
 import { resolve } from 'pathe'
 import { EditableTreeNode } from './core/extendRoutes'
@@ -159,9 +159,7 @@ export function resolveOptions(options: Options): ResolvedOptions {
       // in src/index.ts
       .map((ext) => {
         if (!ext.startsWith('.')) {
-          console.warn(
-            `[unplugin-vue-router]: Invalid extension "${ext}". Extensions must start with a dot.`
-          )
+          warn(`Invalid extension "${ext}". Extensions must start with a dot.`)
           return '.' + ext
         }
         return ext

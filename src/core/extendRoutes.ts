@@ -1,6 +1,7 @@
 import { RouteMeta } from 'vue-router'
 import { CustomRouteBlock } from './customBlock'
 import { type TreeNode } from './tree'
+import { warn } from './utils'
 
 /**
  * A route node that can be modified by the user. The tree can be traversed with a `for of` loop.

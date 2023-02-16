@@ -9,6 +9,13 @@ export type LiteralStringUnion<LiteralType, BaseType extends string = string> =
   | LiteralType
   | (BaseType & Record<never, never>)
 
+export function warn(
+  msg: string,
+  type: 'warn' | 'error' | 'debug' = 'warn'
+): void {
+  console[type](`⚠️  [unplugin-vue-router]: ${msg}`)
+}
+
 export function logTree(tree: TreeNode, log: (str: string) => any) {
   log(printTree(tree))
 }
@@ -187,6 +194,7 @@ export function mergeRouteRecordOverride(
       ...(Object.keys(b) as (keyof RouteRecordOverride)[]),
     ]),
   ]
+
   for (const key of keys) {
     if (key === 'alias') {
       const newAlias: string[] = []

@@ -15,6 +15,7 @@ import type {
 } from '@babel/types'
 import { walkAST } from 'ast-walker-scope'
 import { CustomRouteBlock } from './customBlock'
+import { warn } from './utils'
 
 const MACRO_DEFINE_PAGE = 'definePage'
 const MACRO_DEFINE_PAGE_QUERY = /[?&]definePage\b/
@@ -142,17 +143,13 @@ export function extractDefinePageNameAndPath(
     if (prop.type === 'ObjectProperty' && prop.key.type === 'Identifier') {
       if (prop.key.name === 'name') {
         if (prop.value.type !== 'StringLiteral') {
-          console.warn(
-            `[unplugin-vue-router]: route name must be a string literal. Found in "${id}".`
-          )
+          warn(`route name must be a string literal. Found in "${id}".`)
         } else {
           routeInfo.name = prop.value.value
         }
       } else if (prop.key.name === 'path') {
         if (prop.value.type !== 'StringLiteral') {
-          console.warn(
-            `[unplugin-vue-router]: route path must be a string literal. Found in "${id}".`
-          )
+          warn(`route path must be a string literal. Found in "${id}".`)
         } else {
           routeInfo.path = prop.value.value
         }
@@ -171,9 +168,7 @@ function extractRouteAlias(
     aliasValue.type !== 'StringLiteral' &&
     aliasValue.type !== 'ArrayExpression'
   ) {
-    console.warn(
-      `[unplugin-vue-router]: route alias must be a string literal. Found in "${id}".`
-    )
+    warn(`route alias must be a string literal. Found in "${id}".`)
   } else {
     return aliasValue.type === 'StringLiteral'
       ? [aliasValue.value]

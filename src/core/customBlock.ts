@@ -4,6 +4,7 @@ import { ResolvedOptions } from '../options'
 import JSON5 from 'json5'
 import { parse as YAMLParser } from 'yaml'
 import { RouteRecordRaw } from 'vue-router'
+import { warn } from './utils'
 
 export async function getRouteBlock(path: string, options: ResolvedOptions) {
   const content = await fs.readFile(path, 'utf8')
@@ -18,7 +19,7 @@ export async function getRouteBlock(path: string, options: ResolvedOptions) {
   // validation
   if (result) {
     if (result.path != null && !result.path.startsWith('/')) {
-      console.error(`Overridden path must start with "/". Found in "${path}".`)
+      warn(`Overridden path must start with "/". Found in "${path}".`)
     }
   }
 
@@ -46,7 +47,7 @@ function parseCustomBlock(
     try {
       return JSON5.parse(block.content)
     } catch (err: any) {
-      console.error(
+      warn(
         `Invalid JSON5 format of <${block.type}> content in ${filePath}\n${err.message}`
       )
     }
@@ -54,7 +55,7 @@ function parseCustomBlock(
     try {
       return JSON.parse(block.content)
     } catch (err: any) {
-      console.error(
+      warn(
         `Invalid JSON format of <${block.type}> content in ${filePath}\n${err.message}`
       )
     }
@@ -62,13 +63,13 @@ function parseCustomBlock(
     try {
       return YAMLParser(block.content)
     } catch (err: any) {
-      console.error(
+      warn(
         `Invalid YAML format of <${block.type}> content in ${filePath}\n${err.message}`
       )
     }
   } else {
-    console.error(
-      `⚠️  unplugin-vue-router: Language "${lang}" for <${block.type}> is not supported. Supported languages are: json5, json, yaml, yml. Found in in ${filePath}.`
+    warn(
+      `Language "${lang}" for <${block.type}> is not supported. Supported languages are: json5, json, yaml, yml. Found in in ${filePath}.`
     )
   }
 }
