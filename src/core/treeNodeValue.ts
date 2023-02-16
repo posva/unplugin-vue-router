@@ -127,7 +127,6 @@ class _TreeNodeValueBase {
   }
 
   addEditOverride(routeBlock: CustomRouteBlock) {
-    console.log('add edit', routeBlock)
     return this.mergeOverride(EDITS_OVERRIDE_NAME, routeBlock)
   }
 }

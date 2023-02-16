@@ -42,12 +42,10 @@ export class EditableTreeNode {
       // but in other places we need to instruct the path is at the root so we change it afterwards
       addBackLeadingSlash = !this.node.isRoot()
     }
-    console.log('insert', path, filePath, this.node.isRoot())
     const node = this.node.insert(path, filePath)
     const editable = new EditableTreeNode(node)
     if (addBackLeadingSlash) {
       editable.path = '/' + node.path
-      console.log('got back the slash', editable.path)
     }
     // TODO: read definePage from file or is this fine?
     return editable
