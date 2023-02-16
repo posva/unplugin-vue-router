@@ -92,9 +92,24 @@ export default createUnplugin<Options | undefined>((opt = {}, meta) => {
       return ctx.definePageTransform(code, id)
     },
 
-    // TODO: is it worth having a loadInclude?
+    // loadInclude is necessary for webpack
+    loadInclude(id) {
+      if (id === ROUTE_BLOCK_ID) return true
+      const resolvedId = getVirtualId(id)
+      return (
+        resolvedId === MODULE_ROUTES_PATH || resolvedId === MODULE_VUE_ROUTER
+      )
+    },
 
     load(id) {
+      // remove the <route> block as it's parsed by the plugin
+      if (id === ROUTE_BLOCK_ID) {
+        return {
+          code: `export default {}`,
+          map: null,
+        }
+      }
+
       // we need to use a virtual module so that vite resolves the vue-router/auto/routes
       // dependency correctly
       const resolvedId = getVirtualId(id)
@@ -107,14 +122,6 @@ export default createUnplugin<Options | undefined>((opt = {}, meta) => {
       // vue-router/auto
       if (resolvedId === MODULE_VUE_ROUTER) {
         return ctx.generateVueRouterProxy()
-      }
-
-      // remove the <route> block as it's parsed by the plugin
-      if (id === ROUTE_BLOCK_ID) {
-        return {
-          code: `export default {}`,
-          map: null,
-        }
       }
     },
 
