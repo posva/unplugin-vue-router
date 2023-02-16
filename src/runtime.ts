@@ -16,9 +16,7 @@ export { stopScope as _stopDataFetchingScope } from './data-fetching/dataCache'
  *
  * @param route - route information to be added to this page
  */
-export const _definePage = (
-  route: Partial<Omit<RouteRecordRaw, 'children' | 'components' | 'component'>>
-) => route
+export const _definePage = (route: DefinePage) => route
 
 /**
  * Merges route records.
@@ -50,3 +48,11 @@ export function _mergeRouteRecord(
     return acc
   }, main)
 }
+
+/**
+ * Type to define a page. Can be augmented to add custom properties.
+ */
+export interface DefinePage
+  extends Partial<
+    Omit<RouteRecordRaw, 'children' | 'components' | 'component'>
+  > {}
