@@ -75,7 +75,7 @@ export interface ResolvedOptions {
   /**
    * Language for `<route>` blocks in SFC files. Defaults to `'json5'`.
    */
-  routeBlockLang: string
+  routeBlockLang: 'yaml' | 'yml' | 'json5' | 'json'
 
   /**
    * Should generate d.ts files. Defaults to `true` if `typescript` is installed.
