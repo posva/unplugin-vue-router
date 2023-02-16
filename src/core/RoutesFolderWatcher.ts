@@ -1,6 +1,7 @@
 import chokidar from 'chokidar'
 import { normalize } from 'pathe'
 import { ResolvedOptions, RoutesFolderOption } from '../options'
+import { asRoutePath } from './utils'
 
 export class RoutesFolderWatcher {
   src: string
@@ -24,16 +25,6 @@ export class RoutesFolderWatcher {
     })
   }
 
-  /**
-   * Returns a route path to be used by the router with any defined prefix from an absolute path to a file.
-   *
-   * @param path - absolute path to file
-   * @returns a route path to be used by the router with any defined prefix
-   */
-  asRoutePath(path: string) {
-    return this.pathPrefix + path.slice(this.src.length + 1)
-  }
-
   on(
     event: 'add' | 'change' | 'unlink',
     handler: (context: HandlerContext) => void
@@ -51,7 +42,10 @@ export class RoutesFolderWatcher {
       }
       handler({
         filePath,
-        routePath: this.asRoutePath(filePath),
+        routePath: asRoutePath(
+          { src: this.src, path: this.pathPrefix },
+          filePath
+        ),
       })
     })
     return this

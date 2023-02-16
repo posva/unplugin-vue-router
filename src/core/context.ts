@@ -1,7 +1,7 @@
 import { ResolvedOptions } from '../options'
 import { createPrefixTree, TreeNode } from './tree'
 import { promises as fs } from 'fs'
-import { logTree, throttle } from './utils'
+import { asRoutePath, logTree, throttle } from './utils'
 import { generateRouteNamedMap } from '../codegen/generateRouteMap'
 import { MODULE_ROUTES_PATH, MODULE_VUE_ROUTER } from './moduleConstants'
 import { generateRouteRecord } from '../codegen/generateRouteRecords'
@@ -61,7 +61,6 @@ export function createRoutesContext(options: ResolvedOptions) {
     await Promise.all(
       routesFolder.map((folder) => {
         // TODO: skip creating watchers during build
-        // that will require refactoring the `watcher.asRoutePath()`
         const watcher = new RoutesFolderWatcher(folder, options)
         setupWatcher(watcher)
         watchers.push(watcher)
@@ -77,7 +76,7 @@ export function createRoutesContext(options: ResolvedOptions) {
             Promise.all(
               files.map((file) =>
                 addPage({
-                  routePath: watcher.asRoutePath(file),
+                  routePath: asRoutePath(folder, file),
                   filePath: file,
                 })
               )

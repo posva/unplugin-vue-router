@@ -1,7 +1,7 @@
 import { TreeNode } from './tree'
 import type { RouteRecordOverride, TreeRouteParam } from './treeNodeValue'
 import { pascalCase } from 'scule'
-import { ResolvedOptions } from '../options'
+import { ResolvedOptions, RoutesFolderOption } from '../options'
 
 export type Awaitable<T> = T | PromiseLike<T>
 
@@ -231,4 +231,23 @@ function mergeDeep(...objects: Array<Record<any, any>>): Record<any, any> {
 
     return prev
   }, {})
+}
+
+/**
+ * Returns a route path to be used by the router with any defined prefix from an absolute path to a file.
+ *
+ * @param options - RoutesFolderOption to apply
+ * @param filePath - absolute path to file
+ * @returns a route path to be used by the router with any defined prefix
+ */
+export function asRoutePath(
+  { src, path = '' }: RoutesFolderOption,
+  filePath: string
+) {
+  return (
+    // add the path prefix if any
+    path +
+    // remove the absolute path to the pages folder
+    filePath.slice(src.length + 1)
+  )
 }
