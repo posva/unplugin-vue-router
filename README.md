@@ -131,15 +131,16 @@ createRouter({
 
 > **Note**
 > You can exclude `vue-router` from VSCode import suggestions by adding this setting to your `.vscode/settings.json`:
->
-> ```json
-> {
->   "typescript.preferences.autoImportFileExcludePatterns": [
->     "vue-router"
->   ]
-> }
->
-> This will ensure VSCode only suggests `vue-router/auto` for imports. Alternatively, you can also configure [auto imports](#auto-imports).
+
+```json
+{
+  "typescript.preferences.autoImportFileExcludePatterns": [
+    "vue-router"
+  ]
+}
+```
+
+This will ensure VSCode only suggests `vue-router/auto` for imports. Alternatively, you can also configure [auto imports](#auto-imports).
 
 Alternatively, **you can also import the `routes` array** and create the router manually or pass it to some plugin. Here is an example with [Vitesse starter](https://github.com/antfu/vitesse/blob/main/src/main.ts):
 
