@@ -17,7 +17,7 @@ exports[`generateRouteRecord > adds children and name when folder and component 
   },
   {
     path: '/b',
-    /* no name */
+    /* internal name: '/b' */
     /* no component */
     children: [
       {
@@ -47,7 +47,7 @@ exports[`generateRouteRecord > correctly names index.vue files 1`] = `
   },
   {
     path: '/b',
-    /* no name */
+    /* internal name: '/b' */
     /* no component */
     children: [
       {
@@ -77,12 +77,12 @@ exports[`generateRouteRecord > generate custom imports 1`] = `
   },
   {
     path: '/nested',
-    /* no name */
+    /* internal name: '/nested' */
     /* no component */
     children: [
       {
         path: 'file',
-        /* no name */
+        /* internal name: '/nested/file' */
         /* no component */
         children: [
           {
@@ -120,12 +120,12 @@ exports[`generateRouteRecord > generate static imports 1`] = `
   },
   {
     path: '/nested',
-    /* no name */
+    /* internal name: '/nested' */
     /* no component */
     children: [
       {
         path: 'file',
-        /* no name */
+        /* internal name: '/nested/file' */
         /* no component */
         children: [
           {
@@ -260,7 +260,7 @@ exports[`generateRouteRecord > names > creates multi word names 1`] = `
   },
   {
     path: '/some-nested',
-    /* no name */
+    /* internal name: '/some-nested' */
     /* no component */
     children: [
       {
@@ -290,7 +290,7 @@ exports[`generateRouteRecord > names > creates single word names 1`] = `
   },
   {
     path: '/users',
-    /* no name */
+    /* internal name: '/users' */
     /* no component */
     children: [
       {
@@ -364,7 +364,7 @@ exports[`generateRouteRecord > nested children 1`] = `
 "[
   {
     path: '/a',
-    /* no name */
+    /* internal name: '/a' */
     /* no component */
     children: [
       {
@@ -389,7 +389,7 @@ exports[`generateRouteRecord > nested children 1`] = `
   },
   {
     path: '/b',
-    /* no name */
+    /* internal name: '/b' */
     /* no component */
     children: [
       {
@@ -419,7 +419,7 @@ exports[`generateRouteRecord > nested children 2`] = `
 "[
   {
     path: '/a',
-    /* no name */
+    /* internal name: '/a' */
     /* no component */
     children: [
       {
@@ -444,7 +444,7 @@ exports[`generateRouteRecord > nested children 2`] = `
   },
   {
     path: '/b',
-    /* no name */
+    /* internal name: '/b' */
     /* no component */
     children: [
       {
@@ -505,7 +505,7 @@ exports[`generateRouteRecord > removes trailing slashes 1`] = `
   },
   {
     path: '/users',
-    /* no name */
+    /* internal name: '/users' */
     /* no component */
     children: [
       {

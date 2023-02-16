@@ -24,7 +24,7 @@ export const routes = [
   },
   {
     path: '/articles',
-    /* no name */
+    /* internal name: '/articles' */
     /* no component */
     children: [
       {
@@ -43,12 +43,12 @@ export const routes = [
   },
   {
     path: '/nested',
-    /* no name */
+    /* internal name: '/nested' */
     /* no component */
     children: [
       {
         path: 'folder',
-        /* no name */
+        /* internal name: '/nested/folder' */
         /* no component */
         children: [
           {
@@ -59,12 +59,12 @@ export const routes = [
           },
           {
             path: 'should',
-            /* no name */
+            /* internal name: '/nested/folder/should' */
             /* no component */
             children: [
               {
                 path: 'work',
-                /* no name */
+                /* internal name: '/nested/folder/should/work' */
                 /* no component */
                 children: [
                   {
@@ -83,7 +83,7 @@ export const routes = [
   },
   {
     path: '/optional',
-    /* no name */
+    /* internal name: '/optional' */
     /* no component */
     children: [
       {

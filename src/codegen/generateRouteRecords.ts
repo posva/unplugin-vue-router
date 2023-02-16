@@ -30,7 +30,9 @@ ${node
   const routeRecord = `${startIndent}{
 ${indentStr}path: '${node.path}',
 ${indentStr}${
-    node.value.components.size ? `name: '${node.name}',` : '/* no name */'
+    node.value.components.size
+      ? `name: '${node.name}',`
+      : `/* internal name: '${node.name}' */`
   }
 ${
   // component
