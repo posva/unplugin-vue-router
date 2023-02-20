@@ -3,5 +3,5 @@
 <template>
   <main>
     <h1>Feature 2 - Index</h1>
-</main>
+  </main>
 </template>

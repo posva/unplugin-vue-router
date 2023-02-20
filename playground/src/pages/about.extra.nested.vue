@@ -3,8 +3,7 @@ definePage({
   meta: {
     title: 'About extra nested',
     description: 'About extra nested page',
-  }
-  ,
+  },
   alias: ['/about-extra-nested'],
 })
 </script>
@@ -12,5 +11,5 @@ definePage({
 <template>
   <main>
     <h1>About extra nested</h1>
-</main>
+  </main>
 </template>

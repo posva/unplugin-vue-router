@@ -111,7 +111,7 @@ definePage({
     <p v-show="false">{{ thing }}</p>
     <p v-if="pending">Loading user...</p>
     <pre v-else>{{ user }}</pre>
-</main>
+  </main>
 </template>
 
 <route lang="json">
