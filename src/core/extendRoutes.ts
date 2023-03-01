@@ -4,7 +4,14 @@ import { type TreeNode } from './tree'
 import { warn } from './utils'
 
 /**
- * A route node that can be modified by the user. The tree can be traversed with a `for of` loop.
+ * A route node that can be modified by the user. The tree can be iterated to be traversed.
+ * @example
+ * ```js
+ * [...node] // creates an array of all the children
+ * for (const child of node) {
+ *   // do something with the child node
+ * }
+ * ```
  *
  * @experimental
  */
