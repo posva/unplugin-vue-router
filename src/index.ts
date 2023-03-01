@@ -178,6 +178,7 @@ export {
   TreeNodeValueParam,
   TreeNodeValueStatic,
 } from './core/treeNodeValue'
+export { EditableTreeNode } from './core/extendRoutes'
 
 // expose for generated type extensions
 export type {
