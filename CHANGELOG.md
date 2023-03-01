@@ -1,3 +1,10 @@
+## [0.5.1](https://github.com/posva/unplugin-vue-router/compare/v0.5.0...v0.5.1) (2023-03-01)
+
+### Features
+
+- allow extending the type of `definePage()` ([4d663b1](https://github.com/posva/unplugin-vue-router/commit/4d663b1a266c00c847957735cc220f16d033758c))
+- export EditableTreeNode ([b5745e1](https://github.com/posva/unplugin-vue-router/commit/b5745e1b3eb3408cef2e5401ecba547438b385b3))
+
 # [0.5.0](https://github.com/posva/unplugin-vue-router/compare/v0.4.1...v0.5.0) (2023-02-16)
 
 - feat!: allow set operations on meta ([a84d659](https://github.com/posva/unplugin-vue-router/commit/a84d659e5c84ab3d47f7c041d0d5cf91e9bf3d0f))
