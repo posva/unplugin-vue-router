@@ -1,3 +1,12 @@
+## [0.5.3](https://github.com/posva/unplugin-vue-router/compare/v0.5.2...v0.5.3) (2023-03-02)
+
+- feat!: rename filePattern to filePatterns and allow arrays ([8902778](https://github.com/posva/unplugin-vue-router/commit/890277813c02c4e784e6dea606201bda2477b532))
+
+### BREAKING CHANGES
+
+- `filePattern` is now named `filePatterns` because it
+  allows arrays. This is only a naming change.
+
 ## [0.5.2](https://github.com/posva/unplugin-vue-router/compare/v0.5.1...v0.5.2) (2023-03-02)
 
 ### Features
