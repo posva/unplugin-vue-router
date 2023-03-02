@@ -1,3 +1,9 @@
+## [0.5.2](https://github.com/posva/unplugin-vue-router/compare/v0.5.1...v0.5.2) (2023-03-02)
+
+### Features
+
+- allow overriding the file pattern ([96febf1](https://github.com/posva/unplugin-vue-router/commit/96febf146893b06a282d75c6cc134f9129d99b57))
+
 ## [0.5.1](https://github.com/posva/unplugin-vue-router/compare/v0.5.0...v0.5.1) (2023-03-01)
 
 ### Features
