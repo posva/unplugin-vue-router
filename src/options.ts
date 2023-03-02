@@ -10,13 +10,21 @@ export interface RoutesFolderOption {
    */
   src: string
 
+  // TODO: allow a function to customize based on the filepath
   /**
    * Prefix to add to the route path. Defaults to `''`. Must **end with a slash** and **start without one**.
    */
   path?: string
 
-  // TODO: exclude
-  // TODO: files? probably more useful than exclude
+  /**
+   * Allows to override the global `filePattern` option for this folder.
+   */
+  filePattern?: string
+
+  /**
+   * Allows to override the global `extensions` option for this folder.
+   */
+  extensions?: string[]
 }
 
 export type _RoutesFolder = string | RoutesFolderOption
@@ -36,6 +44,19 @@ export interface ResolvedOptions {
    * @default "src/pages"
    */
   routesFolder: RoutesFolderOption[]
+
+  /**
+   * Array of `picomatch` globs to ignore. Defaults to `[]`.
+   */
+  exclude: string[]
+
+  // NOTE: the comment below contains ZWJ characters to allow the sequence `**/*` to be displayed correctly
+  /**
+   * Pattern to match files in the `routesFolder`. Defaults to `**‍/*` plus a combination of all the possible extensions,
+   * e.g. `**‍/*.{vue,md}` if `extensions` is set to `['.vue', '.md']`.
+   * @default "**‍/*"
+   */
+  filePattern: string
 
   /**
    * Method to generate the name of a route.
@@ -71,11 +92,6 @@ export interface ResolvedOptions {
    * Defines how page components should be imported. Defaults to dynamic imports to enable lazy loading of pages.
    */
   importMode: _OptionsImportMode
-
-  /**
-   * Array of `picomatch` globs to ignore. Defaults to `[]`.
-   */
-  exclude: string[]
 
   /**
    * Root of the project. All paths are resolved relatively to this one. Defaults to `process.cwd()`.
@@ -121,6 +137,7 @@ export const DEFAULT_OPTIONS: ResolvedOptions = {
   extensions: ['.vue'],
   exclude: [],
   routesFolder: [{ src: 'src/pages' }],
+  filePattern: '**/*',
   routeBlockLang: 'json5',
   getRouteName: getFileBasedRouteName,
   dataFetching: false,

@@ -251,3 +251,24 @@ export function asRoutePath(
     filePath.slice(src.length + 1)
   )
 }
+
+/**
+ * Builds a pattern from a file pattern and a list of extensions.
+ *
+ * @param filePattern - the file pattern to append the extensions to e.g. **‍/*
+ * @param extensions array of extensions to append to the pattern e.g. ['.vue', '.js']
+ * @returns
+ */
+export function appendExtensionListToPattern(
+  filePattern: string,
+  extensions: string[]
+) {
+  return (
+    filePattern +
+    (extensions.length === 1
+      ? extensions[0]
+      : `.{${extensions
+          .map((extension) => extension.replace('.', ''))
+          .join(',')}}`)
+  )
+}

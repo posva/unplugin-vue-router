@@ -1,7 +1,12 @@
 import { ResolvedOptions } from '../options'
 import { createPrefixTree, TreeNode } from './tree'
 import { promises as fs } from 'fs'
-import { asRoutePath, logTree, throttle } from './utils'
+import {
+  appendExtensionListToPattern,
+  asRoutePath,
+  logTree,
+  throttle,
+} from './utils'
 import { generateRouteNamedMap } from '../codegen/generateRouteMap'
 import { MODULE_ROUTES_PATH, MODULE_VUE_ROUTER } from './moduleConstants'
 import { generateRouteRecord } from '../codegen/generateRouteRecords'
@@ -49,21 +54,26 @@ export function createRoutesContext(options: ResolvedOptions) {
       return
     }
 
-    const pattern =
-      `**/*` +
-      (options.extensions.length === 1
-        ? options.extensions[0]
-        : `.{${options.extensions
-            .map((extension) => extension.replace('.', ''))
-            .join(',')}}`)
+    const globalPattern = appendExtensionListToPattern(
+      options.filePattern,
+      options.extensions
+    )
 
     // get the initial list of pages
     await Promise.all(
       routesFolder.map((folder) => {
-        // TODO: skip creating watchers during build
-        const watcher = new RoutesFolderWatcher(folder, options)
-        setupWatcher(watcher)
-        watchers.push(watcher)
+        if (startWatchers) {
+          watchers.push(setupWatcher(new RoutesFolderWatcher(folder, options)))
+        }
+
+        // override the pattern if the folder has a custom pattern
+        const pattern = folder.filePattern
+          ? appendExtensionListToPattern(
+              folder.filePattern,
+              // also override the extensions if the folder has a custom extensions
+              folder.extensions || options.extensions
+            )
+          : globalPattern
 
         return fg(pattern, {
           cwd: folder.src,
@@ -141,7 +151,7 @@ export function createRoutesContext(options: ResolvedOptions) {
 
   function setupWatcher(watcher: RoutesFolderWatcher) {
     log(`🤖 Scanning files in ${watcher.src}`)
-    watcher
+    return watcher
       .on('change', async (ctx) => {
         await updatePage(ctx)
         writeConfigFiles()
@@ -231,7 +241,12 @@ ${routesExport}
   const writeConfigFiles = throttle(_writeConfigFiles, 500, 100)
 
   function stopWatcher() {
-    watchers.forEach((watcher) => watcher.close())
+    if (watchers.length) {
+      if (options.logs) {
+        console.log('🛑 stopping watcher')
+      }
+      watchers.forEach((watcher) => watcher.close())
+    }
   }
 
   let server: ServerContext | undefined

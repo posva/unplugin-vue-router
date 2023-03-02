@@ -71,13 +71,11 @@ export default createUnplugin<Options | undefined>((opt = {}, meta) => {
     },
 
     buildStart() {
-      return ctx.scanPages()
+      // TODO: how do we properly check if we are in dev mode?
+      return ctx.scanPages(true)
     },
 
     buildEnd() {
-      if (options.logs) {
-        console.log('🛑 stopping watcher')
-      }
       ctx.stopWatcher()
     },
 
