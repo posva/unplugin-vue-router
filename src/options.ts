@@ -46,7 +46,8 @@ export interface ResolvedOptions {
   routesFolder: RoutesFolderOption[]
 
   /**
-   * Array of `picomatch` globs to ignore. Defaults to `[]`.
+   * Array of `picomatch` globs to ignore. Defaults to `[]`. Note the globs are relative to the `routesFolder`, so avoid
+   * writing something like `['src/pages']` as **it won't match anything**.
    */
   exclude: string[]
 
