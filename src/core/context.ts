@@ -79,7 +79,7 @@ export function createRoutesContext(options: ResolvedOptions) {
           cwd: folder.src,
           // TODO: do they return the symbolic link path or the original file?
           // followSymbolicLinks: false,
-          ignore: options.exclude,
+          ignore: folder.exclude || options.exclude,
         })
           .then((files) => files.map((file) => resolve(folder.src, file)))
           .then((files) =>

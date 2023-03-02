@@ -22,6 +22,11 @@ export interface RoutesFolderOption {
   filePatterns?: string | string[]
 
   /**
+   * Allows to override the global `exclude` option for this folder.
+   */
+  exclude?: string[]
+
+  /**
    * Allows to override the global `extensions` option for this folder.
    */
   extensions?: string[]
