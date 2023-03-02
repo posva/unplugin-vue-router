@@ -1,3 +1,9 @@
+## [0.5.4](https://github.com/posva/unplugin-vue-router/compare/v0.5.3...v0.5.4) (2023-03-02)
+
+### Features
+
+- allow exclude per folder ([468b251](https://github.com/posva/unplugin-vue-router/commit/468b2518badeb7981ad5ae123c5edd2fee80ab35))
+
 ## [0.5.3](https://github.com/posva/unplugin-vue-router/compare/v0.5.2...v0.5.3) (2023-03-02)
 
 - feat!: rename filePattern to filePatterns and allow arrays ([8902778](https://github.com/posva/unplugin-vue-router/commit/890277813c02c4e784e6dea606201bda2477b532))
