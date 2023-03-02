@@ -55,7 +55,7 @@ export function createRoutesContext(options: ResolvedOptions) {
     }
 
     const globalPattern = appendExtensionListToPattern(
-      options.filePattern,
+      options.filePatterns,
       options.extensions
     )
 
@@ -67,9 +67,9 @@ export function createRoutesContext(options: ResolvedOptions) {
         }
 
         // override the pattern if the folder has a custom pattern
-        const pattern = folder.filePattern
+        const pattern = folder.filePatterns
           ? appendExtensionListToPattern(
-              folder.filePattern,
+              folder.filePatterns,
               // also override the extensions if the folder has a custom extensions
               folder.extensions || options.extensions
             )

@@ -260,15 +260,17 @@ export function asRoutePath(
  * @returns
  */
 export function appendExtensionListToPattern(
-  filePattern: string,
+  filePatterns: string | string[],
   extensions: string[]
-) {
-  return (
-    filePattern +
-    (extensions.length === 1
+): string[] | string {
+  const extensionPattern =
+    extensions.length === 1
       ? extensions[0]
       : `.{${extensions
           .map((extension) => extension.replace('.', ''))
-          .join(',')}}`)
-  )
+          .join(',')}}`
+
+  return Array.isArray(filePatterns)
+    ? filePatterns.map((filePattern) => `${filePattern}${extensionPattern}`)
+    : `${filePatterns}${extensionPattern}`
 }

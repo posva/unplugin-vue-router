@@ -19,7 +19,7 @@ export interface RoutesFolderOption {
   /**
    * Allows to override the global `filePattern` option for this folder.
    */
-  filePattern?: string
+  filePatterns?: string | string[]
 
   /**
    * Allows to override the global `extensions` option for this folder.
@@ -56,7 +56,7 @@ export interface ResolvedOptions {
    * e.g. `**‍/*.{vue,md}` if `extensions` is set to `['.vue', '.md']`.
    * @default "**‍/*"
    */
-  filePattern: string
+  filePatterns: string | string[]
 
   /**
    * Method to generate the name of a route.
@@ -137,7 +137,7 @@ export const DEFAULT_OPTIONS: ResolvedOptions = {
   extensions: ['.vue'],
   exclude: [],
   routesFolder: [{ src: 'src/pages' }],
-  filePattern: '**/*',
+  filePatterns: '**/*',
   routeBlockLang: 'json5',
   getRouteName: getFileBasedRouteName,
   dataFetching: false,

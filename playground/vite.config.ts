@@ -1,6 +1,7 @@
 import { fileURLToPath, URL } from 'url'
 import { defineConfig } from 'vite'
 import Inspect from 'vite-plugin-inspect'
+import Markdown from 'vite-plugin-vue-markdown'
 // @ts-ignore: the plugin should not be checked in the playground
 import VueRouter from '../src/vite'
 import {
@@ -81,6 +82,8 @@ export default defineConfig({
         {
           src: 'src/docs',
           path: 'docs/:lang/',
+          filePatterns: ['*/**/*'],
+          extensions: ['.md'],
         },
         // {
         //   src: 'src/features/',
@@ -99,7 +102,10 @@ export default defineConfig({
         // './src/pages/**/*.spec.ts',
       ],
     }),
-    Vue({}),
+    Vue({
+      include: [/\.vue$/, /\.md$/]
+    }),
+    Markdown(),
     AutoImport({
       imports: [VueRouterAutoImports],
     }),
