@@ -103,7 +103,7 @@ export default defineConfig({
       ],
     }),
     Vue({
-      include: [/\.vue$/, /\.md$/]
+      include: [/\.vue$/, /\.md$/],
     }),
     Markdown(),
     AutoImport({
