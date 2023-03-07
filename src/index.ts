@@ -8,12 +8,12 @@ import {
   routeBlockQueryRE,
   ROUTE_BLOCK_ID,
 } from './core/moduleConstants'
-import { Options, resolveOptions } from './options'
+import { Options, resolveOptions, DEFAULT_OPTIONS } from './options'
 import { createViteContext } from './core/vite'
 import { createFilter } from '@rollup/pluginutils'
 import { join } from 'pathe'
 
-export { Options }
+export { Options, DEFAULT_OPTIONS }
 
 export default createUnplugin<Options | undefined>((opt = {}, meta) => {
   const options = resolveOptions(opt)
