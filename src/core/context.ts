@@ -178,8 +178,7 @@ export function createRoutesContext(options: ResolvedOptions) {
     )}`
 
     let imports = ''
-    // FIXME: after demo
-    if (true || options.dataFetching) {
+    if (options.dataFetching) {
       imports += `import { _HasDataLoaderMeta, _mergeRouteRecord } from 'unplugin-vue-router/runtime'\n`
     }
     for (const [name, path] of importList) {
