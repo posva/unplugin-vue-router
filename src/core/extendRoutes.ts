@@ -173,6 +173,14 @@ export class EditableTreeNode {
   }
 
   /**
+   * Computes an array of EditableTreeNode from the current node. Differently from iterating over the tree, this method
+   * **only returns direct children**.
+   */
+  get children(): EditableTreeNode[] {
+    return [...this.node.children.values()].map(node => new EditableTreeNode(node))
+  }
+
+  /**
    * DFS traversal of the tree.
    * @example
    * ```ts
