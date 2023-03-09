@@ -56,6 +56,10 @@
       "require": "./dist/runtime.js",
       "import": "./dist/runtime.mjs"
     },
+    "./types": {
+      "require": "./dist/types.js",
+      "import": "./dist/types.mjs"
+    },
     "./*": "./*"
   },
   "files": [

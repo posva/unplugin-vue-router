@@ -40,7 +40,7 @@ import type {
   // data fetching
   _DataLoader,
   _DefineLoaderOptions,
-} from 'unplugin-vue-router'
+} from 'unplugin-vue-router/types'
 
 declare module '${routesModule}' {
 ${routeNamedMap}
@@ -100,7 +100,7 @@ declare module '${vueRouterModule}' {
   export function onBeforeRouteUpdate(guard: NavigationGuard<RouteNamedMap>): void
 
   export const RouterLink: RouterLinkTyped<RouteNamedMap>
-  
+
   // Experimental Data Fetching
 
   export function defineLoader<

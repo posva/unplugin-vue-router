@@ -13,7 +13,9 @@ import { createViteContext } from './core/vite'
 import { createFilter } from '@rollup/pluginutils'
 import { join } from 'pathe'
 
-export { Options, DEFAULT_OPTIONS }
+export * from './types'
+
+export { DEFAULT_OPTIONS }
 
 export default createUnplugin<Options | undefined>((opt = {}, meta) => {
   const options = resolveOptions(opt)
@@ -135,54 +137,10 @@ export default createUnplugin<Options | undefined>((opt = {}, meta) => {
 export { createRoutesContext }
 export { getFileBasedRouteName, getPascalCaseRouteName } from './core/utils'
 
-export type {
-  _RouteMapGeneric,
-  RouteRecordInfo,
-} from './codegen/generateRouteMap'
-export type {
-  // TODO: mark all of these as internals since the dynamically exposed versions are fully typed, these are just helpers
-  // to generate the convenient types
-  RouteLocationAsRelativeTyped,
-  RouteLocationAsRelativeTypedList,
-  RouteLocationAsPathTyped,
-  RouteLocationAsPathTypedList,
-  RouteLocationAsString,
-  RouteLocationTyped,
-  RouteLocationTypedList,
-  RouteLocationResolvedTyped,
-  RouteLocationResolvedTypedList,
-  RouteLocationNormalizedTyped,
-  RouteLocationNormalizedTypedList,
-  RouteLocationNormalizedLoadedTyped,
-  RouteLocationNormalizedLoadedTypedList,
-} from './typeExtensions/routeLocation'
-export type { NavigationGuard } from './typeExtensions/navigationGuards'
-export type { _RouterTyped } from './typeExtensions/router'
-export type {
-  RouterLinkTyped,
-  UseLinkFnTyped,
-  _UseLinkReturnTyped,
-} from './typeExtensions/RouterLink'
-export type {
-  ParamValue,
-  ParamValueOneOrMore,
-  ParamValueZeroOrMore,
-  ParamValueZeroOrOne,
-} from './codegen/generateRouteParams'
-
-export { TreeNode, createPrefixTree } from './core/tree'
-export {
-  createTreeNodeValue,
-  TreeNodeValueParam,
-  TreeNodeValueStatic,
-} from './core/treeNodeValue'
+// Route Tree and edition
+export { createPrefixTree } from './core/tree'
+export { createTreeNodeValue } from './core/treeNodeValue'
 export { EditableTreeNode } from './core/extendRoutes'
-
-// expose for generated type extensions
-export type {
-  DefineLoaderOptions as _DefineLoaderOptions,
-  DataLoader as _DataLoader,
-} from './data-fetching/defineLoader'
 
 /**
  * @deprecated use `VueRouterAutoImports` instead
