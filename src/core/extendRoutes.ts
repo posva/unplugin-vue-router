@@ -177,7 +177,9 @@ export class EditableTreeNode {
    * **only returns direct children**.
    */
   get children(): EditableTreeNode[] {
-    return [...this.node.children.values()].map(node => new EditableTreeNode(node))
+    return [...this.node.children.values()].map(
+      (node) => new EditableTreeNode(node)
+    )
   }
 
   /**
