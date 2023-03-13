@@ -177,6 +177,7 @@ export function createRoutesContext(options: ResolvedOptions) {
       importList
     )}`
 
+    // generate the list of imports
     let imports = ''
     if (options.dataFetching) {
       imports += `import { _HasDataLoaderMeta, _mergeRouteRecord } from 'unplugin-vue-router/runtime'\n`
@@ -190,9 +191,8 @@ export function createRoutesContext(options: ResolvedOptions) {
       imports += '\n'
     }
 
-    return `${imports}\
-${routesExport}
-`
+    // prepend it to the code
+    return `${imports}${routesExport}\n`
   }
 
   function generateDTS(): string {
