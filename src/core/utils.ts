@@ -274,3 +274,73 @@ export function appendExtensionListToPattern(
     ? filePatterns.map((filePattern) => `${filePattern}${extensionPattern}`)
     : `${filePatterns}${extensionPattern}`
 }
+
+export interface ImportEntry {
+  // name of the variable to import
+  name: string
+  // optional name to use when importing
+  as?: string
+}
+
+export class ImportsMap {
+  // path -> import as -> import name
+  // e.g map['vue-router']['myUseRouter'] = 'useRouter' -> import { useRouter as myUseRouter } from 'vue-router'
+  private map = new Map<string, Map<string, string>>()
+
+  constructor() {}
+
+  add(path: string, importEntry: ImportEntry): this
+  add(path: string, importEntry: string): this
+  add(path: string, importEntry: string | ImportEntry): this {
+    if (!this.map.has(path)) {
+      this.map.set(path, new Map())
+    }
+    const imports = this.map.get(path)!
+    if (typeof importEntry === 'string') {
+      imports.set(importEntry, importEntry)
+    } else {
+      imports.set(importEntry.as || importEntry.name, importEntry.name)
+    }
+
+    return this
+  }
+
+  addDefault(path: string, as: string): this {
+    return this.add(path, { name: 'default', as })
+  }
+
+  getImportList(path: string): Required<ImportEntry>[] {
+    if (!this.map.has(path)) return []
+    return Array.from(this.map.get(path)!).map(([as, name]) => ({
+      as: as || name,
+      name,
+    }))
+  }
+
+  toString(): string {
+    let importStatements = ''
+    for (const [path, imports] of this.map) {
+      if (!imports.size) continue
+
+      // only one import and it's the default one
+      if (imports.size === 1) {
+        // we extract the first and only entry
+        const [[importName, maybeDefault]] = [...imports.entries()]
+        // we only care if this is the default import
+        if (maybeDefault === 'default') {
+          importStatements += `import ${importName} from '${path}'\n`
+          continue
+        }
+      }
+      importStatements += `import { ${Array.from(imports)
+        .map(([as, name]) => (as === name ? name : `${name} as ${as}`))
+        .join(', ')} } from '${path}'\n`
+    }
+
+    return importStatements
+  }
+
+  get size(): number {
+    return this.map.size
+  }
+}

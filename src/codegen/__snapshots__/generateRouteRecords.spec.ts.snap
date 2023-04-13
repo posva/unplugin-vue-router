@@ -99,9 +99,8 @@ exports[`generateRouteRecord > generate custom imports 1`] = `
 `;
 
 exports[`generateRouteRecord > generate custom imports 2`] = `
-Map {
-  "_page_0" => "a.vue",
-}
+"import _page_0 from 'a.vue'
+"
 `;
 
 exports[`generateRouteRecord > generate static imports 1`] = `
@@ -142,11 +141,10 @@ exports[`generateRouteRecord > generate static imports 1`] = `
 `;
 
 exports[`generateRouteRecord > generate static imports 2`] = `
-Map {
-  "_page_0" => "a.vue",
-  "_page_1" => "b.vue",
-  "_page_2" => "nested/file/c.vue",
-}
+"import _page_0 from 'a.vue'
+import _page_1 from 'b.vue'
+import _page_2 from 'nested/file/c.vue'
+"
 `;
 
 exports[`generateRouteRecord > handles multiple named views 1`] = `

@@ -4,6 +4,7 @@ import { promises as fs } from 'fs'
 import {
   appendExtensionListToPattern,
   asRoutePath,
+  ImportsMap,
   logTree,
   throttle,
 } from './utils'
@@ -167,25 +168,20 @@ export function createRoutesContext(options: ResolvedOptions) {
   }
 
   function generateRoutes() {
-    // keys are import names while values are paths import __ from __
-    // TODO: reverse the order and make a list of named imports and another for defaults?
-    const importList = new Map<string, string>()
+    const importsMap = new ImportsMap()
 
     const routesExport = `export const routes = ${generateRouteRecord(
       routeTree,
       options,
-      importList
+      importsMap
     )}`
 
-    // generate the list of imports
-    let imports = ''
     if (options.dataFetching) {
-      imports += `import { _HasDataLoaderMeta, _mergeRouteRecord } from 'unplugin-vue-router/runtime'\n`
-    }
-    for (const [name, path] of importList) {
-      imports += `import ${name} from '${path}'\n`
+      importsMap.add('unplugin-vue-router/runtime', '_HasDataLoaderMeta')
     }
 
+    // generate the list of imports
+    let imports = `${importsMap}`
     // add an empty line for readability
     if (imports) {
       imports += '\n'

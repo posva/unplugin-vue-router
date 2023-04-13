@@ -3,12 +3,13 @@ import { describe, expect, it } from 'vitest'
 import { createPrefixTree, TreeNode } from '../core/tree'
 import { ResolvedOptions, resolveOptions } from '../options'
 import { generateRouteRecord } from './generateRouteRecords'
+import { ImportsMap } from '../core/utils'
 
 const DEFAULT_OPTIONS = resolveOptions({})
 
 describe('generateRouteRecord', () => {
   function generateRouteRecordSimple(tree: TreeNode) {
-    return generateRouteRecord(tree, DEFAULT_OPTIONS, new Map())
+    return generateRouteRecord(tree, DEFAULT_OPTIONS, new ImportsMap())
   }
 
   it('works with an empty tree', () => {
@@ -106,10 +107,10 @@ describe('generateRouteRecord', () => {
     tree.insert('a.vue')
     tree.insert('b.vue')
     tree.insert('nested/file/c.vue')
-    const importList = new Map<string, string>()
+    const importList = new ImportsMap()
     expect(generateRouteRecord(tree, options, importList)).toMatchSnapshot()
 
-    expect(importList).toMatchSnapshot()
+    expect(importList.toString()).toMatchSnapshot()
   })
 
   it('generate custom imports', () => {
@@ -123,10 +124,10 @@ describe('generateRouteRecord', () => {
     tree.insert('a.vue')
     tree.insert('b.vue')
     tree.insert('nested/file/c.vue')
-    const importList = new Map<string, string>()
+    const importList = new ImportsMap()
     expect(generateRouteRecord(tree, options, importList)).toMatchSnapshot()
 
-    expect(importList).toMatchSnapshot()
+    expect(importList.toString()).toMatchSnapshot()
   })
 
   describe('names', () => {

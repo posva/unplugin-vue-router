@@ -1,10 +1,11 @@
 import type { TreeNode } from '../core/tree'
+import { ImportsMap } from '../core/utils'
 import { ResolvedOptions, _OptionsImportMode } from '../options'
 
 export function generateRouteRecord(
   node: TreeNode,
   options: ResolvedOptions,
-  importList: Map<string, string>,
+  importsMap: ImportsMap,
   indent = 0
 ): string {
   // root
@@ -12,7 +13,7 @@ export function generateRouteRecord(
     return `[
 ${node
   .getSortedChildren()
-  .map((child) => generateRouteRecord(child, options, importList, indent + 1))
+  .map((child) => generateRouteRecord(child, options, importsMap, indent + 1))
   .join(',\n')}
 ]`
   }
@@ -43,7 +44,7 @@ ${
           node,
           indentStr,
           options.importMode,
-          importList
+          importsMap
         )
       : '/* no component */'
   }
@@ -59,7 +60,7 @@ ${overrides.props != null ? indentStr + `props: ${overrides.props},\n` : ''}${
       ? `children: [
 ${node
   .getSortedChildren()
-  .map((child) => generateRouteRecord(child, options, importList, indent + 2))
+  .map((child) => generateRouteRecord(child, options, importsMap, indent + 2))
   .join(',\n')}
 ${indentStr}],`
       : '/* no children */'
@@ -69,12 +70,13 @@ ${startIndent}}`
   if (node.hasDefinePage) {
     const definePageDataList: string[] = []
     for (const [name, filePath] of node.value.components) {
-      const pageDataImport = `_definePage_${name}_${importList.size}`
+      const pageDataImport = `_definePage_${name}_${importsMap.size}`
       definePageDataList.push(pageDataImport)
-      importList.set(pageDataImport, `${filePath}?definePage&vue`)
+      importsMap.addDefault(`${filePath}?definePage&vue`, pageDataImport)
     }
 
     if (definePageDataList.length) {
+      importsMap.add('unplugin-vue-router/runtime', '_mergeRouteRecord')
       return `  _mergeRouteRecord(
 ${routeRecord},
   ${definePageDataList.join(',\n')}
@@ -89,12 +91,12 @@ function generateRouteRecordComponent(
   node: TreeNode,
   indentStr: string,
   importMode: _OptionsImportMode,
-  importList: Map<string, string>
+  importsMap: ImportsMap
 ): string {
   const files = Array.from(node.value.components)
   const isDefaultExport = files.length === 1 && files[0][0] === 'default'
   return isDefaultExport
-    ? `component: ${generatePageImport(files[0][1], importMode, importList)},`
+    ? `component: ${generatePageImport(files[0][1], importMode, importsMap)},`
     : // files has at least one entry
       `components: {
 ${files
@@ -103,7 +105,7 @@ ${files
       `${indentStr + '  '}'${key}': ${generatePageImport(
         path,
         importMode,
-        importList
+        importsMap
       )}`
   )
   .join(',\n')}
@@ -114,21 +116,21 @@ ${indentStr}},`
  * Generate the import (dynamic or static) for the given filepath. If the filepath is a static import, add it to the
  * @param filepath - the filepath to the file
  * @param importMode - the import mode to use
- * @param importList - the import list to fill
+ * @param importsMap - the import list to fill
  * @returns
  */
 function generatePageImport(
   filepath: string,
   importMode: _OptionsImportMode,
-  importList: Map<string, string>
+  importsMap: ImportsMap
 ) {
   const mode =
     typeof importMode === 'function' ? importMode(filepath) : importMode
   if (mode === 'async') {
     return `() => import('${filepath}')`
   } else {
-    const importName = `_page_${importList.size}`
-    importList.set(importName, filepath)
+    const importName = `_page_${importsMap.size}`
+    importsMap.addDefault(filepath, importName)
     return importName
   }
 }
