@@ -1,3 +1,17 @@
+## [0.5.5](https://github.com/posva/unplugin-vue-router/compare/v0.5.4...v0.5.5) (2023-04-18)
+
+### Bug Fixes
+
+- no missing imports ([65f8c83](https://github.com/posva/unplugin-vue-router/commit/65f8c83e494e955632d8c88e84820d9399ba0c89))
+- remove old option ([7368185](https://github.com/posva/unplugin-vue-router/commit/7368185477ab7eb5f65d7dece9b1bd1fde1c01ef))
+- split types from index to avoid types pollution ([4026948](https://github.com/posva/unplugin-vue-router/commit/4026948d48cd83488bdd7ad783a7f8212eab563b)), closes [#136](https://github.com/posva/unplugin-vue-router/issues/136)
+- **types:** skip postbuild fix on types ([d54a9b7](https://github.com/posva/unplugin-vue-router/commit/d54a9b79f0638b688b3d939d3be76407ac058cfa))
+
+### Features
+
+- add children to EditableTreeNode ([2eef836](https://github.com/posva/unplugin-vue-router/commit/2eef836ff163992e6e16febacfd133521850ea82))
+- expose default options ([47b4aed](https://github.com/posva/unplugin-vue-router/commit/47b4aed5b7b0e4171174434521d463df2cdf90ca))
+
 ## [0.5.4](https://github.com/posva/unplugin-vue-router/compare/v0.5.3...v0.5.4) (2023-03-02)
 
 ### Features
