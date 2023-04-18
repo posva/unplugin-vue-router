@@ -1,6 +1,7 @@
+// this file had to be moved to avoid tsup from picking it up
 import { describe, expect, it } from 'vitest'
-import { resolveOptions } from './options'
-import { mockWarn } from '../tests/vitest-mock-warn'
+import { resolveOptions } from '../options'
+import { mockWarn } from '../../tests/vitest-mock-warn'
 
 describe('options', () => {
   mockWarn()
