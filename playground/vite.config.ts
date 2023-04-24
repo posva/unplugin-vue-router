@@ -1,5 +1,6 @@
 import { fileURLToPath, URL } from 'url'
 import { defineConfig } from 'vite'
+import { join } from 'pathe'
 import Inspect from 'vite-plugin-inspect'
 import Markdown from 'vite-plugin-vue-markdown'
 // @ts-ignore: the plugin should not be checked in the playground
@@ -69,7 +70,7 @@ export default defineConfig({
       beforeWriteFiles(root) {
         root.insert(
           '/from-root',
-          '/Users/posva/unplugin-vue-router/playground/src/pages/index.vue'
+          join(__dirname, './src/pages/index.vue')
         )
       },
       routesFolder: [
