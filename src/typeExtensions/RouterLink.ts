@@ -26,6 +26,7 @@ import type {
   RouteLocationResolvedTypedList,
 } from './routeLocation'
 
+// TODO: rename to RouterLinkPropsTyped and re export from typed-router.d.ts as RouterLinkProps
 /**
  * Typed version of `RouterLinkProps`.
  */

@@ -8,6 +8,7 @@ import {
   routeBlockQueryRE,
   ROUTE_BLOCK_ID,
 } from './core/moduleConstants'
+// TODO: export standalone createRoutesContext that resolves partial options
 import { Options, resolveOptions, DEFAULT_OPTIONS } from './options'
 import { createViteContext } from './core/vite'
 import { createFilter } from '@rollup/pluginutils'
