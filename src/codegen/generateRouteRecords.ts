@@ -131,7 +131,7 @@ function generatePageImport(
   } else {
     const importName = `_page_${importsMap.size}`
     importsMap.addDefault(filepath, importName)
-    return importName
+    return `() => Promise.resolve(${importName})`
   }
 }
 
