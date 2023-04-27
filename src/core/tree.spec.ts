@@ -137,6 +137,60 @@ describe('Tree', () => {
     ])
   })
 
+  it('handles repeatable params one or more', () => {
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    tree.insert('[id]+.vue')
+    expect(tree.children.get('[id]+')!.value).toMatchObject({
+      rawSegment: '[id]+',
+      params: [
+        {
+          paramName: 'id',
+          repeatable: true,
+          optional: false,
+          modifier: '+',
+        },
+      ],
+      path: '/:id+',
+      _type: TreeNodeType.param,
+    })
+  })
+
+  it('handles repeatable params zero or more', () => {
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    tree.insert('[[id]]+.vue')
+    expect(tree.children.get('[[id]]+')!.value).toMatchObject({
+      rawSegment: '[[id]]+',
+      params: [
+        {
+          paramName: 'id',
+          repeatable: true,
+          optional: true,
+          modifier: '*',
+        },
+      ],
+      path: '/:id*',
+      _type: TreeNodeType.param,
+    })
+  })
+
+  it('handles optional params', () => {
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    tree.insert('[[id]].vue')
+    expect(tree.children.get('[[id]]')!.value).toMatchObject({
+      rawSegment: '[[id]]',
+      params: [
+        {
+          paramName: 'id',
+          repeatable: false,
+          optional: true,
+          modifier: '?',
+        },
+      ],
+      path: '/:id?',
+      _type: TreeNodeType.param,
+    })
+  })
+
   it('handles named views', () => {
     const tree = createPrefixTree(DEFAULT_OPTIONS)
     tree.insert('index.vue')
