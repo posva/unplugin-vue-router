@@ -40,6 +40,20 @@ describe('EditableTreeNode', () => {
     expect(tree.children.get('foo/bar')?.path).toBe('/foo/bar')
   })
 
+  it('can nest routes', () => {
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const editable = new EditableTreeNode(tree)
+
+    const node = editable.insert('foo', 'file.vue')
+    node.insert('bar/nested', 'file.vue')
+    expect(tree.children.size).toBe(1)
+    expect(node.children.length).toBe(1)
+    expect(node.fullPath).toBe('/foo')
+    expect(node.path).toBe('/foo')
+    expect(node.children.at(0)?.path).toBe('bar/nested')
+    expect(node.children.at(0)?.fullPath).toBe('/foo/bar/nested')
+  })
+
   it('can have multiple params', () => {
     const tree = createPrefixTree(DEFAULT_OPTIONS)
     const editable = new EditableTreeNode(tree)
