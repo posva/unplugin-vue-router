@@ -283,4 +283,38 @@ describe('generateRouteRecord', () => {
       expect(generateRouteRecordSimple(tree)).toMatchSnapshot()
     })
   })
+
+  describe('raw paths insertions', () => {
+    it('works with raw paths', () => {
+      const tree = createPrefixTree(DEFAULT_OPTIONS)
+      tree.insertParsedPath('a', 'a.vue')
+      tree.insertParsedPath('b', 'b.vue')
+      tree.insertParsedPath('c', 'c.vue')
+      expect(generateRouteRecordSimple(tree)).toMatchSnapshot()
+    })
+
+    it('works with mixed nodes', () => {
+      const tree = createPrefixTree(DEFAULT_OPTIONS)
+      tree.insertParsedPath('a', 'a.vue')
+      tree.insert('b.vue')
+      tree.insertParsedPath('c', 'c.vue')
+      expect(generateRouteRecordSimple(tree)).toMatchSnapshot()
+    })
+
+    it('works with nested nodes', () => {
+      const tree = createPrefixTree(DEFAULT_OPTIONS)
+      tree.insertParsedPath('a/b/c', 'a.vue')
+      tree.insertParsedPath('a/b/d', 'a.vue')
+      tree.insertParsedPath('a/d/c', 'a.vue')
+      expect(generateRouteRecordSimple(tree)).toMatchSnapshot()
+    })
+
+    it('do not nest raw segments with file based', () => {
+      const tree = createPrefixTree(DEFAULT_OPTIONS)
+      tree.insert('a/b.vue')
+      // should be separated
+      tree.insertParsedPath('a/b/c', 'a.vue')
+      expect(generateRouteRecordSimple(tree)).toMatchSnapshot()
+    })
+  })
 })

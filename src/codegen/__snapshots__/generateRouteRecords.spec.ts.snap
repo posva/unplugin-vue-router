@@ -480,6 +480,99 @@ exports[`generateRouteRecord > nested children 2`] = `
 ]"
 `;
 
+exports[`generateRouteRecord > raw paths insertions > do not nest raw segments with file based 1`] = `
+"[
+  {
+    path: '/a',
+    /* internal name: '/a' */
+    /* no component */
+    children: [
+      {
+        path: 'b',
+        name: '/a/b',
+        component: () => import('a/b.vue'),
+        /* no children */
+      }
+    ],
+  },
+  {
+    path: '/a/b/c',
+    name: '/a/b/c',
+    component: () => import('a.vue'),
+    /* no children */
+  }
+]"
+`;
+
+exports[`generateRouteRecord > raw paths insertions > works with mixed nodes 1`] = `
+"[
+  {
+    path: '/a',
+    name: '/a',
+    component: () => import('a.vue'),
+    /* no children */
+  },
+  {
+    path: '/b',
+    name: '/b',
+    component: () => import('b.vue'),
+    /* no children */
+  },
+  {
+    path: '/c',
+    name: '/c',
+    component: () => import('c.vue'),
+    /* no children */
+  }
+]"
+`;
+
+exports[`generateRouteRecord > raw paths insertions > works with nested nodes 1`] = `
+"[
+  {
+    path: '/a/b/c',
+    name: '/a/b/c',
+    component: () => import('a.vue'),
+    /* no children */
+  },
+  {
+    path: '/a/b/d',
+    name: '/a/b/d',
+    component: () => import('a.vue'),
+    /* no children */
+  },
+  {
+    path: '/a/d/c',
+    name: '/a/d/c',
+    component: () => import('a.vue'),
+    /* no children */
+  }
+]"
+`;
+
+exports[`generateRouteRecord > raw paths insertions > works with raw paths 1`] = `
+"[
+  {
+    path: '/a',
+    name: '/a',
+    component: () => import('a.vue'),
+    /* no children */
+  },
+  {
+    path: '/b',
+    name: '/b',
+    component: () => import('b.vue'),
+    /* no children */
+  },
+  {
+    path: '/c',
+    name: '/c',
+    component: () => import('c.vue'),
+    /* no children */
+  }
+]"
+`;
+
 exports[`generateRouteRecord > removes trailing slashes 1`] = `
 "[
   {

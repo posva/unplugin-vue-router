@@ -84,42 +84,29 @@ export class TreeNode {
    * @param filePath - file path, defaults to path for convenience and testing
    */
   insertParsedPath(path: string, filePath: string = path): TreeNode {
-    const slashPos = path.indexOf('/')
-    const segment = slashPos < 0 ? path : path.slice(0, slashPos)
-    const tail = slashPos < 0 ? '' : path.slice(slashPos + 1)
-
     // TODO: allow null filePath?
-    const isComponent = !tail
+    const isComponent = true
 
-    if (!this.children.has(segment)) {
-      this.children.set(
-        segment,
-        new TreeNode(
-          {
-            ...this.options,
-            // force the format to raw
-            treeNodeOptions: {
-              ...this.options.pathParser,
-              format: 'path',
-            },
-          },
-          segment,
-          this
-        )
-      )
-    }
-    const child = this.children.get(segment)!
+    const node = new TreeNode(
+      {
+        ...this.options,
+        // force the format to raw
+        treeNodeOptions: {
+          ...this.options.pathParser,
+          format: 'path',
+        },
+      },
+      path,
+      this
+    )
+    this.children.set(path, node)
 
     if (isComponent) {
       // TODO: allow a way to set the view name
-      child.value.components.set('default', filePath)
+      node.value.components.set('default', filePath)
     }
 
-    if (tail) {
-      return child.insertParsedPath(tail, filePath)
-    }
-
-    return child
+    return node
   }
 
   setCustomRouteBlock(path: string, routeBlock: CustomRouteBlock | undefined) {

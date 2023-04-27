@@ -413,6 +413,13 @@ function parseRawPathSegment(
   for (pos = 0; pos < segment.length; pos++) {
     c = segment[pos]
 
+    if (c === '\\') {
+      // skip the next char
+      pos++
+      buffer += segment[pos]
+      continue
+    }
+
     if (state === ParseRawPathSegmentState.static) {
       if (c === ':') {
         consumeBuffer()
@@ -452,7 +459,10 @@ function parseRawPathSegment(
       if (c === ')') {
         // we don't actually care about the regexp as it already on the segment
         // currentTreeRouteParam.regexp = buffer
-        buffer = ''
+        if (buffer === '.*') {
+          currentTreeRouteParam.isSplat = true
+        }
+        // we don't reset the buffer but it needs to be consumed
         // check if there is a modifier
         state = ParseRawPathSegmentState.modifier
       } else {
