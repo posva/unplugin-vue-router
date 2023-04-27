@@ -68,10 +68,7 @@ export default defineConfig({
         }
       },
       beforeWriteFiles(root) {
-        root.insert(
-          '/from-root',
-          join(__dirname, './src/pages/index.vue')
-        )
+        root.insert('/from-root', join(__dirname, './src/pages/index.vue'))
       },
       routesFolder: [
         // can add multiple routes folders
