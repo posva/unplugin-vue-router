@@ -34,7 +34,11 @@ export class TreeNode {
   constructor(options: ResolvedOptions, filePath: string, parent?: TreeNode) {
     this.options = options
     this.parent = parent
-    this.value = createTreeNodeValue(filePath, parent?.value)
+    this.value = createTreeNodeValue(
+      filePath,
+      parent?.value,
+      options.pathParser
+    )
   }
 
   /**

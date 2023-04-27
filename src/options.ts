@@ -3,6 +3,7 @@ import { Awaitable, getFileBasedRouteName, isArray, warn } from './core/utils'
 import type { TreeNode } from './core/tree'
 import { resolve } from 'pathe'
 import { EditableTreeNode } from './core/extendRoutes'
+import { ParseSegmentOptions } from './core/treeNodeValue'
 
 export interface RoutesFolderOption {
   /**
@@ -124,6 +125,11 @@ export interface ResolvedOptions {
    * Activates debug logs.
    */
   logs: boolean
+
+  /**
+   * @inheritDoc ParseSegmentOptions
+   */
+  pathParser: ParseSegmentOptions
 }
 
 /**
@@ -152,6 +158,9 @@ export const DEFAULT_OPTIONS: ResolvedOptions = {
   dts: isPackageExists('typescript'),
   logs: false,
   _inspect: false,
+  pathParser: {
+    dotNesting: true,
+  },
 }
 
 export interface ServerContext {

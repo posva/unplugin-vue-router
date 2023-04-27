@@ -184,13 +184,17 @@ export type TreeNodeValue = TreeNodeValueStatic | TreeNodeValueParam
 
 export function createTreeNodeValue(
   segment: string,
-  parent?: TreeNodeValue
+  parent?: TreeNodeValue,
+  parseSegmentOptions?: ParseSegmentOptions
 ): TreeNodeValue {
   if (!segment || segment === 'index') {
     return new TreeNodeValueStatic(segment, parent, '')
   }
 
-  const [pathSegment, params, subSegments] = parseSegment(segment)
+  const [pathSegment, params, subSegments] = parseSegment(
+    segment,
+    parseSegmentOptions
+  )
 
   if (params.length) {
     return new TreeNodeValueParam(
@@ -213,13 +217,27 @@ const enum ParseSegmentState {
 }
 
 /**
+ * Options passed to `parseSegment()`to control how a segment of a file path is parsed. e.g. in `/users/[id]`, `users`
+ * and `[id]` are segments.
+ */
+export interface ParseSegmentOptions {
+  /**
+   * Should we allow dot nesting in the param name. e.g. `users.[id]` will be parsed as `users/[id]` if this is `true`,
+   * nesting
+   * @default true
+   */
+  dotNesting?: boolean
+}
+
+/**
  * Parses a segment into the route path segment and the extracted params.
  *
  * @param segment - segment to parse without the extension
  * @returns - the pathSegment and the params
  */
 function parseSegment(
-  segment: string
+  segment: string,
+  { dotNesting = true }: ParseSegmentOptions = {}
 ): [string, TreeRouteParam[], SubSegment[]] {
   let buffer = ''
   let state: ParseSegmentState = ParseSegmentState.static
@@ -262,8 +280,9 @@ function parseSegment(
         // check if it's an optional param or not
         state = ParseSegmentState.paramOptional
       } else {
-        // allows for nested paths without nesting the views
-        buffer += c === '.' ? '/' : c
+        // append the char to the buffer or if the dotNesting option
+        // is enabled (by default it is), transform into a slash
+        buffer += dotNesting && c === '.' ? '/' : c
       }
     } else if (state === ParseSegmentState.paramOptional) {
       if (c === '[') {
