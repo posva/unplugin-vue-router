@@ -182,19 +182,31 @@ export class TreeNodeValueParam extends _TreeNodeValueBase {
 
 export type TreeNodeValue = TreeNodeValueStatic | TreeNodeValueParam
 
+export interface TreeNodeValueOptions extends ParseSegmentOptions {
+  /**
+   * Format of the route path. Defaults to `file` which is the format used by unplugin-vue-router and matches the file
+   * structure (e.g. `index`, ``, or `users/[id]`). In `path` format, routes are expected in the format of vue-router
+   * (e.g. `/` or '/users/:id' ).
+   *
+   * @default 'file'
+   */
+  format?: 'file' | 'path'
+}
+
 export function createTreeNodeValue(
   segment: string,
   parent?: TreeNodeValue,
-  parseSegmentOptions?: ParseSegmentOptions
+  options: TreeNodeValueOptions = {}
 ): TreeNodeValue {
   if (!segment || segment === 'index') {
     return new TreeNodeValueStatic(segment, parent, '')
   }
 
-  const [pathSegment, params, subSegments] = parseSegment(
-    segment,
-    parseSegmentOptions
-  )
+  const [pathSegment, params, subSegments] =
+    options.format === 'path'
+      ? parseRawPathSegment(segment)
+      : // by default, we use the file format
+        parseFileSegment(segment, options)
 
   if (params.length) {
     return new TreeNodeValueParam(
@@ -209,7 +221,7 @@ export function createTreeNodeValue(
   return new TreeNodeValueStatic(segment, parent, pathSegment)
 }
 
-const enum ParseSegmentState {
+const enum ParseFileSegmentState {
   static,
   paramOptional, // within [[]] or []
   param, // within []
@@ -223,7 +235,7 @@ const enum ParseSegmentState {
 export interface ParseSegmentOptions {
   /**
    * Should we allow dot nesting in the param name. e.g. `users.[id]` will be parsed as `users/[id]` if this is `true`,
-   * nesting
+   * nesting. Note this only works for the `file` format.
    * @default true
    */
   dotNesting?: boolean
@@ -237,12 +249,12 @@ const IS_VARIABLE_CHAR_RE = /[0-9a-zA-Z_]/
  * @param segment - segment to parse without the extension
  * @returns - the pathSegment and the params
  */
-function parseSegment(
+function parseFileSegment(
   segment: string,
   { dotNesting = true }: ParseSegmentOptions = {}
 ): [string, TreeRouteParam[], SubSegment[]] {
   let buffer = ''
-  let state: ParseSegmentState = ParseSegmentState.static
+  let state: ParseFileSegmentState = ParseFileSegmentState.static
   const params: TreeRouteParam[] = []
   let pathSegment = ''
   const subSegments: SubSegment[] = []
@@ -254,11 +266,11 @@ function parseSegment(
   let c: string
 
   function consumeBuffer() {
-    if (state === ParseSegmentState.static) {
+    if (state === ParseFileSegmentState.static) {
       // add the buffer to the path segment as is
       pathSegment += buffer
       subSegments.push(buffer)
-    } else if (state === ParseSegmentState.modifier) {
+    } else if (state === ParseFileSegmentState.modifier) {
       currentTreeRouteParam.paramName = buffer
       currentTreeRouteParam.modifier = currentTreeRouteParam.optional
         ? currentTreeRouteParam.repeatable
@@ -287,17 +299,17 @@ function parseSegment(
   for (pos = 0; pos < segment.length; pos++) {
     c = segment[pos]
 
-    if (state === ParseSegmentState.static) {
+    if (state === ParseFileSegmentState.static) {
       if (c === '[') {
         consumeBuffer()
         // check if it's an optional param or not
-        state = ParseSegmentState.paramOptional
+        state = ParseFileSegmentState.paramOptional
       } else {
         // append the char to the buffer or if the dotNesting option
         // is enabled (by default it is), transform into a slash
         buffer += dotNesting && c === '.' ? '/' : c
       }
-    } else if (state === ParseSegmentState.paramOptional) {
+    } else if (state === ParseFileSegmentState.paramOptional) {
       if (c === '[') {
         currentTreeRouteParam.optional = true
       } else if (c === '.') {
@@ -307,21 +319,21 @@ function parseSegment(
         // keep it for the param
         buffer += c
       }
-      state = ParseSegmentState.param
-    } else if (state === ParseSegmentState.param) {
+      state = ParseFileSegmentState.param
+    } else if (state === ParseFileSegmentState.param) {
       if (c === ']') {
         if (currentTreeRouteParam.optional) {
           // skip the next ]
           pos++
         }
-        state = ParseSegmentState.modifier
+        state = ParseFileSegmentState.modifier
       } else if (c === '.') {
         currentTreeRouteParam.isSplat = true
         pos += 2 // skip the other 2 dots
       } else {
         buffer += c
       }
-    } else if (state === ParseSegmentState.modifier) {
+    } else if (state === ParseFileSegmentState.modifier) {
       if (c === '+') {
         currentTreeRouteParam.repeatable = true
       } else {
@@ -330,13 +342,13 @@ function parseSegment(
       }
       consumeBuffer()
       // start again
-      state = ParseSegmentState.static
+      state = ParseFileSegmentState.static
     }
   }
 
   if (
-    state === ParseSegmentState.param ||
-    state === ParseSegmentState.paramOptional
+    state === ParseFileSegmentState.param ||
+    state === ParseFileSegmentState.paramOptional
   ) {
     throw new Error(`Invalid segment: "${segment}"`)
   }
@@ -346,6 +358,137 @@ function parseSegment(
   }
 
   return [pathSegment, params, subSegments]
+}
+
+// TODO: this logic is flawed because it only handles segments. We should use the path parser from vue router that already has all this logic baked in.
+
+const enum ParseRawPathSegmentState {
+  static,
+  param, // after :
+  regexp, // after :id(
+  modifier, // after :id(...)
+}
+
+const IS_MODIFIER_RE = /[+*?]/
+
+/**
+ * Parses a raw path segment like the `:id` in a route `/users/:id`.
+ *
+ * @param segment - segment to parse without the extension
+ * @returns - the pathSegment and the params
+ */
+function parseRawPathSegment(
+  segment: string
+): [string, TreeRouteParam[], SubSegment[]] {
+  let buffer = ''
+  let state: ParseRawPathSegmentState = ParseRawPathSegmentState.static
+  const params: TreeRouteParam[] = []
+  const subSegments: SubSegment[] = []
+  let currentTreeRouteParam: TreeRouteParam = createEmptyRouteParam()
+
+  // position in segment
+  let pos = 0
+  // current char
+  let c: string
+
+  function consumeBuffer() {
+    if (state === ParseRawPathSegmentState.static) {
+      // add the buffer to the path segment as is
+      subSegments.push(buffer)
+    } else if (
+      state === ParseRawPathSegmentState.param ||
+      state === ParseRawPathSegmentState.regexp ||
+      state === ParseRawPathSegmentState.modifier
+    ) {
+      // we consume the current param
+      subSegments.push(currentTreeRouteParam)
+      params.push(currentTreeRouteParam)
+      currentTreeRouteParam = createEmptyRouteParam()
+    }
+    // no other cases
+
+    buffer = ''
+  }
+
+  for (pos = 0; pos < segment.length; pos++) {
+    c = segment[pos]
+
+    if (state === ParseRawPathSegmentState.static) {
+      if (c === ':') {
+        consumeBuffer()
+        // check if it's an optional param or not
+        state = ParseRawPathSegmentState.param
+      } else {
+        buffer += c
+      }
+    } else if (state === ParseRawPathSegmentState.param) {
+      if (c === '(') {
+        // consume the param name and start the regexp
+        currentTreeRouteParam.paramName = buffer
+        buffer = ''
+        state = ParseRawPathSegmentState.regexp
+      } else if (IS_MODIFIER_RE.test(c)) {
+        // add as modifier
+        currentTreeRouteParam.modifier = c
+        currentTreeRouteParam.optional = c === '?' || c === '*'
+        currentTreeRouteParam.repeatable = c === '+' || c === '*'
+        // consume the param
+        consumeBuffer()
+        // start again
+        state = ParseRawPathSegmentState.static
+      } else if (IS_VARIABLE_CHAR_RE.test(c)) {
+        buffer += c
+        // keep it as we could be at the end of the string
+        currentTreeRouteParam.paramName = buffer
+      } else {
+        currentTreeRouteParam.paramName = buffer
+        // we reached the end of the param
+        consumeBuffer()
+        // we need to parse this again
+        pos--
+        state = ParseRawPathSegmentState.static
+      }
+    } else if (state === ParseRawPathSegmentState.regexp) {
+      if (c === ')') {
+        // we don't actually care about the regexp as it already on the segment
+        // currentTreeRouteParam.regexp = buffer
+        buffer = ''
+        // check if there is a modifier
+        state = ParseRawPathSegmentState.modifier
+      } else {
+        buffer += c
+      }
+    } else if (state === ParseRawPathSegmentState.modifier) {
+      if (IS_MODIFIER_RE.test(c)) {
+        currentTreeRouteParam.modifier = c
+        currentTreeRouteParam.optional = c === '?' || c === '*'
+        currentTreeRouteParam.repeatable = c === '+' || c === '*'
+      } else {
+        // parse this character again
+        pos--
+      }
+      // add the param to the segment list
+      consumeBuffer()
+      // start again
+      state = ParseRawPathSegmentState.static
+    }
+  }
+
+  // we cannot reach the end of the segment
+  if (state === ParseRawPathSegmentState.regexp) {
+    throw new Error(`Invalid segment: "${segment}"`)
+  }
+
+  if (buffer) {
+    consumeBuffer()
+  }
+
+  return [
+    // here the segment is already a valid path segment
+    segment,
+    params,
+    subSegments,
+  ]
 }
 
 function createEmptyRouteParam(): TreeRouteParam {

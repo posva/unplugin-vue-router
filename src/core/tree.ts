@@ -1,9 +1,17 @@
 import type { ResolvedOptions } from '../options'
-import { createTreeNodeValue, TreeRouteParam } from './treeNodeValue'
+import {
+  createTreeNodeValue,
+  TreeNodeValueOptions,
+  TreeRouteParam,
+} from './treeNodeValue'
 import type { TreeNodeValue } from './treeNodeValue'
 import { trimExtension } from './utils'
 import { CustomRouteBlock } from './customBlock'
 import { RouteMeta } from 'vue-router'
+
+export interface TreeNodeOptions extends ResolvedOptions {
+  treeNodeOptions?: TreeNodeValueOptions
+}
 
 export class TreeNode {
   /**
@@ -24,20 +32,20 @@ export class TreeNode {
   /**
    * Plugin options taken into account by the tree.
    */
-  options: ResolvedOptions
+  options: TreeNodeOptions
 
   /**
    * Should this page import the page info
    */
   hasDefinePage: boolean = false
 
-  constructor(options: ResolvedOptions, filePath: string, parent?: TreeNode) {
+  constructor(options: TreeNodeOptions, filePath: string, parent?: TreeNode) {
     this.options = options
     this.parent = parent
     this.value = createTreeNodeValue(
       filePath,
       parent?.value,
-      options.pathParser
+      options.treeNodeOptions
     )
   }
 
@@ -66,6 +74,51 @@ export class TreeNode {
     if (tail) {
       return child.insert(tail, filePath)
     }
+    return child
+  }
+
+  /**
+   * Adds a path to the tree. `path` cannot start with a `/`.
+   *
+   * @param path - path segment to insert, already parsed (e.g. users/:id)
+   * @param filePath - file path, defaults to path for convenience and testing
+   */
+  insertParsedPath(path: string, filePath: string = path): TreeNode {
+    const slashPos = path.indexOf('/')
+    const segment = slashPos < 0 ? path : path.slice(0, slashPos)
+    const tail = slashPos < 0 ? '' : path.slice(slashPos + 1)
+
+    // TODO: allow null filePath?
+    const isComponent = !tail
+
+    if (!this.children.has(segment)) {
+      this.children.set(
+        segment,
+        new TreeNode(
+          {
+            ...this.options,
+            // force the format to raw
+            treeNodeOptions: {
+              ...this.options.pathParser,
+              format: 'path',
+            },
+          },
+          segment,
+          this
+        )
+      )
+    }
+    const child = this.children.get(segment)!
+
+    if (isComponent) {
+      // TODO: allow a way to set the view name
+      child.value.components.set('default', filePath)
+    }
+
+    if (tail) {
+      return child.insertParsedPath(tail, filePath)
+    }
+
     return child
   }
 
