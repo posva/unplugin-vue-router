@@ -38,6 +38,25 @@ describe('Tree', () => {
     expect(child.children.size).toBe(0)
   })
 
+  it('separate param names from static segments', () => {
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    tree.insert('[id]_a')
+    tree.insert('[a]e[b]f')
+    expect(tree.children.get('[id]_a')!.value).toMatchObject({
+      rawSegment: '[id]_a',
+      params: [{ paramName: 'id' }],
+      path: '/:id()_a',
+      _type: TreeNodeType.param,
+    })
+
+    expect(tree.children.get('[a]e[b]f')!.value).toMatchObject({
+      rawSegment: '[a]e[b]f',
+      params: [{ paramName: 'a' }, { paramName: 'b' }],
+      path: '/:a()e:b()f',
+      _type: TreeNodeType.param,
+    })
+  })
+
   it('creates params in nested files', () => {
     const tree = createPrefixTree(DEFAULT_OPTIONS)
     const nestedId = tree.insert('nested/[id].vue')

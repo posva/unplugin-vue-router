@@ -229,6 +229,8 @@ export interface ParseSegmentOptions {
   dotNesting?: boolean
 }
 
+const IS_VARIABLE_CHAR_RE = /[0-9a-zA-Z_]/
+
 /**
  * Parses a segment into the route path segment and the extracted params.
  *
@@ -246,6 +248,11 @@ function parseSegment(
   const subSegments: SubSegment[] = []
   let currentTreeRouteParam: TreeRouteParam = createEmptyRouteParam()
 
+  // position in segment
+  let pos = 0
+  // current char
+  let c: string
+
   function consumeBuffer() {
     if (state === ParseSegmentState.static) {
       // add the buffer to the path segment as is
@@ -262,7 +269,13 @@ function parseSegment(
         : ''
       buffer = ''
       pathSegment += `:${currentTreeRouteParam.paramName}${
-        currentTreeRouteParam.isSplat ? '(.*)' : ''
+        currentTreeRouteParam.isSplat
+          ? '(.*)'
+          : // Only append () if necessary
+          pos < segment.length - 1 && IS_VARIABLE_CHAR_RE.test(segment[pos + 1])
+          ? '()'
+          : // allow routes like /[id]_suffix to make suffix static and not part of the param
+            ''
       }${currentTreeRouteParam.modifier}`
       params.push(currentTreeRouteParam)
       subSegments.push(currentTreeRouteParam)
@@ -271,8 +284,8 @@ function parseSegment(
     buffer = ''
   }
 
-  for (let pos = 0; pos < segment.length; pos++) {
-    const c = segment[pos]
+  for (pos = 0; pos < segment.length; pos++) {
+    c = segment[pos]
 
     if (state === ParseSegmentState.static) {
       if (c === '[') {
