@@ -1,4 +1,4 @@
-import { RouteRecordRaw } from 'vue-router'
+import type { RouteRecordRaw } from 'vue-router'
 import { CustomRouteBlock } from './customBlock'
 import { joinPath, mergeRouteRecordOverride } from './utils'
 
