@@ -26,11 +26,10 @@ import type {
   RouteLocationResolvedTypedList,
 } from './routeLocation'
 
-// TODO: rename to RouterLinkPropsTyped and re export from typed-router.d.ts as RouterLinkProps
 /**
  * Typed version of `RouterLinkProps`.
  */
-export interface RouterLinkProps<
+export interface RouterLinkPropsTyped<
   RouteMap extends _RouteMapGeneric,
   Name extends keyof RouteMap = keyof RouteMap
 > extends Omit<_RouterLinkProps, 'to'> {
@@ -48,7 +47,7 @@ export interface RouterLinkTyped<RouteMap extends _RouteMapGeneric> {
     $props: AllowedComponentProps &
       ComponentCustomProps &
       VNodeProps &
-      RouterLinkProps<RouteMap>
+      RouterLinkPropsTyped<RouteMap>
 
     $slots: {
       default: (arg: UnwrapRef<_UseLinkReturnTyped<RouteMap>>) => VNode[]

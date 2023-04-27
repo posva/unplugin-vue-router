@@ -32,6 +32,7 @@ export type {
   RouterLinkTyped,
   UseLinkFnTyped,
   _UseLinkReturnTyped,
+  RouterLinkPropsTyped,
 } from './typeExtensions/RouterLink'
 export type {
   ParamValue,
