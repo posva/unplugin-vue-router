@@ -277,6 +277,7 @@ function splitFilePath(filePath: string, options: ResolvedOptions) {
     segment = segment.slice(0, namedSeparatorPos)
   }
 
+  // this means we effectively trimmed an extension
   const isComponent = segment !== head
 
   return {
