@@ -498,6 +498,40 @@ userWithId = useRoute<'/users/[id]'>()
 userWithId = useRoute('/users/[id]')
 ```
 
+#### Augmenting `RouteMeta`
+If you want to have type-safety for `route.meta`, including in `definePage`, you may augment the `RouteMeta` type.
+
+```ts
+// types.d.ts
+declare module "vue-router" {
+  interface RouteMeta {
+    requiresAuth?: boolean;
+  }
+}
+```
+
+Ensure you add your `types.d.ts` file to `tsconfig.json`:
+
+```js
+{
+  // ...
+  "include": [/* ... */ "types.d.ts"]
+  // ...
+}
+```
+
+Now you will have type-safety in `definePage`:
+```vue
+<script setup>
+definePage({
+  meta: {
+    requiresAuth: 1, // error
+  },
+})
+</script>
+```
+
+
 ## Named views
 
 It is possible to define [named views](https://router.vuejs.org/guide/essentials/named-views.html#named-views) by appending an `@` + a name to their filename, e.g. a file named `src/pages/index@aux.vue` will generate a route of:
