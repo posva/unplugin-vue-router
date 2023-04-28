@@ -499,7 +499,7 @@ userWithId = useRoute('/users/[id]')
 ```
 
 #### Augmenting `RouteMeta`
-If you want to have type-safety for `route.meta`, including in `definePage`, you may augment the `RouteMeta` type.
+If you want to have type-safety for `route.meta`, including in `definePage`, you may augment the `RouteMeta` interface.
 
 ```ts
 // types.d.ts
