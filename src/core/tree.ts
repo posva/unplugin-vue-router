@@ -45,7 +45,7 @@ export class TreeNode {
     this.value = createTreeNodeValue(
       filePath,
       parent?.value,
-      options.treeNodeOptions
+      options.treeNodeOptions || options.pathParser
     )
   }
 

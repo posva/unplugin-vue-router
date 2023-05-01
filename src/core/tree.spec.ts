@@ -464,4 +464,38 @@ describe('Tree', () => {
     expect(aNested.value.components.get('default')).toBe('a/nested.page.vue')
     expect(aNested.fullPath).toBe('/a/nested')
   })
+
+  describe('dot nesting', () => {
+    it('transforms dots into nested routes by default', () => {
+      const tree = createPrefixTree(DEFAULT_OPTIONS)
+      tree.insert('users.new.vue')
+      expect(tree.children.size).toBe(1)
+      const users = tree.children.get('users.new')!
+      expect(users.value).toMatchObject({
+        rawSegment: 'users.new',
+        pathSegment: 'users/new',
+        path: '/users/new',
+        _type: TreeNodeType.static,
+      })
+    })
+
+    it.only('can ignore dot nesting', () => {
+      const tree = createPrefixTree({
+        ...DEFAULT_OPTIONS,
+        pathParser: {
+          dotNesting: false,
+        },
+      })
+      tree.insert('1.2.3-lesson.vue')
+      expect(tree.children.size).toBe(1)
+      const lesson = tree.children.get('1.2.3-lesson')!
+
+      expect(lesson.value).toMatchObject({
+        rawSegment: '1.2.3-lesson',
+        pathSegment: '1.2.3-lesson',
+        path: '/1.2.3-lesson',
+        _type: TreeNodeType.static,
+      })
+    })
+  })
 })
