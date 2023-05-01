@@ -479,7 +479,7 @@ describe('Tree', () => {
       })
     })
 
-    it.only('can ignore dot nesting', () => {
+    it('can ignore dot nesting', () => {
       const tree = createPrefixTree({
         ...DEFAULT_OPTIONS,
         pathParser: {
