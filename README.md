@@ -364,7 +364,7 @@ All generated routes that have a `component` property will have a `name` propert
 
 ### Dynamic Routes
 
-You can add [route params](https://router.vuejs.org/guide/essentials/dynamic-matching.html) by wrapping the _param name_ with brackets, e.g. `src/pages/users/[id].vue` will create a route with the following path: `/users/:id`.
+You can add [route params](https://router.vuejs.org/guide/essentials/dynamic-matching.html) by wrapping the _param name_ with brackets, e.g. `src/pages/users/[id].vue` will create a route with the following path: `/users/:id`. Note you can add a param in the middle in between static segments: `src/pages/users_[id].vue` -> `/users_:id`. You can even add multiple params: `src/pages/product_[skuId]_[seoDescription].vue`.
 
 You can create [**optional params**](https://router.vuejs.org/guide/essentials/route-matching-syntax.html#optional-parameters) by wrapping the _param name_ with an extra pair of brackets, e.g. `src/pages/users/[[id]].vue` will create a route with the following path: `/users/:id?`.
 
