@@ -1,3 +1,16 @@
+# [0.6.0](https://github.com/posva/unplugin-vue-router/compare/v0.5.5...v0.6.0) (2023-05-01)
+
+### Bug Fixes
+
+- allow suffix after param [id]\_s ([f0fcc07](https://github.com/posva/unplugin-vue-router/commit/f0fcc07ed5f05e926664c2fdba462ddee60531f5))
+- handle raw segments in EditableTreeNode ([5695522](https://github.com/posva/unplugin-vue-router/commit/5695522a8b785f45d4c1c111c419f01d75411077))
+
+### Features
+
+- allow inserting raw routes in the editable tree node ([c04d068](https://github.com/posva/unplugin-vue-router/commit/c04d068f59a74b7a72e115173d5b5fb66cb9a985))
+- dotNesting option to disable dot special handling in filenames ([d803831](https://github.com/posva/unplugin-vue-router/commit/d803831230590e8448c54710d657d910e073ced3))
+- **types:** expose RouterLinkProps typed ([04031b4](https://github.com/posva/unplugin-vue-router/commit/04031b48dc26c3adb581749856d3482904243899))
+
 ## [0.5.5](https://github.com/posva/unplugin-vue-router/compare/v0.5.4...v0.5.5) (2023-04-18)
 
 ### Bug Fixes
