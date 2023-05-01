@@ -1,3 +1,9 @@
+## [0.6.1](https://github.com/posva/unplugin-vue-router/compare/v0.6.0...v0.6.1) (2023-05-01)
+
+### Bug Fixes
+
+- **types:** correct exports in new files ([e9056f7](https://github.com/posva/unplugin-vue-router/commit/e9056f7281f922649d5304d3bf3d7e7c07403d20))
+
 # [0.6.0](https://github.com/posva/unplugin-vue-router/compare/v0.5.5...v0.6.0) (2023-05-01)
 
 ### Bug Fixes
