@@ -3,6 +3,8 @@ import { normalize } from 'pathe'
 import { ResolvedOptions, RoutesFolderOption } from '../options'
 import { asRoutePath } from './utils'
 
+// TODO: export an implementable interface to create a watcher and let users provide a different watcher than chokidar to improve performance on windows
+
 export class RoutesFolderWatcher {
   src: string
   pathPrefix: string
