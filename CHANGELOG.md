@@ -1,3 +1,9 @@
+## [0.6.2](https://github.com/posva/unplugin-vue-router/compare/v0.6.1...v0.6.2) (2023-05-01)
+
+### Bug Fixes
+
+- **options:** dotNesting ([b7abc9b](https://github.com/posva/unplugin-vue-router/commit/b7abc9b49c96010bccc1b2779d233f933d42087a))
+
 ## [0.6.1](https://github.com/posva/unplugin-vue-router/compare/v0.6.0...v0.6.1) (2023-05-01)
 
 ### Bug Fixes
