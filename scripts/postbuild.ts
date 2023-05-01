@@ -23,7 +23,11 @@ async function run() {
     const name = basename(file, '.js')
     await fs.writeFile(
       `${name}.d.ts`,
-      filename === 'runtime.js' || filename === 'types.js'
+      // these files should keep the regular export
+      filename === 'runtime.js' ||
+        filename === 'types.js' ||
+        filename === 'index.js' ||
+        filename === 'options.js'
         ? `export * from './dist/${name}'\n`
         : `export { default } from './dist/${name}'\n`
     )
