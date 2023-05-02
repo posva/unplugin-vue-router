@@ -1,3 +1,9 @@
+## [0.6.3](https://github.com/posva/unplugin-vue-router/compare/v0.6.2...v0.6.3) (2023-05-02)
+
+### Bug Fixes
+
+- handle empty regexp in raw routes ([9bea452](https://github.com/posva/unplugin-vue-router/commit/9bea4525680ad5de7ccca7b1ce6da1220f0763aa))
+
 ## [0.6.2](https://github.com/posva/unplugin-vue-router/compare/v0.6.1...v0.6.2) (2023-05-01)
 
 ### Bug Fixes
