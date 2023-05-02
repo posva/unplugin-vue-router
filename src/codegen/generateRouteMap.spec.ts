@@ -51,6 +51,20 @@ describe('generateRouteNamedMap', () => {
     `)
   })
 
+  it('handles params from raw routes', () => {
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const a = tree.insertParsedPath(':a', 'a.vue')
+    const b = tree.insertParsedPath(':b()', 'a.vue')
+    expect(a.name).toBe('/:a')
+    expect(b.name).toBe('/:b()')
+    expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
+      "export interface RouteNamedMap {
+        '/:a': RouteRecordInfo<'/:a', '/:a', { a: ParamValue<true> }, { a: ParamValue<false> }>,
+        '/:b()': RouteRecordInfo<'/:b()', '/:b()', { b: ParamValue<true> }, { b: ParamValue<false> }>,
+      }"
+    `)
+  })
+
   it('handles nested params in folders', () => {
     const tree = createPrefixTree(DEFAULT_OPTIONS)
     tree.insert('n/[a]/index.vue') // normal
