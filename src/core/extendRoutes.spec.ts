@@ -54,6 +54,46 @@ describe('EditableTreeNode', () => {
     expect(node.children.at(0)?.fullPath).toBe('/foo/bar/nested')
   })
 
+  it('adds params', () => {
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const editable = new EditableTreeNode(tree)
+
+    editable.insert(':id', 'file.vue')
+    expect(tree.children.size).toBe(1)
+    const child = tree.children.get(':id')!
+    expect(child.fullPath).toBe('/:id')
+    expect(child.path).toBe('/:id')
+    expect(child.params).toEqual([
+      {
+        paramName: 'id',
+        modifier: '',
+        optional: false,
+        repeatable: false,
+        isSplat: false,
+      },
+    ])
+  })
+
+  it('adds params with modifiers', () => {
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const editable = new EditableTreeNode(tree)
+
+    editable.insert(':id+', 'file.vue')
+    expect(tree.children.size).toBe(1)
+    const child = tree.children.get(':id+')!
+    expect(child.fullPath).toBe('/:id+')
+    expect(child.path).toBe('/:id+')
+    expect(child.params).toEqual([
+      {
+        paramName: 'id',
+        modifier: '+',
+        optional: false,
+        repeatable: true,
+        isSplat: false,
+      },
+    ])
+  })
+
   it('can have multiple params', () => {
     const tree = createPrefixTree(DEFAULT_OPTIONS)
     const editable = new EditableTreeNode(tree)
@@ -115,16 +155,15 @@ describe('EditableTreeNode', () => {
     ])
   })
 
-  it('adds params', () => {
+  it('adds params with custom regex', () => {
     const tree = createPrefixTree(DEFAULT_OPTIONS)
     const editable = new EditableTreeNode(tree)
 
-    editable.insert(':id', 'file.vue')
-    expect(tree.children.size).toBe(1)
-    const child = tree.children.get(':id')!
-    expect(child.fullPath).toBe('/:id')
-    expect(child.path).toBe('/:id')
-    expect(child.params).toEqual([
+    editable.insert(':id(\\d+)', 'file.vue')
+    const node = tree.children.get(':id(\\d+)')!
+    expect(node.fullPath).toBe('/:id(\\d+)')
+    expect(node.path).toBe('/:id(\\d+)')
+    expect(node.params).toEqual([
       {
         paramName: 'id',
         modifier: '',
@@ -135,16 +174,53 @@ describe('EditableTreeNode', () => {
     ])
   })
 
-  it('add params with modifiers', () => {
+  it('adds a param with empty regex', () => {
     const tree = createPrefixTree(DEFAULT_OPTIONS)
     const editable = new EditableTreeNode(tree)
 
-    editable.insert(':id+', 'file.vue')
-    expect(tree.children.size).toBe(1)
-    const child = tree.children.get(':id+')!
-    expect(child.fullPath).toBe('/:id+')
-    expect(child.path).toBe('/:id+')
-    expect(child.params).toEqual([
+    editable.insert(':id()', 'file.vue')
+    const node = tree.children.get(':id()')!
+    expect(node.fullPath).toBe('/:id()')
+    expect(node.path).toBe('/:id()')
+    expect(node.params).toEqual([
+      {
+        paramName: 'id',
+        modifier: '',
+        optional: false,
+        repeatable: false,
+        isSplat: false,
+      },
+    ])
+  })
+
+  it('adds a param with a modifier and custom regex', () => {
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const editable = new EditableTreeNode(tree)
+
+    editable.insert(':id(\\d+)+', 'file.vue')
+    const node = tree.children.get(':id(\\d+)+')!
+    expect(node.fullPath).toBe('/:id(\\d+)+')
+    expect(node.path).toBe('/:id(\\d+)+')
+    expect(node.params).toEqual([
+      {
+        paramName: 'id',
+        modifier: '+',
+        optional: false,
+        repeatable: true,
+        isSplat: false,
+      },
+    ])
+  })
+
+  it('adds a param with a modifier and empty regex', () => {
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const editable = new EditableTreeNode(tree)
+
+    editable.insert(':id()+', 'file.vue')
+    const node = tree.children.get(':id()+')!
+    expect(node.fullPath).toBe('/:id()+')
+    expect(node.path).toBe('/:id()+')
+    expect(node.params).toEqual([
       {
         paramName: 'id',
         modifier: '+',

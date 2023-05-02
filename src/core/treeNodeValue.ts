@@ -489,7 +489,11 @@ function parseRawPathSegment(
     throw new Error(`Invalid segment: "${segment}"`)
   }
 
-  if (buffer) {
+  if (
+    buffer ||
+    // an empty finished regexp enters this state but must also be consumed
+    state === ParseRawPathSegmentState.modifier
+  ) {
     consumeBuffer()
   }
 
