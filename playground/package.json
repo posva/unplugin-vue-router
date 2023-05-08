@@ -5,12 +5,12 @@
     "build": "vite build"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^4.1.0",
+    "@vitejs/plugin-vue": "^4.2.1",
     "@vue/compiler-sfc": "^3.2.47",
-    "@vue/tsconfig": "^0.3.1",
+    "@vue/tsconfig": "^0.3.2",
     "unplugin-vue-router": "workspace:*",
-    "vite": "^4.3.1",
-    "vite-plugin-inspect": "^0.7.24",
+    "vite": "^4.3.5",
+    "vite-plugin-inspect": "^0.7.25",
     "vue": "^3.2.47"
   }
 }
