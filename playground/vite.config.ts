@@ -58,7 +58,7 @@ export default defineConfig({
           }
           route.delete()
           const newRoute = root.insert(
-            'custom.page.page.vue',
+            '/custom/page',
             route.components.get('default')!
           )
           // newRoute.components.set('default', route.components.get('default')!)
