@@ -80,7 +80,9 @@ export default defineConfig({
         {
           src: 'src/docs',
           path: 'docs/:lang/',
+          // doesn't take into account files directly at src/docs, only subfolders
           filePatterns: ['*/**/*'],
+          // ignores .vue files
           extensions: ['.md'],
         },
         // {
@@ -91,10 +93,11 @@ export default defineConfig({
       logs: true,
       // getRouteName: getPascalCaseRouteName,
       exclude: [
-        'ignored',
+        '**/ignored/**',
+        // '**/ignored/**/*',
         '**/__*',
         '**/__**/*',
-        '!*.component.vue',
+        // '!*.component.vue',
         // resolve(__dirname, './src/pages/ignored'),
         //
         // './src/pages/**/*.spec.ts',

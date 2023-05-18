@@ -260,6 +260,14 @@ export function asRoutePath(
  * @returns
  */
 export function appendExtensionListToPattern(
+  filePatterns: string,
+  extensions: string[]
+): string
+export function appendExtensionListToPattern(
+  filePatterns: string[],
+  extensions: string[]
+): string[]
+export function appendExtensionListToPattern(
   filePatterns: string | string[],
   extensions: string[]
 ): string[] | string {

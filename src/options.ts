@@ -41,6 +41,10 @@ export interface RoutesFolderOption {
  */
 export interface RoutesFolderOptionResolved extends RoutesFolderOption {
   path: string
+  /**
+   * Final glob pattern to match files in the folder.
+   */
+  pattern: string[]
   filePatterns: string[]
   exclude: string[]
   extensions: string[]
@@ -68,8 +72,9 @@ export interface ResolvedOptions {
   routesFolder: RoutesFolderOption[]
 
   /**
-   * Array of `picomatch` globs to ignore. Defaults to `[]`. Note the globs are relative to the `routesFolder`, so avoid
-   * writing something like `['src/pages']` as **it won't match anything**.
+   * Array of `picomatch` globs to ignore. Defaults to `[]`. Note the globs are relative to the cwd, so avoid writing
+   * something like `['ignored']` to match folders named that way, instead provide a path similar to the `routesFolder`:
+   * `['src/pages/ignored/**']` or use `['**​/ignored']` to match every folder named `ignored`.
    */
   exclude: string[]
 

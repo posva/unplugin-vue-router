@@ -12,7 +12,7 @@ import { generateRouteNamedMap } from '../codegen/generateRouteMap'
 import { MODULE_ROUTES_PATH, MODULE_VUE_ROUTER } from './moduleConstants'
 import { generateRouteRecord } from '../codegen/generateRouteRecords'
 import fg from 'fast-glob'
-import { resolve } from 'pathe'
+import { relative, resolve } from 'pathe'
 import { ServerContext } from '../options'
 import { getRouteBlock } from './customBlock'
 import {
@@ -68,28 +68,30 @@ export function createRoutesContext(options: ResolvedOptions) {
             watchers.push(setupWatcher(new RoutesFolderWatcher(folder)))
           }
 
-          // override the pattern if the folder has a custom pattern
-          const pattern = appendExtensionListToPattern(
-            folder.filePatterns,
-            // also override the extensions if the folder has a custom extensions
-            folder.extensions
+          // the ignore option must be relative to cwd or absolute
+          const ignorePattern = folder.exclude.map((f) =>
+            // if it starts with ** then it will work as expected
+            f.startsWith('**') ? f : relative(folder.src, f)
           )
 
-          return fg(pattern, {
+          return fg(folder.pattern, {
             cwd: folder.src,
             // TODO: do they return the symbolic link path or the original file?
             // followSymbolicLinks: false,
-            ignore: folder.exclude,
+            ignore: ignorePattern,
           })
             .then((files) => files.map((file) => resolve(folder.src, file)))
             .then((files) =>
               Promise.all(
-                files.map((file) =>
-                  addPage({
-                    routePath: asRoutePath(folder, file),
-                    filePath: file,
-                  })
-                )
+                files
+                  // ensure consistent files in Windows/Unix and absolute paths
+                  .map((file) => resolve(folder.src, file))
+                  .map((file) =>
+                    addPage({
+                      routePath: asRoutePath(folder, file),
+                      filePath: file,
+                    })
+                  )
               )
             )
         })

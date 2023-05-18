@@ -1,16 +1,16 @@
 import chokidar from 'chokidar'
-import { normalize } from 'pathe'
+import { resolve } from 'pathe'
 import {
   ResolvedOptions,
   RoutesFolderOption,
   RoutesFolderOptionResolved,
   _OverridableOption,
 } from '../options'
-import { asRoutePath } from './utils'
+import { appendExtensionListToPattern, asRoutePath } from './utils'
 
 // TODO: export an implementable interface to create a watcher and let users provide a different watcher than chokidar to improve performance on windows
 
-export class RoutesFolderWatcher implements RoutesFolderOptionResolved {
+export class RoutesFolderWatcher {
   src: string
   path: string
   extensions: string[]
@@ -26,11 +26,13 @@ export class RoutesFolderWatcher implements RoutesFolderOptionResolved {
     this.extensions = folderOptions.extensions
     this.filePatterns = folderOptions.filePatterns
 
-    this.watcher = chokidar.watch(this.src, {
+    this.watcher = chokidar.watch(folderOptions.pattern, {
+      cwd: this.src,
       ignoreInitial: true,
       // disableGlobbing: true,
       ignorePermissionErrors: true,
       ignored: this.exclude,
+
       // useFsEvents: true,
       // TODO: allow user options
     })
@@ -41,12 +43,14 @@ export class RoutesFolderWatcher implements RoutesFolderOptionResolved {
     handler: (context: HandlerContext) => void
   ) {
     this.watcher.on(event, (filePath: string) => {
-      // ensure consistent path for Windows and Unix
-      filePath = normalize(filePath)
       // skip other extensions
       if (this.extensions.every((extension) => !filePath.endsWith(extension))) {
         return
       }
+
+      // ensure consistent absolute path for Windows and Unix
+      filePath = resolve(this.src, filePath)
+
       handler({
         filePath,
         routePath: asRoutePath({ src: this.src, path: this.path }, filePath),
@@ -71,17 +75,27 @@ export function resolveFolderOptions(
   globalOptions: ResolvedOptions,
   folderOptions: RoutesFolderOption
 ): RoutesFolderOptionResolved {
+  const extensions = overrideOption(
+    globalOptions.extensions,
+    folderOptions.extensions
+  )
+  const filePatterns = overrideOption(
+    globalOptions.filePatterns,
+    folderOptions.filePatterns
+  )
+
   return {
     src: folderOptions.src,
-    path: folderOptions.path || '',
-    extensions: overrideOption(
-      globalOptions.extensions,
-      folderOptions.extensions
+    pattern: appendExtensionListToPattern(
+      filePatterns,
+      // also override the extensions if the folder has a custom extensions
+      extensions
     ),
-    exclude: overrideOption(globalOptions.exclude, folderOptions.exclude),
-    filePatterns: overrideOption(
-      globalOptions.filePatterns,
-      folderOptions.filePatterns
+    path: folderOptions.path || '',
+    extensions,
+    filePatterns,
+    exclude: overrideOption(globalOptions.exclude, folderOptions.exclude).map(
+      (p) => (p.startsWith('**') ? p : resolve(p))
     ),
   }
 }
