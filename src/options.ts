@@ -13,22 +13,25 @@ export interface RoutesFolderOption {
 
   // TODO: allow a function to customize based on the filepath
   /**
-   * Prefix to add to the route path. Defaults to `''`. Must **end with a slash** and **start without one**.
+   * Prefix to add to the route path **as is**. You might need to end with a slash. Defaults to `''`.
    */
   path?: string
 
   /**
-   * Allows to override the global `filePattern` option for this folder.
+   * Allows to override the global `filePattern` option for this folder. It can also extend the global values by passing
+   * a function that returns an array.
    */
   filePatterns?: _OverridableOption<string[]> | string
 
   /**
-   * Allows to override the global `exclude` option for this folder.
+   * Allows to override the global `exclude` option for this folder. It can also extend the global values by passing a
+   * function that returns an array.
    */
   exclude?: _OverridableOption<string[]>
 
   /**
-   * Allows to override the global `extensions` option for this folder.
+   * Allows to override the global `extensions` option for this folder. It can also extend the global values by passing
+   * a function that returns an array.
    */
   extensions?: _OverridableOption<string[]>
 }
@@ -50,7 +53,8 @@ export type RoutesFolder = _RoutesFolder[] | _RoutesFolder
 
 export interface ResolvedOptions {
   /**
-   * Extensions of files to be considered as pages. Defaults to `['.vue']`. Cannot be empty.
+   * Extensions of files to be considered as pages. Defaults to `['.vue']`. Cannot be empty. This allows to strip a
+   * bigger part of the filename e.g. `index.page.vue` -> `index` if an extension of `.page.vue` is provided.
    */
   extensions: string[]
 
