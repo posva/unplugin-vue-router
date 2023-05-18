@@ -20,18 +20,30 @@ export interface RoutesFolderOption {
   /**
    * Allows to override the global `filePattern` option for this folder.
    */
-  filePatterns?: string | string[]
+  filePatterns?: _OverridableOption<string[]> | string
 
   /**
    * Allows to override the global `exclude` option for this folder.
    */
-  exclude?: string[]
+  exclude?: _OverridableOption<string[]>
 
   /**
    * Allows to override the global `extensions` option for this folder.
    */
-  extensions?: string[]
+  extensions?: _OverridableOption<string[]>
 }
+
+/**
+ * Normalized options for a routes folder.
+ */
+export interface RoutesFolderOptionResolved extends RoutesFolderOption {
+  path: string
+  filePatterns: string[]
+  exclude: string[]
+  extensions: string[]
+}
+
+export type _OverridableOption<T> = T | ((existing: T) => T)
 
 export type _RoutesFolder = string | RoutesFolderOption
 export type RoutesFolder = _RoutesFolder[] | _RoutesFolder

@@ -15,7 +15,11 @@ import fg from 'fast-glob'
 import { resolve } from 'pathe'
 import { ServerContext } from '../options'
 import { getRouteBlock } from './customBlock'
-import { RoutesFolderWatcher, HandlerContext } from './RoutesFolderWatcher'
+import {
+  RoutesFolderWatcher,
+  HandlerContext,
+  resolveFolderOptions,
+} from './RoutesFolderWatcher'
 import { generateDTS as _generateDTS } from '../codegen/generateDTS'
 import { generateVueRouterProxy as _generateVueRouterProxy } from '../codegen/vueRouterModule'
 import { hasNamedExports } from '../data-fetching/parse'
@@ -55,45 +59,40 @@ export function createRoutesContext(options: ResolvedOptions) {
       return
     }
 
-    const globalPattern = appendExtensionListToPattern(
-      options.filePatterns,
-      options.extensions
-    )
-
     // get the initial list of pages
     await Promise.all(
-      routesFolder.map((folder) => {
-        if (startWatchers) {
-          watchers.push(setupWatcher(new RoutesFolderWatcher(folder, options)))
-        }
+      routesFolder
+        .map((folder) => resolveFolderOptions(options, folder))
+        .map((folder) => {
+          if (startWatchers) {
+            watchers.push(setupWatcher(new RoutesFolderWatcher(folder)))
+          }
 
-        // override the pattern if the folder has a custom pattern
-        const pattern = folder.filePatterns
-          ? appendExtensionListToPattern(
-              folder.filePatterns,
-              // also override the extensions if the folder has a custom extensions
-              folder.extensions || options.extensions
-            )
-          : globalPattern
+          // override the pattern if the folder has a custom pattern
+          const pattern = appendExtensionListToPattern(
+            folder.filePatterns,
+            // also override the extensions if the folder has a custom extensions
+            folder.extensions
+          )
 
-        return fg(pattern, {
-          cwd: folder.src,
-          // TODO: do they return the symbolic link path or the original file?
-          // followSymbolicLinks: false,
-          ignore: folder.exclude || options.exclude,
-        })
-          .then((files) => files.map((file) => resolve(folder.src, file)))
-          .then((files) =>
-            Promise.all(
-              files.map((file) =>
-                addPage({
-                  routePath: asRoutePath(folder, file),
-                  filePath: file,
-                })
+          return fg(pattern, {
+            cwd: folder.src,
+            // TODO: do they return the symbolic link path or the original file?
+            // followSymbolicLinks: false,
+            ignore: folder.exclude,
+          })
+            .then((files) => files.map((file) => resolve(folder.src, file)))
+            .then((files) =>
+              Promise.all(
+                files.map((file) =>
+                  addPage({
+                    routePath: asRoutePath(folder, file),
+                    filePath: file,
+                  })
+                )
               )
             )
-          )
-      })
+        })
     )
 
     for (const route of editableRoutes) {

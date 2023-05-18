@@ -1,27 +1,36 @@
 import chokidar from 'chokidar'
 import { normalize } from 'pathe'
-import { ResolvedOptions, RoutesFolderOption } from '../options'
+import {
+  ResolvedOptions,
+  RoutesFolderOption,
+  RoutesFolderOptionResolved,
+  _OverridableOption,
+} from '../options'
 import { asRoutePath } from './utils'
 
 // TODO: export an implementable interface to create a watcher and let users provide a different watcher than chokidar to improve performance on windows
 
-export class RoutesFolderWatcher {
+export class RoutesFolderWatcher implements RoutesFolderOptionResolved {
   src: string
-  pathPrefix: string
+  path: string
+  extensions: string[]
+  filePatterns: string[]
+  exclude: string[]
 
   watcher: chokidar.FSWatcher
-  options: ResolvedOptions
 
-  constructor(routesFolder: RoutesFolderOption, options: ResolvedOptions) {
-    this.src = routesFolder.src
-    this.pathPrefix = routesFolder.path || ''
-    this.options = options
+  constructor(folderOptions: RoutesFolderOptionResolved) {
+    this.src = folderOptions.src
+    this.path = folderOptions.path
+    this.exclude = folderOptions.exclude
+    this.extensions = folderOptions.extensions
+    this.filePatterns = folderOptions.filePatterns
 
     this.watcher = chokidar.watch(this.src, {
       ignoreInitial: true,
       // disableGlobbing: true,
       ignorePermissionErrors: true,
-      ignored: options.exclude,
+      ignored: this.exclude,
       // useFsEvents: true,
       // TODO: allow user options
     })
@@ -35,19 +44,12 @@ export class RoutesFolderWatcher {
       // ensure consistent path for Windows and Unix
       filePath = normalize(filePath)
       // skip other extensions
-      if (
-        this.options.extensions.every(
-          (extension) => !filePath.endsWith(extension)
-        )
-      ) {
+      if (this.extensions.every((extension) => !filePath.endsWith(extension))) {
         return
       }
       handler({
         filePath,
-        routePath: asRoutePath(
-          { src: this.src, path: this.pathPrefix },
-          filePath
-        ),
+        routePath: asRoutePath({ src: this.src, path: this.path }, filePath),
       })
     })
     return this
@@ -63,4 +65,40 @@ export interface HandlerContext {
   filePath: string
   // routePath
   routePath: string
+}
+
+export function resolveFolderOptions(
+  globalOptions: ResolvedOptions,
+  folderOptions: RoutesFolderOption
+): RoutesFolderOptionResolved {
+  return {
+    src: folderOptions.src,
+    path: folderOptions.path || '',
+    extensions: overrideOption(
+      globalOptions.extensions,
+      folderOptions.extensions
+    ),
+    exclude: overrideOption(globalOptions.exclude, folderOptions.exclude),
+    filePatterns: overrideOption(
+      globalOptions.filePatterns,
+      folderOptions.filePatterns
+    ),
+  }
+}
+
+function overrideOption(
+  existing: string[] | string,
+  newValue: undefined | string[] | string | ((existing: string[]) => string[])
+): string[] {
+  const asArray = typeof existing === 'string' ? [existing] : existing
+  // allow extending when a function is passed
+  if (typeof newValue === 'function') {
+    return newValue(asArray)
+  }
+  // override if passed
+  if (typeof newValue !== 'undefined') {
+    return typeof newValue === 'string' ? [newValue] : newValue
+  }
+  // fallback to existing
+  return asArray
 }
