@@ -134,9 +134,7 @@ createRouter({
 
 ```json
 {
-  "typescript.preferences.autoImportFileExcludePatterns": [
-    "vue-router"
-  ]
+  "typescript.preferences.autoImportFileExcludePatterns": ["vue-router"]
 }
 ```
 
@@ -225,7 +223,9 @@ VueRouter({
   // an object, or an array of those.
   routesFolder: 'src/pages',
 
-  // allowed extensions to be considered as routes
+  // allowed extensions for components to be considered as pages
+  // can also be a suffix: e.g. `.page.vue` will match `home.page.vue`
+  // but remove it from the route path
   extensions: ['.vue'],
 
   // list of glob files to exclude from the routes generation
