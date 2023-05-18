@@ -39,7 +39,7 @@ export class RoutesFolderWatcher {
   }
 
   on(
-    event: 'add' | 'change' | 'unlink',
+    event: 'add' | 'change' | 'unlink' | 'unlinkDir',
     handler: (context: HandlerContext) => void
   ) {
     this.watcher.on(event, (filePath: string) => {

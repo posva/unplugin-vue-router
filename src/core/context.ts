@@ -153,6 +153,7 @@ export function createRoutesContext(options: ResolvedOptions) {
 
   function setupWatcher(watcher: RoutesFolderWatcher) {
     log(`🤖 Scanning files in ${watcher.src}`)
+
     return watcher
       .on('change', async (ctx) => {
         await updatePage(ctx)
@@ -166,6 +167,9 @@ export function createRoutesContext(options: ResolvedOptions) {
         await removePage(ctx)
         writeConfigFiles()
       })
+
+    // TODO: handle folder removal: apparently chokidar only emits a raw event when deleting a folder instead of the
+    // unlinkDir event
   }
 
   function generateRoutes() {
