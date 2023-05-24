@@ -220,7 +220,8 @@ Have a glimpse of all the existing configuration options with their correspondin
 ```ts
 VueRouter({
   // Folder(s) to scan for vue components and generate routes. Can be a string, or
-  // an object, or an array of those.
+  // an object, or an array of those. Each option allows to override global options.
+  // like exclude, extensions, etc.
   routesFolder: 'src/pages',
 
   // allowed extensions for components to be considered as pages
@@ -231,9 +232,7 @@ VueRouter({
   // list of glob files to exclude from the routes generation
   // e.g. ['**/__*'] will exclude all files and folders starting with `__`
   // e.g. ['**/__*/**/*'] will exclude all files within folders starting with `__`
-  // e.g. ['*.component.vue'] will exclude components ending with `.component.vue`
-  // note you can exclude patterns with a leading `!`:
-  // '!__not-ignored', -> __not-ignored will still be used as a page
+  // e.g. ['**/*.component.vue'] will exclude components ending with `.component.vue`
   exclude: [],
 
   // Path for the generated types. Defaults to `./typed-router.d.ts` if typescript
