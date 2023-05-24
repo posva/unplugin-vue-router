@@ -97,7 +97,7 @@ export default defineConfig({
         // '**/ignored/**/*',
         '**/__*',
         '**/__**/*',
-        // '!*.component.vue',
+        '**/*.component.vue',
         // resolve(__dirname, './src/pages/ignored'),
         //
         // './src/pages/**/*.spec.ts',
