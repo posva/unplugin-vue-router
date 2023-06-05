@@ -520,6 +520,8 @@ The macro `definePage()` allows you to define any extra properties related to th
 
 ```vue
 <script setup>
+import { definePage } from 'vue-router/auto'
+
 definePage({
   name: 'my-own-name',
   path: '/absolute-with-:param',
