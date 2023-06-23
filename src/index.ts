@@ -139,6 +139,7 @@ export { createRoutesContext }
 export { getFileBasedRouteName, getPascalCaseRouteName } from './core/utils'
 
 // Route Tree and edition
+// FIXME: deprecated, remove in next major
 export { createPrefixTree } from './core/tree'
 export { createTreeNodeValue } from './core/treeNodeValue'
 export { EditableTreeNode } from './core/extendRoutes'

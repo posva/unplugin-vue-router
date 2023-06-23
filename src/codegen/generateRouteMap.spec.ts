@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { generateRouteNamedMap } from './generateRouteMap'
-import { createPrefixTree } from '../core/tree'
+import { createPrefixTree, PrefixTree } from '../core/tree'
 import { resolveOptions } from '../options'
 
 const DEFAULT_OPTIONS = resolveOptions({})
@@ -14,7 +14,7 @@ function formatExports(exports: string) {
 
 describe('generateRouteNamedMap', () => {
   it('works with some paths at root', () => {
-    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
     tree.insert('index.vue')
     tree.insert('a.vue')
     tree.insert('b.vue')
@@ -30,7 +30,7 @@ describe('generateRouteNamedMap', () => {
   })
 
   it('adds params', () => {
-    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
     tree.insert('[a].vue')
     tree.insert('partial-[a].vue')
     tree.insert('[[a]].vue') // optional
@@ -52,7 +52,7 @@ describe('generateRouteNamedMap', () => {
   })
 
   it('handles params from raw routes', () => {
-    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
     const a = tree.insertParsedPath(':a', 'a.vue')
     const b = tree.insertParsedPath(':b()', 'a.vue')
     expect(a.name).toBe('/:a')
@@ -66,7 +66,7 @@ describe('generateRouteNamedMap', () => {
   })
 
   it('handles nested params in folders', () => {
-    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
     tree.insert('n/[a]/index.vue') // normal
     tree.insert('n/[a]/other.vue')
     tree.insert('n/[a]/[b].vue')
@@ -82,7 +82,7 @@ describe('generateRouteNamedMap', () => {
   })
 
   it('adds nested params', () => {
-    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
     tree.insert('n/[a].vue') // normal
     // tree.insert('n/partial-[a].vue') // partial
     tree.insert('n/[[a]].vue') // optional
@@ -101,7 +101,7 @@ describe('generateRouteNamedMap', () => {
   })
 
   it('nested children', () => {
-    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
     tree.insert('a/a.vue')
     tree.insert('a/b.vue')
     tree.insert('a/c.vue')
@@ -125,7 +125,7 @@ describe('generateRouteNamedMap', () => {
   })
 
   it('keeps parent path overrides', () => {
-    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
     const parent = tree.insert('parent.vue')
     const child = tree.insert('parent/child.vue')
     parent.value.setOverride('parent.vue', { path: '/' })

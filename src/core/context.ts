@@ -1,5 +1,5 @@
 import { ResolvedOptions } from '../options'
-import { createPrefixTree, TreeNode } from './tree'
+import { TreeNode, PrefixTree } from './tree'
 import { promises as fs } from 'fs'
 import {
   appendExtensionListToPattern,
@@ -35,7 +35,7 @@ export function createRoutesContext(options: ResolvedOptions) {
       ? resolve(root, 'typed-router.d.ts')
       : resolve(root, preferDTS)
 
-  const routeTree = createPrefixTree(options)
+  const routeTree = new PrefixTree(options)
   const editableRoutes = new EditableTreeNode(routeTree)
 
   function log(...args: any[]) {

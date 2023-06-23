@@ -1,6 +1,6 @@
 import { basename } from 'pathe'
 import { describe, expect, it } from 'vitest'
-import { createPrefixTree, TreeNode } from '../core/tree'
+import { PrefixTree, TreeNode } from '../core/tree'
 import { ResolvedOptions, resolveOptions } from '../options'
 import { generateRouteRecord } from './generateRouteRecords'
 import { ImportsMap } from '../core/utils'
@@ -13,7 +13,7 @@ describe('generateRouteRecord', () => {
   }
 
   it('works with an empty tree', () => {
-    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
 
     expect(generateRouteRecordSimple(tree)).toMatchInlineSnapshot(`
       "[
@@ -23,7 +23,7 @@ describe('generateRouteRecord', () => {
   })
 
   it('works with some paths at root', () => {
-    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
     tree.insert('a.vue')
     tree.insert('b.vue')
     tree.insert('c.vue')
@@ -31,7 +31,7 @@ describe('generateRouteRecord', () => {
   })
 
   it('handles multiple named views', () => {
-    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
     tree.insert('foo.vue')
     tree.insert('foo@a.vue')
     tree.insert('foo@b.vue')
@@ -39,13 +39,13 @@ describe('generateRouteRecord', () => {
   })
 
   it('handles single named views', () => {
-    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
     tree.insert('foo@a.vue')
     expect(generateRouteRecordSimple(tree)).toMatchSnapshot()
   })
 
   it('nested children', () => {
-    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
     tree.insert('a/a.vue')
     tree.insert('a/b.vue')
     tree.insert('a/c.vue')
@@ -59,7 +59,7 @@ describe('generateRouteRecord', () => {
   })
 
   it('adds children and name when folder and component exist', () => {
-    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
     tree.insert('a/c.vue')
     tree.insert('b/c.vue')
     tree.insert('a.vue')
@@ -68,14 +68,14 @@ describe('generateRouteRecord', () => {
   })
 
   it('correctly names index.vue files', () => {
-    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
     tree.insert('index.vue')
     tree.insert('b/index.vue')
     expect(generateRouteRecordSimple(tree)).toMatchSnapshot()
   })
 
   it('handles non nested routes', () => {
-    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
     tree.insert('users.vue')
     tree.insert('users/index.vue')
     tree.insert('users/other.vue')
@@ -89,7 +89,7 @@ describe('generateRouteRecord', () => {
   })
 
   it('removes trailing slashes', () => {
-    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
     tree.insert('users/index.vue')
     tree.insert('users/other.vue')
     tree.insert('nested.vue')
@@ -103,7 +103,7 @@ describe('generateRouteRecord', () => {
       ...DEFAULT_OPTIONS,
       importMode: 'sync',
     } as const
-    const tree = createPrefixTree(options)
+    const tree = new PrefixTree(options)
     tree.insert('a.vue')
     tree.insert('b.vue')
     tree.insert('nested/file/c.vue')
@@ -120,7 +120,7 @@ describe('generateRouteRecord', () => {
         basename(filepath) === 'a.vue' ? 'sync' : 'async',
     }
 
-    const tree = createPrefixTree(options)
+    const tree = new PrefixTree(options)
     tree.insert('a.vue')
     tree.insert('b.vue')
     tree.insert('nested/file/c.vue')
@@ -132,7 +132,7 @@ describe('generateRouteRecord', () => {
 
   describe('names', () => {
     it('creates single word names', () => {
-      const tree = createPrefixTree(DEFAULT_OPTIONS)
+      const tree = new PrefixTree(DEFAULT_OPTIONS)
       tree.insert('index.vue')
       tree.insert('about.vue')
       tree.insert('users/index.vue')
@@ -144,7 +144,7 @@ describe('generateRouteRecord', () => {
     })
 
     it('creates multi word names', () => {
-      const tree = createPrefixTree(DEFAULT_OPTIONS)
+      const tree = new PrefixTree(DEFAULT_OPTIONS)
       tree.insert('index.vue')
       tree.insert('my-users.vue')
       tree.insert('MyPascalCaseUsers.vue')
@@ -154,7 +154,7 @@ describe('generateRouteRecord', () => {
     })
 
     it('works with nested views', () => {
-      const tree = createPrefixTree(DEFAULT_OPTIONS)
+      const tree = new PrefixTree(DEFAULT_OPTIONS)
       tree.insert('index.vue')
       tree.insert('users.vue')
       tree.insert('users/index.vue')
@@ -167,7 +167,7 @@ describe('generateRouteRecord', () => {
 
   describe('route block', () => {
     it('adds meta data', async () => {
-      const tree = createPrefixTree(DEFAULT_OPTIONS)
+      const tree = new PrefixTree(DEFAULT_OPTIONS)
       const node = tree.insert('index.vue')
       node.setCustomRouteBlock('index.vue', {
         meta: {
@@ -180,7 +180,7 @@ describe('generateRouteRecord', () => {
     })
 
     it('merges multiple meta properties', async () => {
-      const tree = createPrefixTree(DEFAULT_OPTIONS)
+      const tree = new PrefixTree(DEFAULT_OPTIONS)
       const node = tree.insert('index.vue')
       node.setCustomRouteBlock('index.vue', {
         path: '/custom',
@@ -199,7 +199,7 @@ describe('generateRouteRecord', () => {
     })
 
     it('merges regardless of order', async () => {
-      const tree = createPrefixTree(DEFAULT_OPTIONS)
+      const tree = new PrefixTree(DEFAULT_OPTIONS)
       const node = tree.insert('index.vue')
       node.setCustomRouteBlock('index.vue', {
         name: 'a',
@@ -223,7 +223,7 @@ describe('generateRouteRecord', () => {
     })
 
     it('handles named views with empty route blocks', () => {
-      const tree = createPrefixTree(DEFAULT_OPTIONS)
+      const tree = new PrefixTree(DEFAULT_OPTIONS)
       const node = tree.insert('index.vue')
       const n2 = tree.insert('index@named.vue')
       expect(node).toBe(n2)
@@ -242,7 +242,7 @@ describe('generateRouteRecord', () => {
 
     // FIXME: allow aliases
     it.todo('merges alias properties', async () => {
-      const tree = createPrefixTree(DEFAULT_OPTIONS)
+      const tree = new PrefixTree(DEFAULT_OPTIONS)
       const node = tree.insert('index.vue')
       node.setCustomRouteBlock('index.vue', {
         alias: '/one',
@@ -265,7 +265,7 @@ describe('generateRouteRecord', () => {
     })
 
     it('merges deep meta properties', async () => {
-      const tree = createPrefixTree(DEFAULT_OPTIONS)
+      const tree = new PrefixTree(DEFAULT_OPTIONS)
       const node = tree.insert('index.vue')
       node.setCustomRouteBlock('index.vue', {
         meta: {
@@ -286,7 +286,7 @@ describe('generateRouteRecord', () => {
 
   describe('raw paths insertions', () => {
     it('works with raw paths', () => {
-      const tree = createPrefixTree(DEFAULT_OPTIONS)
+      const tree = new PrefixTree(DEFAULT_OPTIONS)
       tree.insertParsedPath('a', 'a.vue')
       tree.insertParsedPath('b', 'b.vue')
       tree.insertParsedPath('c', 'c.vue')
@@ -294,7 +294,7 @@ describe('generateRouteRecord', () => {
     })
 
     it('works with mixed nodes', () => {
-      const tree = createPrefixTree(DEFAULT_OPTIONS)
+      const tree = new PrefixTree(DEFAULT_OPTIONS)
       tree.insertParsedPath('a', 'a.vue')
       tree.insert('b.vue')
       tree.insertParsedPath('c', 'c.vue')
@@ -302,7 +302,7 @@ describe('generateRouteRecord', () => {
     })
 
     it('works with nested nodes', () => {
-      const tree = createPrefixTree(DEFAULT_OPTIONS)
+      const tree = new PrefixTree(DEFAULT_OPTIONS)
       tree.insertParsedPath('a/b/c', 'a.vue')
       tree.insertParsedPath('a/b/d', 'a.vue')
       tree.insertParsedPath('a/d/c', 'a.vue')
@@ -310,7 +310,7 @@ describe('generateRouteRecord', () => {
     })
 
     it('do not nest raw segments with file based', () => {
-      const tree = createPrefixTree(DEFAULT_OPTIONS)
+      const tree = new PrefixTree(DEFAULT_OPTIONS)
       tree.insert('a/b.vue')
       // should be separated
       tree.insertParsedPath('a/b/c', 'a.vue')

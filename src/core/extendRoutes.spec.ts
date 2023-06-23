@@ -1,18 +1,18 @@
 import { expect, describe, it } from 'vitest'
-import { createPrefixTree } from './tree'
+import { PrefixTree } from './tree'
 import { DEFAULT_OPTIONS } from '../options'
 import { EditableTreeNode } from './extendRoutes'
 
 describe('EditableTreeNode', () => {
   it('creates an editable tree node', () => {
-    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
     const editable = new EditableTreeNode(tree)
 
     expect(editable.children).toEqual([])
   })
 
   it('reflects changes made on the tree', () => {
-    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
     const editable = new EditableTreeNode(tree)
 
     tree.insert('foo', 'file.vue')
@@ -21,7 +21,7 @@ describe('EditableTreeNode', () => {
   })
 
   it('reflects changes made on the editable tree', () => {
-    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
     const editable = new EditableTreeNode(tree)
 
     editable.insert('foo', 'file.vue')
@@ -30,7 +30,7 @@ describe('EditableTreeNode', () => {
   })
 
   it('keeps nested routes flat', () => {
-    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
     const editable = new EditableTreeNode(tree)
 
     editable.insert('foo/bar', 'file.vue')
@@ -41,7 +41,7 @@ describe('EditableTreeNode', () => {
   })
 
   it('can nest routes', () => {
-    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
     const editable = new EditableTreeNode(tree)
 
     const node = editable.insert('foo', 'file.vue')
@@ -55,7 +55,7 @@ describe('EditableTreeNode', () => {
   })
 
   it('adds params', () => {
-    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
     const editable = new EditableTreeNode(tree)
 
     editable.insert(':id', 'file.vue')
@@ -75,7 +75,7 @@ describe('EditableTreeNode', () => {
   })
 
   it('adds params with modifiers', () => {
-    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
     const editable = new EditableTreeNode(tree)
 
     editable.insert(':id+', 'file.vue')
@@ -95,7 +95,7 @@ describe('EditableTreeNode', () => {
   })
 
   it('can have multiple params', () => {
-    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
     const editable = new EditableTreeNode(tree)
 
     editable.insert(':foo/:bar', 'file.vue')
@@ -122,7 +122,7 @@ describe('EditableTreeNode', () => {
   })
 
   it('can have multiple params with modifiers', () => {
-    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
     const editable = new EditableTreeNode(tree)
 
     editable.insert(':foo/:bar+_:o(\\d+)', 'file.vue')
@@ -156,7 +156,7 @@ describe('EditableTreeNode', () => {
   })
 
   it('adds params with custom regex', () => {
-    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
     const editable = new EditableTreeNode(tree)
 
     editable.insert(':id(\\d+)', 'file.vue')
@@ -175,7 +175,7 @@ describe('EditableTreeNode', () => {
   })
 
   it('adds a param with empty regex', () => {
-    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
     const editable = new EditableTreeNode(tree)
 
     editable.insert(':id()', 'file.vue')
@@ -194,7 +194,7 @@ describe('EditableTreeNode', () => {
   })
 
   it('adds a param with a modifier and custom regex', () => {
-    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
     const editable = new EditableTreeNode(tree)
 
     editable.insert(':id(\\d+)+', 'file.vue')
@@ -213,7 +213,7 @@ describe('EditableTreeNode', () => {
   })
 
   it('adds a param with a modifier and empty regex', () => {
-    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
     const editable = new EditableTreeNode(tree)
 
     editable.insert(':id()+', 'file.vue')
@@ -232,7 +232,7 @@ describe('EditableTreeNode', () => {
   })
 
   it('detects a splat', () => {
-    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
     const editable = new EditableTreeNode(tree)
 
     editable.insert('/:path(.*)', 'file.vue')
