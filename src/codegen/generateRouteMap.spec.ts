@@ -123,6 +123,20 @@ describe('generateRouteNamedMap', () => {
       }"
     `)
   })
+
+  it('keeps parent path overrides', () => {
+    const tree = createPrefixTree(DEFAULT_OPTIONS)
+    const parent = tree.insert('parent.vue')
+    const child = tree.insert('parent/child.vue')
+    parent.value.setOverride('parent.vue', { path: '/' })
+    expect(child.fullPath).toBe('/child')
+    expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
+      "export interface RouteNamedMap {
+        '/parent': RouteRecordInfo<'/parent', '/', Record<never, never>, Record<never, never>>,
+        '/parent/child': RouteRecordInfo<'/parent/child', '/child', Record<never, never>, Record<never, never>>,
+      }"
+    `)
+  })
 })
 
 /**

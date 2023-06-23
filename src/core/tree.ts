@@ -39,11 +39,22 @@ export class TreeNode {
    */
   hasDefinePage: boolean = false
 
-  constructor(options: TreeNodeOptions, filePath: string, parent?: TreeNode) {
+  /**
+   * Creates a new tree node.
+   *
+   * @param options - TreeNodeOptions shared by all nodes
+   * @param pathSegment - path segment of this node e.g. `users` or `:id`
+   * @param parent
+   */
+  constructor(
+    options: TreeNodeOptions,
+    pathSegment: string,
+    parent?: TreeNode
+  ) {
     this.options = options
     this.parent = parent
     this.value = createTreeNodeValue(
-      filePath,
+      pathSegment,
       parent?.value,
       options.treeNodeOptions || options.pathParser
     )
@@ -78,7 +89,8 @@ export class TreeNode {
   }
 
   /**
-   * Adds a path to the tree. `path` cannot start with a `/`.
+   * Adds a path that has already been parsed to the tree. `path` cannot start with a `/`. This method is similar to
+   * `insert` but the path argument should be already parsed. e.g. `users/:id` for a file named `users/[id].vue`.
    *
    * @param path - path segment to insert, already parsed (e.g. users/:id)
    * @param filePath - file path, defaults to path for convenience and testing
@@ -109,8 +121,18 @@ export class TreeNode {
     return node
   }
 
-  setCustomRouteBlock(path: string, routeBlock: CustomRouteBlock | undefined) {
-    this.value.setOverride(path, routeBlock)
+  /**
+   * Saves a custom route block for a specific file path. The file path is used as a key. Some special file paths will
+   * have a lower or higher priority.
+   *
+   * @param filePath - file path where the custom block is located
+   * @param routeBlock - custom block to set
+   */
+  setCustomRouteBlock(
+    filePath: string,
+    routeBlock: CustomRouteBlock | undefined
+  ) {
+    this.value.setOverride(filePath, routeBlock)
   }
 
   getSortedChildren() {
@@ -123,7 +145,6 @@ export class TreeNode {
    * Delete and detach itself from the tree.
    */
   delete() {
-    // TODO: rename remove to removeChild
     if (!this.parent) {
       throw new Error('Cannot delete the root node.')
     }
@@ -139,6 +160,7 @@ export class TreeNode {
    * @param path - path segment of the file
    */
   remove(path: string) {
+    // TODO: rename remove to removeChild
     const { tail, segment, viewName, isComponent } = splitFilePath(
       path,
       this.options
@@ -272,13 +294,19 @@ export class PrefixTree extends TreeNode {
     return node
   }
 
+  /**
+   * Returns the tree node of the given file path.
+   *
+   * @param filePath - file path of the tree node to get
+   */
   getChild(filePath: string) {
     return this.map.get(filePath)
   }
 
   /**
+   * Removes the tree node of the given file path.
    *
-   * @param filePath -
+   * @param filePath - file path of the tree node to remove
    */
   removeChild(filePath: string) {
     if (this.map.has(filePath)) {
@@ -288,6 +316,9 @@ export class PrefixTree extends TreeNode {
   }
 }
 
+/**
+ * @deprecated Use `new PrefixTree()` instead.
+ */
 export function createPrefixTree(options: ResolvedOptions) {
   return new PrefixTree(options)
 }

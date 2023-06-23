@@ -22,6 +22,9 @@ class _TreeNodeValueBase {
    * flag based on the type of the segment
    */
   _type: TreeNodeType
+
+  parent: TreeNodeValue | undefined
+
   /**
    * segment as defined by the file structure e.g. keeps the `index` name
    */
@@ -38,14 +41,10 @@ class _TreeNodeValueBase {
   subSegments: SubSegment[]
 
   /**
-   * fullPath of the node based on parent nodes
-   */
-  path: string
-
-  /**
    * Overrides defined by each file. The map is necessary to handle named views.
    */
   private _overrides = new Map<string, RouteRecordOverride>()
+  // TODO: cache the overrides generation
 
   /**
    * Should we add the loader guard to the route record.
@@ -69,12 +68,19 @@ class _TreeNodeValueBase {
     this.rawSegment = rawSegment
     this.pathSegment = pathSegment
     this.subSegments = subSegments
-    const parentPath = parent?.path
-    this.path =
-      // both the root record and the index record have a path of /
-      (!parentPath || parentPath === '/') && this.pathSegment === ''
-        ? '/'
-        : joinPath(parent?.path || '', this.pathSegment)
+    this.parent = parent
+  }
+
+  /**
+   * fullPath of the node based on parent nodes
+   */
+  get path(): string {
+    const parentPath = this.parent?.path
+    // both the root record and the index record have a path of /
+    const pathSegment = this.overrides.path ?? this.pathSegment
+    return (!parentPath || parentPath === '/') && pathSegment === ''
+      ? '/'
+      : joinPath(parentPath || '', pathSegment)
   }
 
   toString(): string {
@@ -105,14 +111,14 @@ class _TreeNodeValueBase {
       }, {} as RouteRecordOverride)
   }
 
-  setOverride(path: string, routeBlock: CustomRouteBlock | undefined) {
-    this._overrides.set(path, routeBlock || {})
+  setOverride(filePath: string, routeBlock: CustomRouteBlock | undefined) {
+    this._overrides.set(filePath, routeBlock || {})
   }
 
   /**
    * Remove all overrides for a given key.
    *
-   * @param key - key to remove from the override
+   * @param key - key to remove from the override, e.g. path, name, etc
    */
   removeOverride(key: keyof CustomRouteBlock) {
     this._overrides.forEach((routeBlock) => {
@@ -121,15 +127,35 @@ class _TreeNodeValueBase {
     })
   }
 
-  mergeOverride(path: string, routeBlock: CustomRouteBlock) {
-    const existing = this._overrides.get(path) || {}
-    this._overrides.set(path, mergeRouteRecordOverride(existing, routeBlock))
+  /**
+   * Add an override to the current node by merging with the existing values.
+   *
+   * @param filePath - The file path to add to the override
+   * @param routeBlock - The route block to add to the override
+   */
+  mergeOverride(filePath: string, routeBlock: CustomRouteBlock) {
+    const existing = this._overrides.get(filePath) || {}
+    this._overrides.set(
+      filePath,
+      mergeRouteRecordOverride(existing, routeBlock)
+    )
   }
 
+  /**
+   * Add an override to the current node using the special file path `@@edits` that makes this added at build time.
+   *
+   * @param routeBlock -  The route block to add to the override
+   */
   addEditOverride(routeBlock: CustomRouteBlock) {
     return this.mergeOverride(EDITS_OVERRIDE_NAME, routeBlock)
   }
 
+  /**
+   * Set a specific value in the _edits_ override.
+   *
+   * @param key - key to set in the override, e.g. path, name, etc
+   * @param value - value to set in the override
+   */
   setEditOverride<K extends keyof RouteRecordOverride>(
     key: K,
     value: RouteRecordOverride[K]
@@ -193,6 +219,13 @@ export interface TreeNodeValueOptions extends ParseSegmentOptions {
   format?: 'file' | 'path'
 }
 
+/**
+ * Creates a new TreeNodeValue based on the segment. The result can be a static segment or a param segment.
+ *
+ * @param segment - path segment
+ * @param parent - parent node
+ * @param options - options
+ */
 export function createTreeNodeValue(
   segment: string,
   parent?: TreeNodeValue,
@@ -505,6 +538,11 @@ function parseRawPathSegment(
   ]
 }
 
+/**
+ * Helper function to create an empty route param used by the parser.
+ *
+ * @returns an empty route param
+ */
 function createEmptyRouteParam(): TreeRouteParam {
   return {
     paramName: '',

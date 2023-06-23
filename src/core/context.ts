@@ -105,19 +105,22 @@ export function createRoutesContext(options: ResolvedOptions) {
     await _writeConfigFiles()
   }
 
-  async function writeRouteInfoToNode(node: TreeNode, path: string) {
-    const content = await fs.readFile(path, 'utf8')
+  async function writeRouteInfoToNode(node: TreeNode, filePath: string) {
+    const content = await fs.readFile(filePath, 'utf8')
     // TODO: cache the result of parsing the SFC so the transform can reuse the parsing
     node.hasDefinePage = content.includes('definePage')
     const [definedPageNameAndPath, routeBlock] = await Promise.all([
-      extractDefinePageNameAndPath(content, path),
-      getRouteBlock(path, options),
+      extractDefinePageNameAndPath(content, filePath),
+      getRouteBlock(filePath, options),
     ])
     // TODO: should warn if hasDefinePage and customRouteBlock
     // if (routeBlock) log(routeBlock)
-    node.setCustomRouteBlock(path, { ...routeBlock, ...definedPageNameAndPath })
+    node.setCustomRouteBlock(filePath, {
+      ...routeBlock,
+      ...definedPageNameAndPath,
+    })
     node.value.includeLoaderGuard =
-      options.dataFetching && (await hasNamedExports(path))
+      options.dataFetching && (await hasNamedExports(filePath))
   }
 
   async function addPage(
