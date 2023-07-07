@@ -121,6 +121,7 @@ After installing, **you should run your dev server** (usually `npm run dev`) **t
 ```diff
 -import { createRouter, createWebHistory } from 'vue-router'
 +import { createRouter, createWebHistory } from 'vue-router/auto'
+
 // with yarn version berry
 +import { createRouter, createWebHistory } from 'vue-router-auto'
 createRouter({
