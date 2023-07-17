@@ -9,8 +9,8 @@
     "@vue/compiler-sfc": "^3.3.4",
     "@vue/tsconfig": "^0.4.0",
     "unplugin-vue-router": "workspace:*",
-    "vite": "^4.4.2",
-    "vite-plugin-inspect": "^0.7.32",
+    "vite": "^4.4.4",
+    "vite-plugin-inspect": "^0.7.33",
     "vue": "^3.3.4"
   }
 }
