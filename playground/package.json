@@ -11,7 +11,7 @@
     "@vue/tsconfig": "^0.4.0",
     "json-server": "^0.17.3",
     "unplugin-vue-router": "workspace:*",
-    "vite": "^4.4.6",
+    "vite": "^4.4.7",
     "vite-plugin-inspect": "^0.7.33"
   },
   "dependencies": {
