@@ -6,5 +6,6 @@ export default defineConfig({
   format: ['cjs', 'esm'],
   dts: true,
   external: ['@vue/compiler-sfc', 'vue', 'vue-router'],
-  onSuccess: 'npm run build:fix',
+  cjsInterop: true,
+  splitting: true,
 })
