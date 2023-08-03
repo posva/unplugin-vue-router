@@ -18,6 +18,8 @@ export {
   _HasDataLoaderMeta as HasDataLoaderMeta,
   _setupDataFetchingGuard as setupDataFetchingGuard,
   _stopDataFetchingScope as stopDataFetchingScope,
+
+  _setupLoaderGuard as setupLoaderGuard,
 } from 'unplugin-vue-router/runtime'
 
 export function createRouter(options) {

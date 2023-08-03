@@ -11,6 +11,9 @@ export {
 } from './data-fetching/dataFetchingGuard'
 export { stopScope as _stopDataFetchingScope } from './data-fetching/dataCache'
 
+// TODO: rename to matching names
+export { setupRouter as _setupLoaderGuard } from './data-fetching_new/navigation-guard'
+
 /**
  * Defines properties of the route for the current page component.
  *
