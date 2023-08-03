@@ -1,5 +1,5 @@
 import { isPackageExists } from 'local-pkg'
-import { Awaitable, getFileBasedRouteName, isArray, warn } from './core/utils'
+import { _Awaitable, getFileBasedRouteName, isArray, warn } from './core/utils'
 import type { TreeNode } from './core/tree'
 import { resolve } from 'pathe'
 import { EditableTreeNode } from './core/extendRoutes'
@@ -121,7 +121,7 @@ export interface ResolvedOptions {
    *
    * @param route - {@link EditableTreeNode} of the route to extend
    */
-  extendRoute?: (route: EditableTreeNode) => Awaitable<void>
+  extendRoute?: (route: EditableTreeNode) => _Awaitable<void>
 
   /**
    * Allows to do some changes before writing the files. This will be invoked **every time** the files need to be written.
@@ -130,7 +130,7 @@ export interface ResolvedOptions {
    *
    * @param rootRoute - {@link EditableTreeNode} of the root route
    */
-  beforeWriteFiles?: (rootRoute: EditableTreeNode) => Awaitable<void>
+  beforeWriteFiles?: (rootRoute: EditableTreeNode) => _Awaitable<void>
 
   /**
    * Enables EXPERIMENTAL data fetching. See https://github.com/posva/unplugin-vue-router/tree/main/src/data-fetching
