@@ -1,14 +1,28 @@
 {
-  "include": ["*.d.ts", "src/**/*.ts", "src/*.d.ts"],
+  "include": [
+    "*.d.ts",
+    "src/**/*.ts",
+    "src/*.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
   "compilerOptions": {
     "target": "es2017",
     "module": "esnext",
-    "lib": ["esnext", "DOM"],
+    "lib": [
+      "esnext",
+      "DOM"
+    ],
     "moduleResolution": "node",
+    "skipLibCheck": true,
     "esModuleInterop": true,
     "strict": true,
     "strictNullChecks": true,
     "resolveJsonModule": true,
-    "types": ["vite/client"]
+    "types": [
+      "vite/client"
+    ]
   }
 }
