@@ -1,3 +1,7 @@
+/* eslint-disable */
+/* prettier-ignore */
+// @ts-nocheck
+
 import { DataLoaderEntryBase, createDataLoader } from '../data-fetching_new/createDataLoader'
 
 export const defineVueFireLoader = createDataLoader({

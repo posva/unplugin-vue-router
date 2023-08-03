@@ -11,7 +11,11 @@ import { isDataLoader } from './utils'
 export function setupRouter(router: Router) {
   // avoid creating the guards multiple times
   if (router[LOADER_ENTRIES_KEY] != null) {
-    // TODO: warn
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn(
+        '[vue-router]: Data fetching was setup twice. Make sure to setup only once.'
+      )
+    }
     return () => {}
   }
 
@@ -72,16 +76,30 @@ export function setupRouter(router: Router) {
   })
 
   const removeDataLoaderGuard = router.beforeResolve((to) => {
-    console.log(
-      'Invoking data loaders',
-      Array.from(to.meta[LOADER_SET_KEY]?.values() || []).map((fn) => fn.name)
-    )
-    // TODO: invoke the loaders
+    const loaders = Array.from(to.meta[LOADER_SET_KEY] || [])
+    // console.log(
+    //   'Invoking data loaders',
+    //   Array.from(to.meta[LOADER_SET_KEY]?.values() || []).map((fn) => fn.name)
+    // )
     /**
-     * - Map the loaders to an array of promises
-     * - Await all the promises (parallel)
+     * - ~~Map the loaders to an array of promises~~
+     * - ~~Await all the promises (parallel)~~
      * - Collect NavigationResults and call `selectNavigationResult` to select the one to use
      */
+
+    return Promise.all(
+      loaders.map((loader) => {
+        const ret = loader._.load(to, router)
+        return loader._.options.lazy ? undefined : ret
+      })
+    ) // let the navigation go through by returning true or void
+      .then(() => {
+        // TODO:
+        // reset the initial state as it can only be used once
+        // initialData = undefined
+        // NOTE: could this be dev only?
+        // isFetched = true
+      })
   })
 
   return () => {
