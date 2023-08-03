@@ -24,7 +24,9 @@ export function setupRouterMock() {
     return
   }
 
-  const router = createRouterMock()
+  const router = createRouterMock({
+    useRealNavigation: true,
+  })
 
   beforeEach(() => {
     router.reset()
