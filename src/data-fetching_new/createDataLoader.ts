@@ -1,5 +1,5 @@
 import { TypeEqual, expectType } from 'ts-expect'
-import { Ref, UnwrapRef, effectScope, ref } from 'vue'
+import { Ref, ShallowRef, UnwrapRef, effectScope, ref } from 'vue'
 import type {
   LocationQuery,
   RouteParams,
@@ -39,6 +39,11 @@ export interface DataLoaderEntryBase<
    */
   pending: Ref<boolean>
   // TODO: should it be just a promise ref?
+
+  /**
+   * Any pending promise.
+   */
+  pendingLoad: ShallowRef<Promise<void> | null>
 
   // TODO: allow delaying pending? maybe
 
@@ -179,14 +184,42 @@ type _DataMaybeLazy<Data, isLazy extends boolean = boolean> =
   // no lazy provided, default value is false
   boolean extends isLazy ? Data : true extends isLazy ? Data | undefined : Data
 
-// TODO: better to pick from the entry?
-export interface UseDataLoaderResult<isLazy extends boolean, Data> {
-  // TODO: unwrap, p
-  data: Ref<_DataMaybeLazy<Data, isLazy>>
-
+/**
+ * Return value of a loader composable defined with `defineLoader()`.
+ */
+export interface UseDataLoaderResult<
+  isLazy extends boolean = boolean,
+  Data = unknown,
+  Err = Error
+> {
+  /**
+   * Whether there is an ongoing request.
+   */
   pending: Ref<boolean>
-  // TODO: error type as generic
-  error: Ref<unknown | null>
+
+  // TODO: allow delaying pending? maybe
+
+  /**
+   * Error if there was an error.
+   */
+  error: ShallowRef<Err | null> // any is simply more convenient for errors
+
+  /**
+   * Refresh the data. Returns a promise that resolves when the data is refreshed.
+   */
+  refresh: () => Promise<void>
+
+  /**
+   * Get the promise of the current loader if there is one, returns a falsy value otherwise.
+   */
+  // TODO: Can we do without this?
+  pendingLoad: () => Promise<void> | undefined | null
+
+  /**
+   * Data returned by the loader. If the data loader is lazy, it will be undefined until the first load.
+   */
+  // data: false extends isLazy ? Ref<UnwrapRef<T>> : Ref<UnwrapRef<T> | undefined>
+  data: Ref<UnwrapRef<_DataMaybeLazy<Data, isLazy>>>
 }
 
 export function testing() {

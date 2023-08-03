@@ -32,7 +32,11 @@ export function stopScope() {
 }
 
 export let currentContext:
-  | [DataLoaderEntryBase, Router, RouteLocationNormalizedLoaded]
+  | readonly [
+      entry: DataLoaderEntryBase,
+      router: Router,
+      route: RouteLocationNormalizedLoaded
+    ]
   | undefined
   | null
 
@@ -40,10 +44,16 @@ export function getCurrentContext() {
   // an empty array allows destructuring without checking if it's undefined
   return currentContext || ([] as const)
 }
+
+// TODO: rename parentContext
 export function setCurrentContext(context: typeof currentContext) {
   currentContext = context
 }
 
+/**
+ * Restore the current context after a promise is resolved.
+ * @param promise - promise to wrap
+ */
 export function withLoaderContext<P extends Promise<unknown>>(promise: P): P {
   const context = currentContext
   return promise.finally(() => (currentContext = context)) as P
