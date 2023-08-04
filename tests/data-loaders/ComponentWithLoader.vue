@@ -1,16 +1,12 @@
 <script lang="ts">
-import { defineLoader } from '~/src/data-fetching_new/defineLoader'
+import { useDataOne, useDataTwo } from './loaders'
 
-export const useData = defineLoader(async () => {
-  return 'resolved'
-})
-export const useOtherData = defineLoader(async () => {
-  return 'resolved 2'
-})
+// this only affects if this is a route
+export { useDataOne, useDataTwo }
 </script>
 
 <script lang="ts" setup>
-const { data } = useData()
+const { data } = useDataOne()
 </script>
 
 <template>

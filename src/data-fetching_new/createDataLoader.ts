@@ -132,11 +132,6 @@ export interface DefineDataLoaderOptionsBase<isLazy extends boolean> {
    * without having the data ready.
    */
   lazy?: isLazy
-
-  /**
-   * Key to use for SSR state.
-   */
-  ssrKey?: string
 }
 
 export interface DataLoaderContextBase {}

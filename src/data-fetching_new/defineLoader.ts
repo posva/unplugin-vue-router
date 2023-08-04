@@ -200,7 +200,12 @@ export function defineLoader<
 }
 
 export interface DefineDataLoaderOptions<isLazy extends boolean>
-  extends DefineDataLoaderOptionsBase<isLazy> {}
+  extends DefineDataLoaderOptionsBase<isLazy> {
+  /**
+   * Key to use for SSR state.
+   */
+  ssrKey?: string
+}
 
 /**
  * Loader function that can be passed to `defineLoader()`.
@@ -215,6 +220,7 @@ const DEFAULT_DEFINE_LOADER_OPTIONS: Required<
   DefineDataLoaderOptions<boolean>
 > = {
   lazy: false,
+  ssrKey: '',
 }
 
 // TODO: move to a different file
