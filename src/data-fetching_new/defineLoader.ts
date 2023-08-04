@@ -62,7 +62,6 @@ export function defineLoader<
     parent?: DataLoaderEntryBase,
     initialRootData?: Record<string, unknown>
   ): Promise<void> {
-    // FIXME: duplicated code
     const entries = router[LOADER_ENTRIES_KEY]!
     if (!entries.has(loader)) {
       entries.set(loader, createDefineLoaderEntry<boolean>(options))
@@ -75,41 +74,41 @@ export function defineLoader<
     pending.value = true
     const currentContext = getCurrentContext()
     setCurrentContext([entry, router, to])
-    console.log(
-      `😎 Loading context to "${to.fullPath}" with current "${currentContext[2]?.fullPath}"`
-    )
+    // console.log(
+    //   `😎 Loading context to "${to.fullPath}" with current "${currentContext[2]?.fullPath}"`
+    // )
     // Currently load for this loader
     entry.pendingTo = to
     // Promise.resolve() allows loaders to also be sync
     const currentLoad = Promise.resolve(loader(to))
       .then((d) => {
-        console.log(
-          `✅ resolved ${options.ssrKey}`,
-          to.fullPath,
-          `accepted: ${entry.pendingLoad === currentLoad} =`,
-          d
-        )
+        // console.log(
+        //   `✅ resolved ${options.ssrKey}`,
+        //   to.fullPath,
+        //   `accepted: ${entry.pendingLoad === currentLoad} =`,
+        //   d
+        // )
         if (entry.pendingLoad === currentLoad) {
           data.value = d
         }
       })
       .catch((e) => {
-        console.log(
-          '‼️ rejected',
-          to.fullPath,
-          `accepted: ${entry.pendingLoad === currentLoad} =`,
-          e
-        )
+        // console.log(
+        //   '‼️ rejected',
+        //   to.fullPath,
+        //   `accepted: ${entry.pendingLoad === currentLoad} =`,
+        //   e
+        // )
         if (entry.pendingLoad === currentLoad) {
           error.value = e
         }
       })
       .finally(() => {
         setCurrentContext(currentContext)
-        console.log(
-          `😩 restored context ${options.ssrKey}`,
-          currentContext?.[2]?.fullPath
-        )
+        // console.log(
+        //   `😩 restored context ${options.ssrKey}`,
+        //   currentContext?.[2]?.fullPath
+        // )
         if (entry.pendingLoad === currentLoad) {
           pending.value = false
         }
@@ -117,7 +116,7 @@ export function defineLoader<
 
     // this still runs before the promise resolves even if loader is sync
     entry.pendingLoad = currentLoad
-    console.log(`🔶 Promise set to pendingLoad "${options.ssrKey}"`)
+    // console.log(`🔶 Promise set to pendingLoad "${options.ssrKey}"`)
 
     return currentLoad
   }
@@ -135,17 +134,17 @@ export function defineLoader<
     const entries = router[LOADER_ENTRIES_KEY]!
     let entry = entries.get(loader)
 
-    console.log(`-- useDataLoader called ${options.ssrKey} --`)
-    console.log(
-      'router pending location',
-      router[PENDING_LOCATION_KEY]?.fullPath
-    )
-    console.log('target route', route.fullPath)
-    console.log('has parent', !!parentEntry)
-    console.log('has entry', !!entry)
-    console.log('entryLatestLoad', entry?.pendingTo?.fullPath)
-    console.log('is same route', entry?.pendingTo === route)
-    console.log('-- END --')
+    // console.log(`-- useDataLoader called ${options.ssrKey} --`)
+    // console.log(
+    //   'router pending location',
+    //   router[PENDING_LOCATION_KEY]?.fullPath
+    // )
+    // console.log('target route', route.fullPath)
+    // console.log('has parent', !!parentEntry)
+    // console.log('has entry', !!entry)
+    // console.log('entryLatestLoad', entry?.pendingTo?.fullPath)
+    // console.log('is same route', entry?.pendingTo === route)
+    // console.log('-- END --')
 
     if (process.env.NODE_ENV === 'development') {
       if (!parentEntry && !entry) {
@@ -162,9 +161,9 @@ export function defineLoader<
       // the existing pending location isn't good, we need to load again
       (parentEntry && entry.pendingTo !== route)
     ) {
-      console.log(
-        `🔁 loading from useData for "${options.ssrKey}": "${route.fullPath}"`
-      )
+      // console.log(
+      //   `🔁 loading from useData for "${options.ssrKey}": "${route.fullPath}"`
+      // )
       load(route, router, parentEntry)
     }
 

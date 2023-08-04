@@ -221,7 +221,6 @@ describe('defineLoader', () => {
         .fn<[to: RouteLocationNormalizedLoaded], Promise<unknown>>()
         .mockImplementation(async (to) => {
           nestedCalls++
-          console.log('nested', nestedCalls, to.fullPath)
           if (nestedCalls === 1) {
             await nestedP1
           } else {
@@ -243,7 +242,6 @@ describe('defineLoader', () => {
         .fn<[to: RouteLocationNormalizedLoaded], Promise<unknown>>()
         .mockImplementation(async (to) => {
           rootCalls++
-          console.log('root', rootCalls, to.fullPath)
           const { data } = await useNestedLoader()
           if (rootCalls === 1) {
             await rootP1
@@ -297,30 +295,25 @@ describe('defineLoader', () => {
       await vi.runAllTimersAsync()
 
       expect(nestedLoaderSpy).toHaveBeenCalledTimes(2)
-      expect(nestedLoaderSpy.mock.calls.at(-1)?.[0].fullPath).toBe(
-        '/fetch?p=two'
-      )
-      // expect(nestedLoaderSpy).toHaveBeenLastCalledWith(
-      //   expect.objectContaining({
-      //     fullPath: '/fetch?two',
-      //   })
+      // expect(nestedLoaderSpy.mock.calls.at(-1)?.[0].fullPath).toBe(
+      //   '/fetch?p=two'
       // )
+      expect(nestedLoaderSpy).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          fullPath: '/fetch?p=two',
+        })
+      )
 
       // the nested gets called for the first time
       resolveNestedFirstCall()
       resolveNestedSecondCall()
       await vi.runAllTimersAsync()
 
-      // expect(rootLoaderSpy).toHaveReturnedTimes(2)
-      // expect(rootLoaderSpy).toHaveNthReturnedWith(1, 'ko,ko')
-      // expect(rootLoaderSpy).toHaveNthReturnedWith(2, 'ok,ok')
-
       // explicitly wait for both navigations to ensure everything ran
       await firstNavigation
       await secondNavigation
 
       // only the data from the second navigation should be preserved
-      console.log('CHECKING')
       const { data } = useData()
       const { data: nestedData } = app.runWithContext(() => useNestedLoader())
       expect(nestedData.value).toEqual('two')
@@ -338,7 +331,6 @@ describe('defineLoader', () => {
       const nestedP2 = new Promise((r) => (resolveNestedSecondCall = r))
       const useNestedLoader = defineLoader(async (to) => {
         nestedCalls++
-        console.log(nestedCalls, to.fullPath)
         if (nestedCalls === 1) {
           // expect(to.fullPath).toEqual('/fetch?two')
           await nestedP1
@@ -360,7 +352,6 @@ describe('defineLoader', () => {
       const { wrapper, useData, router, app } = singleLoaderOneRoute(
         defineLoader(async (to) => {
           rootCalls++
-          console.log(rootCalls, to.fullPath)
           const { data } = await useNestedLoader()
           if (rootCalls === 1) {
             await rootP1
