@@ -15,3 +15,9 @@ export const LOADER_ENTRIES_KEY = Symbol('loaderEntries')
  * @internal
  */
 export const IS_USE_DATA_LOADER_KEY = Symbol()
+
+/**
+ * Symbol used to save the pending location on the router.
+ * @internal
+ */
+export const PENDING_LOCATION_KEY = Symbol()

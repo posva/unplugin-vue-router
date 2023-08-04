@@ -1,6 +1,10 @@
 import type { Router } from 'vue-router'
-import { LOADER_ENTRIES_KEY, LOADER_SET_KEY } from './symbols'
-import { isDataLoader } from './utils'
+import {
+  LOADER_ENTRIES_KEY,
+  LOADER_SET_KEY,
+  PENDING_LOCATION_KEY,
+} from './symbols'
+import { isDataLoader, setCurrentContext } from './utils'
 
 /**
  * Setups the different Navigation Guards to collect the data loaders from the route records and then to execute them.
@@ -87,6 +91,11 @@ export function setupRouter(router: Router) {
      * - Collect NavigationResults and call `selectNavigationResult` to select the one to use
      */
 
+    // global pending location, used by nested loaders to know if they should load or not
+    router[PENDING_LOCATION_KEY] = to
+
+    // unset the context so all loaders are executed as root loaders
+    setCurrentContext([])
     return Promise.all(
       loaders.map((loader) => {
         const ret = loader._.load(to, router)
