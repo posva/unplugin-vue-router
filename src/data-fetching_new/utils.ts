@@ -46,8 +46,10 @@ export function getCurrentContext() {
 }
 
 // TODO: rename parentContext
-export function setCurrentContext(context: typeof currentContext) {
-  currentContext = context
+export function setCurrentContext(
+  context: typeof currentContext | readonly []
+) {
+  currentContext = context ? (context.length ? context : null) : null
 }
 
 /**
@@ -58,3 +60,9 @@ export function withLoaderContext<P extends Promise<unknown>>(promise: P): P {
   const context = currentContext
   return promise.finally(() => (currentContext = context)) as P
 }
+
+/**
+ * Object and promise of the object itself. Used when we can await some of the properties of an object to be loaded.
+ * @internal
+ */
+export type _PromiseMerged<T> = T & Promise<T>
