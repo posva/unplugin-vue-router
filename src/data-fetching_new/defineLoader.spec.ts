@@ -20,6 +20,12 @@ import { setupRouter } from './navigation-guard'
 import { UseDataLoader } from './createDataLoader'
 import { mockPromise } from '~/tests/utils'
 import RouterViewMock from '~/tests/data-loaders/RouterViewMock.vue'
+import ComponentWithNestedLoader from '~/tests/data-loaders/ComponentWithNestedLoader.vue'
+import {
+  dataOneSpy,
+  dataTwoSpy,
+  useDataOne,
+} from '~/tests/data-loaders/loaders'
 import type { RouteLocationNormalizedLoaded } from 'vue-router'
 
 describe('defineLoader', () => {
@@ -29,6 +35,8 @@ describe('defineLoader', () => {
     removeGuards = setupRouter(getRouter())
     // invalidate current context
     setCurrentContext(undefined)
+    dataOneSpy.mockClear()
+    dataTwoSpy.mockClear()
   })
 
   // we use fake timers to ensure debugging tests do not rely on timers
@@ -426,6 +434,24 @@ describe('defineLoader', () => {
       expect(spyOne).toHaveBeenCalledTimes(1)
       expect(spyTwo).toHaveBeenCalledTimes(1)
       expect(data.value).toEqual('one,two')
+    })
+
+    it('fetches once with lazy across components', async () => {
+      const router = getRouter()
+      router.addRoute({
+        name: '_test',
+        path: '/fetch',
+        component: ComponentWithNestedLoader,
+      })
+      const wrapper = mount(RouterViewMock, {})
+      const app: App = wrapper.vm.$.appContext.app
+
+      expect(dataOneSpy).toHaveBeenCalledTimes(0)
+      await router.push('/fetch')
+      const { pendingLoad } = app.runWithContext(() => useDataOne())
+      await pendingLoad()
+      expect(dataOneSpy).toHaveBeenCalledTimes(1)
+      expect(wrapper.text()).toMatchInlineSnapshot('"resolved 1resolved 1"')
     })
   })
 })

@@ -21,8 +21,8 @@ import { UseDataLoader } from './createDataLoader'
 import { mockPromise } from '~/tests/utils'
 import { LOADER_SET_KEY } from './symbols'
 import {
-  useData,
-  useOtherData,
+  useDataOne,
+  useDataTwo,
 } from '~/tests/data-loaders/ComponentWithLoader.vue'
 
 describe('navigation-guard', () => {
@@ -125,6 +125,6 @@ describe('navigation-guard', () => {
     })
     await router.push('/fetch')
     const set = router.currentRoute.value.meta[LOADER_SET_KEY]
-    expect([...set!]).toEqual([useData, useOtherData])
+    expect([...set!]).toEqual([useDataOne, useDataTwo])
   })
 })
