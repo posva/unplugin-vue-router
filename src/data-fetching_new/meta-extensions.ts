@@ -1,4 +1,8 @@
-import type { DataLoaderEntryBase, UseDataLoader } from './createDataLoader'
+import type {
+  DataLoaderEntryBase,
+  UseDataLoader,
+  _UseLoaderState,
+} from './createDataLoader'
 import type { LOADER_ENTRIES_KEY, LOADER_SET_KEY } from './symbols'
 
 /**

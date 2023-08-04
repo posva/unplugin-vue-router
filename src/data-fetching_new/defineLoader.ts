@@ -9,11 +9,12 @@ import {
   DefineDataLoaderOptionsBase,
   UseDataLoader,
   UseDataLoaderResult,
+  _DataMaybeLazy,
   createDataLoader,
 } from './createDataLoader'
 import { IS_USE_DATA_LOADER_KEY, LOADER_ENTRIES_KEY } from './symbols'
-import { getCurrentContext, withinScope } from './utils'
-import { ref, shallowRef } from 'vue'
+import { getCurrentContext, setCurrentContext, withinScope } from './utils'
+import { Ref, UnwrapRef, ref, shallowRef } from 'vue'
 
 export function defineLoader<
   P extends Promise<unknown>,
@@ -64,30 +65,35 @@ export function defineLoader<
     }
     const entry = entries.get(loader)!
 
-    const { data, error, isReady, pending, pendingLoad } = entry
+    const { data, error, isReady, pending } = entry
 
     error.value = null
     pending.value = true
+    const currentContext = getCurrentContext()
+    setCurrentContext([entry, router, to])
     // Promise.resolve() allows loaders to also be sync
-    const currentLoad = (pendingLoad.value = Promise.resolve(loader(to))
+    const currentLoad = Promise.resolve(loader(to))
       .then((d) => {
-        if (pendingLoad.value === currentLoad) {
+        if (entry.pendingLoad === currentLoad) {
           data.value = d
         }
       })
       .catch((e) => {
-        if (pendingLoad.value === currentLoad) {
+        if (entry.pendingLoad === currentLoad) {
           error.value = e
         }
       })
       .finally(() => {
-        if (pendingLoad.value === currentLoad) {
+        setCurrentContext(currentContext)
+        if (entry.pendingLoad === currentLoad) {
           pending.value = false
-          pendingLoad.value = null
+          // pendingLoad.delete(to)
         }
-      }))
+      })
 
-    return pendingLoad.value
+    entry.pendingLoad = currentLoad
+
+    return currentLoad
   }
 
   // @ts-expect-error: requires the internals and symbol
@@ -95,28 +101,35 @@ export function defineLoader<
   UseDataLoader<isLazy, Awaited<P>> = () => {
     // work with nested data loaders
     let [parentEntry, _router, _route] = getCurrentContext()
+    // TODO: tell parent entry about the child
     // fallback to the global router and routes
     const router = _router || useRouter()
     const route = _route || useRoute()
 
     const entries = router[LOADER_ENTRIES_KEY]!
+    // if the entry doesn't exist, create it with load and ensure it's loading
     if (!entries.has(loader)) {
-      entries.set(loader, createDefineLoaderEntry<boolean>(options))
+      load(route, router, parentEntry)
     }
 
     const entry = entries.get(loader)!
     const { data, error, pending } = entry
 
-    // TODO: Merged promise like before
-    return {
+    const useDataLoaderResult = {
       data,
       error,
       pending,
       refresh: async () => {
         return load(router.currentRoute.value, router)
       },
-      pendingLoad: () => null,
+      pendingLoad: () => entry.pendingLoad,
     } satisfies UseDataLoaderResult
+
+    // load ensures there is a pending load
+    const promise = entry.pendingLoad!.then(() => useDataLoaderResult)
+    // TODO: finally restore current loader?
+
+    return Object.assign(promise, useDataLoaderResult)
   }
 
   // mark it as a data loader
@@ -157,16 +170,19 @@ export function createDefineLoaderEntry<
   options: Required<DefineDataLoaderOptions<isLazy>>,
   initialData?: Data
 ): DataLoaderEntryBase<isLazy, Data> {
-  return withinScope<DataLoaderEntryBase<isLazy, Data>>(() => ({
-    pending: ref(false),
-    error: ref<any>(),
-    children: new Set(),
-    // @ts-expect-error: data always start as empty
-    data: ref(initialData),
-    params: {},
-    query: {},
-    hash: null,
-    isReady: false,
-    pendingLoad: shallowRef(null),
-  }))
+  return withinScope<DataLoaderEntryBase<isLazy, Data>>(
+    () =>
+      ({
+        pending: ref(false),
+        error: ref<any>(),
+        children: new Set(),
+        // force the type to match
+        data: ref(initialData) as Ref<_DataMaybeLazy<UnwrapRef<Data>, isLazy>>,
+        params: {},
+        query: {},
+        hash: null,
+        isReady: false,
+        pendingLoad: null,
+      } satisfies DataLoaderEntryBase<isLazy, Data>)
+  )
 }

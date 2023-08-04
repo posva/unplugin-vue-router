@@ -8,6 +8,7 @@ import type {
 } from 'vue-router'
 import { IS_USE_DATA_LOADER_KEY } from './symbols'
 import { _Awaitable } from '../core/utils'
+import { _PromiseMerged } from './utils'
 
 /**
  * Base type for a data loader entry. Each Data Loader has its own entry in the `loaderEntries` (accessible via `[LOADER_ENTRIES_KEY]`) map.
@@ -34,18 +35,16 @@ export interface DataLoaderEntryBase<
    */
   children: Set<DataLoaderEntryBase>
 
+  // TODO: allow delaying pending? maybe
   /**
    * Whether there is an ongoing request.
    */
   pending: Ref<boolean>
-  // TODO: should it be just a promise ref?
 
   /**
-   * Any pending promise.
+   * The latest pending load. Used to verify if the load is still valid when it resolves.
    */
-  pendingLoad: ShallowRef<Promise<void> | null>
-
-  // TODO: allow delaying pending? maybe
+  pendingLoad: Promise<void> | null
 
   /**
    * Error if there was an error.
@@ -61,6 +60,11 @@ export interface DataLoaderEntryBase<
    * Data stored in the entry.
    */
   data: Ref<_DataMaybeLazy<UnwrapRef<Data>, isLazy>>
+}
+
+export interface _UseLoaderState {
+  id: symbol
+  promise: Promise<void>
 }
 
 export function createDataLoader<Context extends DataLoaderContextBase>({
@@ -148,7 +152,7 @@ export interface UseDataLoader<
   // maybe a context argument
   // _fn: () => _Awaitable<Data>
 
-  (): UseDataLoaderResult<isLazy, Data>
+  (): _PromiseMerged<UseDataLoaderResult<isLazy, Data>>
 
   _: UseDataLoaderInternals<isLazy, Data>
 }
@@ -180,7 +184,7 @@ export interface UseDataLoaderInternals<
   options: Required<DefineDataLoaderOptionsBase<isLazy>>
 }
 
-type _DataMaybeLazy<Data, isLazy extends boolean = boolean> =
+export type _DataMaybeLazy<Data, isLazy extends boolean = boolean> =
   // no lazy provided, default value is false
   boolean extends isLazy ? Data : true extends isLazy ? Data | undefined : Data
 

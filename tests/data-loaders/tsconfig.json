@@ -7,6 +7,10 @@
   ],
   "compilerOptions": {
     "baseUrl": ".",
+    "lib": [
+      "esnext",
+      "DOM"
+    ],
     "paths": {
       "~/*": [
         "../../*"
