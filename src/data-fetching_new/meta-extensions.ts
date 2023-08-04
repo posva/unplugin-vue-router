@@ -3,7 +3,11 @@ import type {
   UseDataLoader,
   _UseLoaderState,
 } from './createDataLoader'
-import type { LOADER_ENTRIES_KEY, LOADER_SET_KEY } from './symbols'
+import type {
+  LOADER_ENTRIES_KEY,
+  LOADER_SET_KEY,
+  PENDING_LOCATION_KEY,
+} from './symbols'
 
 /**
  * Map type for the entries used by data loaders.
@@ -23,6 +27,12 @@ declare module 'vue-router' {
      * @internal
      */
     [LOADER_ENTRIES_KEY]: _DefineLoaderEntryMap
+
+    /**
+     * Pending navigation that is waiting for data loaders to resolve.
+     * @internal
+     */
+    [PENDING_LOCATION_KEY]: RouteLocationNormalizedLoaded | null
   }
 
   interface RouteMeta {

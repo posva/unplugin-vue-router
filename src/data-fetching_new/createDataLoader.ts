@@ -46,6 +46,8 @@ export interface DataLoaderEntryBase<
    */
   pendingLoad: Promise<void> | null
 
+  pendingTo: RouteLocationNormalizedLoaded | null
+
   /**
    * Error if there was an error.
    */
@@ -130,6 +132,11 @@ export interface DefineDataLoaderOptionsBase<isLazy extends boolean> {
    * without having the data ready.
    */
   lazy?: isLazy
+
+  /**
+   * Key to use for SSR state.
+   */
+  ssrKey?: string
 }
 
 export interface DataLoaderContextBase {}
