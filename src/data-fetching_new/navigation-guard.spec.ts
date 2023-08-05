@@ -1,9 +1,8 @@
 /**
  * @vitest-environment happy-dom
  */
-import { App, Ref, defineComponent, shallowRef } from 'vue'
-import { defineLoader } from './defineLoader'
-import { expectType } from 'ts-expect'
+import { defineComponent } from 'vue'
+import { DefineDataLoaderOptions, defineLoader } from './defineLoader'
 import {
   afterAll,
   beforeAll,
@@ -14,10 +13,8 @@ import {
   vi,
 } from 'vitest'
 import { setCurrentContext } from './utils'
-import { mount } from '@vue/test-utils'
 import { getRouter } from 'vue-router-mock'
 import { setupRouter } from './navigation-guard'
-import { UseDataLoader } from './createDataLoader'
 import { mockPromise } from '~/tests/utils'
 import { LOADER_SET_KEY } from './symbols'
 import {
@@ -51,6 +48,18 @@ describe('navigation-guard', () => {
   const loader3 = defineLoader(async () => {})
   const loader4 = defineLoader(async () => {})
   const loader5 = defineLoader(async () => {})
+
+  function mockedLoader<isLazy extends boolean>(
+    options?: DefineDataLoaderOptions<isLazy>
+  ) {
+    const [spy, resolve, reject] = mockPromise('ok', 'ko')
+    return {
+      spy,
+      resolve,
+      reject,
+      loader: defineLoader(async () => await spy(), options),
+    }
+  }
 
   it('creates a set of loaders during navigation', async () => {
     const router = getRouter()
@@ -126,5 +135,56 @@ describe('navigation-guard', () => {
     await router.push('/fetch')
     const set = router.currentRoute.value.meta[LOADER_SET_KEY]
     expect([...set!]).toEqual([useDataOne, useDataTwo])
+  })
+
+  it('awaits for all loaders to be resolved', async () => {
+    const router = getRouter()
+    const l1 = mockedLoader()
+    const l2 = mockedLoader()
+    router.addRoute({
+      name: '_test',
+      path: '/fetch',
+      component,
+      meta: {
+        loaders: [l1.loader, l2.loader],
+      },
+    })
+
+    const p = router.push('/fetch')
+    await vi.runAllTimersAsync()
+    l1.resolve()
+    await vi.runAllTimersAsync()
+    expect(router.currentRoute.value.path).not.toBe('/fetch')
+    l2.resolve()
+    await vi.runAllTimersAsync()
+    expect(router.currentRoute.value.path).toBe('/fetch')
+  })
+
+  it('does not await for lazy loaders on client-side navigation', async () => {
+    const router = getRouter()
+    const l1 = mockedLoader({ lazy: true })
+    const l2 = mockedLoader({ lazy: true })
+    router.addRoute({
+      name: '_test',
+      path: '/fetch',
+      component,
+      meta: {
+        loaders: [
+          // @ts-expect-error: FIXME: ???
+          l1.loader,
+          // @ts-expect-error: FIXME: ???
+          l2.loader,
+          // defineLoader(async () => {}, { lazy: true }),
+        ],
+      },
+    })
+
+    const p = router.push('/fetch')
+    await vi.runAllTimersAsync()
+    expect(router.currentRoute.value.path).toBe('/fetch')
+    l1.resolve()
+    l2.resolve()
+    await vi.runAllTimersAsync()
+    expect(router.currentRoute.value.path).toBe('/fetch')
   })
 })
