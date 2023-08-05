@@ -99,6 +99,7 @@ export function setupRouter(router: Router) {
     return Promise.all(
       loaders.map((loader) => {
         const ret = loader._.load(to, router)
+        // TODO: only on client side
         return loader._.options.lazy ? undefined : ret
       })
     ) // let the navigation go through by returning true or void

@@ -127,11 +127,19 @@ export interface CreateDataLoaderOptions<
 
 export interface DefineDataLoaderOptionsBase<isLazy extends boolean> {
   /**
-   * Whether the data should be lazy loaded without blocking the navigation or not. Defaults to false. When set to true
-   * or a function, the loader will no longer block the navigation and the returned composable can be called even
+   * Whether the data should be lazy loaded without blocking the client side navigation or not. When set to true, the loader will no longer block the navigation and the returned composable can be called even
    * without having the data ready.
+   *
+   * @defaultValue `false`
    */
   lazy?: isLazy
+
+  /**
+   * Whether this loader should be called on the server side or not. Combined with the `lazy` option, this can be useful
+   * when the data is not needed on the first render.
+   * @defaultValue `true`
+   */
+  server?: boolean
 }
 
 export interface DataLoaderContextBase {}

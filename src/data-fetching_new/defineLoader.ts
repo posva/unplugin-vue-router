@@ -72,7 +72,9 @@ export function defineLoader<
 
     error.value = null
     pending.value = true
+    // save the current context to restore it later
     const currentContext = getCurrentContext()
+    // set the current context before loading so nested loaders can use it
     setCurrentContext([entry, router, to])
     // console.log(
     //   `😎 Loading context to "${to.fullPath}" with current "${currentContext[2]?.fullPath}"`
@@ -83,7 +85,7 @@ export function defineLoader<
     const currentLoad = Promise.resolve(loader(to))
       .then((d) => {
         // console.log(
-        //   `✅ resolved ${options.ssrKey}`,
+        //   `✅ resolved ${options.key}`,
         //   to.fullPath,
         //   `accepted: ${entry.pendingLoad === currentLoad} =`,
         //   d
@@ -106,7 +108,7 @@ export function defineLoader<
       .finally(() => {
         setCurrentContext(currentContext)
         // console.log(
-        //   `😩 restored context ${options.ssrKey}`,
+        //   `😩 restored context ${options.key}`,
         //   currentContext?.[2]?.fullPath
         // )
         if (entry.pendingLoad === currentLoad) {
@@ -116,7 +118,7 @@ export function defineLoader<
 
     // this still runs before the promise resolves even if loader is sync
     entry.pendingLoad = currentLoad
-    // console.log(`🔶 Promise set to pendingLoad "${options.ssrKey}"`)
+    // console.log(`🔶 Promise set to pendingLoad "${options.key}"`)
 
     return currentLoad
   }
@@ -127,14 +129,14 @@ export function defineLoader<
     // work with nested data loaders
     let [parentEntry, _router, _route] = getCurrentContext()
     // TODO: tell parent entry about the child
-    // fallback to the global router and routes
+    // fallback to the global router and routes for useDataLoaders used within components
     const router = _router || useRouter()
     const route = _route || useRoute()
 
     const entries = router[LOADER_ENTRIES_KEY]!
     let entry = entries.get(loader)
 
-    // console.log(`-- useDataLoader called ${options.ssrKey} --`)
+    // console.log(`-- useDataLoader called ${options.key} --`)
     // console.log(
     //   'router pending location',
     //   router[PENDING_LOCATION_KEY]?.fullPath
@@ -159,10 +161,11 @@ export function defineLoader<
       // if the entry doesn't exist, create it with load and ensure it's loading
       !entry ||
       // the existing pending location isn't good, we need to load again
+      // TODO: only load if the target route is the global pending location
       (parentEntry && entry.pendingTo !== route)
     ) {
       // console.log(
-      //   `🔁 loading from useData for "${options.ssrKey}": "${route.fullPath}"`
+      //   `🔁 loading from useData for "${options.key}": "${route.fullPath}"`
       // )
       load(route, router, parentEntry)
     }
@@ -204,7 +207,7 @@ export interface DefineDataLoaderOptions<isLazy extends boolean>
   /**
    * Key to use for SSR state.
    */
-  ssrKey?: string
+  key?: string
 }
 
 /**
@@ -220,7 +223,8 @@ const DEFAULT_DEFINE_LOADER_OPTIONS: Required<
   DefineDataLoaderOptions<boolean>
 > = {
   lazy: false,
-  ssrKey: '',
+  key: '',
+  server: true,
 }
 
 // TODO: move to a different file
@@ -248,3 +252,9 @@ export function createDefineLoaderEntry<
       } satisfies DataLoaderEntryBase<isLazy, Data>)
   )
 }
+
+/**
+ * TODO:
+ * - `refreshData()` -> refresh one or all data loaders
+ * - `invalidateData()` / `clearData()` -> clear one or all data loaders (only useful if there is a cache strategy)
+ */

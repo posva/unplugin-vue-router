@@ -237,7 +237,7 @@ describe('defineLoader', () => {
           return to.query.p
         })
       const useNestedLoader = defineLoader(nestedLoaderSpy, {
-        ssrKey: 'nested',
+        key: 'nested',
       })
 
       let rootCalls = 0
@@ -260,7 +260,7 @@ describe('defineLoader', () => {
         })
 
       const { wrapper, useData, router, app } = singleLoaderOneRoute(
-        defineLoader(rootLoaderSpy, { ssrKey: 'root' })
+        defineLoader(rootLoaderSpy, { key: 'root' })
       )
       const firstNavigation = router.push('/fetch?p=one')
       // we resolve the first root to give the nested loader a chance to run
