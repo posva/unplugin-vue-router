@@ -9,7 +9,7 @@ describe('meta-extensions', () => {
 
 async function _dts() {
   const component = defineComponent({})
-  createRouter({
+  const router = createRouter({
     history: createMemoryHistory(),
     routes: [
       // empty
@@ -59,5 +59,27 @@ async function _dts() {
         },
       },
     ],
+  })
+
+  router.addRoute({
+    path: '/',
+    component,
+    meta: {
+      loaders: [
+        defineLoader(async () => ({ name: 'foo' }), { lazy: false }),
+        defineLoader(async () => ({ name: 'foo' }), { lazy: false }),
+      ],
+    },
+  })
+
+  router.addRoute({
+    path: '/',
+    component,
+    meta: {
+      loaders: [
+        defineLoader(async () => ({ name: 'foo' }), { lazy: true }),
+        defineLoader(async () => ({ name: 'foo' }), { lazy: true }),
+      ],
+    },
   })
 }
