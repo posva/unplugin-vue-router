@@ -68,8 +68,9 @@ describe('navigation-guard', () => {
   const loader4 = defineLoader(async () => {})
   const loader5 = defineLoader(async () => {})
 
-  function mockedLoader<isLazy extends boolean>(
-    options?: DefineDataLoaderOptions<isLazy>
+  function mockedLoader(
+    // boolean is easier to handle for router mock
+    options?: DefineDataLoaderOptions<boolean>
   ) {
     const [spy, resolve, reject] = mockPromise('ok', 'ko')
     return {
@@ -188,13 +189,7 @@ describe('navigation-guard', () => {
       path: '/fetch',
       component,
       meta: {
-        loaders: [
-          // @ts-expect-error: FIXME: ???
-          l1.loader,
-          // @ts-expect-error: FIXME: ???
-          l2.loader,
-          // defineLoader(async () => {}, { lazy: true }),
-        ],
+        loaders: [l1.loader, l2.loader],
       },
     })
 
@@ -220,7 +215,6 @@ describe('navigation-guard', () => {
       path: '/fetch',
       component,
       meta: {
-        // @ts-expect-error: FIXME: ???
         loaders: [l1.loader, l2.loader],
       },
     })
@@ -247,7 +241,6 @@ describe('navigation-guard', () => {
       path: '/fetch',
       component,
       meta: {
-        // @ts-expect-error: FIXME: ???
         loaders: [l1.loader, l2.loader],
       },
     })
