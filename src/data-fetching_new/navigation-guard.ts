@@ -4,7 +4,7 @@ import {
   LOADER_SET_KEY,
   PENDING_LOCATION_KEY,
 } from './symbols'
-import { isDataLoader, setCurrentContext } from './utils'
+import { IS_CLIENT, isDataLoader, setCurrentContext } from './utils'
 
 /**
  * Setups the different Navigation Guards to collect the data loaders from the route records and then to execute them.
@@ -98,9 +98,12 @@ export function setupRouter(router: Router) {
     setCurrentContext([])
     return Promise.all(
       loaders.map((loader) => {
+        if (!loader._.options.server && !IS_CLIENT) {
+          return
+        }
         const ret = loader._.load(to, router)
-        // TODO: only on client side
-        return loader._.options.lazy ? undefined : ret
+        // on client-side, lazy loaders are not awaited, but on server they are
+        return IS_CLIENT && loader._.options.lazy ? undefined : ret
       })
     ) // let the navigation go through by returning true or void
       .then(() => {
