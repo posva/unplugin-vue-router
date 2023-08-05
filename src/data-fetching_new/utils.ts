@@ -66,3 +66,5 @@ export function withLoaderContext<P extends Promise<unknown>>(promise: P): P {
  * @internal
  */
 export type _PromiseMerged<T> = T & Promise<T>
+
+export const IS_CLIENT = typeof window !== 'undefined'

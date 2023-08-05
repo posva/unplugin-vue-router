@@ -21,10 +21,29 @@ import {
   useDataOne,
   useDataTwo,
 } from '~/tests/data-loaders/ComponentWithLoader.vue'
+import * as _utils from '~/src/data-fetching_new/utils'
+
+vi.mock(
+  '~/src/data-fetching_new/utils.ts',
+  async (
+    importOriginal: () => Promise<
+      typeof import('~/src/data-fetching_new/utils')
+    >
+  ) => {
+    const mod = await importOriginal()
+
+    // this allows the variable IS_CLIENT to be rewritten
+    return {
+      ...mod,
+    }
+  }
+)
 
 describe('navigation-guard', () => {
   let removeGuards = () => {}
   beforeEach(() => {
+    // @ts-expect-error: normally not allowed
+    _utils.IS_CLIENT = true
     removeGuards()
     removeGuards = setupRouter(getRouter())
     // invalidate current context
@@ -163,7 +182,7 @@ describe('navigation-guard', () => {
   it('does not await for lazy loaders on client-side navigation', async () => {
     const router = getRouter()
     const l1 = mockedLoader({ lazy: true })
-    const l2 = mockedLoader({ lazy: true })
+    const l2 = mockedLoader({ lazy: false })
     router.addRoute({
       name: '_test',
       path: '/fetch',
@@ -181,10 +200,62 @@ describe('navigation-guard', () => {
 
     const p = router.push('/fetch')
     await vi.runAllTimersAsync()
-    expect(router.currentRoute.value.path).toBe('/fetch')
-    l1.resolve()
+    expect(router.currentRoute.value.path).not.toBe('/fetch')
     l2.resolve()
     await vi.runAllTimersAsync()
     expect(router.currentRoute.value.path).toBe('/fetch')
+    l1.resolve()
+    await vi.runAllTimersAsync()
+    expect(router.currentRoute.value.path).toBe('/fetch')
+  })
+
+  it('awaits for lazy loaders on server-side navigation', async () => {
+    // @ts-expect-error: normally not allowed
+    _utils.IS_CLIENT = false
+    const router = getRouter()
+    const l1 = mockedLoader({ lazy: true })
+    const l2 = mockedLoader({ lazy: false })
+    router.addRoute({
+      name: '_test',
+      path: '/fetch',
+      component,
+      meta: {
+        // @ts-expect-error: FIXME: ???
+        loaders: [l1.loader, l2.loader],
+      },
+    })
+
+    const p = router.push('/fetch')
+    await vi.runAllTimersAsync()
+    expect(router.currentRoute.value.path).not.toBe('/fetch')
+    l2.resolve()
+    await vi.runAllTimersAsync()
+    expect(router.currentRoute.value.path).not.toBe('/fetch')
+    l1.resolve()
+    await vi.runAllTimersAsync()
+    expect(router.currentRoute.value.path).toBe('/fetch')
+  })
+
+  it(' does not run loaders on server side if server: false', async () => {
+    // @ts-expect-error: normally not allowed
+    _utils.IS_CLIENT = false
+    const router = getRouter()
+    const l1 = mockedLoader({ lazy: true, server: false })
+    const l2 = mockedLoader({ lazy: false, server: false })
+    router.addRoute({
+      name: '_test',
+      path: '/fetch',
+      component,
+      meta: {
+        // @ts-expect-error: FIXME: ???
+        loaders: [l1.loader, l2.loader],
+      },
+    })
+
+    const p = router.push('/fetch')
+    await vi.runAllTimersAsync()
+    expect(router.currentRoute.value.path).toBe('/fetch')
+    expect(l1.spy).not.toHaveBeenCalled()
+    expect(l2.spy).not.toHaveBeenCalled()
   })
 })
