@@ -119,6 +119,8 @@ export function defineLoader<
         if (entry.pendingLoad === currentLoad) {
           error.value = e
         }
+        // propagate error
+        // return Promise.reject(e)
       })
       .finally(() => {
         setCurrentContext(currentContext)
@@ -242,7 +244,7 @@ export function defineLoader<
       if (parentEntry === entry) {
         console.warn(`👶❌ "${options.key}" has itself as parent`)
       }
-      console.log(`👶 "${options.key}" has parent ${parentEntry}`)
+      // console.log(`👶 "${options.key}" has parent ${parentEntry}`)
       parentEntry.children.add(entry!)
     }
 
