@@ -6,7 +6,7 @@ import type {
   RouteLocationNormalizedLoaded,
   Router,
 } from 'vue-router'
-import { IS_USE_DATA_LOADER_KEY } from './symbols'
+import { IS_USE_DATA_LOADER_KEY, STAGED_NO_VALUE } from './symbols'
 import { _Awaitable } from '../core/utils'
 import { _PromiseMerged } from './utils'
 
@@ -67,7 +67,7 @@ export interface DataLoaderEntryBase<
    * Data that was staged by a loader. This is used to avoid showing the old data while the new data is loading. Calling
    * the internal `commit()` function will replace the data with the staged data.
    */
-  staged: Data | null
+  staged: Data | typeof STAGED_NO_VALUE
 
   commit(to: RouteLocationNormalizedLoaded): void
 }
@@ -181,7 +181,7 @@ export interface UseDataLoader<
   // maybe a context argument
   // _fn: () => _Awaitable<Data>
 
-  (): _PromiseMerged<UseDataLoaderResult<isLazy, Data>>
+  (): _PromiseMerged<Data, UseDataLoaderResult<isLazy, Data>>
 
   _: UseDataLoaderInternals<isLazy, Data>
 }

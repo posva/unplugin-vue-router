@@ -16,6 +16,7 @@ import {
   IS_USE_DATA_LOADER_KEY,
   LOADER_ENTRIES_KEY,
   PENDING_LOCATION_KEY,
+  STAGED_NO_VALUE,
 } from './symbols'
 import { getCurrentContext, setCurrentContext, withinScope } from './utils'
 import { Ref, UnwrapRef, ref, shallowRef } from 'vue'
@@ -157,18 +158,18 @@ export function defineLoader<
     if (_entry.pendingTo === to) {
       // console.log('👉 commit', _entry.staged)
       if (process.env.NODE_ENV === 'development') {
-        if (_entry.staged === null) {
+        if (_entry.staged === STAGED_NO_VALUE) {
           console.warn(
             `Loader "${options.key}"'s "commit()" was called but there is no staged data.`
           )
         }
       }
       // if the entry is null, it means the loader never resolved, maybe there was an error
-      if (_entry.staged !== null) {
+      if (_entry.staged !== STAGED_NO_VALUE) {
         // @ts-expect-error: staged starts as null but should always be set at this point
         _entry.data.value = _entry.staged
       }
-      _entry.staged = null
+      _entry.staged = STAGED_NO_VALUE
       _entry.pendingTo = null
 
       // children entries cannot be committed from the navigation guard, so the parent must tell them
@@ -259,7 +260,9 @@ export function defineLoader<
 
     // load ensures there is a pending load
     const promise = entry.pendingLoad!.then(() => {
-      return useDataLoaderResult
+      // nested loaders might wait for all loaders to be ready before setting data
+      // so we need to return the staged value if it exists as it will be the latest one
+      return entry!.staged === STAGED_NO_VALUE ? data.value : entry!.staged
     })
 
     return Object.assign(promise, useDataLoaderResult)
@@ -331,7 +334,7 @@ export function createDefineLoaderEntry<
         isReady: false,
         pendingLoad: null,
         pendingTo: null,
-        staged: null,
+        staged: STAGED_NO_VALUE,
         commit,
       } satisfies DataLoaderEntryBase<isLazy, Data>)
   )

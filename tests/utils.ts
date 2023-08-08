@@ -1,4 +1,8 @@
 import { vi } from 'vitest'
+import {
+  DefineDataLoaderOptions,
+  defineLoader,
+} from '~/src/data-fetching_new/defineLoader'
 
 export const delay = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms))
@@ -32,4 +36,17 @@ export function mockPromise<Resolved, Err>(resolved: Resolved, rejected?: Err) {
   })
 
   return [spy, resolve, reject] as const
+}
+
+export function mockedLoader(
+  // boolean is easier to handle for router mock
+  options?: DefineDataLoaderOptions<boolean>
+) {
+  const [spy, resolve, reject] = mockPromise('ok', 'ko')
+  return {
+    spy,
+    resolve,
+    reject,
+    loader: defineLoader(async () => await spy(), options),
+  }
 }

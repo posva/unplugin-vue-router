@@ -21,3 +21,9 @@ export const IS_USE_DATA_LOADER_KEY = Symbol()
  * @internal
  */
 export const PENDING_LOCATION_KEY = Symbol()
+
+/**
+ * Symbol used to know there is no value staged for the loader and that commit should be skipped.
+ * @internal
+ */
+export const STAGED_NO_VALUE = Symbol()
