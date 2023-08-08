@@ -18,7 +18,12 @@ import {
   PENDING_LOCATION_KEY,
   STAGED_NO_VALUE,
 } from './symbols'
-import { getCurrentContext, setCurrentContext, withinScope } from './utils'
+import {
+  assign,
+  getCurrentContext,
+  setCurrentContext,
+  withinScope,
+} from './utils'
 import { Ref, UnwrapRef, ref, shallowRef } from 'vue'
 
 export function defineLoader<
@@ -52,10 +57,11 @@ export function defineLoader<
       ? nameOrLoader
       : (_loaderOrOptions! as DefineLoaderFn<P>)
   opts = typeof _loaderOrOptions === 'object' ? _loaderOrOptions : opts
-  const options: Required<DefineDataLoaderOptions<isLazy>> = {
-    ...DEFAULT_DEFINE_LOADER_OPTIONS,
-    ...opts,
-  } as any // because of the isLazy generic
+  const options: Required<DefineDataLoaderOptions<isLazy>> = assign(
+    {} as DefineDataLoaderOptions<isLazy>,
+    DEFAULT_DEFINE_LOADER_OPTIONS,
+    opts
+  )
 
   let _entry: DataLoaderEntryBase<isLazy, Awaited<P>> | undefined
 
