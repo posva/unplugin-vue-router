@@ -5,6 +5,7 @@ import {
   PENDING_LOCATION_KEY,
 } from './symbols'
 import { IS_CLIENT, isDataLoader, setCurrentContext } from './utils'
+import { UseDataLoader } from './createDataLoader'
 
 /**
  * Setups the different Navigation Guards to collect the data loaders from the route records and then to execute them.
@@ -98,21 +99,40 @@ export function setupRouter(router: Router) {
     setCurrentContext([])
     return Promise.all(
       loaders.map((loader) => {
-        if (!loader._.options.server && !IS_CLIENT) {
+        const { commit, server, lazy } = loader._.options
+        // do not run on the server if specified
+        if (!server && !IS_CLIENT) {
           return
         }
-        const ret = loader._.load(to, router)
+        const ret = loader._.load(to, router).then(() => {
+          if (lazy || commit === 'immediate') {
+            // TODO: refactor, it should be done here, it's better
+            // loader._.entry.commit(to)
+          } else if (commit === 'after-load') {
+            return loader
+          }
+        })
         // on client-side, lazy loaders are not awaited, but on server they are
-        return IS_CLIENT && loader._.options.lazy ? undefined : ret
+        return IS_CLIENT && lazy
+          ? undefined
+          : // return the non-lazy loader to commit changes after all loaders are done
+            ret
       })
     ) // let the navigation go through by returning true or void
-      .then(() => {
+      .then((loaders) => {
+        for (const loader of loaders) {
+          if (loader) {
+            // console.log(`⬇️ Committing ${loader.name}`)
+            loader._.entry.commit(to)
+          }
+        }
         // TODO:
         // reset the initial state as it can only be used once
         // initialData = undefined
         // NOTE: could this be dev only?
         // isFetched = true
       })
+    // TODO: handle errors and navigation failures?
   })
 
   return () => {

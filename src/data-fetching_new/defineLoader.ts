@@ -56,6 +56,8 @@ export function defineLoader<
     ...opts,
   } as any // because of the isLazy generic
 
+  let _entry: DataLoaderEntryBase<isLazy, Awaited<P>> | undefined
+
   function load(
     to: RouteLocationNormalizedLoaded,
     router: Router,
@@ -64,9 +66,13 @@ export function defineLoader<
   ): Promise<void> {
     const entries = router[LOADER_ENTRIES_KEY]!
     if (!entries.has(loader)) {
-      entries.set(loader, createDefineLoaderEntry<boolean>(options))
+      entries.set(loader, createDefineLoaderEntry<boolean>(options, commit))
     }
-    const entry = entries.get(loader)!
+    const entry =
+      // @ts-expect-error: isLazy again
+      (_entry =
+        // ...
+        entries.get(loader)!)
 
     const { data, error, isReady, pending } = entry
 
@@ -74,6 +80,14 @@ export function defineLoader<
     pending.value = true
     // save the current context to restore it later
     const currentContext = getCurrentContext()
+
+    if (process.env.NODE_ENV === 'development') {
+      if (parent !== currentContext[0]) {
+        console.warn(
+          `❌👶 "${options.key}" has a different parent than the current context.`
+        )
+      }
+    }
     // set the current context before loading so nested loaders can use it
     setCurrentContext([entry, router, to])
     // console.log(
@@ -91,7 +105,7 @@ export function defineLoader<
         //   d
         // )
         if (entry.pendingLoad === currentLoad) {
-          data.value = d
+          entry.staged = d
         }
       })
       .catch((e) => {
@@ -113,8 +127,15 @@ export function defineLoader<
         // )
         if (entry.pendingLoad === currentLoad) {
           pending.value = false
+          // we must run commit here so nested loaders are ready before used by their parents
+          if (options.lazy || options.commit === 'immediate') {
+            commit(to)
+          }
         }
       })
+
+    // restore the context after the first tick to avoid lazy loaders to use their own context as parent
+    setCurrentContext(currentContext)
 
     // this still runs before the promise resolves even if loader is sync
     entry.pendingLoad = currentLoad
@@ -122,6 +143,43 @@ export function defineLoader<
 
     return currentLoad
   }
+
+  function commit(to: RouteLocationNormalizedLoaded) {
+    if (!_entry) {
+      if (process.env.NODE_ENV === 'development') {
+        throw new Error(
+          `Loader "${options.key}"'s "commit()" was called before it was loaded once. This will fail in production.`
+        )
+      }
+      return
+    }
+
+    if (_entry.pendingTo === to) {
+      // console.log('👉 commit', _entry.staged)
+      if (process.env.NODE_ENV === 'development') {
+        if (_entry.staged === null) {
+          console.warn(
+            `Loader "${options.key}"'s "commit()" was called but there is no staged data.`
+          )
+        }
+      }
+      // if the entry is null, it means the loader never resolved, maybe there was an error
+      if (_entry.staged !== null) {
+        // @ts-expect-error: staged starts as null but should always be set at this point
+        _entry.data.value = _entry.staged
+      }
+      _entry.staged = null
+      _entry.pendingTo = null
+
+      // children entries cannot be committed from the navigation guard, so the parent must tell them
+      _entry.children.forEach((childEntry) => {
+        childEntry.commit(to)
+      })
+    }
+  }
+
+  // should only be called after load
+  const pendingLoad = () => _entry!.pendingLoad
 
   // @ts-expect-error: requires the internals and symbol
   const useDataLoader: // for ts
@@ -154,6 +212,13 @@ export function defineLoader<
           `Some "useDataLoader()" was called outside of a component's setup or a data loader.`
         )
       }
+
+      // TODO: we can probably get around this by returning the staged data
+      if (parentEntry && options.commit === 'after-load') {
+        console.warn(
+          `🚨 "${options.key}" is used used as a nested loader and its commit option is set to "after-load" but nested loaders are always immediate to be able to give a value to their parent loader.`
+        )
+      }
     }
 
     // TODO: skip if route is not the router pending location
@@ -172,20 +237,30 @@ export function defineLoader<
 
     entry = entries.get(loader)!
 
+    if (parentEntry) {
+      if (parentEntry === entry) {
+        console.warn(`👶❌ "${options.key}" has itself as parent`)
+      }
+      console.log(`👶 "${options.key}" has parent ${parentEntry}`)
+      parentEntry.children.add(entry!)
+    }
+
     const { data, error, pending } = entry
 
     const useDataLoaderResult = {
       data,
       error,
       pending,
-      refresh: async () => {
-        return load(router.currentRoute.value, router)
-      },
-      pendingLoad: () => entry!.pendingLoad,
+      refresh: (
+        to: RouteLocationNormalizedLoaded = router.currentRoute.value
+      ) => load(to, router).then(() => commit(to)),
+      pendingLoad,
     } satisfies UseDataLoaderResult
 
     // load ensures there is a pending load
-    const promise = entry.pendingLoad!.then(() => useDataLoaderResult)
+    const promise = entry.pendingLoad!.then(() => {
+      return useDataLoaderResult
+    })
 
     return Object.assign(promise, useDataLoaderResult)
   }
@@ -197,6 +272,10 @@ export function defineLoader<
   useDataLoader._ = {
     load,
     options,
+    commit,
+    get entry() {
+      return _entry!
+    },
   }
 
   return useDataLoader
@@ -225,6 +304,7 @@ const DEFAULT_DEFINE_LOADER_OPTIONS: Required<
   lazy: false,
   key: '',
   server: true,
+  commit: 'immediate',
 }
 
 // TODO: move to a different file
@@ -233,8 +313,10 @@ export function createDefineLoaderEntry<
   Data = unknown
 >(
   options: Required<DefineDataLoaderOptions<isLazy>>,
+  commit: (to: RouteLocationNormalizedLoaded) => void,
   initialData?: Data
 ): DataLoaderEntryBase<isLazy, Data> {
+  // TODO: the scope should be passed somehow and be unique per application
   return withinScope<DataLoaderEntryBase<isLazy, Data>>(
     () =>
       ({
@@ -249,6 +331,8 @@ export function createDefineLoaderEntry<
         isReady: false,
         pendingLoad: null,
         pendingTo: null,
+        staged: null,
+        commit,
       } satisfies DataLoaderEntryBase<isLazy, Data>)
   )
 }
