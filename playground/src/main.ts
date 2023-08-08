@@ -4,6 +4,7 @@ import {
   createWebHistory,
   createRouter,
   setupDataFetchingGuard,
+  setupLoaderGuard,
 } from 'vue-router/auto'
 
 const router = createRouter({
@@ -14,7 +15,8 @@ const router = createRouter({
   },
 })
 
-setupDataFetchingGuard(router)
+// setupDataFetchingGuard(router)
+setupLoaderGuard(router)
 
 const app = createApp(App)
 

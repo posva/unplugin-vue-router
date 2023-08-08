@@ -14,7 +14,7 @@ import {
 } from 'vitest'
 import { setCurrentContext } from './utils'
 import { getRouter } from 'vue-router-mock'
-import { setupRouter } from './navigation-guard'
+import { setupLoaderGuard } from './navigation-guard'
 import { mockPromise, mockedLoader } from '~/tests/utils'
 import { LOADER_SET_KEY } from './symbols'
 import {
@@ -45,7 +45,7 @@ describe('navigation-guard', () => {
     // @ts-expect-error: normally not allowed
     _utils.IS_CLIENT = true
     removeGuards()
-    removeGuards = setupRouter(getRouter())
+    removeGuards = setupLoaderGuard(getRouter())
     // invalidate current context
     setCurrentContext(undefined)
   })

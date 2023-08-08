@@ -16,7 +16,7 @@ import {
 import { setCurrentContext } from './utils'
 import { mount } from '@vue/test-utils'
 import { getRouter } from 'vue-router-mock'
-import { setupRouter } from './navigation-guard'
+import { setupLoaderGuard } from './navigation-guard'
 import { UseDataLoader } from './createDataLoader'
 import { mockPromise, mockedLoader } from '~/tests/utils'
 import RouterViewMock from '~/tests/data-loaders/RouterViewMock.vue'
@@ -32,7 +32,7 @@ describe('defineLoader', () => {
   let removeGuards = () => {}
   beforeEach(() => {
     removeGuards()
-    removeGuards = setupRouter(getRouter())
+    removeGuards = setupLoaderGuard(getRouter())
     // invalidate current context
     setCurrentContext(undefined)
     dataOneSpy.mockClear()

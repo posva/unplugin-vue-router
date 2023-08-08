@@ -1,6 +1,6 @@
 import type { RouteRecordRaw } from 'vue-router'
 
-export { defineLoader as _defineLoader } from './data-fetching/defineLoader'
+// export { defineLoader as _defineLoader } from './data-fetching/defineLoader'
 export type {
   DefineLoaderOptions,
   DataLoader,
@@ -11,8 +11,8 @@ export {
 } from './data-fetching/dataFetchingGuard'
 export { stopScope as _stopDataFetchingScope } from './data-fetching/dataCache'
 
-// TODO: rename to matching names
-export { setupRouter as _setupLoaderGuard } from './data-fetching_new/navigation-guard'
+export { defineLoader as _defineLoader } from './data-fetching_new/defineLoader'
+export { setupLoaderGuard as _setupLoaderGuard } from './data-fetching_new/navigation-guard'
 
 /**
  * Defines properties of the route for the current page component.
