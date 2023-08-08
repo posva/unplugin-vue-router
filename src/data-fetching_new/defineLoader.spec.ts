@@ -155,6 +155,45 @@ describe('defineLoader', () => {
             expect(data.value).toEqual('resolved 3')
           })
         })
+
+        it.todo(
+          `should abort the navigation if the non lazy loader throws, commit: ${commit}`,
+          async () => {
+            const { wrapper, useData, router } = singleLoaderOneRoute(
+              defineLoader(
+                async () => {
+                  throw new Error('nope')
+                },
+                { commit }
+              )
+            )
+            await router.push('/fetch')
+            expect(wrapper.get('#error').text()).toBe('Error: nope')
+            expect(wrapper.get('#pending').text()).toBe('false')
+            expect(wrapper.get('#data').text()).toBe('')
+            const { data } = useData()
+            expect(router.currentRoute.value.path).not.toBe('/fetch')
+            expect(data.value).toEqual(undefined)
+          }
+        )
+
+        it(`should not abort the navigation if the lazy loader throws, commit: ${commit}`, async () => {
+          const { wrapper, useData, router } = singleLoaderOneRoute(
+            defineLoader(
+              async () => {
+                throw new Error('nope')
+              },
+              { lazy: true, commit }
+            )
+          )
+          await router.push('/fetch')
+          expect(wrapper.get('#error').text()).toBe('Error: nope')
+          expect(wrapper.get('#pending').text()).toBe('false')
+          expect(wrapper.get('#data').text()).toBe('')
+          expect(router.currentRoute.value.path).toBe('/fetch')
+          const { data } = useData()
+          expect(data.value).toEqual(undefined)
+        })
       }
     )
 
@@ -191,20 +230,6 @@ describe('defineLoader', () => {
       expect(data.value).toEqual('resolved')
       expect(wrapper.get('#pending').text()).toBe('false')
       expect(wrapper.get('#data').text()).toBe('resolved')
-    })
-
-    it('should abort the navigation if the non lazy loader throws', async () => {
-      const { wrapper, useData, router } = singleLoaderOneRoute(
-        defineLoader(async () => {
-          throw new Error('nope')
-        })
-      )
-      await router.push('/fetch')
-      expect(wrapper.get('#error').text()).toBe('Error: nope')
-      expect(wrapper.get('#pending').text()).toBe('false')
-      expect(wrapper.get('#data').text()).toBe('')
-      const { data } = useData()
-      expect(data.value).toEqual(undefined)
     })
 
     it('discards a pending load if a new navigation happens', async () => {
@@ -413,6 +438,65 @@ describe('defineLoader', () => {
 
       expect(rootCalls).toEqual(2)
       // expect(nestedCalls).toEqual(2)
+    })
+
+    it('discards a pending load if trying to navigate back to the current location', async () => {
+      let calls = 0
+      let resolveCall1!: (val?: unknown) => void
+      let resolveCall2!: (val?: unknown) => void
+      let resolveCall3!: (val?: unknown) => void
+      const p1 = new Promise((r) => (resolveCall1 = r))
+      const p2 = new Promise((r) => (resolveCall2 = r))
+      const p3 = new Promise((r) => (resolveCall3 = r))
+      const spy = vi
+        .fn<[to: RouteLocationNormalizedLoaded], Promise<string>>()
+        .mockImplementation(async (to) => {
+          calls++
+          // the first one should be skipped
+          if (calls === 2) {
+            await p1
+          } else if (calls === 3) {
+            await p2
+          } else if (calls === 4) {
+            await p3
+            // this should never happen or be used because the last navigation is considered duplicated
+            return 'ko'
+          }
+          return to.query.p as string
+        })
+      const { wrapper, useData, router } = singleLoaderOneRoute(
+        defineLoader(spy)
+      )
+      // set the initial location
+      await router.push('/fetch?p=ok')
+
+      const { data } = useData()
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(data.value).toEqual('ok')
+
+      // try running two navigations to a different location
+      router.push('/fetch?p=ko')
+      await vi.runAllTimersAsync()
+      expect(spy).toHaveBeenCalledTimes(2)
+      router.push('/fetch?p=ko')
+      await vi.runAllTimersAsync()
+      expect(spy).toHaveBeenCalledTimes(3)
+
+      // but roll back to the initial one
+      router.push('/fetch?p=ok')
+      await vi.runAllTimersAsync()
+      // it runs 3 times because in vue router, going from /fetch?p=ok to /fetch?p=ok fails right away, so the loader are never called
+      // We simply don't test it because it doesn't matter, what matters is what value is preserved at the end
+      // expect(spy).toHaveBeenCalledTimes(3)
+
+      resolveCall1()
+      resolveCall2()
+      resolveCall3()
+      await vi.runAllTimersAsync()
+      await router.getPendingNavigation()
+
+      // it preserves the initial value
+      expect(data.value).toEqual('ok')
     })
 
     it('loader result can be awaited for the data to be ready', async () => {

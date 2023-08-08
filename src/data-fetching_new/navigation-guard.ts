@@ -5,7 +5,7 @@ import {
   PENDING_LOCATION_KEY,
 } from './symbols'
 import { IS_CLIENT, isDataLoader, setCurrentContext } from './utils'
-import { UseDataLoader } from './createDataLoader'
+import { isNavigationFailure } from 'vue-router'
 
 /**
  * Setups the different Navigation Guards to collect the data loaders from the route records and then to execute them.
@@ -29,6 +29,8 @@ export function setupRouter(router: Router) {
 
   // guard to add the loaders to the meta property
   const removeLoaderGuard = router.beforeEach((to) => {
+    // global pending location, used by nested loaders to know if they should load or not
+    router[PENDING_LOCATION_KEY] = to
     // Differently from records, this one is reset on each navigation
     // so it must be built each time
     to.meta[LOADER_SET_KEY] = new Set()
@@ -68,6 +70,8 @@ export function setupRouter(router: Router) {
       }
     }
 
+    // TODO: not use record to store loaders, or maybe cleanup here
+
     return Promise.all(lazyLoadingPromises).then(() => {
       for (const record of to.matched) {
         // merge the whole set of loaders
@@ -91,9 +95,6 @@ export function setupRouter(router: Router) {
      * - ~~Await all the promises (parallel)~~
      * - Collect NavigationResults and call `selectNavigationResult` to select the one to use
      */
-
-    // global pending location, used by nested loaders to know if they should load or not
-    router[PENDING_LOCATION_KEY] = to
 
     // unset the context so all loaders are executed as root loaders
     setCurrentContext([])
@@ -133,6 +134,22 @@ export function setupRouter(router: Router) {
         // isFetched = true
       })
     // TODO: handle errors and navigation failures?
+  })
+
+  // listen to duplicated navigation failures to reset the pendingTo and pendingLoad
+  // since they won't trigger the beforeEach or beforeResolve defined above
+  router.afterEach((_to, _from, failure) => {
+    if (
+      isNavigationFailure(failure, 16 /* NavigationFailureType.duplicated */)
+    ) {
+      if (router[PENDING_LOCATION_KEY]) {
+        router[PENDING_LOCATION_KEY].meta[LOADER_SET_KEY]!.forEach((loader) => {
+          loader._.entry.pendingTo = null
+          loader._.entry.pendingLoad = null
+        })
+        router[PENDING_LOCATION_KEY] = null
+      }
+    }
   })
 
   return () => {
