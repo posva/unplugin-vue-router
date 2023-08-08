@@ -1,4 +1,5 @@
 import type { Router } from 'vue-router'
+import type { App } from 'vue'
 import {
   LOADER_ENTRIES_KEY,
   LOADER_SET_KEY,
@@ -13,7 +14,7 @@ import { isNavigationFailure } from 'vue-router'
  * @param router - the router instance
  * @returns
  */
-export function setupRouter(router: Router) {
+export function setupLoaderGuard(router: Router) {
   // avoid creating the guards multiple times
   if (router[LOADER_ENTRIES_KEY] != null) {
     if (process.env.NODE_ENV !== 'production') {
@@ -177,4 +178,15 @@ export function isAsyncModule(
     !('emits' in asyncMod) &&
     !('__vccOpts' in asyncMod)
   )
+}
+
+export function DataLoaderPlugin(
+  app: App,
+  { router }: DataLoaderPluginOptions
+) {
+  setupLoaderGuard(router)
+}
+
+export interface DataLoaderPluginOptions {
+  router: Router
 }
