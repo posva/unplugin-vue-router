@@ -2,6 +2,5 @@
   "prettier.enable": true,
   "typescript.preferences.autoImportFileExcludePatterns": [
     "vue-router",
-  ],
-  "testing.automaticallyOpenPeekView": "never"
+  ]
 }
