@@ -65,6 +65,7 @@ export function withLoaderContext<P extends Promise<unknown>>(promise: P): P {
  * Object and promise of the object itself. Used when we can await some of the properties of an object to be loaded.
  * @internal
  */
-export type _PromiseMerged<T> = T & Promise<T>
+export type _PromiseMerged<PromiseType, RawType = PromiseType> = RawType &
+  Promise<PromiseType>
 
 export const IS_CLIENT = typeof window !== 'undefined'

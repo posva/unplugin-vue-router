@@ -62,11 +62,14 @@ export interface DataLoaderEntryBase<
    * Data stored in the entry.
    */
   data: Ref<_DataMaybeLazy<UnwrapRef<Data>, isLazy>>
-}
 
-export interface _UseLoaderState {
-  id: symbol
-  promise: Promise<void>
+  /**
+   * Data that was staged by a loader. This is used to avoid showing the old data while the new data is loading. Calling
+   * the internal `commit()` function will replace the data with the staged data.
+   */
+  staged: Data | null
+
+  commit(to: RouteLocationNormalizedLoaded): void
 }
 
 export function createDataLoader<Context extends DataLoaderContextBase>({
@@ -140,7 +143,23 @@ export interface DefineDataLoaderOptionsBase<isLazy extends boolean> {
    * @defaultValue `true`
    */
   server?: boolean
+
+  /**
+   * When the data should be committed to the entry. This only applies to non-lazy loaders.
+   *
+   * @see {@link DefineDataLoaderCommit}
+   * @defaultValue `'immediate'`
+   */
+  commit?: DefineDataLoaderCommit
 }
+
+/**
+ * When the data should be committed to the entry.
+ * - `immediate`: the data is committed as soon as it is loaded.
+ * - `after-load`: the data is committed after all non-lazy loaders have finished loading.
+ */
+export type DefineDataLoaderCommit = 'immediate' | 'after-load'
+// TODO: is after-load fine or is it better to have an after-navigation instead
 
 export interface DataLoaderContextBase {}
 // export interface DataLoaderContext {}
@@ -192,6 +211,14 @@ export interface UseDataLoaderInternals<
    * Resolved options for the loader.
    */
   options: Required<DefineDataLoaderOptionsBase<isLazy>>
+
+  /**
+   * Commits the pending data to the entry. This is called by the navigation guard when all non-lazy loaders have
+   * finished loading. It should be implemented by the loader.
+   */
+  commit(to: RouteLocationNormalizedLoaded): void
+
+  entry: DataLoaderEntryBase<isLazy, Data>
 }
 
 export type _DataMaybeLazy<Data, isLazy extends boolean = boolean> =
@@ -219,9 +246,11 @@ export interface UseDataLoaderResult<
   error: ShallowRef<Err | null> // any is simply more convenient for errors
 
   /**
-   * Refresh the data. Returns a promise that resolves when the data is refreshed.
+   * Refresh the data using the current route location. Returns a promise that resolves when the data is refreshed. You
+   * can pass a route location to refresh the data for a specific location. Note that **if an ongoing navigation is
+   * happening**, refresh will still refresh the data for the current location, which could lead to inconsistencies.
    */
-  refresh: () => Promise<void>
+  refresh: (route?: RouteLocationNormalizedLoaded) => Promise<void>
 
   /**
    * Get the promise of the current loader if there is one, returns a falsy value otherwise.

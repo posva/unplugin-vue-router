@@ -15,7 +15,7 @@ import {
 import { setCurrentContext } from './utils'
 import { getRouter } from 'vue-router-mock'
 import { setupRouter } from './navigation-guard'
-import { mockPromise } from '~/tests/utils'
+import { mockPromise, mockedLoader } from '~/tests/utils'
 import { LOADER_SET_KEY } from './symbols'
 import {
   useDataOne,
@@ -67,19 +67,6 @@ describe('navigation-guard', () => {
   const loader3 = defineLoader(async () => {})
   const loader4 = defineLoader(async () => {})
   const loader5 = defineLoader(async () => {})
-
-  function mockedLoader(
-    // boolean is easier to handle for router mock
-    options?: DefineDataLoaderOptions<boolean>
-  ) {
-    const [spy, resolve, reject] = mockPromise('ok', 'ko')
-    return {
-      spy,
-      resolve,
-      reject,
-      loader: defineLoader(async () => await spy(), options),
-    }
-  }
 
   it('creates a set of loaders during navigation', async () => {
     const router = getRouter()

@@ -18,15 +18,17 @@ import { mount } from '@vue/test-utils'
 import { getRouter } from 'vue-router-mock'
 import { setupRouter } from './navigation-guard'
 import { UseDataLoader } from './createDataLoader'
-import { mockPromise } from '~/tests/utils'
+import { mockPromise, mockedLoader } from '~/tests/utils'
 import RouterViewMock from '~/tests/data-loaders/RouterViewMock.vue'
 import ComponentWithNestedLoader from '~/tests/data-loaders/ComponentWithNestedLoader.vue'
 import {
   dataOneSpy,
   dataTwoSpy,
   useDataOne,
+  useDataTwo,
 } from '~/tests/data-loaders/loaders'
 import type { RouteLocationNormalizedLoaded } from 'vue-router'
+import ComponentWithLoader from '~/tests/data-loaders/ComponentWithLoader.vue'
 
 describe('defineLoader', () => {
   let removeGuards = () => {}
@@ -134,7 +136,7 @@ describe('defineLoader', () => {
     it('does not block navigation when lazy loaded', async () => {
       const [spy, resolve, reject] = mockPromise('resolved')
       const { wrapper, useData, router } = singleLoaderOneRoute(
-        defineLoader(async () => spy(), { lazy: true })
+        defineLoader(async () => spy(), { lazy: true, key: 'lazy-test' })
       )
       expect(spy).not.toHaveBeenCalled()
       await router.push('/fetch')
@@ -321,14 +323,15 @@ describe('defineLoader', () => {
       await firstNavigation
       await secondNavigation
 
+      expect(rootCalls).toEqual(2)
+      expect(nestedCalls).toEqual(2)
+
       // only the data from the second navigation should be preserved
       const { data } = useData()
       const { data: nestedData } = app.runWithContext(() => useNestedLoader())
+
       expect(nestedData.value).toEqual('two')
       expect(data.value).toEqual('two,two')
-
-      expect(rootCalls).toEqual(2)
-      expect(nestedCalls).toEqual(2)
     })
 
     it('discards a pending load from a previous navigation that resolved later', async () => {
@@ -452,6 +455,42 @@ describe('defineLoader', () => {
       await pendingLoad()
       expect(dataOneSpy).toHaveBeenCalledTimes(1)
       expect(wrapper.text()).toMatchInlineSnapshot('"resolved 1resolved 1"')
+    })
+
+    it('keeps the old data until all loaders are resolved', async () => {
+      const router = getRouter()
+      const l1 = mockedLoader({ commit: 'after-load' })
+      const l2 = mockedLoader({ commit: 'after-load' })
+      router.addRoute({
+        name: '_test',
+        path: '/fetch',
+        component: defineComponent({
+          template: `<p></p>`,
+        }),
+        meta: {
+          loaders: [l1.loader, l2.loader],
+        },
+      })
+      const wrapper = mount(RouterViewMock, {})
+      const app: App = wrapper.vm.$.appContext.app
+
+      const p = router.push('/fetch')
+      await vi.runOnlyPendingTimersAsync()
+      l1.resolve('one')
+      await vi.runOnlyPendingTimersAsync()
+
+      const { data: one } = app.runWithContext(() => l1.loader())
+      const { data: two } = app.runWithContext(() => l2.loader())
+      expect(l1.spy).toHaveBeenCalledTimes(1)
+      expect(l2.spy).toHaveBeenCalledTimes(1)
+
+      // it waits for both to be resolved
+      expect(one.value).toEqual(undefined)
+      l2.resolve('two')
+      await vi.runOnlyPendingTimersAsync()
+      await p
+      expect(one.value).toEqual('one')
+      expect(two.value).toEqual('two')
     })
   })
 })
