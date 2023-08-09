@@ -124,6 +124,9 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
+      'unplugin-vue-router/runtime': fileURLToPath(
+        new URL('../src/runtime.ts', import.meta.url)
+      ),
     },
   },
 })
