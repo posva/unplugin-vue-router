@@ -11,12 +11,10 @@ import {
   UseDataLoader,
   UseDataLoaderResult,
   _DataMaybeLazy,
-  createDataLoader,
 } from './createDataLoader'
 import {
   IS_USE_DATA_LOADER_KEY,
   LOADER_ENTRIES_KEY,
-  PENDING_LOCATION_KEY,
   STAGED_NO_VALUE,
 } from './symbols'
 import {
@@ -25,7 +23,7 @@ import {
   setCurrentContext,
   withinScope,
 } from './utils'
-import { Ref, UnwrapRef, ref, shallowRef } from 'vue'
+import { Ref, UnwrapRef, ref } from 'vue'
 
 export function defineLoader<
   P extends Promise<unknown>,
@@ -189,7 +187,6 @@ export function defineLoader<
   UseDataLoader<isLazy, Awaited<P>> = () => {
     // work with nested data loaders
     let [parentEntry, _router, _route] = getCurrentContext()
-    // TODO: tell parent entry about the child
     // fallback to the global router and routes for useDataLoaders used within components
     const router = _router || useRouter()
     const route = _route || useRoute()
@@ -215,13 +212,6 @@ export function defineLoader<
           `Some "useDataLoader()" was called outside of a component's setup or a data loader.`
         )
       }
-
-      // TODO: we can probably get around this by returning the staged data
-      if (parentEntry && options.commit === 'after-load') {
-        console.warn(
-          `🚨 "${options.key}" is used used as a nested loader and its commit option is set to "after-load" but nested loaders are always immediate to be able to give a value to their parent loader.`
-        )
-      }
     }
 
     // TODO: skip if route is not the router pending location
@@ -229,7 +219,6 @@ export function defineLoader<
       // if the entry doesn't exist, create it with load and ensure it's loading
       !entry ||
       // the existing pending location isn't good, we need to load again
-      // TODO: only load if the target route is the global pending location
       (parentEntry && entry.pendingTo !== route)
     ) {
       // console.log(

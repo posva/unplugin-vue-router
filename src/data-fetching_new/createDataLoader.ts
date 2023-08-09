@@ -56,6 +56,9 @@ export interface DataLoaderEntryBase<
    */
   pendingLoad: Promise<void> | null
 
+  /**
+   * The latest pending navigation's `to` route. Used to verify if the navigation is still valid when it resolves.
+   */
   pendingTo: RouteLocationNormalizedLoaded | null
 
   /**
