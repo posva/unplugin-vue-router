@@ -1,32 +1,43 @@
 <script lang="ts">
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-export const useUserData = defineLoader('/[name]', async (route) => {
-  await delay(1000)
-  if (route.name === '/[name]') {
-    route.params
-  }
-  const user = {
-    name: route.params.name || 'Edu',
-    // @ts-expect-error: no id param!
-    id: route.params.id || 24,
-    when: new Date().toUTCString(),
-  }
-  return user
-})
+export const useUserData = defineLoader(
+  '/[name]',
+  async (route) => {
+    await delay(1000)
+    if (route.name === '/[name]') {
+      route.params
+    }
+    const user = {
+      name: route.params.name || 'Edu',
+      // @ts-expect-error: no id param!
+      id: route.params.id || 24,
+      when: new Date().toUTCString(),
+    }
+    return user
+  },
+  { key: 'user' }
+)
 
 const other = 'hello'
 
-const useOne = defineLoader(async (route) => {
-  if (route.name === '/[name]') {
-    route.params.name
-  }
+const useOne = defineLoader(
+  async (route) => {
+    const user = await useUserData()
+    if (route.name === '/[name]') {
+      route.params.name
+    }
 
-  return { one: 'one' }
-})
+    return {
+      one: 'one',
+      user: user.name,
+    }
+  },
+  { key: 'one' }
+)
 const useTwo = defineLoader(async () => ({ two: 'two' }), { lazy: true })
 
-export { useOne, other }
+export { useOne, other, useTwo }
 export default {}
 </script>
 
@@ -111,6 +122,11 @@ definePage({
     <p v-show="false">{{ thing }}</p>
     <p v-if="pending">Loading user...</p>
     <pre v-else>{{ user }}</pre>
+
+    <p>one:</p>
+    <pre>{{ one }}</pre>
+    <p>two</p>
+    <pre>{{ two }}</pre>
   </main>
 </template>
 
