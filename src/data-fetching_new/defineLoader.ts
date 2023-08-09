@@ -18,6 +18,7 @@ import {
   STAGED_NO_VALUE,
 } from './symbols'
 import {
+  IS_CLIENT,
   assign,
   getCurrentContext,
   setCurrentContext,
@@ -122,9 +123,11 @@ export function defineLoader<
         // )
         if (entry.pendingLoad === currentLoad) {
           error.value = e
+          // propagate error if non lazy or during SSR
+          if (!options.lazy || !IS_CLIENT) {
+            return Promise.reject(e)
+          }
         }
-        // propagate error
-        // return Promise.reject(e)
       })
       .finally(() => {
         setCurrentContext(currentContext)
@@ -155,16 +158,7 @@ export function defineLoader<
     this: DataLoaderEntryBase,
     to: RouteLocationNormalizedLoaded
   ) {
-    if (!this) {
-      if (process.env.NODE_ENV === 'development') {
-        throw new Error(
-          `Loader "${options.key}"'s "commit()" was called before it was loaded once. This will fail in production.`
-        )
-      }
-      return
-    }
-
-    if (this.pendingTo === to) {
+    if (this.pendingTo === to && !this.error.value) {
       // console.log('👉 commit', this.staged)
       if (process.env.NODE_ENV === 'development') {
         if (this.staged === STAGED_NO_VALUE) {
