@@ -17,16 +17,12 @@ import {
 import { setCurrentContext } from './utils'
 import { enableAutoUnmount, mount } from '@vue/test-utils'
 import { getRouter } from 'vue-router-mock'
-import { DataLoaderPlugin, setupLoaderGuard } from './navigation-guard'
+import { DataLoaderPlugin } from './navigation-guard'
 import { UseDataLoader } from './createDataLoader'
 import { mockPromise, mockedLoader } from '~/tests/utils'
 import RouterViewMock from '~/tests/data-loaders/RouterViewMock.vue'
 import ComponentWithNestedLoader from '~/tests/data-loaders/ComponentWithNestedLoader.vue'
-import {
-  dataOneSpy,
-  dataTwoSpy,
-  useDataOne,
-} from '~/tests/data-loaders/loaders'
+import { dataOneSpy, dataTwoSpy } from '~/tests/data-loaders/loaders'
 import type { RouteLocationNormalizedLoaded } from 'vue-router'
 
 describe('defineLoader', () => {
