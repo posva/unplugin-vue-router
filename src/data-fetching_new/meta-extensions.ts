@@ -1,9 +1,7 @@
+import { App } from 'vue'
+import type { DataLoaderEntryBase, UseDataLoader } from './createDataLoader'
 import type {
-  DataLoaderEntryBase,
-  UseDataLoader,
-  _UseLoaderState,
-} from './createDataLoader'
-import type {
+  APP_KEY,
   LOADER_ENTRIES_KEY,
   LOADER_SET_KEY,
   PENDING_LOCATION_KEY,
@@ -33,6 +31,8 @@ declare module 'vue-router' {
      * @internal
      */
     [PENDING_LOCATION_KEY]: RouteLocationNormalizedLoaded | null
+
+    [APP_KEY]: App<unknown>
   }
 
   interface RouteMeta {

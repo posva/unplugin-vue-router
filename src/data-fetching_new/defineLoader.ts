@@ -13,6 +13,7 @@ import {
   _DataMaybeLazy,
 } from './createDataLoader'
 import {
+  APP_KEY,
   IS_USE_DATA_LOADER_KEY,
   LOADER_ENTRIES_KEY,
   STAGED_NO_VALUE,
@@ -223,7 +224,7 @@ export function defineLoader<
       // console.log(
       //   `🔁 loading from useData for "${options.key}": "${route.fullPath}"`
       // )
-      load(route, router, parentEntry)
+      router[APP_KEY].runWithContext(() => load(route, router, parentEntry))
     }
 
     entry = entries.get(loader)!
@@ -245,7 +246,10 @@ export function defineLoader<
       pending,
       refresh: (
         to: RouteLocationNormalizedLoaded = router.currentRoute.value
-      ) => load(to, router).then(() => entry!.commit(to)),
+      ) =>
+        router[APP_KEY].runWithContext(() => load(to, router)).then(() =>
+          entry!.commit(to)
+        ),
     } satisfies UseDataLoaderResult
 
     // load ensures there is a pending load

@@ -1,6 +1,7 @@
 import type { Router } from 'vue-router'
 import { effectScope, type App, type EffectScope } from 'vue'
 import {
+  APP_KEY,
   LOADER_ENTRIES_KEY,
   LOADER_SET_KEY,
   PENDING_LOCATION_KEY,
@@ -31,6 +32,9 @@ export function setupLoaderGuard(
 
   // Access to the entries map for convenience
   router[LOADER_ENTRIES_KEY] = new WeakMap()
+
+  // Access to `app.runWithContext()`
+  router[APP_KEY] = app
 
   // guard to add the loaders to the meta property
   const removeLoaderGuard = router.beforeEach((to) => {
@@ -112,6 +116,8 @@ export function setupLoaderGuard(
           .runWithContext(() => loader._.load(to, router))
           .then(() => {
             // for immediate loaders, the load function handles this
+            // NOTE: it would be nice to also have here the immediate commit
+            // but running it here is too late for nested loaders
             if (commit === 'after-load') {
               return loader
             }
