@@ -87,10 +87,6 @@ export function setupLoaderGuard(router: Router) {
 
   const removeDataLoaderGuard = router.beforeResolve((to) => {
     const loaders = Array.from(to.meta[LOADER_SET_KEY] || [])
-    // console.log(
-    //   'Invoking data loaders',
-    //   Array.from(to.meta[LOADER_SET_KEY]?.values() || []).map((fn) => fn.name)
-    // )
     /**
      * - ~~Map the loaders to an array of promises~~
      * - ~~Await all the promises (parallel)~~
@@ -106,11 +102,10 @@ export function setupLoaderGuard(router: Router) {
         if (!server && !IS_CLIENT) {
           return
         }
+        // keep track of loaders that should be committed after all loaders are done
         const ret = loader._.load(to, router).then(() => {
-          if (lazy || commit === 'immediate') {
-            // TODO: refactor, it should be done here, it's better
-            // loader._.entry.commit(to)
-          } else if (commit === 'after-load') {
+          // for immediate loaders, the load function handles this
+          if (commit === 'after-load') {
             return loader
           }
         })
@@ -134,7 +129,8 @@ export function setupLoaderGuard(router: Router) {
         // NOTE: could this be dev only?
         // isFetched = true
       })
-    // TODO: handle errors and navigation failures?
+    // no catch so errors are propagated to the router
+    // TODO: handle navigation failures?
   })
 
   // listen to duplicated navigation failures to reset the pendingTo and pendingLoad

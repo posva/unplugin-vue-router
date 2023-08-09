@@ -156,28 +156,23 @@ describe('defineLoader', () => {
           })
         })
 
-        it.todo(
-          `should abort the navigation if the non lazy loader throws, commit: ${commit}`,
-          async () => {
-            const { wrapper, useData, router } = singleLoaderOneRoute(
-              defineLoader(
-                async () => {
-                  throw new Error('nope')
-                },
-                { commit }
-              )
+        it(`should abort the navigation if a non lazy loader throws, commit: ${commit}`, async () => {
+          const { wrapper, router } = singleLoaderOneRoute(
+            defineLoader(
+              async () => {
+                throw new Error('nope')
+              },
+              { commit }
             )
-            await router.push('/fetch')
-            expect(wrapper.get('#error').text()).toBe('Error: nope')
-            expect(wrapper.get('#pending').text()).toBe('false')
-            expect(wrapper.get('#data').text()).toBe('')
-            const { data } = useData()
-            expect(router.currentRoute.value.path).not.toBe('/fetch')
-            expect(data.value).toEqual(undefined)
-          }
-        )
+          )
+          const onError = vi.fn()
+          router.onError(onError)
+          await expect(router.push('/fetch')).rejects.toThrow('nope')
+          expect(onError).toHaveBeenCalledTimes(1)
+          expect(router.currentRoute.value.path).not.toBe('/fetch')
+        })
 
-        it(`should not abort the navigation if the lazy loader throws, commit: ${commit}`, async () => {
+        it(`should not abort the navigation if a lazy loader throws, commit: ${commit}`, async () => {
           const { wrapper, useData, router } = singleLoaderOneRoute(
             defineLoader(
               async () => {
