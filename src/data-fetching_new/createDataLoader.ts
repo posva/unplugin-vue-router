@@ -317,7 +317,10 @@ type A = UseDataLoaderResult<boolean, string>['data']
 /**
  * Loader function that can be passed to `defineLoader()`.
  */
-export interface DefineLoaderFn<Data> {
+export interface DefineLoaderFn<
+  P extends Promise<unknown>,
+  Route = RouteLocationNormalizedLoaded
+> {
   // TODO: context variable?
-  (route: RouteLocationNormalizedLoaded): Promise<Awaited<Data>>
+  (route: Route): P
 }

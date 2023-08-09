@@ -1,11 +1,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import {
-  createWebHistory,
-  createRouter,
-  setupDataFetchingGuard,
-  setupLoaderGuard,
-} from 'vue-router/auto'
+import { createWebHistory, createRouter } from 'vue-router/auto'
+import { DataLoaderPlugin } from 'unplugin-vue-router/runtime'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -15,11 +11,9 @@ const router = createRouter({
   },
 })
 
-// setupDataFetchingGuard(router)
-setupLoaderGuard(router)
-
 const app = createApp(App)
 
+app.use(DataLoaderPlugin, { router })
 app.use(router)
 
 app.mount('#app')

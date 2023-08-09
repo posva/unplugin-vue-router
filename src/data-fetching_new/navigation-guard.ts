@@ -190,6 +190,27 @@ export function isAsyncModule(
   )
 }
 
+/**
+ * Data Loader plugin to add data loading support to Vue Router.
+ *
+ * @example
+ * ```ts
+ * import { createApp } from 'vue'
+ * import {
+ *   createRouter,
+ *   DataLoaderPlugin,
+ *   createWebHistory,
+ * } from 'vue-router/auto'
+ *
+ * const router = createRouter({
+ *   history: createWebHistory(),
+ * })
+ *
+ * const app = createApp({})
+ * app.use(DataLoaderPlugin, { router })
+ * app.use(router)
+ * ```
+ */
 export function DataLoaderPlugin(
   app: App,
   { router }: DataLoaderPluginOptions

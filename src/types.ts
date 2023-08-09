@@ -49,6 +49,10 @@ export type {
 
 // expose for generated type extensions
 export type {
-  DefineLoaderOptions as _DefineLoaderOptions,
-  DataLoader as _DataLoader,
-} from './data-fetching/defineLoader'
+  DefineLoaderFn as _DefineLoaderFn,
+  UseDataLoader as _UseDataLoader,
+} from './data-fetching_new/createDataLoader'
+export type {
+  // ...
+  DefineDataLoaderOptions as _DefineDataLoaderOptions,
+} from './data-fetching_new/defineLoader'
