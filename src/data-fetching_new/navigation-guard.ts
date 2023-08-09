@@ -125,7 +125,7 @@ export function setupLoaderGuard(router: Router) {
         for (const loader of loaders) {
           if (loader) {
             // console.log(`⬇️ Committing ${loader.name}`)
-            loader._.entry.commit(to)
+            loader._.getEntry(router).commit(to)
           }
         }
         // TODO:
@@ -145,8 +145,9 @@ export function setupLoaderGuard(router: Router) {
     ) {
       if (router[PENDING_LOCATION_KEY]) {
         router[PENDING_LOCATION_KEY].meta[LOADER_SET_KEY]!.forEach((loader) => {
-          loader._.entry.pendingTo = null
-          loader._.entry.pendingLoad = null
+          const entry = loader._.getEntry(router)
+          entry.pendingTo = null
+          entry.pendingLoad = null
         })
         router[PENDING_LOCATION_KEY] = null
       }

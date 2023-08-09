@@ -17,6 +17,9 @@ export interface DataLoaderEntryBase<
   isLazy extends boolean = boolean,
   Data = unknown
 > {
+  // route information
+  // TODO: should be moved to the cached loader version
+
   /**
    * Location's params that were used to load the data.
    */
@@ -30,12 +33,19 @@ export interface DataLoaderEntryBase<
    */
   hash: string | null
 
-  /**
-   * Other data loaders that depend on this one. This is used to invalidate the data when a dependency is invalidated.
-   */
-  children: Set<DataLoaderEntryBase>
+  // state
 
-  // TODO: allow delaying pending? maybe
+  /**
+   * Data stored in the entry.
+   */
+  data: Ref<_DataMaybeLazy<UnwrapRef<Data>, isLazy>>
+
+  /**
+   * Error if there was an error.
+   */
+  error: Ref<any> // any is simply more convenient for errors
+
+  // TODO: allow delaying pending? maybe allow passing a custom ref that can use refDebounced https://vueuse.org/shared/refDebounced/#refdebounced
   /**
    * Whether there is an ongoing request.
    */
@@ -49,27 +59,27 @@ export interface DataLoaderEntryBase<
   pendingTo: RouteLocationNormalizedLoaded | null
 
   /**
-   * Error if there was an error.
-   */
-  error: Ref<any> // any is simply more convenient for errors
-
-  /**
-   * Is the entry ready with data. This is set to `true` the first time the entry is updated with data.
-   */
-  isReady: boolean
-
-  /**
-   * Data stored in the entry.
-   */
-  data: Ref<_DataMaybeLazy<UnwrapRef<Data>, isLazy>>
-
-  /**
    * Data that was staged by a loader. This is used to avoid showing the old data while the new data is loading. Calling
    * the internal `commit()` function will replace the data with the staged data.
    */
   staged: Data | typeof STAGED_NO_VALUE
 
-  commit(to: RouteLocationNormalizedLoaded): void
+  // entry instance
+
+  /**
+   * Other data loaders that depend on this one. This is used to invalidate the data when a dependency is invalidated.
+   */
+  children: Set<DataLoaderEntryBase>
+
+  /**
+   * Commits the pending data to the entry. This is called by the navigation guard when all non-lazy loaders have
+   * finished loading. It should be implemented by the loader. It **must be called** from the entry itself:
+   * `entry.commit(to)`.
+   */
+  commit(
+    this: DataLoaderEntryBase<isLazy, Data>,
+    to: RouteLocationNormalizedLoaded
+  ): void
 }
 
 export function createDataLoader<Context extends DataLoaderContextBase>({
@@ -177,10 +187,27 @@ export interface UseDataLoader<
   Data = unknown
 > {
   [IS_USE_DATA_LOADER_KEY]: true
-  // TODO: with context argument and stuff, probably generic
-  // maybe a context argument
-  // _fn: () => _Awaitable<Data>
 
+  /**
+   * Data Loader composable returned by `defineLoader()`.
+   *
+   * @example
+   * Returns the Data loader data, pending, error etc. Meant to be used in `setup()` or `<script setup>` **without `await`**:
+   * ```vue
+   * <script setup>
+   * const { data, pending, error } = useUserData()
+   * </script>
+   * ```
+   *
+   * @example
+   * It also returns a promise of the data when used in nested loaders. Note this `data` is **not a ref**. This is not meant to be used in `setup()` or `<script setup>`.
+   * ```ts
+   * export const useUserConnections = defineLoader(async () => {
+   *   const user = await useUserData()
+   *   return fetchUserConnections(user.id)
+   * })
+   * ```
+   */
   (): _PromiseMerged<Data, UseDataLoaderResult<isLazy, Data>>
 
   _: UseDataLoaderInternals<isLazy, Data>
@@ -201,24 +228,17 @@ export interface UseDataLoaderInternals<
   ) => Promise<void>
 
   /**
-   * The data loaded by the loader associated with the router instance. As one router instance can only be used for one
-   * app, it ensures the cache is not shared among requests.
-   */
-  // TODO: do we need this?
-  // entries: WeakMap<Router, DataLoaderEntryBase<isLazy, Data>>
-
-  /**
    * Resolved options for the loader.
    */
   options: Required<DefineDataLoaderOptionsBase<isLazy>>
 
   /**
-   * Commits the pending data to the entry. This is called by the navigation guard when all non-lazy loaders have
-   * finished loading. It should be implemented by the loader.
+   * Gets the entry associated with the router instance. Assumes the data loader has been loaded and that the entry
+   * exists.
+   *
+   * @param router - router instance
    */
-  commit(to: RouteLocationNormalizedLoaded): void
-
-  entry: DataLoaderEntryBase<isLazy, Data>
+  getEntry(router: Router): DataLoaderEntryBase<isLazy, Data>
 }
 
 export type _DataMaybeLazy<Data, isLazy extends boolean = boolean> =
@@ -230,39 +250,35 @@ export type _DataMaybeLazy<Data, isLazy extends boolean = boolean> =
  */
 export interface UseDataLoaderResult<
   isLazy extends boolean = boolean,
-  Data = unknown,
-  Err = Error
+  Data = unknown
 > {
+  /**
+   * Data returned by the loader. If the data loader is lazy, it will be undefined until the first load.
+   */
+  data: Ref<UnwrapRef<_DataMaybeLazy<Data, isLazy>>>
+
   /**
    * Whether there is an ongoing request.
    */
   pending: Ref<boolean>
 
-  // TODO: allow delaying pending? maybe
-
   /**
    * Error if there was an error.
    */
-  error: ShallowRef<Err | null> // any is simply more convenient for errors
+  error: ShallowRef<any> // any is simply more convenient for errors
 
   /**
-   * Refresh the data using the current route location. Returns a promise that resolves when the data is refreshed. You
-   * can pass a route location to refresh the data for a specific location. Note that **if an ongoing navigation is
-   * happening**, refresh will still refresh the data for the current location, which could lead to inconsistencies.
+   * Refresh the data using the current route location. Returns a promise that resolves when the data is refreshed. This
+   * method should not be called during a navigation as it can conflict with an ongoing load and lead to
+   * inconsistencies.
    */
-  refresh: (route?: RouteLocationNormalizedLoaded) => Promise<void>
-
+  refresh(): Promise<void>
   /**
-   * Get the promise of the current loader if there is one, returns a falsy value otherwise.
+   * Refresh the data using the route location passed as argument. Returns a promise that resolves when the data is refreshed.
+   *
+   * @param route - route location to refresh the data for
    */
-  // TODO: Can we do without this?
-  pendingLoad: () => Promise<void> | undefined | null
-
-  /**
-   * Data returned by the loader. If the data loader is lazy, it will be undefined until the first load.
-   */
-  // data: false extends isLazy ? Ref<UnwrapRef<T>> : Ref<UnwrapRef<T> | undefined>
-  data: Ref<UnwrapRef<_DataMaybeLazy<Data, isLazy>>>
+  refresh(route: RouteLocationNormalizedLoaded): Promise<void>
 }
 
 export function testing() {
@@ -294,3 +310,11 @@ export function testing() {
 
 type B = boolean extends true | false ? 'yes' : 'no'
 type A = UseDataLoaderResult<boolean, string>['data']
+
+/**
+ * Loader function that can be passed to `defineLoader()`.
+ */
+export interface DefineLoaderFn<Data> {
+  // TODO: context variable?
+  (route: RouteLocationNormalizedLoaded): Promise<Awaited<Data>>
+}
