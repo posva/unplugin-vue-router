@@ -107,12 +107,15 @@ export function setupLoaderGuard(
           return
         }
         // keep track of loaders that should be committed after all loaders are done
-        const ret = loader._.load(to, router).then(() => {
-          // for immediate loaders, the load function handles this
-          if (commit === 'after-load') {
-            return loader
-          }
-        })
+        const ret = app
+          // allows inject and provide APIs
+          .runWithContext(() => loader._.load(to, router))
+          .then(() => {
+            // for immediate loaders, the load function handles this
+            if (commit === 'after-load') {
+              return loader
+            }
+          })
         // on client-side, lazy loaders are not awaited, but on server they are
         return IS_CLIENT && lazy
           ? undefined
