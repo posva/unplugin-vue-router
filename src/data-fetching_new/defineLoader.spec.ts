@@ -553,8 +553,7 @@ describe('defineLoader', () => {
 
       expect(dataOneSpy).toHaveBeenCalledTimes(0)
       await router.push('/fetch')
-      const { pendingLoad } = app.runWithContext(() => useDataOne())
-      await pendingLoad()
+      await vi.runOnlyPendingTimersAsync()
       expect(dataOneSpy).toHaveBeenCalledTimes(1)
       expect(wrapper.text()).toMatchInlineSnapshot('"resolved 1resolved 1"')
     })

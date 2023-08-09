@@ -7,6 +7,7 @@ import { useRoute, useRouter } from 'vue-router'
 import {
   DataLoaderEntryBase,
   DefineDataLoaderOptionsBase,
+  DefineLoaderFn,
   UseDataLoader,
   UseDataLoaderResult,
   _DataMaybeLazy,
@@ -63,8 +64,6 @@ export function defineLoader<
     opts
   )
 
-  let _entry: DataLoaderEntryBase<isLazy, Awaited<P>> | undefined
-
   function load(
     to: RouteLocationNormalizedLoaded,
     router: Router,
@@ -75,13 +74,9 @@ export function defineLoader<
     if (!entries.has(loader)) {
       entries.set(loader, createDefineLoaderEntry<boolean>(options, commit))
     }
-    const entry =
-      // @ts-expect-error: isLazy again
-      (_entry =
-        // ...
-        entries.get(loader)!)
+    const entry = entries.get(loader)!
 
-    const { data, error, isReady, pending } = entry
+    const { error, pending } = entry
 
     error.value = null
     pending.value = true
@@ -91,7 +86,7 @@ export function defineLoader<
     if (process.env.NODE_ENV === 'development') {
       if (parent !== currentContext[0]) {
         console.warn(
-          `❌👶 "${options.key}" has a different parent than the current context.`
+          `❌👶 "${options.key}" has a different parent than the current context. This shouldn't be happening. Please report a bug with a reproduction to https://github.com/posva/unplugin-vue-router/`
         )
       }
     }
@@ -138,7 +133,7 @@ export function defineLoader<
           pending.value = false
           // we must run commit here so nested loaders are ready before used by their parents
           if (options.lazy || options.commit === 'immediate') {
-            commit(to)
+            entry.commit(to)
           }
         }
       })
@@ -153,8 +148,11 @@ export function defineLoader<
     return currentLoad
   }
 
-  function commit(to: RouteLocationNormalizedLoaded) {
-    if (!_entry) {
+  function commit(
+    this: DataLoaderEntryBase,
+    to: RouteLocationNormalizedLoaded
+  ) {
+    if (!this) {
       if (process.env.NODE_ENV === 'development') {
         throw new Error(
           `Loader "${options.key}"'s "commit()" was called before it was loaded once. This will fail in production.`
@@ -163,34 +161,30 @@ export function defineLoader<
       return
     }
 
-    if (_entry.pendingTo === to) {
+    if (this.pendingTo === to) {
       // console.log('👉 commit', _entry.staged)
       if (process.env.NODE_ENV === 'development') {
-        if (_entry.staged === STAGED_NO_VALUE) {
+        if (this.staged === STAGED_NO_VALUE) {
           console.warn(
             `Loader "${options.key}"'s "commit()" was called but there is no staged data.`
           )
         }
       }
       // if the entry is null, it means the loader never resolved, maybe there was an error
-      if (_entry.staged !== STAGED_NO_VALUE) {
-        // @ts-expect-error: staged starts as null but should always be set at this point
-        _entry.data.value = _entry.staged
+      if (this.staged !== STAGED_NO_VALUE) {
+        this.data.value = this.staged
       }
-      _entry.staged = STAGED_NO_VALUE
-      _entry.pendingTo = null
+      this.staged = STAGED_NO_VALUE
+      this.pendingTo = null
 
       // children entries cannot be committed from the navigation guard, so the parent must tell them
-      _entry.children.forEach((childEntry) => {
+      this.children.forEach((childEntry) => {
         childEntry.commit(to)
       })
     }
   }
 
-  // should only be called after load
-  const pendingLoad = () => _entry!.pendingLoad
-
-  // @ts-expect-error: requires the internals and symbol
+  // @ts-expect-error: requires the internals and symbol that are added later
   const useDataLoader: // for ts
   UseDataLoader<isLazy, Awaited<P>> = () => {
     // work with nested data loaders
@@ -246,6 +240,7 @@ export function defineLoader<
 
     entry = entries.get(loader)!
 
+    // add ourselves to the parent entry children
     if (parentEntry) {
       if (parentEntry === entry) {
         console.warn(`👶❌ "${options.key}" has itself as parent`)
@@ -262,8 +257,7 @@ export function defineLoader<
       pending,
       refresh: (
         to: RouteLocationNormalizedLoaded = router.currentRoute.value
-      ) => load(to, router).then(() => commit(to)),
-      pendingLoad,
+      ) => load(to, router).then(() => entry!.commit(to)),
     } satisfies UseDataLoaderResult
 
     // load ensures there is a pending load
@@ -283,9 +277,9 @@ export function defineLoader<
   useDataLoader._ = {
     load,
     options,
-    commit,
-    get entry() {
-      return _entry!
+    // @ts-expect-error: return type has the generics
+    getEntry(router: Router) {
+      return router[LOADER_ENTRIES_KEY]!.get(loader)!
     },
   }
 
@@ -298,15 +292,6 @@ export interface DefineDataLoaderOptions<isLazy extends boolean>
    * Key to use for SSR state.
    */
   key?: string
-}
-
-/**
- * Loader function that can be passed to `defineLoader()`.
- */
-export interface DefineLoaderFn<T> {
-  (route: RouteLocationNormalizedLoaded): T extends Promise<unknown>
-    ? T
-    : Promise<T>
 }
 
 const DEFAULT_DEFINE_LOADER_OPTIONS: Required<
@@ -324,22 +309,26 @@ export function createDefineLoaderEntry<
   Data = unknown
 >(
   options: Required<DefineDataLoaderOptions<isLazy>>,
-  commit: (to: RouteLocationNormalizedLoaded) => void,
+  commit: (
+    this: DataLoaderEntryBase<isLazy, Data>,
+    to: RouteLocationNormalizedLoaded
+  ) => void,
   initialData?: Data
 ): DataLoaderEntryBase<isLazy, Data> {
   // TODO: the scope should be passed somehow and be unique per application
   return withinScope<DataLoaderEntryBase<isLazy, Data>>(
     () =>
       ({
-        pending: ref(false),
-        error: ref<any>(),
-        children: new Set(),
         // force the type to match
         data: ref(initialData) as Ref<_DataMaybeLazy<UnwrapRef<Data>, isLazy>>,
+        pending: ref(false),
+        error: ref<any>(),
+
         params: {},
         query: {},
         hash: null,
-        isReady: false,
+
+        children: new Set(),
         pendingLoad: null,
         pendingTo: null,
         staged: STAGED_NO_VALUE,
