@@ -27,3 +27,9 @@ export const PENDING_LOCATION_KEY = Symbol()
  * @internal
  */
 export const STAGED_NO_VALUE = Symbol()
+
+/**
+ * Gives access to the current app and it's `runWithContext` method.
+ * @internal
+ */
+export const APP_KEY = Symbol()

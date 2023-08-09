@@ -1,7 +1,7 @@
 /**
  * @vitest-environment happy-dom
  */
-import { App, Ref, defineComponent, shallowRef } from 'vue'
+import { App, Ref, defineComponent, inject, shallowRef } from 'vue'
 import { defineLoader } from './defineLoader'
 import { expectType } from 'ts-expect'
 import {
@@ -153,6 +153,91 @@ describe('defineLoader', () => {
             await refresh()
             expect(spy).toHaveBeenCalledTimes(3)
             expect(data.value).toEqual('resolved 3')
+          })
+
+          describe('app.runWithContext()', () => {
+            it('can inject globals', async () => {
+              const { wrapper, router, useData, app } = singleLoaderOneRoute(
+                defineLoader(async () => {
+                  return inject('key', 'ko')
+                })
+              )
+              app.provide('key', 'ok')
+              await router.push('/fetch')
+              const { data } = useData()
+              expect(data.value).toEqual('ok')
+            })
+
+            it('can inject globals in nested loaders', async () => {
+              const nestedLoader = defineLoader(async () => {
+                return inject('key', 'ko')
+              })
+              const { wrapper, router, useData, app } = singleLoaderOneRoute(
+                defineLoader(async () => {
+                  return await nestedLoader()
+                })
+              )
+              app.provide('key', 'ok')
+              await router.push('/fetch')
+              const { data } = useData()
+              expect(data.value).toEqual('ok')
+            })
+
+            it('can inject globals in nested loaders that run after other loaders', async () => {
+              const l1 = defineLoader(async () => {
+                return inject('key', 'ko')
+              })
+              const l2 = defineLoader(async () => {
+                return inject('key', 'ko')
+              })
+              const { wrapper, router, useData, app } = singleLoaderOneRoute(
+                defineLoader(async () => {
+                  const a = await l1()
+                  const b = await l2()
+                  return `${a},${b}`
+                })
+              )
+              app.provide('key', 'ok')
+              await router.push('/fetch')
+              const { data } = useData()
+              expect(data.value).toEqual('ok,ok')
+            })
+
+            it('can inject globals when refreshed', async () => {
+              const { wrapper, router, useData, app } = singleLoaderOneRoute(
+                defineLoader(async () => {
+                  return inject('key', 'ko')
+                })
+              )
+              await router.push('/fetch')
+              const { data, refresh } = useData()
+              expect(data.value).not.toBe('ok')
+              app.provide('key', 'ok')
+              await refresh()
+              expect(data.value).toBe('ok')
+            })
+
+            it('can inject globals in nested loaders when refreshed', async () => {
+              const l1 = defineLoader(async () => {
+                return inject('key', 'ko')
+              })
+              const l2 = defineLoader(async () => {
+                return inject('key', 'ko')
+              })
+              const { wrapper, router, useData, app } = singleLoaderOneRoute(
+                defineLoader(async () => {
+                  const a = await l1()
+                  const b = await l2()
+                  return `${a},${b}`
+                })
+              )
+              await router.push('/fetch')
+              const { data, refresh } = useData()
+              expect(data.value).not.toBe('ok,ok')
+              app.provide('key', 'ok')
+              await refresh()
+              expect(data.value).toBe('ok,ok')
+            })
           })
         })
 
