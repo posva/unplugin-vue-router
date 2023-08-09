@@ -6,6 +6,7 @@ import { defineLoader } from './defineLoader'
 import { expectType } from 'ts-expect'
 import {
   afterAll,
+  afterEach,
   beforeAll,
   beforeEach,
   describe,
@@ -14,9 +15,9 @@ import {
   vi,
 } from 'vitest'
 import { setCurrentContext } from './utils'
-import { mount } from '@vue/test-utils'
+import { enableAutoUnmount, mount } from '@vue/test-utils'
 import { getRouter } from 'vue-router-mock'
-import { setupLoaderGuard } from './navigation-guard'
+import { DataLoaderPlugin, setupLoaderGuard } from './navigation-guard'
 import { UseDataLoader } from './createDataLoader'
 import { mockPromise, mockedLoader } from '~/tests/utils'
 import RouterViewMock from '~/tests/data-loaders/RouterViewMock.vue'
@@ -29,15 +30,14 @@ import {
 import type { RouteLocationNormalizedLoaded } from 'vue-router'
 
 describe('defineLoader', () => {
-  let removeGuards = () => {}
   beforeEach(() => {
-    removeGuards()
-    removeGuards = setupLoaderGuard(getRouter())
     // invalidate current context
     setCurrentContext(undefined)
     dataOneSpy.mockClear()
     dataTwoSpy.mockClear()
   })
+
+  enableAutoUnmount(afterEach)
 
   // we use fake timers to ensure debugging tests do not rely on timers
   const now = new Date(2000, 0, 1).getTime() // 1 Jan 2000 in local time as number of milliseconds
@@ -78,7 +78,11 @@ describe('defineLoader', () => {
       component,
     })
 
-    const wrapper = mount(RouterViewMock, {})
+    const wrapper = mount(RouterViewMock, {
+      global: {
+        plugins: [[DataLoaderPlugin, { router }]],
+      },
+    })
 
     const app: App = wrapper.vm.$.appContext.app
 
@@ -543,7 +547,11 @@ describe('defineLoader', () => {
         path: '/fetch',
         component: ComponentWithNestedLoader,
       })
-      const wrapper = mount(RouterViewMock, {})
+      const wrapper = mount(RouterViewMock, {
+        global: {
+          plugins: [[DataLoaderPlugin, { router }]],
+        },
+      })
       const app: App = wrapper.vm.$.appContext.app
 
       expect(dataOneSpy).toHaveBeenCalledTimes(0)
@@ -577,7 +585,11 @@ describe('defineLoader', () => {
           loaders: [rootLoader, l1.loader],
         },
       })
-      const wrapper = mount(RouterViewMock, {})
+      const wrapper = mount(RouterViewMock, {
+        global: {
+          plugins: [[DataLoaderPlugin, { router }]],
+        },
+      })
       const app: App = wrapper.vm.$.appContext.app
 
       router.push('/fetch?p=one')
@@ -615,7 +627,11 @@ describe('defineLoader', () => {
           loaders: [rootLoader, l1.loader],
         },
       })
-      const wrapper = mount(RouterViewMock, {})
+      const wrapper = mount(RouterViewMock, {
+        global: {
+          plugins: [[DataLoaderPlugin, { router }]],
+        },
+      })
 
       router.push('/fetch?p=one')
       await vi.runOnlyPendingTimersAsync()
@@ -641,7 +657,11 @@ describe('defineLoader', () => {
           loaders: [l1.loader, l2.loader],
         },
       })
-      const wrapper = mount(RouterViewMock, {})
+      const wrapper = mount(RouterViewMock, {
+        global: {
+          plugins: [[DataLoaderPlugin, { router }]],
+        },
+      })
       const app: App = wrapper.vm.$.appContext.app
 
       const p = router.push('/fetch')
