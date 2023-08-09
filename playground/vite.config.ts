@@ -127,6 +127,9 @@ export default defineConfig({
       'unplugin-vue-router/runtime': fileURLToPath(
         new URL('../src/runtime.ts', import.meta.url)
       ),
+      'unplugin-vue-router/types': fileURLToPath(
+        new URL('../src/types.ts', import.meta.url)
+      ),
     },
   },
 })

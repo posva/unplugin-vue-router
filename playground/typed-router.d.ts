@@ -33,8 +33,9 @@ import type {
   UseLinkFnTyped,
 
   // data fetching
-  _DataLoader,
-  _DefineLoaderOptions,
+  _DefineLoaderFn,
+  _DefineDataLoaderOptions,
+  _UseDataLoader,
 } from 'unplugin-vue-router/types'
 
 declare module 'vue-router/auto/routes' {
@@ -135,29 +136,32 @@ declare module 'vue-router/auto' {
   // Experimental Data Fetching
 
   export function defineLoader<
-    P extends Promise<any>,
-    Name extends keyof RouteNamedMap = keyof RouteNamedMap,
+    P extends Promise<unknown>,
     isLazy extends boolean = false,
+    Name extends keyof RouteNamedMap = keyof RouteNamedMap
   >(
     name: Name,
-    loader: (route: RouteLocationNormalizedLoaded<Name>) => P,
-    options?: _DefineLoaderOptions<isLazy>,
-  ): _DataLoader<Awaited<P>, isLazy>
+    loader: _DefineLoaderFn<P, RouteLocationNormalizedLoaded<Name>>,
+    options?: _DefineDataLoaderOptions<isLazy>
+  ): _UseDataLoader<isLazy, Awaited<P>>
   export function defineLoader<
-    P extends Promise<any>,
-    isLazy extends boolean = false,
+    P extends Promise<unknown>,
+    isLazy extends boolean = false
   >(
-    loader: (route: RouteLocationNormalizedLoaded) => P,
-    options?: _DefineLoaderOptions<isLazy>,
-  ): _DataLoader<Awaited<P>, isLazy>
+    loader: _DefineLoaderFn<P, RouteLocationNormalizedLoaded<Name>>,
+    options?: _DefineDataLoaderOptions<isLazy>
+  ): _UseDataLoader<isLazy, Awaited<P>>
 
   export {
     _definePage as definePage,
+
+    DataLoaderPlugin,
+    _setupLoaderGuard as setupLoaderGuard,
+
+    // TODO: remove these
     _HasDataLoaderMeta as HasDataLoaderMeta,
     _setupDataFetchingGuard as setupDataFetchingGuard,
     _stopDataFetchingScope as stopDataFetchingScope,
-
-    _setupLoaderGuard as setupLoaderGuard,
   } from 'unplugin-vue-router/runtime'
 }
 
