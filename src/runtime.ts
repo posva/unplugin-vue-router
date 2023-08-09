@@ -12,7 +12,11 @@ export {
 export { stopScope as _stopDataFetchingScope } from './data-fetching/dataCache'
 
 export { defineLoader as _defineLoader } from './data-fetching_new/defineLoader'
-export { setupLoaderGuard as _setupLoaderGuard } from './data-fetching_new/navigation-guard'
+export {
+  setupLoaderGuard as _setupLoaderGuard,
+  DataLoaderPlugin,
+} from './data-fetching_new/navigation-guard'
+export type { DataLoaderPluginOptions } from './data-fetching_new/navigation-guard'
 
 /**
  * Defines properties of the route for the current page component.

@@ -1,10 +1,11 @@
 /**
  * @vitest-environment happy-dom
  */
-import { defineComponent } from 'vue'
-import { DefineDataLoaderOptions, defineLoader } from './defineLoader'
+import { App, createApp, defineComponent } from 'vue'
+import { defineLoader } from './defineLoader'
 import {
   afterAll,
+  afterEach,
   beforeAll,
   beforeEach,
   describe,
@@ -14,8 +15,8 @@ import {
 } from 'vitest'
 import { setCurrentContext } from './utils'
 import { getRouter } from 'vue-router-mock'
-import { setupLoaderGuard } from './navigation-guard'
-import { mockPromise, mockedLoader } from '~/tests/utils'
+import { DataLoaderPlugin } from './navigation-guard'
+import { mockedLoader } from '~/tests/utils'
 import { LOADER_SET_KEY } from './symbols'
 import {
   useDataOne,
@@ -40,15 +41,25 @@ vi.mock(
 )
 
 describe('navigation-guard', () => {
-  let removeGuards = () => {}
+  let app: App | undefined
   beforeEach(() => {
     // @ts-expect-error: normally not allowed
     _utils.IS_CLIENT = true
-    removeGuards()
-    removeGuards = setupLoaderGuard(getRouter())
+    app = createApp({ render: () => null })
+    app.use(DataLoaderPlugin, { router: getRouter() })
     // invalidate current context
     setCurrentContext(undefined)
   })
+
+  afterEach(() => {
+    if (app) {
+      app.mount('body')
+      app.unmount()
+      app = undefined
+    }
+  })
+
+  // enableAutoUnmount(afterEach)
 
   // we use fake timers to ensure debugging tests do not rely on timers
   const now = new Date(2000, 0, 1).getTime() // 1 Jan 2000 in local time as number of milliseconds
@@ -237,5 +248,69 @@ describe('navigation-guard', () => {
     expect(router.currentRoute.value.path).toBe('/fetch')
     expect(l1.spy).not.toHaveBeenCalled()
     expect(l2.spy).not.toHaveBeenCalled()
+  })
+
+  it.each([true, false])(
+    'throws if a non lazy loader rejects, IS_CLIENT: %s',
+    async (isClient) => {
+      // @ts-expect-error: normally not allowed
+      _utils.IS_CLIENT = isClient
+      const router = getRouter()
+      const l1 = mockedLoader({ lazy: false })
+      router.addRoute({
+        name: '_test',
+        path: '/fetch',
+        component,
+        meta: {
+          loaders: [l1.loader],
+        },
+      })
+
+      const p = router.push('/fetch')
+      await vi.runAllTimersAsync()
+      l1.reject()
+      await expect(p).rejects.toThrow('ko')
+      expect(router.currentRoute.value.path).not.toBe('/fetch')
+    }
+  )
+
+  it('does not throw if a lazy loader rejects', async () => {
+    const router = getRouter()
+    const l1 = mockedLoader({ lazy: true })
+    router.addRoute({
+      name: '_test',
+      path: '/fetch',
+      component,
+      meta: {
+        loaders: [l1.loader],
+      },
+    })
+
+    const p = router.push('/fetch')
+    await vi.runAllTimersAsync()
+    l1.reject()
+    await expect(p).resolves.toBeUndefined()
+    expect(router.currentRoute.value.path).toBe('/fetch')
+  })
+
+  it('throws if a lazy loader rejects on server-side', async () => {
+    // @ts-expect-error: normally not allowed
+    _utils.IS_CLIENT = false
+    const router = getRouter()
+    const l1 = mockedLoader({ lazy: true })
+    router.addRoute({
+      name: '_test',
+      path: '/fetch',
+      component,
+      meta: {
+        loaders: [l1.loader],
+      },
+    })
+
+    const p = router.push('/fetch')
+    await vi.runAllTimersAsync()
+    l1.reject()
+    await expect(p).rejects.toThrow('ko')
+    expect(router.currentRoute.value.path).not.toBe('/fetch')
   })
 })

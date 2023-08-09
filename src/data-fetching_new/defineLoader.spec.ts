@@ -172,7 +172,7 @@ describe('defineLoader', () => {
           expect(router.currentRoute.value.path).not.toBe('/fetch')
         })
 
-        it(`should not abort the navigation if a lazy loader throws, commit: ${commit}`, async () => {
+        it(`should complete the navigation if a lazy loader throws, commit: ${commit}`, async () => {
           const { wrapper, useData, router } = singleLoaderOneRoute(
             defineLoader(
               async () => {

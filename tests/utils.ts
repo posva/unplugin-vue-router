@@ -42,7 +42,7 @@ export function mockedLoader(
   // boolean is easier to handle for router mock
   options?: DefineDataLoaderOptions<boolean>
 ) {
-  const [spy, resolve, reject] = mockPromise('ok', 'ko')
+  const [spy, resolve, reject] = mockPromise('ok', new Error('ko'))
   return {
     spy,
     resolve,

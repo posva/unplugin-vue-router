@@ -1,5 +1,5 @@
 import type { Router } from 'vue-router'
-import type { App } from 'vue'
+import { effectScope, type App, type EffectScope } from 'vue'
 import {
   LOADER_ENTRIES_KEY,
   LOADER_SET_KEY,
@@ -14,7 +14,11 @@ import { isNavigationFailure } from 'vue-router'
  * @param router - the router instance
  * @returns
  */
-export function setupLoaderGuard(router: Router) {
+export function setupLoaderGuard(
+  router: Router,
+  app: App,
+  effect: EffectScope
+) {
   // avoid creating the guards multiple times
   if (router[LOADER_ENTRIES_KEY] != null) {
     if (process.env.NODE_ENV !== 'production') {
@@ -181,7 +185,16 @@ export function DataLoaderPlugin(
   app: App,
   { router }: DataLoaderPluginOptions
 ) {
-  setupLoaderGuard(router)
+  const effect = effectScope(true)
+  const removeGuards = setupLoaderGuard(router, app, effect)
+
+  // TODO: use https://github.com/vuejs/core/pull/8801 if merged
+  const { unmount } = app
+  app.unmount = () => {
+    effect.stop()
+    removeGuards()
+    unmount.call(app)
+  }
 }
 
 export interface DataLoaderPluginOptions {
