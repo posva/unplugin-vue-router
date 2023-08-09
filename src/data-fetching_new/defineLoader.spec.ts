@@ -558,6 +558,80 @@ describe('defineLoader', () => {
       expect(wrapper.text()).toMatchInlineSnapshot('"resolved 1resolved 1"')
     })
 
+    it(`reuses loaders when they are both nested and used in navigation`, async () => {
+      const l1 = mockedLoader({ key: 'nested' })
+      const rootLoader = defineLoader(
+        async (to) => {
+          const d = await l1.loader()
+          return `${d},${to.query.p}`
+        },
+        { key: 'root' }
+      )
+      const router = getRouter()
+      router.addRoute({
+        name: '_test',
+        path: '/fetch',
+        component: defineComponent({
+          setup() {
+            const { data } = rootLoader()
+            return { data }
+          },
+          template: `<p>{{ data }}</p>`,
+        }),
+        meta: {
+          loaders: [rootLoader, l1.loader],
+        },
+      })
+      const wrapper = mount(RouterViewMock, {})
+      const app: App = wrapper.vm.$.appContext.app
+
+      router.push('/fetch?p=one')
+      await vi.runOnlyPendingTimersAsync()
+      l1.resolve('ok')
+      await vi.runOnlyPendingTimersAsync()
+      // should have navigated and called the nested loader once
+      expect(l1.spy).toHaveBeenCalledTimes(1)
+      expect(router.currentRoute.value.fullPath).toBe('/fetch?p=one')
+      expect(wrapper.text()).toBe(`ok,one`)
+    })
+
+    it(`Can use a nested loaded directly in the component`, async () => {
+      const l1 = mockedLoader({ key: 'nested' })
+      const rootLoader = defineLoader(
+        async (to) => {
+          const d = await l1.loader()
+          return `${d},${to.query.p}`
+        },
+        { key: 'root' }
+      )
+      const router = getRouter()
+      router.addRoute({
+        name: '_test',
+        path: '/fetch',
+        component: defineComponent({
+          setup() {
+            const { data } = l1.loader()
+            const { data: root } = rootLoader()
+            return { root, data }
+          },
+          template: `<p>{{ root }} {{ data }}</p>`,
+        }),
+        meta: {
+          loaders: [rootLoader, l1.loader],
+        },
+      })
+      const wrapper = mount(RouterViewMock, {})
+
+      router.push('/fetch?p=one')
+      await vi.runOnlyPendingTimersAsync()
+      l1.resolve('ok')
+      await vi.runOnlyPendingTimersAsync()
+      // should have navigated and called the nested loader once
+      expect(l1.spy).toHaveBeenCalledTimes(1)
+      expect(router.currentRoute.value.fullPath).toBe('/fetch?p=one')
+      expect(wrapper.text()).toBe('ok,one ok')
+    })
+
     it('keeps the old data until all loaders are resolved', async () => {
       const router = getRouter()
       const l1 = mockedLoader({ commit: 'after-load' })

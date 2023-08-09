@@ -127,6 +127,13 @@ declare module '${vueRouterModule}' {
 
   export {
     _definePage as definePage,
+
+    // Experimental Data Fetching
+    // TODO: override to have the type to have named routes
+    _defineLoader as defineLoader,
+    _setupLoaderGuard as setupLoaderGuard,
+
+    // TODO: remove these
     _HasDataLoaderMeta as HasDataLoaderMeta,
     _setupDataFetchingGuard as setupDataFetchingGuard,
     _stopDataFetchingScope as stopDataFetchingScope,

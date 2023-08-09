@@ -74,6 +74,12 @@ export function defineLoader<
     }
     const entry = entries.get(loader)!
 
+    // Nested loaders might get called before the navigation guard calls them, so we need to manually skip these calls
+    if (entry.pendingTo === to && entry.pendingLoad) {
+      // console.log(`🔁 already loading "${options.key}"`)
+      return entry.pendingLoad
+    }
+
     const { error, pending } = entry
 
     error.value = null
@@ -101,8 +107,7 @@ export function defineLoader<
         // console.log(
         //   `✅ resolved ${options.key}`,
         //   to.fullPath,
-        //   `accepted: ${entry.pendingLoad === currentLoad} =`,
-        //   d
+        //   `accepted: ${entry.pendingLoad === currentLoad}; data: ${d}`
         // )
         if (entry.pendingLoad === currentLoad) {
           entry.staged = d
@@ -160,7 +165,7 @@ export function defineLoader<
     }
 
     if (this.pendingTo === to) {
-      // console.log('👉 commit', _entry.staged)
+      // console.log('👉 commit', this.staged)
       if (process.env.NODE_ENV === 'development') {
         if (this.staged === STAGED_NO_VALUE) {
           console.warn(
