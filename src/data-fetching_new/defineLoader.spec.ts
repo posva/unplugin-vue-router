@@ -17,7 +17,7 @@ import {
 import { setCurrentContext } from './utils'
 import { enableAutoUnmount, mount } from '@vue/test-utils'
 import { getRouter } from 'vue-router-mock'
-import { DataLoaderPlugin } from './navigation-guard'
+import { DataLoaderPlugin, NavigationResult } from './navigation-guard'
 import { UseDataLoader } from './createDataLoader'
 import { mockPromise, mockedLoader } from '~/tests/utils'
 import RouterViewMock from '~/tests/data-loaders/RouterViewMock.vue'
@@ -839,11 +839,39 @@ dts(async () => {
   expectType<{ data: Ref<UserData | undefined> }>(
     defineLoader(loaderUser, { lazy: true })()
   )
+  expectType<Promise<UserData>>(defineLoader(loaderUser, { lazy: true })())
+  expectType<Promise<UserData>>(defineLoader(loaderUser, {})())
   expectType<{ data: Ref<UserData> }>(defineLoader(loaderUser, {})())
   expectType<{ data: Ref<UserData> }>(
     defineLoader(loaderUser, { lazy: false })()
   )
   expectType<{ data: Ref<UserData> }>(
     defineLoader(loaderUser, { lazy: false })()
+  )
+
+  // it should allow returning a Navigation Result without a type error
+  expectType<{ data: Ref<UserData> }>(
+    defineLoader(
+      async () => {
+        if (Math.random()) {
+          return loaderUser()
+        } else {
+          return new NavigationResult('/')
+        }
+      },
+      { lazy: false }
+    )()
+  )
+  expectType<Promise<UserData>>(
+    defineLoader(
+      async () => {
+        if (Math.random()) {
+          return loaderUser()
+        } else {
+          return new NavigationResult('/')
+        }
+      },
+      { lazy: false }
+    )()
   )
 })

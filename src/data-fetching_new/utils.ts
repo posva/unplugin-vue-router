@@ -1,4 +1,3 @@
-import { EffectScope, effectScope } from 'vue'
 import type { Router, RouteLocationNormalizedLoaded } from 'vue-router'
 import type { DataLoaderEntryBase, UseDataLoader } from './createDataLoader'
 import { IS_USE_DATA_LOADER_KEY } from './symbols'
@@ -10,25 +9,6 @@ import { IS_USE_DATA_LOADER_KEY } from './symbols'
  */
 export function isDataLoader(loader: any): loader is UseDataLoader {
   return loader && loader[IS_USE_DATA_LOADER_KEY]
-}
-
-// local scope
-
-export let scope: EffectScope | undefined
-
-export function withinScope<T>(fn: () => T): T {
-  return (scope = scope || effectScope(true)).run(fn)!
-}
-
-/**
- * Stop and invalidate the scope used for data. Note this will make any application stop working. It should be used only
- * if there is a need to manually stop a running application without stopping the process.
- */
-export function stopScope() {
-  if (scope) {
-    scope.stop()
-    scope = undefined
-  }
 }
 
 export let currentContext:
