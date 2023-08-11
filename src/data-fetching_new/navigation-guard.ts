@@ -45,6 +45,7 @@ export function setupLoaderGuard(
     // so it must be built each time
     to.meta[LOADER_SET_KEY] = new Set()
     // reference the loader entries map for convenience
+    // TODO: ensure we need this as we seem to have access to the router instance in all places
     to.meta[LOADER_ENTRIES_KEY] = router[LOADER_ENTRIES_KEY]
     // adds an abort controller that can pass a signal to loaders
     to.meta[ABORT_CONTROLLER_KEY] = new AbortController()
@@ -53,6 +54,8 @@ export function setupLoaderGuard(
     const lazyLoadingPromises = []
 
     for (const record of to.matched) {
+      // we only need to do this once per record as these changes are preserved
+      // by the router
       if (!record.meta[LOADER_SET_KEY]) {
         // setup an empty array to skip the check next time
         record.meta[LOADER_SET_KEY] = new Set(record.meta.loaders || [])
@@ -82,9 +85,8 @@ export function setupLoaderGuard(
       }
     }
 
-    // TODO: not use record to store loaders, or maybe cleanup here
-
     return Promise.all(lazyLoadingPromises).then(() => {
+      // group all the loaders in a single set
       for (const record of to.matched) {
         // merge the whole set of loaders
         for (const loader of record.meta[LOADER_SET_KEY]!) {
@@ -104,6 +106,8 @@ export function setupLoaderGuard(
      * - Collect NavigationResults and call `selectNavigationResult` to select the one to use
      */
 
+    // TODO: could we benefit anywhere here from verifying the signal is aborted and not call the loaders at all
+
     // unset the context so all loaders are executed as root loaders
     setCurrentContext([])
     return Promise.all(
@@ -120,7 +124,8 @@ export function setupLoaderGuard(
           .then(() => {
             // for immediate loaders, the load function handles this
             // NOTE: it would be nice to also have here the immediate commit
-            // but running it here is too late for nested loaders
+            // but running it here is too late for nested loaders as we are appending
+            // to the pending promise that is actually awaited in nested loaders
             if (commit === 'after-load') {
               return loader
             }
@@ -151,17 +156,20 @@ export function setupLoaderGuard(
 
   // listen to duplicated navigation failures to reset the pendingTo and pendingLoad
   // since they won't trigger the beforeEach or beforeResolve defined above
-  const removeAfterEach = router.afterEach((_to, _from, failure) => {
+  const removeAfterEach = router.afterEach((to, _from, failure) => {
     // abort the signal of a failed navigation
     // we need to check if it exists because the navigation guard that creates
     // the abort controller could not be triggered depending on the failure
-    if (failure && _to.meta[ABORT_CONTROLLER_KEY]) {
-      _to.meta[ABORT_CONTROLLER_KEY].abort(failure)
+    if (failure && to.meta[ABORT_CONTROLLER_KEY]) {
+      to.meta[ABORT_CONTROLLER_KEY].abort(failure)
     }
+
     if (
       isNavigationFailure(failure, 16 /* NavigationFailureType.duplicated */)
     ) {
       if (router[PENDING_LOCATION_KEY]) {
+        // the PENDING_LOCATION_KEY is set at the same time the LOADER_SET_KEY is set
+        // so we know it exists
         router[PENDING_LOCATION_KEY].meta[LOADER_SET_KEY]!.forEach((loader) => {
           const entry = loader._.getEntry(router)
           entry.pendingTo = null
