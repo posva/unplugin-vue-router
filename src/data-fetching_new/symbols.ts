@@ -33,3 +33,9 @@ export const STAGED_NO_VALUE = Symbol()
  * @internal
  */
 export const APP_KEY = Symbol()
+
+/**
+ * Gives access to an AbortController that aborts when the navigation is canceled.
+ * @internal
+ */
+export const ABORT_CONTROLLER_KEY = Symbol()
