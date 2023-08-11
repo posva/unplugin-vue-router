@@ -39,6 +39,13 @@ export function setupLoaderGuard(
 
   // guard to add the loaders to the meta property
   const removeLoaderGuard = router.beforeEach((to) => {
+    // Abort any pending navigation
+    if (router[PENDING_LOCATION_KEY]) {
+      // TODO: test
+      // TODO: add a reason to abort()
+      router[PENDING_LOCATION_KEY].meta[ABORT_CONTROLLER_KEY]!.abort()
+    }
+
     // global pending location, used by nested loaders to know if they should load or not
     router[PENDING_LOCATION_KEY] = to
     // Differently from records, this one is reset on each navigation
