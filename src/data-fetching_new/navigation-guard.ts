@@ -106,7 +106,8 @@ export function setupLoaderGuard(
   })
 
   const removeDataLoaderGuard = router.beforeResolve((to) => {
-    const loaders = Array.from(to.meta[LOADER_SET_KEY] || [])
+    // if we reach this guard, all properties have been set
+    const loaders = Array.from(to.meta[LOADER_SET_KEY]!)
     /**
      * - ~~Map the loaders to an array of promises~~
      * - ~~Await all the promises (parallel)~~
@@ -114,6 +115,9 @@ export function setupLoaderGuard(
      */
 
     // TODO: could we benefit anywhere here from verifying the signal is aborted and not call the loaders at all
+    // if (to.meta[ABORT_CONTROLLER_KEY]!.signal.aborted) {
+    //   return
+    // }
 
     // unset the context so all loaders are executed as root loaders
     setCurrentContext([])
@@ -158,7 +162,7 @@ export function setupLoaderGuard(
         // isFetched = true
       })
     // no catch so errors are propagated to the router
-    // TODO: handle navigation failures?
+    // TODO: handle navigation failures that could be returned by any loaders
   })
 
   // listen to duplicated navigation failures to reset the pendingTo and pendingLoad
@@ -182,6 +186,7 @@ export function setupLoaderGuard(
           entry.pendingTo = null
           entry.pendingLoad = null
         })
+        // avoid this navigation being considered valid by the loaders
         router[PENDING_LOCATION_KEY] = null
       }
     }
