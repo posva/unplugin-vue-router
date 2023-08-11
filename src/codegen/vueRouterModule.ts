@@ -19,7 +19,9 @@ export {
   _setupDataFetchingGuard as setupDataFetchingGuard,
   _stopDataFetchingScope as stopDataFetchingScope,
 
+  // FIXME: remove?
   _setupLoaderGuard as setupLoaderGuard,
+  DataLoaderPlugin,
 } from 'unplugin-vue-router/runtime'
 
 export function createRouter(options) {
