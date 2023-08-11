@@ -1,6 +1,7 @@
 import type { Router } from 'vue-router'
 import { effectScope, type App, type EffectScope } from 'vue'
 import {
+  ABORT_CONTROLLER_KEY,
   APP_KEY,
   LOADER_ENTRIES_KEY,
   LOADER_SET_KEY,
@@ -45,6 +46,8 @@ export function setupLoaderGuard(
     to.meta[LOADER_SET_KEY] = new Set()
     // reference the loader entries map for convenience
     to.meta[LOADER_ENTRIES_KEY] = router[LOADER_ENTRIES_KEY]
+    // adds an abort controller that can pass a signal to loaders
+    to.meta[ABORT_CONTROLLER_KEY] = new AbortController()
 
     // Collect all the lazy loaded components to await them in parallel
     const lazyLoadingPromises = []
@@ -148,7 +151,13 @@ export function setupLoaderGuard(
 
   // listen to duplicated navigation failures to reset the pendingTo and pendingLoad
   // since they won't trigger the beforeEach or beforeResolve defined above
-  router.afterEach((_to, _from, failure) => {
+  const removeAfterEach = router.afterEach((_to, _from, failure) => {
+    // abort the signal of a failed navigation
+    // we need to check if it exists because the navigation guard that creates
+    // the abort controller could not be triggered depending on the failure
+    if (failure && _to.meta[ABORT_CONTROLLER_KEY]) {
+      _to.meta[ABORT_CONTROLLER_KEY].abort(failure)
+    }
     if (
       isNavigationFailure(failure, 16 /* NavigationFailureType.duplicated */)
     ) {
@@ -163,11 +172,22 @@ export function setupLoaderGuard(
     }
   })
 
+  // abort the signal on thrown errors
+  const removeOnError = router.onError((error, to) => {
+    // same as with afterEach, we check if it exists because the navigation guard
+    // that creates the abort controller could not be triggered depending on the error
+    if (to.meta[ABORT_CONTROLLER_KEY]) {
+      to.meta[ABORT_CONTROLLER_KEY].abort(error)
+    }
+  })
+
   return () => {
     // @ts-expect-error: must be there in practice
     delete router[LOADER_ENTRIES_KEY]
     removeLoaderGuard()
     removeDataLoaderGuard()
+    removeAfterEach()
+    removeOnError()
   }
 }
 

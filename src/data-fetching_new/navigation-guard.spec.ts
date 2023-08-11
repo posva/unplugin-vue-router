@@ -17,12 +17,13 @@ import { setCurrentContext } from './utils'
 import { getRouter } from 'vue-router-mock'
 import { DataLoaderPlugin } from './navigation-guard'
 import { mockedLoader } from '~/tests/utils'
-import { LOADER_SET_KEY } from './symbols'
+import { ABORT_CONTROLLER_KEY, LOADER_SET_KEY } from './symbols'
 import {
   useDataOne,
   useDataTwo,
 } from '~/tests/data-loaders/ComponentWithLoader.vue'
 import * as _utils from '~/src/data-fetching_new/utils'
+import type { NavigationFailure } from 'vue-router'
 
 vi.mock(
   '~/src/data-fetching_new/utils.ts',
@@ -312,5 +313,45 @@ describe('navigation-guard', () => {
     l1.reject()
     await expect(p).rejects.toThrow('ko')
     expect(router.currentRoute.value.path).not.toBe('/fetch')
+  })
+
+  describe('signal', () => {
+    it('aborts the signal if the navigation throws', async () => {
+      const router = getRouter()
+
+      router.setNextGuardReturn(new Error('canceled'))
+      let signal!: AbortSignal
+      router.beforeEach((to) => {
+        signal = to.meta[ABORT_CONTROLLER_KEY]!.signal
+      })
+
+      await expect(router.push('/#other')).rejects.toThrow('canceled')
+
+      expect(router.currentRoute.value.hash).not.toBe('#other')
+      expect(signal.aborted).toBe(true)
+      expect(signal.reason).toBeInstanceOf(Error)
+      expect(signal.reason!.message).toBe('canceled')
+    })
+
+    it('aborts the signal if the navigation is canceled', async () => {
+      const router = getRouter()
+
+      router.setNextGuardReturn(false)
+      let signal!: AbortSignal
+      router.beforeEach((to) => {
+        signal = to.meta[ABORT_CONTROLLER_KEY]!.signal
+      })
+
+      let reason: NavigationFailure | undefined | void
+      router.afterEach((_to, _from, failure) => {
+        reason = failure
+      })
+
+      await router.push('/#other')
+
+      expect(router.currentRoute.value.hash).not.toBe('#other')
+      expect(signal.aborted).toBe(true)
+      expect(signal.reason).toBe(reason)
+    })
   })
 })

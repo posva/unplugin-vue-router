@@ -5,6 +5,7 @@ import type {
   LOADER_ENTRIES_KEY,
   LOADER_SET_KEY,
   PENDING_LOCATION_KEY,
+  ABORT_CONTROLLER_KEY,
 } from './symbols'
 
 /**
@@ -55,6 +56,12 @@ declare module 'vue-router' {
      * @internal
      */
     [LOADER_ENTRIES_KEY]?: _DefineLoaderEntryMap
+
+    /**
+     * The signal that is aborted when the navigation is canceled or an error occurs.
+     * @internal
+     */
+    [ABORT_CONTROLLER_KEY]?: AbortController
   }
 }
 
