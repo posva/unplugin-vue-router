@@ -18,6 +18,7 @@ import {
   APP_KEY,
   IS_USE_DATA_LOADER_KEY,
   LOADER_ENTRIES_KEY,
+  NAVIGATION_RESULTS_KEY,
   STAGED_NO_VALUE,
 } from './symbols'
 import {
@@ -25,9 +26,9 @@ import {
   assign,
   getCurrentContext,
   setCurrentContext,
-  withinScope,
 } from './utils'
-import { Ref, UnwrapRef, ref } from 'vue'
+import { Ref, UnwrapRef, ref, shallowRef } from 'vue'
+import { NavigationResult } from './navigation-guard'
 
 export function defineLoader<
   P extends Promise<unknown>,
@@ -182,7 +183,12 @@ export function defineLoader<
       }
       // if the entry is null, it means the loader never resolved, maybe there was an error
       if (this.staged !== STAGED_NO_VALUE) {
-        this.data.value = this.staged
+        // collect navigation results instead of setting the data
+        if (this.staged instanceof NavigationResult) {
+          to.meta[NAVIGATION_RESULTS_KEY]!.push(this.staged)
+        } else {
+          this.data.value = this.staged
+        }
       }
       this.staged = STAGED_NO_VALUE
       this.pendingTo = null
@@ -321,26 +327,18 @@ export function createDefineLoaderEntry<
   ) => void,
   initialData?: Data
 ): DataLoaderEntryBase<isLazy, Data> {
-  // TODO: the scope should be passed somehow and be unique per application
-  return withinScope<DataLoaderEntryBase<isLazy, Data>>(
-    () =>
-      ({
-        // force the type to match
-        data: ref(initialData) as Ref<_DataMaybeLazy<UnwrapRef<Data>, isLazy>>,
-        pending: ref(false),
-        error: ref<any>(),
+  return {
+    // force the type to match
+    data: ref(initialData) as Ref<_DataMaybeLazy<UnwrapRef<Data>, isLazy>>,
+    pending: ref(false),
+    error: shallowRef<any>(),
 
-        params: {},
-        query: {},
-        hash: null,
-
-        children: new Set(),
-        pendingLoad: null,
-        pendingTo: null,
-        staged: STAGED_NO_VALUE,
-        commit,
-      } satisfies DataLoaderEntryBase<isLazy, Data>)
-  )
+    children: new Set(),
+    pendingLoad: null,
+    pendingTo: null,
+    staged: STAGED_NO_VALUE,
+    commit,
+  } satisfies DataLoaderEntryBase<isLazy, Data>
 }
 
 /**

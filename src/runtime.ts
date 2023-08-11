@@ -15,6 +15,7 @@ export { defineLoader as _defineLoader } from './data-fetching_new/defineLoader'
 export {
   setupLoaderGuard as _setupLoaderGuard,
   DataLoaderPlugin,
+  NavigationResult,
 } from './data-fetching_new/navigation-guard'
 export type { DataLoaderPluginOptions } from './data-fetching_new/navigation-guard'
 

@@ -1,4 +1,5 @@
 import { vi } from 'vitest'
+import type { NavigationResult } from '~/src/data-fetching_new/navigation-guard'
 import {
   DefineDataLoaderOptions,
   defineLoader,
@@ -38,11 +39,15 @@ export function mockPromise<Resolved, Err>(resolved: Resolved, rejected?: Err) {
   return [spy, resolve, reject] as const
 }
 
-export function mockedLoader(
+export function mockedLoader<T = string | NavigationResult>(
   // boolean is easier to handle for router mock
   options?: DefineDataLoaderOptions<boolean>
 ) {
-  const [spy, resolve, reject] = mockPromise('ok', new Error('ko'))
+  const [spy, resolve, reject] = mockPromise<T, unknown>(
+    // not correct as T could be something else
+    'ok' as T,
+    new Error('ko')
+  )
   return {
     spy,
     resolve,

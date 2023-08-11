@@ -9,6 +9,7 @@ import type {
 import { IS_USE_DATA_LOADER_KEY, STAGED_NO_VALUE } from './symbols'
 import { _Awaitable } from '../core/utils'
 import { _PromiseMerged } from './utils'
+import { NavigationResult } from './navigation-guard'
 
 /**
  * Base type for a data loader entry. Each Data Loader has its own entry in the `loaderEntries` (accessible via `[LOADER_ENTRIES_KEY]`) map.
@@ -17,22 +18,6 @@ export interface DataLoaderEntryBase<
   isLazy extends boolean = boolean,
   Data = unknown
 > {
-  // route information
-  // TODO: should be moved to the cached loader version
-
-  /**
-   * Location's params that were used to load the data.
-   */
-  params: Partial<RouteParams>
-  /**
-   * Location's query that was used to load the data.
-   */
-  query: Partial<LocationQuery>
-  /**
-   * Location's hash that was used to load the data.
-   */
-  hash: string | null
-
   // state
 
   /**
@@ -43,7 +28,7 @@ export interface DataLoaderEntryBase<
   /**
    * Error if there was an error.
    */
-  error: Ref<any> // any is simply more convenient for errors
+  error: ShallowRef<any> // any is simply more convenient for errors
 
   // TODO: allow delaying pending? maybe allow passing a custom ref that can use refDebounced https://vueuse.org/shared/refDebounced/#refdebounced
   /**
@@ -185,7 +170,6 @@ export interface DataLoaderContextBase {
    */
   signal: AbortSignal
 }
-// export interface DataLoaderContext {}
 
 export interface DefineDataLoader<Context extends DataLoaderContextBase> {
   <isLazy extends boolean, Data>(
@@ -221,11 +205,18 @@ export interface UseDataLoader<
    * })
    * ```
    */
-  (): _PromiseMerged<Data, UseDataLoaderResult<isLazy, Data>>
+  (): _PromiseMerged<
+    Exclude<Data, NavigationResult>,
+    UseDataLoaderResult<isLazy, Exclude<Data, NavigationResult>>
+  >
 
   _: UseDataLoaderInternals<isLazy, Data>
 }
 
+/**
+ * Internal properties of a data loader composable. Used by the internal implementation of `defineLoader()`. **Should
+ * not be used in application code.**
+ */
 export interface UseDataLoaderInternals<
   isLazy extends boolean = boolean,
   Data = unknown
@@ -254,6 +245,10 @@ export interface UseDataLoaderInternals<
   getEntry(router: Router): DataLoaderEntryBase<isLazy, Data>
 }
 
+/**
+ * Generates the type for a `Ref` of a data loader based on the value of `lazy`.
+ * @internal
+ */
 export type _DataMaybeLazy<Data, isLazy extends boolean = boolean> =
   // no lazy provided, default value is false
   boolean extends isLazy ? Data : true extends isLazy ? Data | undefined : Data

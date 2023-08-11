@@ -6,7 +6,9 @@ import type {
   LOADER_SET_KEY,
   PENDING_LOCATION_KEY,
   ABORT_CONTROLLER_KEY,
+  NAVIGATION_RESULTS_KEY,
 } from './symbols'
+import { NavigationResult } from './navigation-guard'
 
 /**
  * Map type for the entries used by data loaders.
@@ -62,6 +64,12 @@ declare module 'vue-router' {
      * @internal
      */
     [ABORT_CONTROLLER_KEY]?: AbortController
+
+    /**
+     * The navigation results when the navigation is canceled by the user within a data loader.
+     * @internal
+     */
+    [NAVIGATION_RESULTS_KEY]?: NavigationResult[]
   }
 }
 

@@ -10,6 +10,7 @@ import {
   APP_KEY,
   LOADER_ENTRIES_KEY,
   LOADER_SET_KEY,
+  NAVIGATION_RESULTS_KEY,
   PENDING_LOCATION_KEY,
 } from './symbols'
 import { IS_CLIENT, assign, isDataLoader, setCurrentContext } from './utils'
@@ -21,7 +22,12 @@ import type { _Awaitable } from '../core/utils'
  * @param router - the router instance
  * @returns
  */
-export function setupLoaderGuard({ router, app }: SetupLoaderGuardOptions) {
+export function setupLoaderGuard({
+  router,
+  app,
+  effect,
+  selectNavigationResult = (results) => results[0].value,
+}: SetupLoaderGuardOptions) {
   // avoid creating the guards multiple times
   if (router[LOADER_ENTRIES_KEY] != null) {
     if (process.env.NODE_ENV !== 'production') {
@@ -30,6 +36,13 @@ export function setupLoaderGuard({ router, app }: SetupLoaderGuardOptions) {
       )
     }
     return () => {}
+  }
+
+  // explicit dev to avoid warnings in tests
+  if (process.env.NODE_ENV === 'development') {
+    console.warn(
+      '[vue-router]: Data fetching is experimental and subject to breaking changes in the future.'
+    )
   }
 
   // Access to the entries map for convenience
@@ -57,6 +70,8 @@ export function setupLoaderGuard({ router, app }: SetupLoaderGuardOptions) {
     to.meta[LOADER_ENTRIES_KEY] = router[LOADER_ENTRIES_KEY]
     // adds an abort controller that can pass a signal to loaders
     to.meta[ABORT_CONTROLLER_KEY] = new AbortController()
+
+    to.meta[NAVIGATION_RESULTS_KEY] = []
 
     // Collect all the lazy loaded components to await them in parallel
     const lazyLoadingPromises = []
@@ -130,9 +145,12 @@ export function setupLoaderGuard({ router, app }: SetupLoaderGuardOptions) {
           return
         }
         // keep track of loaders that should be committed after all loaders are done
-        const ret = app
-          // allows inject and provide APIs
-          .runWithContext(() => loader._.load(to, router))
+        const ret = effect
+          .run(() =>
+            app
+              // allows inject and provide APIs
+              .runWithContext(() => loader._.load(to, router))
+          )!
           .then(() => {
             // for immediate loaders, the load function handles this
             // NOTE: it would be nice to also have here the immediate commit
@@ -161,14 +179,24 @@ export function setupLoaderGuard({ router, app }: SetupLoaderGuardOptions) {
         // initialData = undefined
         // NOTE: could this be dev only?
         // isFetched = true
+        // console.log(
+        //   `✨ Navigation results "${to.fullPath}": [${to.meta[
+        //     NAVIGATION_RESULTS_KEY
+        //   ]!.map((r) => JSON.stringify(r.value)).join(', ')}]`
+        // )
+        if (to.meta[NAVIGATION_RESULTS_KEY]!.length) {
+          return selectNavigationResult(to.meta[NAVIGATION_RESULTS_KEY]!)
+        }
       })
     // no catch so errors are propagated to the router
-    // TODO: handle navigation failures that could be returned by any loaders
   })
 
   // listen to duplicated navigation failures to reset the pendingTo and pendingLoad
   // since they won't trigger the beforeEach or beforeResolve defined above
   const removeAfterEach = router.afterEach((to, _from, failure) => {
+    // console.log(
+    //   `🔚 afterEach "${_from.fullPath}" -> "${to.fullPath}": ${failure?.message}`
+    // )
     // abort the signal of a failed navigation
     // we need to check if it exists because the navigation guard that creates
     // the abort controller could not be triggered depending on the failure
@@ -241,6 +269,11 @@ export interface SetupLoaderGuardOptions {
   app: App<unknown>
 
   /**
+   * The effect scope to use for the data loaders.
+   */
+  effect: EffectScope
+
+  /**
    * The router instance. Adds the guards to it
    */
   router: Router
@@ -251,17 +284,15 @@ export interface SetupLoaderGuardOptions {
   initialData?: Record<string, unknown>
 
   /**
-   * Hook that is called before each data loader is called. Can return a promise to delay the data loader call.
-   */
-  beforeLoad?: (route: RouteLocationNormalizedLoaded) => Promise<unknown>
-
-  /**
    * Called if any data loader returns a `NavigationResult` with an array of them. Should decide what is the outcome of
-   * the data fetching guard. Note this isn't called if no data loaders return a `NavigationResult`.
+   * the data fetching guard. Note this isn't called if no data loaders return a `NavigationResult` or if an error is thrown.
+   * @defaultValue `(results) => results[0].value`
    */
   selectNavigationResult?: (
     results: NavigationResult[]
-  ) => _Awaitable<NavigationResult | undefined | void>
+  ) => _Awaitable<
+    Exclude<ReturnType<NavigationGuard>, Function | Promise<unknown>>
+  >
 }
 
 /**
@@ -282,7 +313,7 @@ export type _DataLoaderRedirectResult = Exclude<
  * export const useUserData = defineLoader(async (to) => {
  *   const user = await fetchUser(to.params.id)
  *   if (!user) {
- *     return { redirect: '/404' }
+ *     return new NavigationResult('/404')
  *   }
  *   return user
  * })
@@ -315,7 +346,7 @@ export class NavigationResult {
  */
 export function DataLoaderPlugin(app: App, options: DataLoaderPluginOptions) {
   const effect = effectScope(true)
-  const removeGuards = setupLoaderGuard(assign({ app }, options))
+  const removeGuards = setupLoaderGuard(assign({ app, effect }, options))
 
   // TODO: use https://github.com/vuejs/core/pull/8801 if merged
   const { unmount } = app
@@ -330,4 +361,4 @@ export function DataLoaderPlugin(app: App, options: DataLoaderPluginOptions) {
  * Options passed to the DataLoaderPlugin.
  */
 export interface DataLoaderPluginOptions
-  extends Omit<SetupLoaderGuardOptions, 'app'> {}
+  extends Omit<SetupLoaderGuardOptions, 'app' | 'effect'> {}
