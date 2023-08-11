@@ -98,7 +98,12 @@ export function createDataLoader<Context extends DataLoaderContextBase>({
     }))!
 
     const useDataLoader: UseDataLoader<boolean, unknown> = (() => {
-      const promise = Promise.resolve(before({}))
+      const promise = Promise.resolve(
+        before({
+          // FIXME: just to pass the TS while working on this
+          signal: new AbortController().signal,
+        })
+      )
         .then((preloadResult) => {
           // TODO: allow cancelling? 404 and stuff
           return dataLoader(preloadResult)
@@ -174,7 +179,12 @@ export interface DefineDataLoaderOptionsBase<isLazy extends boolean> {
 export type DefineDataLoaderCommit = 'immediate' | 'after-load'
 // TODO: is after-load fine or is it better to have an after-navigation instead
 
-export interface DataLoaderContextBase {}
+export interface DataLoaderContextBase {
+  /**
+   * Signal associated with the current navigation. It is aborted when the navigation is canceled or an error occurs.
+   */
+  signal: AbortSignal
+}
 // export interface DataLoaderContext {}
 
 export interface DefineDataLoader<Context extends DataLoaderContextBase> {
@@ -319,8 +329,8 @@ type A = UseDataLoaderResult<boolean, string>['data']
  */
 export interface DefineLoaderFn<
   P extends Promise<unknown>,
+  Context extends DataLoaderContextBase = DataLoaderContextBase,
   Route = RouteLocationNormalizedLoaded
 > {
-  // TODO: context variable?
-  (route: Route): P
+  (route: Route, context: Context): P
 }

@@ -277,6 +277,17 @@ describe('defineLoader', () => {
       }
     )
 
+    it('passes a signal to the loader', async () => {
+      const spy = vi.fn<[unknown, { signal: unknown }], Promise<unknown>>()
+      spy.mockResolvedValueOnce('ok')
+      const { wrapper, useData, router } = singleLoaderOneRoute(
+        defineLoader(spy)
+      )
+      await router.push('/fetch?p=ok')
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy.mock.calls.at(0)?.[1]?.signal).toBeInstanceOf(AbortSignal)
+    })
+
     it('blocks navigation by default (non lazy)', async () => {
       const [spy, resolve, reject] = mockPromise('resolved')
       const { useData, router } = singleLoaderOneRoute(defineLoader(spy))
@@ -396,19 +407,13 @@ describe('defineLoader', () => {
       expect(rootLoaderSpy).toHaveBeenCalledTimes(1)
       // using toHaveBeenCalledWith yields an error that is difficult to debug
       // so this is for debugging purposes
-      // expect(rootLoaderSpy.mock.calls[0][0].fullPath).toBe('/fetch?one')
-      expect(rootLoaderSpy).toHaveBeenNthCalledWith(
-        1,
-        expect.objectContaining({
-          fullPath: '/fetch?p=one',
-        })
+      expect(rootLoaderSpy.mock.calls.at(0)?.at(0)?.fullPath).toBe(
+        '/fetch?p=one'
       )
 
       expect(nestedLoaderSpy).toHaveBeenCalledTimes(1)
-      expect(nestedLoaderSpy).toHaveBeenLastCalledWith(
-        expect.objectContaining({
-          fullPath: '/fetch?p=one',
-        })
+      expect(nestedLoaderSpy.mock.calls.at(-1)?.at(0)?.fullPath).toBe(
+        '/fetch?p=one'
       )
 
       // now trigger the second navigation while the nested loader is pending
@@ -416,25 +421,16 @@ describe('defineLoader', () => {
       await vi.runAllTimersAsync()
 
       expect(rootLoaderSpy).toHaveBeenCalledTimes(2)
-      // expect(rootLoaderSpy.mock.calls[1][0].fullPath).toBe('/fetch?two')
-      expect(rootLoaderSpy).toHaveBeenNthCalledWith(
-        2,
-        expect.objectContaining({
-          fullPath: '/fetch?p=two',
-        })
+      expect(rootLoaderSpy.mock.calls.at(1)?.at(0)?.fullPath).toBe(
+        '/fetch?p=two'
       )
 
       resolveRootSecondCall()
       await vi.runAllTimersAsync()
 
       expect(nestedLoaderSpy).toHaveBeenCalledTimes(2)
-      // expect(nestedLoaderSpy.mock.calls.at(-1)?.[0].fullPath).toBe(
-      //   '/fetch?p=two'
-      // )
-      expect(nestedLoaderSpy).toHaveBeenLastCalledWith(
-        expect.objectContaining({
-          fullPath: '/fetch?p=two',
-        })
+      expect(nestedLoaderSpy.mock.calls.at(-1)?.at(0)?.fullPath).toBe(
+        '/fetch?p=two'
       )
 
       // the nested gets called for the first time

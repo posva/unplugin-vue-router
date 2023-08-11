@@ -5,6 +5,7 @@ import type {
 } from 'vue-router'
 import { useRoute, useRouter } from 'vue-router'
 import {
+  DataLoaderContextBase,
   DataLoaderEntryBase,
   DefineDataLoaderOptionsBase,
   DefineLoaderFn,
@@ -13,6 +14,7 @@ import {
   _DataMaybeLazy,
 } from './createDataLoader'
 import {
+  ABORT_CONTROLLER_KEY,
   APP_KEY,
   IS_USE_DATA_LOADER_KEY,
   LOADER_ENTRIES_KEY,
@@ -32,14 +34,20 @@ export function defineLoader<
   isLazy extends boolean
 >(
   name: RouteRecordName,
-  loader: (route: RouteLocationNormalizedLoaded) => P,
+  loader: (
+    route: RouteLocationNormalizedLoaded,
+    context: DataLoaderContext
+  ) => P,
   options?: DefineDataLoaderOptions<isLazy>
 ): UseDataLoader<isLazy, Awaited<P>>
 export function defineLoader<
   P extends Promise<unknown>,
   isLazy extends boolean
 >(
-  loader: (route: RouteLocationNormalizedLoaded) => P,
+  loader: (
+    route: RouteLocationNormalizedLoaded,
+    context: DataLoaderContext
+  ) => P,
   options?: DefineDataLoaderOptions<isLazy>
 ): UseDataLoader<isLazy, Awaited<P>>
 
@@ -47,8 +55,10 @@ export function defineLoader<
   P extends Promise<unknown>,
   isLazy extends boolean
 >(
-  nameOrLoader: RouteRecordName | DefineLoaderFn<P>,
-  _loaderOrOptions?: DefineDataLoaderOptions<isLazy> | DefineLoaderFn<P>,
+  nameOrLoader: RouteRecordName | DefineLoaderFn<P, DataLoaderContext>,
+  _loaderOrOptions?:
+    | DefineDataLoaderOptions<isLazy>
+    | DefineLoaderFn<P, DataLoaderContext>,
   opts?: DefineDataLoaderOptions<isLazy>
 ): UseDataLoader<isLazy, Awaited<P>> {
   // TODO: make it DEV only and remove the first argument in production mode
@@ -56,7 +66,7 @@ export function defineLoader<
   const loader =
     typeof nameOrLoader === 'function'
       ? nameOrLoader
-      : (_loaderOrOptions! as DefineLoaderFn<P>)
+      : (_loaderOrOptions! as DefineLoaderFn<P, DataLoaderContext>)
   opts = typeof _loaderOrOptions === 'object' ? _loaderOrOptions : opts
   const options: Required<DefineDataLoaderOptions<isLazy>> = assign(
     {} as DefineDataLoaderOptions<isLazy>,
@@ -104,7 +114,9 @@ export function defineLoader<
     // Currently load for this loader
     entry.pendingTo = to
     // Promise.resolve() allows loaders to also be sync
-    const currentLoad = Promise.resolve(loader(to))
+    const currentLoad = Promise.resolve(
+      loader(to, { signal: to.meta[ABORT_CONTROLLER_KEY]!.signal })
+    )
       .then((d) => {
         // console.log(
         //   `✅ resolved ${options.key}`,
@@ -285,6 +297,8 @@ export interface DefineDataLoaderOptions<isLazy extends boolean>
    */
   key?: string
 }
+
+export interface DataLoaderContext extends DataLoaderContextBase {}
 
 const DEFAULT_DEFINE_LOADER_OPTIONS: Required<
   DefineDataLoaderOptions<boolean>
