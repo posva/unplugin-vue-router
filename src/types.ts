@@ -53,6 +53,6 @@ export type {
   UseDataLoader as _UseDataLoader,
 } from './data-fetching_new/createDataLoader'
 export type {
-  // ...
   DefineDataLoaderOptions as _DefineDataLoaderOptions,
+  DataLoaderContext as _DataLoaderContext,
 } from './data-fetching_new/defineLoader'

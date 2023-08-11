@@ -1,4 +1,9 @@
-import type { Router } from 'vue-router'
+import type {
+  Router,
+  NavigationGuard,
+  RouteLocationNormalizedLoaded,
+} from 'vue-router'
+import { isNavigationFailure } from 'vue-router'
 import { effectScope, type App, type EffectScope } from 'vue'
 import {
   ABORT_CONTROLLER_KEY,
@@ -7,8 +12,8 @@ import {
   LOADER_SET_KEY,
   PENDING_LOCATION_KEY,
 } from './symbols'
-import { IS_CLIENT, isDataLoader, setCurrentContext } from './utils'
-import { isNavigationFailure } from 'vue-router'
+import { IS_CLIENT, assign, isDataLoader, setCurrentContext } from './utils'
+import type { _Awaitable } from '../core/utils'
 
 /**
  * Setups the different Navigation Guards to collect the data loaders from the route records and then to execute them.
@@ -16,11 +21,7 @@ import { isNavigationFailure } from 'vue-router'
  * @param router - the router instance
  * @returns
  */
-export function setupLoaderGuard(
-  router: Router,
-  app: App,
-  effect: EffectScope
-) {
+export function setupLoaderGuard({ router, app }: SetupLoaderGuardOptions) {
   // avoid creating the guards multiple times
   if (router[LOADER_ENTRIES_KEY] != null) {
     if (process.env.NODE_ENV !== 'production') {
@@ -231,6 +232,67 @@ export function isAsyncModule(
 }
 
 /**
+ * Options to initialize the data loader guard.
+ */
+export interface SetupLoaderGuardOptions {
+  /**
+   * The Vue app instance. Used to access the `provide` and `inject` APIs.
+   */
+  app: App<unknown>
+
+  /**
+   * The router instance. Adds the guards to it
+   */
+  router: Router
+
+  /**
+   * Initial data to skip the initial data loaders. This is useful for SSR and should be set only on client side.
+   */
+  initialData?: Record<string, unknown>
+
+  /**
+   * Hook that is called before each data loader is called. Can return a promise to delay the data loader call.
+   */
+  beforeLoad?: (route: RouteLocationNormalizedLoaded) => Promise<unknown>
+
+  /**
+   * Called if any data loader returns a `NavigationResult` with an array of them. Should decide what is the outcome of
+   * the data fetching guard. Note this isn't called if no data loaders return a `NavigationResult`.
+   */
+  selectNavigationResult?: (
+    results: NavigationResult[]
+  ) => _Awaitable<NavigationResult | undefined | void>
+}
+
+/**
+ * Possible values to change the result of a navigation within a loader
+ * @internal
+ */
+export type _DataLoaderRedirectResult = Exclude<
+  ReturnType<NavigationGuard>,
+  // only preserve values that cancel the navigation
+  Promise<unknown> | Function | true | void | undefined
+>
+
+/**
+ * Possible values to change the result of a navigation within a loader.
+ *
+ * @example
+ * ```ts
+ * export const useUserData = defineLoader(async (to) => {
+ *   const user = await fetchUser(to.params.id)
+ *   if (!user) {
+ *     return { redirect: '/404' }
+ *   }
+ *   return user
+ * })
+ * ```
+ */
+export class NavigationResult {
+  constructor(public readonly value: _DataLoaderRedirectResult) {}
+}
+
+/**
  * Data Loader plugin to add data loading support to Vue Router.
  *
  * @example
@@ -251,12 +313,9 @@ export function isAsyncModule(
  * app.use(router)
  * ```
  */
-export function DataLoaderPlugin(
-  app: App,
-  { router }: DataLoaderPluginOptions
-) {
+export function DataLoaderPlugin(app: App, options: DataLoaderPluginOptions) {
   const effect = effectScope(true)
-  const removeGuards = setupLoaderGuard(router, app, effect)
+  const removeGuards = setupLoaderGuard(assign({ app }, options))
 
   // TODO: use https://github.com/vuejs/core/pull/8801 if merged
   const { unmount } = app
@@ -267,6 +326,8 @@ export function DataLoaderPlugin(
   }
 }
 
-export interface DataLoaderPluginOptions {
-  router: Router
-}
+/**
+ * Options passed to the DataLoaderPlugin.
+ */
+export interface DataLoaderPluginOptions
+  extends Omit<SetupLoaderGuardOptions, 'app'> {}
