@@ -1,7 +1,10 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import { createWebHistory, createRouter } from 'vue-router/auto'
-import { DataLoaderPlugin } from 'unplugin-vue-router/runtime'
+import {
+  createWebHistory,
+  createRouter,
+  DataLoaderPlugin,
+} from 'vue-router/auto'
 
 const router = createRouter({
   history: createWebHistory(),
