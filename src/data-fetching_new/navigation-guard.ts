@@ -8,6 +8,7 @@ import { effectScope, type App, type EffectScope } from 'vue'
 import {
   ABORT_CONTROLLER_KEY,
   APP_KEY,
+  INITIAL_DATA_KEY,
   LOADER_ENTRIES_KEY,
   LOADER_SET_KEY,
   NAVIGATION_RESULTS_KEY,
@@ -18,6 +19,8 @@ import type { _Awaitable } from '../core/utils'
 
 /**
  * Setups the different Navigation Guards to collect the data loaders from the route records and then to execute them.
+ * @internal used by the `DataLoaderPlugin`
+ * @see {@link DataLoaderPlugin}
  *
  * @param router - the router instance
  * @returns
@@ -54,28 +57,30 @@ export function setupLoaderGuard({
 
   // guard to add the loaders to the meta property
   const removeLoaderGuard = router.beforeEach((to) => {
-    // Abort any pending navigation
-    if (router[PENDING_LOCATION_KEY]) {
-      // TODO: test
-      // TODO: add a reason to abort()
-      router[PENDING_LOCATION_KEY].meta[ABORT_CONTROLLER_KEY]!.abort()
-    }
+    // Here we could check if there is a pending navigation and call abort:
+    // if (router[PENDING_LOCATION_KEY]) {
+    //   router[PENDING_LOCATION_KEY].meta[ABORT_CONTROLLER_KEY]!.abort()
+    // }
+    // but we don't need it because we already abort in afterEach and onError
+    // and both are called if a new navigation happens
 
     // global pending location, used by nested loaders to know if they should load or not
     router[PENDING_LOCATION_KEY] = to
     // Differently from records, this one is reset on each navigation
     // so it must be built each time
     to.meta[LOADER_SET_KEY] = new Set()
-    // reference the loader entries map for convenience
-    // TODO: ensure we need this as we seem to have access to the router instance in all places
-    to.meta[LOADER_ENTRIES_KEY] = router[LOADER_ENTRIES_KEY]
     // adds an abort controller that can pass a signal to loaders
     to.meta[ABORT_CONTROLLER_KEY] = new AbortController()
-
+    // allow loaders to add navigation results
     to.meta[NAVIGATION_RESULTS_KEY] = []
+    // set the initial data on the route so it can be used by the loaders, including
+    // nested ones
+    to.meta[INITIAL_DATA_KEY] = initialData
+    // clean it up so it can't be used again
+    initialData = undefined
 
     // Collect all the lazy loaded components to await them in parallel
-    const lazyLoadingPromises = []
+    const lazyLoadingPromises: Promise<unknown>[] = []
 
     for (const record of to.matched) {
       // we only need to do this once per record as these changes are preserved
@@ -125,11 +130,6 @@ export function setupLoaderGuard({
   const removeDataLoaderGuard = router.beforeResolve((to) => {
     // if we reach this guard, all properties have been set
     const loaders = Array.from(to.meta[LOADER_SET_KEY]!)
-    /**
-     * - ~~Map the loaders to an array of promises~~
-     * - ~~Await all the promises (parallel)~~
-     * - Collect NavigationResults and call `selectNavigationResult` to select the one to use
-     */
 
     // TODO: could we benefit anywhere here from verifying the signal is aborted and not call the loaders at all
     // if (to.meta[ABORT_CONTROLLER_KEY]!.signal.aborted) {
@@ -150,9 +150,7 @@ export function setupLoaderGuard({
           .run(() =>
             app
               // allows inject and provide APIs
-              .runWithContext(() =>
-                loader._.load(to, router, undefined, initialData)
-              )
+              .runWithContext(() => loader._.load(to, router))
           )!
           .then(() => {
             // for immediate loaders, the load function handles this
@@ -177,11 +175,6 @@ export function setupLoaderGuard({
             loader._.getEntry(router).commit(to)
           }
         }
-        // TODO:
-        // reset the initial state as it can only be used once
-        // initialData = undefined
-        // NOTE: could this be dev only?
-        // isFetched = true
         // console.log(
         //   `✨ Navigation results "${to.fullPath}": [${to.meta[
         //     NAVIGATION_RESULTS_KEY

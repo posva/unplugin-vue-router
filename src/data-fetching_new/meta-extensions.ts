@@ -7,6 +7,7 @@ import type {
   PENDING_LOCATION_KEY,
   ABORT_CONTROLLER_KEY,
   NAVIGATION_RESULTS_KEY,
+  INITIAL_DATA_KEY,
 } from './symbols'
 import { NavigationResult } from './navigation-guard'
 
@@ -54,12 +55,6 @@ declare module 'vue-router' {
     [LOADER_SET_KEY]?: Set<UseDataLoader>
 
     /**
-     * The data loaders map for the current application. Referenced here for convenience.
-     * @internal
-     */
-    [LOADER_ENTRIES_KEY]?: _DefineLoaderEntryMap
-
-    /**
      * The signal that is aborted when the navigation is canceled or an error occurs.
      * @internal
      */
@@ -70,6 +65,12 @@ declare module 'vue-router' {
      * @internal
      */
     [NAVIGATION_RESULTS_KEY]?: NavigationResult[]
+
+    /**
+     * The initial data of all loaders ran on the server. This is only used once.
+     * @internal
+     */
+    [INITIAL_DATA_KEY]?: Record<string, unknown>
   }
 }
 

@@ -45,3 +45,9 @@ export const ABORT_CONTROLLER_KEY = Symbol()
  * @internal
  */
 export const NAVIGATION_RESULTS_KEY = Symbol()
+
+/**
+ * Initial data generated on server and consumed on client.
+ * @internal
+ */
+export const INITIAL_DATA_KEY = Symbol()

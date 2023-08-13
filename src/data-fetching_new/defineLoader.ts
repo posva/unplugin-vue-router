@@ -16,6 +16,7 @@ import {
 import {
   ABORT_CONTROLLER_KEY,
   APP_KEY,
+  INITIAL_DATA_KEY,
   IS_USE_DATA_LOADER_KEY,
   LOADER_ENTRIES_KEY,
   NAVIGATION_RESULTS_KEY,
@@ -78,8 +79,7 @@ export function defineLoader<
   function load(
     to: RouteLocationNormalizedLoaded,
     router: Router,
-    parent?: DataLoaderEntryBase,
-    initialRootData?: Record<string, unknown>
+    parent?: DataLoaderEntryBase
   ): Promise<void> {
     const entries = router[LOADER_ENTRIES_KEY]!
     if (!entries.has(loader)) {
@@ -93,7 +93,29 @@ export function defineLoader<
       return entry.pendingLoad
     }
 
-    const { error, pending } = entry
+    const { error, pending, data } = entry
+
+    const initialRootData = to.meta[INITIAL_DATA_KEY]
+    const initialData =
+      (initialRootData &&
+        options.key in initialRootData &&
+        initialRootData[options.key]) ??
+      STAGED_NO_VALUE
+
+    // we are rendering for the first time and we have initial data
+    // we need to synchronously set the value so it's available in components
+    // even if it's not exported
+    if (initialData !== STAGED_NO_VALUE) {
+      data.value = initialData
+      // pendingLoad is set for guards to work
+      return (entry.pendingLoad = Promise.resolve())
+    }
+
+    // console.log(
+    //   `😎 Loading context to "${to.fullPath}" with current "${currentContext[2]?.fullPath}"`
+    // )
+    // Currently load for this loader
+    entry.pendingTo = to
 
     error.value = null
     pending.value = true
@@ -109,11 +131,7 @@ export function defineLoader<
     }
     // set the current context before loading so nested loaders can use it
     setCurrentContext([entry, router, to])
-    // console.log(
-    //   `😎 Loading context to "${to.fullPath}" with current "${currentContext[2]?.fullPath}"`
-    // )
-    // Currently load for this loader
-    entry.pendingTo = to
+
     // Promise.resolve() allows loaders to also be sync
     const currentLoad = Promise.resolve(
       loader(to, { signal: to.meta[ABORT_CONTROLLER_KEY]!.signal })
