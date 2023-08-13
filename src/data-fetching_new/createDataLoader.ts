@@ -210,7 +210,7 @@ export interface UseDataLoader<
     UseDataLoaderResult<isLazy, Exclude<Data, NavigationResult>>
   >
 
-  _: UseDataLoaderInternals<isLazy, Data>
+  _: UseDataLoaderInternals<isLazy, Exclude<Data, NavigationResult>>
 }
 
 /**
@@ -228,6 +228,7 @@ export interface UseDataLoaderInternals<
     route: RouteLocationNormalizedLoaded,
     router: Router,
     parent?: DataLoaderEntryBase,
+    // must pass the whole initial state to allow nested loaders to pick up their state too
     initialRootData?: Record<string, unknown>
   ) => Promise<void>
 
@@ -289,7 +290,7 @@ export interface UseDataLoaderResult<
   refresh(route: RouteLocationNormalizedLoaded): Promise<void>
 }
 
-export function testing() {
+function _testing() {
   const defineBasicLoader = createDataLoader<DataLoaderContextBase>({
     before: (context) => {
       // do nothing, always reexecute
@@ -315,9 +316,6 @@ export function testing() {
   const { data } = useUserData()
   expectType<TypeEqual<{ user: { name: string } }, typeof data.value>>(true)
 }
-
-type B = boolean extends true | false ? 'yes' : 'no'
-type A = UseDataLoaderResult<boolean, string>['data']
 
 /**
  * Loader function that can be passed to `defineLoader()`.

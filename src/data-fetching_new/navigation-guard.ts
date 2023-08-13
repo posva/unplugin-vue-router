@@ -27,6 +27,7 @@ export function setupLoaderGuard({
   app,
   effect,
   selectNavigationResult = (results) => results[0].value,
+  initialData,
 }: SetupLoaderGuardOptions) {
   // avoid creating the guards multiple times
   if (router[LOADER_ENTRIES_KEY] != null) {
@@ -149,7 +150,9 @@ export function setupLoaderGuard({
           .run(() =>
             app
               // allows inject and provide APIs
-              .runWithContext(() => loader._.load(to, router))
+              .runWithContext(() =>
+                loader._.load(to, router, undefined, initialData)
+              )
           )!
           .then(() => {
             // for immediate loaders, the load function handles this

@@ -316,7 +316,7 @@ const DEFAULT_DEFINE_LOADER_OPTIONS: Required<
 }
 
 // TODO: move to a different file
-export function createDefineLoaderEntry<
+function createDefineLoaderEntry<
   isLazy extends boolean = boolean,
   Data = unknown
 >(
