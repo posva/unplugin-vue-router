@@ -250,7 +250,7 @@ export function defineLoader<
       }
     }
 
-    // TODO: skip if route is not the router pending location
+    // TODO: skip if route is not the router pending location. Check if it changes anything compared to the current check with only entry.pendingTo
     if (
       // if the entry doesn't exist, create it with load and ensure it's loading
       !entry ||
