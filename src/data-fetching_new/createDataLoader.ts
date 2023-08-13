@@ -227,9 +227,7 @@ export interface UseDataLoaderInternals<
   load: (
     route: RouteLocationNormalizedLoaded,
     router: Router,
-    parent?: DataLoaderEntryBase,
-    // must pass the whole initial state to allow nested loaders to pick up their state too
-    initialRootData?: Record<string, unknown>
+    parent?: DataLoaderEntryBase
   ) => Promise<void>
 
   /**
