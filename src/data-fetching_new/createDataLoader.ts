@@ -223,6 +223,10 @@ export interface UseDataLoaderInternals<
 > {
   /**
    * Loads the data from the cache if possible, otherwise loads it from the loader and awaits it.
+   *
+   * @param route - route location to load the data for
+   * @param router - router instance
+   * @param parent - parent data loader entry
    */
   load: (
     route: RouteLocationNormalizedLoaded,
@@ -268,6 +272,11 @@ export interface UseDataLoaderResult<
    * Whether there is an ongoing request.
    */
   pending: Ref<boolean>
+
+  /**
+   * Whether the loader is running or not. TODO: change pending to this and make pending wait until commit is called
+   */
+  // fetching: Ref<boolean>
 
   /**
    * Error if there was an error.
