@@ -222,7 +222,7 @@ export function defineLoader<
   const useDataLoader: // for ts
   UseDataLoader<isLazy, Awaited<P>> = () => {
     // work with nested data loaders
-    let [parentEntry, _router, _route] = getCurrentContext()
+    const [parentEntry, _router, _route] = getCurrentContext()
     // fallback to the global router and routes for useDataLoaders used within components
     const router = _router || useRouter()
     const route = _route || useRoute()
