@@ -173,7 +173,7 @@ export interface DataLoaderContextBase {
 
 export interface DefineDataLoader<Context extends DataLoaderContextBase> {
   <isLazy extends boolean, Data>(
-    fn: (context: Context) => _Awaitable<Data>,
+    fn: DefineLoaderFn<Promise<Data>, Context>,
     options?: DefineDataLoaderOptionsBase<isLazy>
     // TODO: or a generic that allows a more complex UseDataLoader
   ): UseDataLoader<isLazy, Data>
