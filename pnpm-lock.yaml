@@ -45,8 +45,8 @@ importers:
         specifier: ^1.4.0
         version: 1.4.0
       yaml:
-        specifier: ^2.3.1
-        version: 2.3.1
+        specifier: ^2.3.2
+        version: 2.3.2
     devDependencies:
       '@vitest/coverage-v8':
         specifier: ^0.34.3
@@ -73,8 +73,8 @@ importers:
         specifier: ^7.2.0
         version: 7.2.0
       happy-dom:
-        specifier: ^10.11.0
-        version: 10.11.0
+        specifier: ^10.11.2
+        version: 10.11.2
       lint-staged:
         specifier: ^13.3.0
         version: 13.3.0(enquirer@2.4.1)
@@ -119,7 +119,7 @@ importers:
         version: 0.23.8(rollup@3.28.1)(vite@4.4.9)
       vitest:
         specifier: ^0.34.3
-        version: 0.34.3(happy-dom@10.11.0)
+        version: 0.34.3(happy-dom@10.11.2)
       vue:
         specifier: ^3.3.4
         version: 3.3.4
@@ -182,8 +182,8 @@ importers:
   playground:
     devDependencies:
       '@vitejs/plugin-vue':
-        specifier: ^4.3.3
-        version: 4.3.3(vite@4.4.9)(vue@3.3.4)
+        specifier: ^4.3.4
+        version: 4.3.4(vite@4.4.9)(vue@3.3.4)
       '@vue/compiler-sfc':
         specifier: ^3.3.4
         version: 3.3.4
@@ -1243,7 +1243,7 @@ packages:
     dependencies:
       '@nuxt/kit': 3.5.0(rollup@3.28.1)
       '@rollup/plugin-replace': 5.0.2(rollup@3.28.1)
-      '@vitejs/plugin-vue': 4.3.3(vite@4.3.9)(vue@3.3.4)
+      '@vitejs/plugin-vue': 4.3.4(vite@4.3.9)(vue@3.3.4)
       '@vitejs/plugin-vue-jsx': 3.0.1(vite@4.3.9)(vue@3.3.4)
       autoprefixer: 10.4.14(postcss@8.4.26)
       clear: 0.1.0
@@ -1782,8 +1782,8 @@ packages:
       - supports-color
     dev: true
 
-  /@vitejs/plugin-vue@4.3.3(vite@4.3.9)(vue@3.3.4):
-    resolution: {integrity: sha512-ssxyhIAZqB0TrpUg6R0cBpCuMk9jTIlO1GNSKKQD6S8VjnXi6JXKfUXjSsxey9IwQiaRGsO1WnW9Rkl1L6AJVw==}
+  /@vitejs/plugin-vue@4.3.4(vite@4.3.9)(vue@3.3.4):
+    resolution: {integrity: sha512-ciXNIHKPriERBisHFBvnTbfKa6r9SAesOYXeGDzgegcvy9Q4xdScSHAmKbNT0M3O0S9LKhIf5/G+UYG4NnnzYw==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
       vite: ^4.0.0
@@ -1793,8 +1793,8 @@ packages:
       vue: 3.3.4
     dev: true
 
-  /@vitejs/plugin-vue@4.3.3(vite@4.4.9)(vue@3.3.4):
-    resolution: {integrity: sha512-ssxyhIAZqB0TrpUg6R0cBpCuMk9jTIlO1GNSKKQD6S8VjnXi6JXKfUXjSsxey9IwQiaRGsO1WnW9Rkl1L6AJVw==}
+  /@vitejs/plugin-vue@4.3.4(vite@4.4.9)(vue@3.3.4):
+    resolution: {integrity: sha512-ciXNIHKPriERBisHFBvnTbfKa6r9SAesOYXeGDzgegcvy9Q4xdScSHAmKbNT0M3O0S9LKhIf5/G+UYG4NnnzYw==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
       vite: ^4.0.0
@@ -1820,7 +1820,7 @@ packages:
       std-env: 3.3.3
       test-exclude: 6.0.0
       v8-to-istanbul: 9.1.0
-      vitest: 0.34.3(happy-dom@10.11.0)
+      vitest: 0.34.3(happy-dom@10.11.2)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -5537,8 +5537,8 @@ packages:
       uglify-js: 3.17.4
     dev: true
 
-  /happy-dom@10.11.0:
-    resolution: {integrity: sha512-CmUT4LOLzvAsbYqgTJESrPyvF0gxLDkDG/KK1o/HYU7+c9o/VVIKXl3feJZnuCYbGqemw7meiQaZcL4SMgn1jQ==}
+  /happy-dom@10.11.2:
+    resolution: {integrity: sha512-rzgmLjLkhyaOdFEyU8CWXzbgyCyM7wJHLqhaoeEVSTyur1fjcUaiNTHx+D4CPaLvx16tGy+SBPd9TVnP/kzL3w==}
     dependencies:
       css.escape: 1.5.1
       entities: 4.5.0
@@ -7964,7 +7964,7 @@ packages:
         optional: true
     dependencies:
       lilconfig: 2.1.0
-      yaml: 2.3.1
+      yaml: 2.3.2
     dev: true
 
   /postcss-loader@6.2.1(postcss@8.4.14)(webpack@5.74.0):
@@ -10375,7 +10375,7 @@ packages:
       scule: 1.0.0
       unplugin: 1.4.0
       vue-router: 4.2.0(vue@3.3.4)
-      yaml: 2.3.1
+      yaml: 2.3.2
     transitivePeerDependencies:
       - rollup
       - vue
@@ -10745,7 +10745,7 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /vitest@0.34.3(happy-dom@10.11.0):
+  /vitest@0.34.3(happy-dom@10.11.2):
     resolution: {integrity: sha512-7+VA5Iw4S3USYk+qwPxHl8plCMhA5rtfwMjgoQXMT7rO5ldWcdsdo3U1QD289JgglGK4WeOzgoLTsGFu6VISyQ==}
     engines: {node: '>=v14.18.0'}
     hasBin: true
@@ -10789,7 +10789,7 @@ packages:
       cac: 6.7.14
       chai: 4.3.7
       debug: 4.3.4
-      happy-dom: 10.11.0
+      happy-dom: 10.11.2
       local-pkg: 0.4.3
       magic-string: 0.30.2
       pathe: 1.1.1
@@ -11422,6 +11422,11 @@ packages:
 
   /yaml@2.3.1:
     resolution: {integrity: sha512-2eHWfjaoXgTBC2jNM1LRef62VQa0umtvRiDSk6HSzW7RvS5YtkabJrwYLLEKWBc8a5U2PTSCs+dJjUTJdlHsWQ==}
+    engines: {node: '>= 14'}
+    dev: true
+
+  /yaml@2.3.2:
+    resolution: {integrity: sha512-N/lyzTPaJasoDmfV7YTrYCI0G/3ivm/9wdG0aHuheKowWQwGTsK0Eoiw6utmzAnI6pkJa0DUVygvp3spqqEKXg==}
     engines: {node: '>= 14'}
 
   /yargs-parser@20.2.9:
