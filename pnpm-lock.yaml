@@ -73,8 +73,8 @@ importers:
         specifier: ^7.2.0
         version: 7.2.0
       happy-dom:
-        specifier: ^11.2.0
-        version: 11.2.0
+        specifier: ^12.1.2
+        version: 12.1.2
       lint-staged:
         specifier: ^13.3.0
         version: 13.3.0(enquirer@2.4.1)
@@ -119,7 +119,7 @@ importers:
         version: 0.23.8(rollup@3.29.2)(vite@4.4.9)
       vitest:
         specifier: ^0.34.4
-        version: 0.34.4(happy-dom@11.2.0)
+        version: 0.34.4(happy-dom@12.1.2)
       vue:
         specifier: ^3.3.4
         version: 3.3.4
@@ -1825,7 +1825,7 @@ packages:
       std-env: 3.3.3
       test-exclude: 6.0.0
       v8-to-istanbul: 9.1.0
-      vitest: 0.34.4(happy-dom@11.2.0)
+      vitest: 0.34.4(happy-dom@12.1.2)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -5542,8 +5542,8 @@ packages:
       uglify-js: 3.17.4
     dev: true
 
-  /happy-dom@11.2.0:
-    resolution: {integrity: sha512-z4PshcYIIH6SkymSNRcDFwYUJOENe+FOQDx5BbHgg/wQUgxF5p9I9/BN45Jff34bbhXV8yJgkC5N99eyOzXK3w==}
+  /happy-dom@12.1.2:
+    resolution: {integrity: sha512-Ee0MdMXAMzfmZ4gLe33iKt8Rza5Fkyr+DxtHzCiBihTkI8JoX2XOfPdSsKDr0JAoMNYdMrFqIDYBoHq5DJqDXg==}
     dependencies:
       css.escape: 1.5.1
       entities: 4.5.0
@@ -10759,7 +10759,7 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /vitest@0.34.4(happy-dom@11.2.0):
+  /vitest@0.34.4(happy-dom@12.1.2):
     resolution: {integrity: sha512-SE/laOsB6995QlbSE6BtkpXDeVNLJc1u2LHRG/OpnN4RsRzM3GQm4nm3PQCK5OBtrsUqnhzLdnT7se3aeNGdlw==}
     engines: {node: '>=v14.18.0'}
     hasBin: true
@@ -10803,7 +10803,7 @@ packages:
       cac: 6.7.14
       chai: 4.3.7
       debug: 4.3.4
-      happy-dom: 11.2.0
+      happy-dom: 12.1.2
       local-pkg: 0.4.3
       magic-string: 0.30.2
       pathe: 1.1.1
