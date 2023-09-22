@@ -1,3 +1,19 @@
+# [0.7.0](https://github.com/posva/unplugin-vue-router/compare/v0.6.4...v0.7.0) (2023-09-22)
+
+### Bug Fixes
+
+- allow overriding and extending folder options ([1f6e312](https://github.com/posva/unplugin-vue-router/commit/1f6e312bb74519cb89a616f6fa22a81044c5ed5b))
+- correctly ignore folders ([cbd14b9](https://github.com/posva/unplugin-vue-router/commit/cbd14b9009f440b7cadc3b6fa67a015259bc5807))
+- keep parent override in children ([f651961](https://github.com/posva/unplugin-vue-router/commit/f6519614b208a304d3b5019629aa25ba49237bda)), closes [#189](https://github.com/posva/unplugin-vue-router/issues/189)
+
+### Features
+
+- allow path as function ([b913f56](https://github.com/posva/unplugin-vue-router/commit/b913f5653ef21e8569db6334a7e76bdf66aa40c7))
+
+### BREAKING CHANGES
+
+- `exclude` is no longer relative to `routesFolder.src` but to the _cwd_. like other paths. Note this is technically a fix that should simplify your configuration.
+
 ## [0.6.4](https://github.com/posva/unplugin-vue-router/compare/v0.6.3...v0.6.4) (2023-05-09)
 
 ### Bug Fixes
