@@ -12,7 +12,7 @@ import { appendExtensionListToPattern, asRoutePath } from './utils'
 
 export class RoutesFolderWatcher {
   src: string
-  path: string
+  path: string | ((filepath: string) => string)
   extensions: string[]
   filePatterns: string[]
   exclude: string[]

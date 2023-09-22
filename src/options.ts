@@ -7,15 +7,37 @@ import { ParseSegmentOptions } from './core/treeNodeValue'
 
 export interface RoutesFolderOption {
   /**
-   * Path to the folder containing the components that should be used for routes.
+   * Folder to scan files that should be used for routes. **Cannot be a glob**, use the `path`, `filePatterns`, and
+   * `exclude` options to filter out files. This section will **be removed** from the resulting path.
    */
   src: string
 
-  // TODO: allow a function to customize based on the filepath
   /**
-   * Prefix to add to the route path **as is**. You might need to end with a slash. Defaults to `''`.
+   * Prefix to add to the route path **as is**. Defaults to `''`. Can also be a function
+   * to reuse parts of the filepath, in that case you should return a **modified version of the filepath**.
+   *
+   * @example
+   * ```js
+   * {
+   *   src: 'src/pages',
+   *   // this is equivalent to the default behavior
+   *   path: (file) => file.slice(file.lastIndexOf('src/pages') + 'src/pages'.length
+   * },
+   * {
+   *   src: 'src/features',
+   *   // match all files (note the \ is not needed in real code)
+   *   filePatterns: '*‍/pages/**\/',
+   *   path: (file) => {
+   *     const prefix = 'src/features'
+   *     // remove the everything before src/features and removes /pages
+   *     // /src/features/feature1/pages/index.vue -> feature1/index.vue
+   *     return file.slice(file.lastIndexOf(prefix) + prefix.length + 1).replace('/pages', '')
+   *   },
+   * },
+   * ```
+   *
    */
-  path?: string
+  path?: string | ((filepath: string) => string)
 
   /**
    * Allows to override the global `filePattern` option for this folder. It can also extend the global values by passing
@@ -40,7 +62,7 @@ export interface RoutesFolderOption {
  * Normalized options for a routes folder.
  */
 export interface RoutesFolderOptionResolved extends RoutesFolderOption {
-  path: string
+  path: string | ((filepath: string) => string)
   /**
    * Final glob pattern to match files in the folder.
    */

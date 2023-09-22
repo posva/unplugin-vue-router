@@ -85,10 +85,19 @@ export default defineConfig({
           // ignores .vue files
           extensions: ['.md'],
         },
-        // {
-        //   src: 'src/features/',
-        //   path: 'features-prefix/',
-        // },
+        {
+          src: 'src/features',
+          filePatterns: '*/pages/**/*',
+          path: (file) => {
+            const prefix = 'src/features'
+            // +1 for the starting slash
+            file = file
+              .slice(file.lastIndexOf(prefix) + prefix.length + 1)
+              .replace('/pages', '')
+            console.log('👉 FILE', file)
+            return file
+          },
+        },
       ],
       logs: true,
       // getRouteName: getPascalCaseRouteName,

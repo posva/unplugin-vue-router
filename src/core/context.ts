@@ -79,21 +79,19 @@ export function createRoutesContext(options: ResolvedOptions) {
             // TODO: do they return the symbolic link path or the original file?
             // followSymbolicLinks: false,
             ignore: ignorePattern,
-          })
-            .then((files) => files.map((file) => resolve(folder.src, file)))
-            .then((files) =>
-              Promise.all(
-                files
-                  // ensure consistent files in Windows/Unix and absolute paths
-                  .map((file) => resolve(folder.src, file))
-                  .map((file) =>
-                    addPage({
-                      routePath: asRoutePath(folder, file),
-                      filePath: file,
-                    })
-                  )
-              )
+          }).then((files) =>
+            Promise.all(
+              files
+                // ensure consistent files in Windows/Unix and absolute paths
+                .map((file) => resolve(folder.src, file))
+                .map((file) =>
+                  addPage({
+                    routePath: asRoutePath(folder, file),
+                    filePath: file,
+                  })
+                )
             )
+          )
         })
     )
 

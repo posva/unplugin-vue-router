@@ -244,12 +244,12 @@ export function asRoutePath(
   { src, path = '' }: RoutesFolderOption,
   filePath: string
 ) {
-  return (
-    // add the path prefix if any
-    path +
-    // remove the absolute path to the pages folder
-    filePath.slice(src.length + 1)
-  )
+  return typeof path === 'string'
+    ? // add the path prefix if any
+      path +
+        // remove the absolute path to the pages folder
+        filePath.slice(src.length + 1)
+    : path(filePath)
 }
 
 /**
