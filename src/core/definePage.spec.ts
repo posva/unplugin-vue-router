@@ -17,10 +17,33 @@ const b = 1
 </template>
       `
 
+const tsSampleCode = `
+<script setup lang='ts'>
+const a = 1
+definePage({
+  name: 'custom' as string,
+  path: '/custom' as string,
+})
+const b = 1
+</script>
+
+<template>
+  <div>hello</div>
+</template>
+      `
+
 describe('definePage', () => {
   it('removes definePage', async () => {
     const result = (await definePageTransform({
       code: sampleCode,
+      id: 'src/pages/basic.vue',
+    })) as Exclude<TransformResult, string>
+
+    expect(result).toHaveProperty('code')
+    expect(result?.code).toMatchSnapshot()
+
+    const tsResult = (await definePageTransform({
+      code: tsSampleCode,
       id: 'src/pages/basic.vue',
     })) as Exclude<TransformResult, string>
 
@@ -31,6 +54,13 @@ describe('definePage', () => {
   it('extracts name and path', async () => {
     expect(
       await extractDefinePageNameAndPath(sampleCode, 'src/pages/basic.vue')
+    ).toEqual({
+      name: 'custom',
+      path: '/custom',
+    })
+
+    expect(
+      await extractDefinePageNameAndPath(tsSampleCode, 'src/pages/basic.vue')
     ).toEqual({
       name: 'custom',
       path: '/custom',
@@ -105,7 +135,29 @@ export default {
     })
 
     expect(
+      await definePageTransform({
+        code: tsSampleCode,
+        id: 'src/pages/definePage?definePage.vue',
+      })
+    ).toMatchObject({
+      code: `\
+export default {
+  name: 'custom',
+  path: '/custom'
+};`,
+    })
+
+    expect(
       await extractDefinePageNameAndPath(sampleCode, 'src/pages/definePage.vue')
+    ).toEqual({
+      name: 'custom',
+      path: '/custom',
+    })
+    expect(
+      await extractDefinePageNameAndPath(
+        tsSampleCode,
+        'src/pages/definePage.vue'
+      )
     ).toEqual({
       name: 'custom',
       path: '/custom',
