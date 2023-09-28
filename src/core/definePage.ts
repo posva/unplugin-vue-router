@@ -5,6 +5,7 @@ import {
   MagicString,
   checkInvalidScopeReference,
 } from '@vue-macros/common'
+import { transformSync } from '@babel/core'
 import { Thenable, TransformResult } from 'unplugin'
 import type {
   CallExpression,
@@ -22,6 +23,24 @@ const MACRO_DEFINE_PAGE_QUERY = /[?&]definePage\b/
 
 function isStringLiteral(node: Node | null | undefined): node is StringLiteral {
   return node?.type === 'StringLiteral'
+}
+
+/**
+ * @throws
+ */
+const getStringValueOfObjectProperty = (prop: ObjectProperty): string => {
+  if (prop.value.type !== 'StringLiteral') {
+    if (
+      prop.value.type === 'TSAsExpression' &&
+      prop.value.expression.type === 'StringLiteral'
+    ) {
+      return prop.value.expression.value
+    } else {
+      throw new Error('Not a string')
+    }
+  } else {
+    return prop.value.value
+  }
 }
 
 export function definePageTransform({
@@ -84,6 +103,16 @@ export function definePageTransform({
 
     s.remove(setupOffset + routeRecord.end!, code.length)
     s.remove(0, setupOffset + routeRecord.start!)
+    if (scriptSetup.lang === 'ts') {
+      const transformedResults = transformSync(
+        `export default ${s.toString()}`,
+        { plugins: ['@babel/plugin-transform-typescript'] }
+      )?.code
+      if (transformedResults) {
+        s.replace(s.toString(), transformedResults)
+        return getTransformResult(s, id)
+      }
+    }
     s.prepend(`export default `)
 
     return getTransformResult(s, id)
@@ -142,16 +171,16 @@ export function extractDefinePageNameAndPath(
   for (const prop of routeRecord.properties) {
     if (prop.type === 'ObjectProperty' && prop.key.type === 'Identifier') {
       if (prop.key.name === 'name') {
-        if (prop.value.type !== 'StringLiteral') {
+        try {
+          routeInfo.name = getStringValueOfObjectProperty(prop)
+        } catch (e) {
           warn(`route name must be a string literal. Found in "${id}".`)
-        } else {
-          routeInfo.name = prop.value.value
         }
       } else if (prop.key.name === 'path') {
-        if (prop.value.type !== 'StringLiteral') {
+        try {
+          routeInfo.path = getStringValueOfObjectProperty(prop)
+        } catch (e) {
           warn(`route path must be a string literal. Found in "${id}".`)
-        } else {
-          routeInfo.path = prop.value.value
         }
       }
     }
