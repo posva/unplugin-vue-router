@@ -135,7 +135,7 @@
     "esno": "^0.17.0",
     "execa": "^7.2.0",
     "happy-dom": "^12.9.0",
-    "lint-staged": "^13.3.0",
+    "lint-staged": "^14.0.1",
     "minimist": "^1.2.8",
     "nodemon": "^2.0.22",
     "p-series": "^3.0.0",
