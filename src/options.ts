@@ -11,7 +11,7 @@ export interface RoutesFolderOption {
    */
   src: string
 
-  // TODO: allow a function to customize based on the filepath
+  // TODO: allow a function to customize based on the filepath. (filePath: string) => string
   /**
    * Prefix to add to the route path **as is**. You might need to end with a slash. Defaults to `''`.
    */

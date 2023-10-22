@@ -18,6 +18,10 @@ import { IS_CLIENT, assign, isDataLoader, setCurrentContext } from './utils'
 import type { _Awaitable } from '../core/utils'
 
 /**
+ * TODO: export functions that allow preloading outside of a navigation guard
+ */
+
+/**
  * Setups the different Navigation Guards to collect the data loaders from the route records and then to execute them.
  * @internal used by the `DataLoaderPlugin`
  * @see {@link DataLoaderPlugin}
@@ -142,6 +146,7 @@ export function setupLoaderGuard({
       loaders.map((loader) => {
         const { commit, server, lazy } = loader._.options
         // do not run on the server if specified
+        // TODO: IS_CLIENT should only be true on SSR but it's simpler to just check for the browser environment. Maybe pass as an argument to the loader?
         if (!server && !IS_CLIENT) {
           return
         }

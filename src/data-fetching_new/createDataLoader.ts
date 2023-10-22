@@ -237,7 +237,7 @@ export interface UseDataLoaderInternals<
   /**
    * Resolved options for the loader.
    */
-  options: Required<DefineDataLoaderOptionsBase<isLazy>>
+  options: DefineDataLoaderOptionsBase<isLazy>
 
   /**
    * Gets the entry associated with the router instance. Assumes the data loader has been loaded and that the entry
