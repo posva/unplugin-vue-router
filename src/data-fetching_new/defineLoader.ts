@@ -70,11 +70,11 @@ export function defineLoader<
       ? nameOrLoader
       : (_loaderOrOptions! as DefineLoaderFn<P, DataLoaderContext>)
   opts = typeof _loaderOrOptions === 'object' ? _loaderOrOptions : opts
-  const options: Required<DefineDataLoaderOptions<isLazy>> = assign(
+  const options = assign(
     {} as DefineDataLoaderOptions<isLazy>,
     DEFAULT_DEFINE_LOADER_OPTIONS,
     opts
-  )
+  ) satisfies DefineDataLoaderOptions<isLazy>
 
   function load(
     to: RouteLocationNormalizedLoaded,
@@ -96,11 +96,11 @@ export function defineLoader<
     const { error, pending, data } = entry
 
     const initialRootData = to.meta[INITIAL_DATA_KEY]
+    const key = options.key || ''
     const initialData =
-      (initialRootData &&
-        options.key in initialRootData &&
-        initialRootData[options.key]) ??
-      STAGED_NO_VALUE
+      initialRootData && key in initialRootData
+        ? initialRootData[key]
+        : STAGED_NO_VALUE
 
     // we are rendering for the first time and we have initial data
     // we need to synchronously set the value so it's available in components
@@ -324,11 +324,8 @@ export interface DefineDataLoaderOptions<isLazy extends boolean>
 
 export interface DataLoaderContext extends DataLoaderContextBase {}
 
-const DEFAULT_DEFINE_LOADER_OPTIONS: Required<
-  DefineDataLoaderOptions<boolean>
-> = {
+const DEFAULT_DEFINE_LOADER_OPTIONS: DefineDataLoaderOptions<boolean> = {
   lazy: false,
-  key: '',
   server: true,
   commit: 'immediate',
 }
@@ -338,16 +335,15 @@ function createDefineLoaderEntry<
   isLazy extends boolean = boolean,
   Data = unknown
 >(
-  options: Required<DefineDataLoaderOptions<isLazy>>,
+  options: DefineDataLoaderOptions<isLazy>,
   commit: (
     this: DataLoaderEntryBase<isLazy, Data>,
     to: RouteLocationNormalizedLoaded
-  ) => void,
-  initialData?: Data
+  ) => void
 ): DataLoaderEntryBase<isLazy, Data> {
   return {
     // force the type to match
-    data: ref(initialData) as Ref<_DataMaybeLazy<UnwrapRef<Data>, isLazy>>,
+    data: ref() as Ref<_DataMaybeLazy<UnwrapRef<Data>, isLazy>>,
     pending: ref(false),
     error: shallowRef<any>(),
 
