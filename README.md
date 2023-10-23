@@ -211,6 +211,8 @@ Note that the `vue-router` preset might export less things than the one exported
      }),
 ```
 
+Note that if you use eslint, you will also have to follow AutoImport docs to avoid linting errors on undeclared globals.
+
 Make sure to also check and follow [the TypeScript section](#typescript) below **if you are using TypeScript or have a `jsconfig.json` file**.
 
 ## Configuration
