@@ -154,7 +154,8 @@ export interface ResolvedOptions {
   routeBlockLang: 'yaml' | 'yml' | 'json5' | 'json'
 
   /**
-   * Should generate d.ts files. Defaults to `true` if `typescript` is installed.
+   * Should we generate d.ts files or ont. Defaults to `true` if `typescript` is installed. Can be set to a string of
+   * the filepath to write the d.ts files to. By default it will generate a file named `typed-router.d.ts`.
    */
   dts: boolean | string
 
