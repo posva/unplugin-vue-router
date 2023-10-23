@@ -1,5 +1,5 @@
 import {
-  getTransformResult,
+  generateTransform,
   isCallOf,
   parseSFC,
   MagicString,
@@ -86,7 +86,7 @@ export function definePageTransform({
     s.remove(0, setupOffset + routeRecord.start!)
     s.prepend(`export default `)
 
-    return getTransformResult(s, id)
+    return generateTransform(s, id)
   } else {
     // console.log('!!!', definePageNode)
 
@@ -98,7 +98,7 @@ export function definePageTransform({
       setupOffset + definePageNode.end!
     )
 
-    return getTransformResult(s, id)
+    return generateTransform(s, id)
   }
 }
 
