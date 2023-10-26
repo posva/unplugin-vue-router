@@ -157,14 +157,14 @@ importers:
   examples/webpack:
     dependencies:
       vue:
-        specifier: ^3.3.4
+        specifier: ^3.3.6
         version: 3.3.9(typescript@5.0.4)
       vue-router:
-        specifier: ^4.2.0
+        specifier: ^4.2.5
         version: 4.2.5(vue@3.3.9)
     devDependencies:
       '@babel/core':
-        specifier: ^7.21.8
+        specifier: ^7.23.2
         version: 7.23.2
       '@vue/cli-plugin-router':
         specifier: ~5.0.0
@@ -191,13 +191,13 @@ importers:
   playground:
     dependencies:
       '@tanstack/vue-query':
-        specifier: beta
-        version: 5.0.0-beta.35(vue@3.3.9)
+        specifier: ^5.0.5
+        version: 5.8.7(vue@3.3.9)
       mande:
         specifier: ^2.0.7
         version: 2.0.8
       vue:
-        specifier: ^3.3.4
+        specifier: ^3.3.6
         version: 3.3.9(typescript@5.2.2)
     devDependencies:
       '@vitejs/plugin-vue':
@@ -2539,6 +2539,11 @@ packages:
 
   /@tanstack/query-core@5.0.0-beta.35:
     resolution: {integrity: sha512-UDFfBR+ncev2nte+nLsNTCX9Q06rfqADhTVnp5m43IdxFoXwy1qRVg3mBkMDZp+P2JHkKlRohYvZ+bUeuIwK2Q==}
+    dev: true
+
+  /@tanstack/query-core@5.8.7:
+    resolution: {integrity: sha512-58xOSkxxZK4SGQ/uzX8MDZHLGZCkxlgkPxnfhxUOL2uchnNHyay2UVcR3mQNMgaMwH1e2l+0n+zfS7+UJ/MAJw==}
+    dev: false
 
   /@tanstack/vue-query@5.0.0-beta.35(vue@3.3.9):
     resolution: {integrity: sha512-10AHAsuPBpfawOL9edgATdOJAkwloSgRhsvUGz9X9N70mOXbQssvnNw3dtkR8SfupLbyM5AJ1w0EvFa1K1p8ew==}
@@ -2554,6 +2559,23 @@ packages:
       '@vue/devtools-api': 6.5.1
       vue: 3.3.9(typescript@5.2.2)
       vue-demi: 0.14.6(vue@3.3.9)
+    dev: true
+
+  /@tanstack/vue-query@5.8.7(vue@3.3.9):
+    resolution: {integrity: sha512-riuXxrwKq1eGjKidPWLnyHdi5Kp4ji4kfoSoJdJm5hX4pcdgm74BvtIn6vJ7IPg0BQvpmaBJAb1BJyduAN1JkA==}
+    peerDependencies:
+      '@vue/composition-api': ^1.1.2
+      vue: ^2.6.0 || ^3.3.0
+    peerDependenciesMeta:
+      '@vue/composition-api':
+        optional: true
+    dependencies:
+      '@tanstack/match-sorter-utils': 8.8.4
+      '@tanstack/query-core': 5.8.7
+      '@vue/devtools-api': 6.5.1
+      vue: 3.3.9(typescript@5.2.2)
+      vue-demi: 0.14.6(vue@3.3.9)
+    dev: false
 
   /@trysound/sax@0.2.0:
     resolution: {integrity: sha512-L7z9BgrNEcYyUYtF+HaEfiS5ebkh9jXqbszz7pC0hRBPaatV0XjSD3+eHrpqFemQfgwiFF0QPIarnIihIDn7OA==}

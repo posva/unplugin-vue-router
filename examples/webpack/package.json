@@ -6,11 +6,11 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
-    "vue": "^3.3.4",
-    "vue-router": "^4.2.0"
+    "vue": "^3.3.6",
+    "vue-router": "^4.2.5"
   },
   "devDependencies": {
-    "@babel/core": "^7.21.8",
+    "@babel/core": "^7.23.2",
     "@vue/cli-plugin-router": "~5.0.0",
     "@vue/cli-plugin-typescript": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
