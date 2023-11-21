@@ -1,6 +1,6 @@
 import { fileURLToPath, URL } from 'url'
 import { defineConfig } from 'vite'
-import { join } from 'pathe'
+import { join } from 'node:path'
 import Inspect from 'vite-plugin-inspect'
 import Markdown from 'vite-plugin-vue-markdown'
 // @ts-ignore: the plugin should not be checked in the playground
