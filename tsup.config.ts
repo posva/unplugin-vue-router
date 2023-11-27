@@ -3,8 +3,8 @@ import { defineConfig } from 'tsup'
 export default defineConfig({
   entry: ['src/*.ts'],
   clean: true,
-  format: ['cjs', 'esm'],
+  format: ['esm', 'cjs'],
   dts: true,
+  cjsInterop: true,
   external: ['@vue/compiler-sfc', 'vue', 'vue-router'],
-  onSuccess: 'npm run build:fix',
 })
