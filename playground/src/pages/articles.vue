@@ -1,3 +1,7 @@
 <script lang="ts" setup></script>
 
-<template>Articles</template>
+<template>
+  <h1>Articles</h1>
+
+  <RouterView />
+</template>
