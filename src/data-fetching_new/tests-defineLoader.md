@@ -1,8 +1,9 @@
+```ts
 /* eslint-disable */
 /* prettier-ignore */
 // @ts-nocheck
 
-import { DataLoaderEntryBase, createDataLoader } from '../data-fetching_new/createDataLoader'
+import { DataLoaderEntryBase, createDataLoader } from './createDataLoader'
 
 export const defineVueFireLoader = createDataLoader({
   createEntry: (context) => {
@@ -91,3 +92,4 @@ export interface VueFireLoaderEntry<isLazy extends boolean, Data> extends DataLo
 defineQueryLoader('/documents', () => useQuery(...))
 defineQueryLoader('/documents', optionsPassedToUseQuery)
 defineQueryLoader('/documents', to => optionsPassedToUseQuery)
+```
