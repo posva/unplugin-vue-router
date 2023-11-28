@@ -11,7 +11,7 @@ export {
 } from './data-fetching/dataFetchingGuard'
 export { stopScope as _stopDataFetchingScope } from './data-fetching/dataCache'
 
-export { defineLoader as _defineLoader } from './data-fetching_new/defineLoader'
+export { defineBasicLoader as _defineBasicLoader } from './data-fetching_new/defineLoader'
 export {
   setupLoaderGuard as _setupLoaderGuard,
   DataLoaderPlugin,

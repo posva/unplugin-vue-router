@@ -154,6 +154,7 @@ function formatMeta(node: TreeNode, indent: string): string {
     meta
       .split('\n')
       .map(
+        // FIXME: remove after deprecated defineLoader is removed
         (line) =>
           indent +
           line.replace(

@@ -1,7 +1,7 @@
 <script lang="ts">
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-export const useUserData = defineLoader('/[id]', async (route) => {
+export const useUserData = defineBasicLoader('/[id]', async (route) => {
   await delay(1000)
   if (route.name === '/[id]') {
     route.params.id
@@ -17,14 +17,16 @@ export const useUserData = defineLoader('/[id]', async (route) => {
 
 const other = 'hello'
 
-export const useOne = defineLoader(async (route) => {
+export const useOne = defineBasicLoader(async (route) => {
   if (route.name === '/[id]') {
     route.params.id
   }
 
   return { one: 'one' }
 })
-export const useTwo = defineLoader(async () => ({ two: 'two' }), { lazy: true })
+export const useTwo = defineBasicLoader(async () => ({ two: 'two' }), {
+  lazy: true,
+})
 
 export default {}
 

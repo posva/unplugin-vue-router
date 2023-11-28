@@ -2,7 +2,7 @@
  * @vitest-environment happy-dom
  */
 import { App, createApp, defineComponent } from 'vue'
-import { defineLoader } from './defineLoader'
+import { defineBasicLoader } from './defineLoader'
 import {
   Mock,
   afterAll,
@@ -82,11 +82,11 @@ describe('navigation-guard', () => {
   })
 
   const component = defineComponent({})
-  const loader1 = defineLoader(async () => {})
-  const loader2 = defineLoader(async () => {})
-  const loader3 = defineLoader(async () => {})
-  const loader4 = defineLoader(async () => {})
-  const loader5 = defineLoader(async () => {})
+  const loader1 = defineBasicLoader(async () => {})
+  const loader2 = defineBasicLoader(async () => {})
+  const loader3 = defineBasicLoader(async () => {})
+  const loader4 = defineBasicLoader(async () => {})
+  const loader5 = defineBasicLoader(async () => {})
 
   it('creates a set of loaders during navigation', async () => {
     const router = getRouter()

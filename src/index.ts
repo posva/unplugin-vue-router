@@ -144,13 +144,16 @@ export { createPrefixTree } from './core/tree'
 export { createTreeNodeValue } from './core/treeNodeValue'
 export { EditableTreeNode } from './core/extendRoutes'
 
+// FIXME: deprecated, remove in next major
 /**
  * @deprecated use `VueRouterAutoImports` instead
  */
 export const VueRouterExports: Array<string | [string, string]> = [
   'useRoute',
   'useRouter',
+  // FIXME: remove after deprecation
   'defineLoader',
+  'defineBasicLoader',
   'onBeforeRouteUpdate',
   'onBeforeRouteLeave',
   // NOTE: the typing seems broken locally, so instead we export it directly from unplugin-vue-router/runtime

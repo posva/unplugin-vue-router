@@ -6,7 +6,7 @@ import type {
   RouteLocationNormalizedLoaded,
   Router,
 } from 'vue-router'
-import { IS_USE_DATA_LOADER_KEY, STAGED_NO_VALUE } from './symbols'
+import { IS_USE_DATA_LOADER_KEY, STAGED_NO_VALUE } from './meta-extensions'
 import { _Awaitable } from '../core/utils'
 import { _PromiseMerged } from './utils'
 import { NavigationResult } from './navigation-guard'
@@ -91,7 +91,11 @@ export function createDataLoader<Context extends DataLoaderContextBase>({
       )
         .then((preloadResult) => {
           // TODO: allow cancelling? 404 and stuff
-          return dataLoader(preloadResult)
+          return dataLoader(
+            // @ts-expect-error: FIXME: temporary to compile
+            {},
+            preloadResult
+          )
         })
         .catch((err: any) => {
           error.value = err

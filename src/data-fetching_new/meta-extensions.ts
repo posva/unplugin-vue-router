@@ -1,4 +1,4 @@
-import { App } from 'vue'
+import { type App } from 'vue'
 import type { DataLoaderEntryBase, UseDataLoader } from './createDataLoader'
 import type {
   APP_KEY,
@@ -9,7 +9,7 @@ import type {
   NAVIGATION_RESULTS_KEY,
   INITIAL_DATA_KEY,
 } from './symbols'
-import { NavigationResult } from './navigation-guard'
+import { type NavigationResult } from './navigation-guard'
 
 /**
  * Map type for the entries used by data loaders.
@@ -21,6 +21,9 @@ export type _DefineLoaderEntryMap = WeakMap<
   object,
   DataLoaderEntryBase
 >
+
+// we want to import from this meta extensions to include the changes to route
+export * from './symbols'
 
 declare module 'vue-router' {
   interface Router {
@@ -73,5 +76,3 @@ declare module 'vue-router' {
     [INITIAL_DATA_KEY]?: Record<string, unknown>
   }
 }
-
-export {}

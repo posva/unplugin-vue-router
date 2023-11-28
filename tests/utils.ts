@@ -2,7 +2,7 @@ import { vi } from 'vitest'
 import type { NavigationResult } from '~/src/data-fetching_new/navigation-guard'
 import {
   DefineDataLoaderOptions,
-  defineLoader,
+  defineBasicLoader,
 } from '~/src/data-fetching_new/defineLoader'
 
 export const delay = (ms: number) =>
@@ -52,6 +52,6 @@ export function mockedLoader<T = string | NavigationResult>(
     spy,
     resolve,
     reject,
-    loader: defineLoader(async () => await spy(), options),
+    loader: defineBasicLoader(async () => await spy(), options),
   }
 }

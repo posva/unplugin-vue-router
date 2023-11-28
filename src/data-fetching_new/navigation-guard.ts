@@ -13,7 +13,7 @@ import {
   LOADER_SET_KEY,
   NAVIGATION_RESULTS_KEY,
   PENDING_LOCATION_KEY,
-} from './symbols'
+} from './meta-extensions'
 import { IS_CLIENT, assign, isDataLoader, setCurrentContext } from './utils'
 import type { _Awaitable } from '../core/utils'
 

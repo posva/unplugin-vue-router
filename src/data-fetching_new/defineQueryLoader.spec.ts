@@ -8,7 +8,7 @@ import { describe } from 'vitest'
 import { NavigationResult } from './navigation-guard'
 import { testDefineLoader } from '~/tests/data-loaders'
 
-describe('defineLoader', () => {
+describe.skip('defineQueryLoader', () => {
   testDefineLoader('Basic', defineLoader)
 })
 

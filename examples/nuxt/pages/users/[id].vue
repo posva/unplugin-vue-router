@@ -1,7 +1,7 @@
 <script lang="ts">
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-export const useUserData = defineLoader(
+export const useUserData = defineBasicLoader(
   async (route) => {
     await delay(300)
     const user = {

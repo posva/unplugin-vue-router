@@ -2,14 +2,14 @@
  * @vitest-environment happy-dom
  */
 import { Ref, shallowRef } from 'vue'
-import { defineLoader } from './defineLoader'
+import { defineBasicLoader } from './defineLoader'
 import { expectType } from 'ts-expect'
 import { describe } from 'vitest'
 import { NavigationResult } from './navigation-guard'
 import { testDefineLoader } from '~/tests/data-loaders'
 
 describe('defineLoader', () => {
-  testDefineLoader('Basic', defineLoader)
+  testDefineLoader('Basic', defineBasicLoader)
 })
 
 // dts testing
@@ -21,7 +21,7 @@ dts(async () => {
     name: string
   }
 
-  const useDataLoader = defineLoader(async (route) => {
+  const useDataLoader = defineBasicLoader(async (route) => {
     const user = {
       id: route.params.id as string,
       name: 'Edu',
@@ -38,7 +38,7 @@ dts(async () => {
   }>(useDataLoader())
 
   // TODO: do we really need to support non-async usage?
-  const useWithRef = defineLoader(async (route) => {
+  const useWithRef = defineBasicLoader(async (route) => {
     const user = shallowRef<UserData>({
       id: route.params.id as string,
       name: 'Edu',
@@ -64,21 +64,21 @@ dts(async () => {
   }
 
   expectType<{ data: Ref<UserData | undefined> }>(
-    defineLoader(loaderUser, { lazy: true })()
+    defineBasicLoader(loaderUser, { lazy: true })()
   )
-  expectType<Promise<UserData>>(defineLoader(loaderUser, { lazy: true })())
-  expectType<Promise<UserData>>(defineLoader(loaderUser, {})())
-  expectType<{ data: Ref<UserData> }>(defineLoader(loaderUser, {})())
+  expectType<Promise<UserData>>(defineBasicLoader(loaderUser, { lazy: true })())
+  expectType<Promise<UserData>>(defineBasicLoader(loaderUser, {})())
+  expectType<{ data: Ref<UserData> }>(defineBasicLoader(loaderUser, {})())
   expectType<{ data: Ref<UserData> }>(
-    defineLoader(loaderUser, { lazy: false })()
+    defineBasicLoader(loaderUser, { lazy: false })()
   )
   expectType<{ data: Ref<UserData> }>(
-    defineLoader(loaderUser, { lazy: false })()
+    defineBasicLoader(loaderUser, { lazy: false })()
   )
 
   // it should allow returning a Navigation Result without a type error
   expectType<{ data: Ref<UserData> }>(
-    defineLoader(
+    defineBasicLoader(
       async () => {
         if (Math.random()) {
           return loaderUser()
@@ -90,7 +90,7 @@ dts(async () => {
     )()
   )
   expectType<Promise<UserData>>(
-    defineLoader(
+    defineBasicLoader(
       async () => {
         if (Math.random()) {
           return loaderUser()

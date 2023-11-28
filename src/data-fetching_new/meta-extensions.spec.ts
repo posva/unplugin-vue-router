@@ -1,7 +1,7 @@
 import { describe, it } from 'vitest'
 import { defineComponent } from 'vue'
 import { createRouter, createMemoryHistory } from 'vue-router'
-import { defineLoader } from './defineLoader'
+import { defineBasicLoader } from './defineLoader'
 
 describe('meta-extensions', () => {
   it('has tds', () => {})
@@ -27,10 +27,10 @@ async function _dts() {
         component,
         meta: {
           loaders: [
-            defineLoader(async () => ({ name: 'foo' })),
-            defineLoader(async () => ({ name: 'foo' }), {}),
-            defineLoader(async () => ({ name: 'foo' }), { lazy: true }),
-            defineLoader(async () => ({ name: 'foo' }), { lazy: false }),
+            defineBasicLoader(async () => ({ name: 'foo' })),
+            defineBasicLoader(async () => ({ name: 'foo' }), {}),
+            defineBasicLoader(async () => ({ name: 'foo' }), { lazy: true }),
+            defineBasicLoader(async () => ({ name: 'foo' }), { lazy: false }),
           ],
         },
       },
@@ -41,8 +41,8 @@ async function _dts() {
         component,
         meta: {
           loaders: [
-            defineLoader(async () => ({ name: 'foo' }), { lazy: true }),
-            defineLoader(async () => ({ name: 'foo' }), { lazy: true }),
+            defineBasicLoader(async () => ({ name: 'foo' }), { lazy: true }),
+            defineBasicLoader(async () => ({ name: 'foo' }), { lazy: true }),
           ],
         },
       },
@@ -53,8 +53,8 @@ async function _dts() {
         component,
         meta: {
           loaders: [
-            defineLoader(async () => ({ name: 'foo' }), { lazy: false }),
-            defineLoader(async () => ({ name: 'foo' }), { lazy: false }),
+            defineBasicLoader(async () => ({ name: 'foo' }), { lazy: false }),
+            defineBasicLoader(async () => ({ name: 'foo' }), { lazy: false }),
           ],
         },
       },
@@ -66,8 +66,8 @@ async function _dts() {
     component,
     meta: {
       loaders: [
-        defineLoader(async () => ({ name: 'foo' }), { lazy: false }),
-        defineLoader(async () => ({ name: 'foo' }), { lazy: false }),
+        defineBasicLoader(async () => ({ name: 'foo' }), { lazy: false }),
+        defineBasicLoader(async () => ({ name: 'foo' }), { lazy: false }),
       ],
     },
   })
@@ -77,8 +77,8 @@ async function _dts() {
     component,
     meta: {
       loaders: [
-        defineLoader(async () => ({ name: 'foo' }), { lazy: true }),
-        defineLoader(async () => ({ name: 'foo' }), { lazy: true }),
+        defineBasicLoader(async () => ({ name: 'foo' }), { lazy: true }),
+        defineBasicLoader(async () => ({ name: 'foo' }), { lazy: true }),
       ],
     },
   })

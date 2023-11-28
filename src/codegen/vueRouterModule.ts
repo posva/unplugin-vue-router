@@ -13,7 +13,9 @@ import { createRouter as _createRouter } from 'vue-router'
 
 export * from 'vue-router'
 export {
-  _defineLoader as defineLoader,
+  // FIXME: readd as deprecated
+  // _defineLoader as defineLoader,
+  _defineBasicLoader as defineBasicLoader,
   _definePage as definePage,
   _HasDataLoaderMeta as HasDataLoaderMeta,
   _setupDataFetchingGuard as setupDataFetchingGuard,

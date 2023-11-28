@@ -21,7 +21,7 @@ import {
   LOADER_ENTRIES_KEY,
   NAVIGATION_RESULTS_KEY,
   STAGED_NO_VALUE,
-} from './symbols'
+} from './meta-extensions'
 import {
   IS_CLIENT,
   assign,
@@ -31,7 +31,7 @@ import {
 import { Ref, UnwrapRef, ref, shallowRef } from 'vue'
 import { NavigationResult } from './navigation-guard'
 
-export function defineLoader<
+export function defineBasicLoader<
   P extends Promise<unknown>,
   isLazy extends boolean
 >(
@@ -42,7 +42,7 @@ export function defineLoader<
   ) => P,
   options?: DefineDataLoaderOptions<isLazy>
 ): UseDataLoader<isLazy, Awaited<P>>
-export function defineLoader<
+export function defineBasicLoader<
   P extends Promise<unknown>,
   isLazy extends boolean
 >(
@@ -53,7 +53,7 @@ export function defineLoader<
   options?: DefineDataLoaderOptions<isLazy>
 ): UseDataLoader<isLazy, Awaited<P>>
 
-export function defineLoader<
+export function defineBasicLoader<
   P extends Promise<unknown>,
   isLazy extends boolean
 >(

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const useData = defineLoader('/vuefire-tests/get-doc', async (to) => {
+const useData = defineBasicLoader('/vuefire-tests/get-doc', async (to) => {
   return
 })
 </script>

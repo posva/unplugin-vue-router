@@ -10,7 +10,7 @@ Install the unplugin-vue-router library as described in its [main `README.md`](.
 
 ## Usage
 
-The data fetching layer is easier to use alongside the `unplugin-vue-router` plugin because it writes the boring _"plumbing-code"_ for you and lets you focus on the interesting part with `defineLoader()`. It's highly recommended to use the `unplugin-vue-router` plugin if you can. Below are instructions to setup in both scenarios:
+The data fetching layer is easier to use alongside the `unplugin-vue-router` plugin because it writes the boring _"plumbing-code"_ for you and lets you focus on the interesting part with `defineBasicLoader()`. It's highly recommended to use the `unplugin-vue-router` plugin if you can. Below are instructions to setup in both scenarios:
 
 ### Setup
 
@@ -59,17 +59,20 @@ const router = createRouter({
 })
 ```
 
-### `defineLoader()` usage
+### `defineBasicLoader()` usage
 
-To define data loaders, you must use the `defineLoader()` function:
+> [!WARNING]
+> This is an experimental feature and API could change anytime
+
+To define data loaders, you must use the `defineBasicLoader()` function:
 
 ```vue
 <script lang="ts">
 import { getUserById } from '../api'
-import { defineLoader } from 'vue-router/auto'
+import { defineBasicLoader } from 'vue-router/auto'
 
 // name the loader however you want **and export it**
-export const useUserData = defineLoader(async (route) => {
+export const useUserData = defineBasicLoader(async (route) => {
   const user = await getUserById(route.params.id)
   // ...
   // return anything you want to expose
@@ -100,7 +103,7 @@ To support SSR we need to do two things:
 - On the client side, pass the initial state to `setupDataFetchingGuard()`. The initial state is used once and discarded afterwards.
 
 ```ts
-export const useBookCollection = defineLoader(
+export const useBookCollection = defineBasicLoader(
   async () => {
     const books = await fetchBookCollection()
     return books
@@ -144,7 +147,7 @@ Find more details on [the RFC](https://github.com/vuejs/rfcs/discussions/460)
 
 ## Auto imports
 
-If you use [unplugin-auto-import](https://github.com/antfu/unplugin-auto-import), you can use its preset to automatically have access to `defineLoader()` and other imports:
+If you use [unplugin-auto-import](https://github.com/antfu/unplugin-auto-import), you can use its preset to automatically have access to `defineBasicLoader()` and other imports:
 
 ```ts
 // vite.config.ts

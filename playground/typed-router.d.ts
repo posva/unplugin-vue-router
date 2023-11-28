@@ -138,7 +138,7 @@ declare module 'vue-router/auto' {
 
   // Experimental Data Fetching
 
-  export function defineLoader<
+  export function defineBasicLoader<
     P extends Promise<unknown>,
     isLazy extends boolean = false,
     Name extends keyof RouteNamedMap = keyof RouteNamedMap
@@ -147,7 +147,7 @@ declare module 'vue-router/auto' {
     loader: _DefineLoaderFn<P, _DataLoaderContext, RouteLocationNormalizedLoaded<Name>>,
     options?: _DefineDataLoaderOptions<isLazy>
   ): _UseDataLoader<isLazy, Awaited<P>>
-  export function defineLoader<
+  export function defineBasicLoader<
     P extends Promise<unknown>,
     isLazy extends boolean = false
   >(
