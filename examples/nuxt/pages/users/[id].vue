@@ -19,12 +19,6 @@ export const useUserData = defineBasicLoader(
 </script>
 
 <script setup lang="ts">
-import { HasDataLoaderMeta } from 'vue-router/auto'
-
-definePageMeta({
-  [HasDataLoaderMeta]: [() => import('/pages/users/[id].vue')],
-})
-
 const { data: user } = useUserData()
 </script>
 
