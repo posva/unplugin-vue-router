@@ -144,6 +144,17 @@ declare module 'vue-router/auto' {
 
   // Experimental Data Fetching
 
+  /**
+  * Creates a data loader composable that can be exported by pages to attach the data loading to a route. This returns a
+  * composable that can be used in any component.
+  *
+  * @experimental
+  * Still under development and subject to change. See https://github.com/vuejs/rfcs/discussions/460
+  *
+  * @param name - name of the route to have typed routes
+  * @param loader - function that returns a promise with the data
+  * @param options - options to configure the data loader
+  */
   export function defineBasicLoader<
     P extends Promise<unknown>,
     isLazy extends boolean = false,

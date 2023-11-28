@@ -58,6 +58,8 @@ export interface DefineLoaderFn<T> {
  * Creates a data loader composables that can be exported by pages to attach the data loading to a route. This returns a
  * composable that can be used in any component.
  *
+ * @deprecated use `defineBasicLoader()` instead. Note they are different. Check the CHANGELOG of v0.8.0 for more information.
+ *
  * @experimental
  * Still under development and subject to change. See https://github.com/vuejs/rfcs/discussions/460
  *
@@ -77,6 +79,8 @@ export function defineLoader<
 /**
  * Creates a data loader composables that can be exported by pages to attach the data loading to a route. This returns a
  * composable that can be used in any component.
+ *
+ * @deprecated use `defineBasicLoader()` instead. Note they are different. Check the CHANGELOG of v0.8.0 for more information.
  *
  * @experimental
  * Still under development and subject to change. See https://github.com/vuejs/rfcs/discussions/460

@@ -3,6 +3,15 @@ export const myExport = 'OUTSIDE SETUP TEST'
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
+const useOldData = defineLoader(
+  '/users/[id]',
+  async (route) => {
+    console.log('useOldData', route)
+    return { when: new Date() }
+  },
+  { key: 'old-user-id' }
+)
+
 // NOTE: it's a bit different from the one in /[name].vue
 export const useUserData = defineBasicLoader(
   '/users/[id]',
@@ -27,6 +36,7 @@ export const useUserData = defineBasicLoader(
 const route = useRoute('/users/[id]')
 
 const { data: user, pending, error } = useUserData()
+const { data: user2 } = useOldData()
 
 definePage({
   beforeEnter(to) {

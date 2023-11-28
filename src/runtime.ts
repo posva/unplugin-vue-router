@@ -1,6 +1,8 @@
 import type { RouteRecordRaw } from 'vue-router'
 
-// export { defineLoader as _defineLoader } from './data-fetching/defineLoader'
+// FIXME: remove in next major
+export { defineLoader as _defineLoader } from './data-fetching/defineLoader'
+
 export type {
   DefineLoaderOptions,
   DataLoader,

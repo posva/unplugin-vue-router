@@ -148,7 +148,9 @@ export { EditableTreeNode } from './core/extendRoutes'
 /**
  * @deprecated use `VueRouterAutoImports` instead
  */
-export const VueRouterExports: Array<string | [string, string]> = [
+export const VueRouterExports: Array<
+  string | [importName: string, alias: string]
+> = [
   'useRoute',
   'useRouter',
   'defineBasicLoader',
@@ -174,5 +176,9 @@ export const VueRouterAutoImports: Record<
   Array<string | [string, string]>
 > = {
   'vue-router/auto': VueRouterExports,
-  'unplugin-vue-router/runtime': [['_definePage', 'definePage']],
+  'unplugin-vue-router/runtime': [
+    ['_definePage', 'definePage'],
+    // FIXME: remove after deprecation
+    ['_defineLoader', 'defineLoader'],
+  ],
 }
