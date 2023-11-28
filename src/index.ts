@@ -151,8 +151,6 @@ export { EditableTreeNode } from './core/extendRoutes'
 export const VueRouterExports: Array<string | [string, string]> = [
   'useRoute',
   'useRouter',
-  // FIXME: remove after deprecation
-  'defineLoader',
   'defineBasicLoader',
   'onBeforeRouteUpdate',
   'onBeforeRouteLeave',
