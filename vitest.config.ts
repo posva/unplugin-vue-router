@@ -1,11 +1,14 @@
 import { fileURLToPath } from 'node:url'
+import { resolve } from 'node:path'
 import { defineConfig } from 'vitest/config'
 import Vue from '@vitejs/plugin-vue'
+
+const __dirname = fileURLToPath(new URL('./', import.meta.url))
 
 export default defineConfig({
   resolve: {
     alias: {
-      '~/': fileURLToPath(new URL('./', import.meta.url)),
+      '~': resolve(__dirname),
     },
   },
 
