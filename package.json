@@ -137,7 +137,7 @@
     "happy-dom": "^12.10.3",
     "lint-staged": "^15.1.0",
     "minimist": "^1.2.8",
-    "nodemon": "^2.0.22",
+    "nodemon": "^3.0.2",
     "p-series": "^3.0.0",
     "prettier": "^2.8.8",
     "rimraf": "^5.0.5",
