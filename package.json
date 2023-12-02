@@ -144,7 +144,7 @@
     "rollup": "^4.3.0",
     "semver": "^7.5.4",
     "ts-expect": "^1.3.0",
-    "tsup": "^7.2.0",
+    "tsup": "^8.0.1",
     "typescript": "^5.2.2",
     "unplugin-auto-import": "^0.16.7",
     "vite": "^5.0.4",
