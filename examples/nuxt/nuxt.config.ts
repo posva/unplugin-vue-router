@@ -10,4 +10,8 @@ export default defineNuxtConfig({
     pageTransition: false,
     layoutTransition: false,
   },
+
+  experimental: {
+    typedPages: true,
+  },
 })
