@@ -624,8 +624,8 @@ exports[`generateRouteRecord > route block > adds meta data 1`] = `
     component: () => import('index.vue'),
     /* no children */
     meta: {
-      \\"auth\\": true,
-      \\"title\\": \\"Home\\"
+      "auth": true,
+      "title": "Home"
     }
   }
 ]"
@@ -642,8 +642,8 @@ exports[`generateRouteRecord > route block > handles named views with empty rout
     },
     /* no children */
     meta: {
-      \\"auth\\": true,
-      \\"title\\": \\"Home\\"
+      "auth": true,
+      "title": "Home"
     }
   }
 ]"
@@ -657,12 +657,12 @@ exports[`generateRouteRecord > route block > merges deep meta properties 1`] = `
     component: () => import('index.vue'),
     /* no children */
     meta: {
-      \\"a\\": {
-        \\"one\\": 1,
-        \\"two\\": 1
+      "a": {
+        "one": 1,
+        "two": 1
       },
-      \\"b\\": {
-        \\"a\\": [
+      "b": {
+        "a": [
           2,
           3
         ]
@@ -680,8 +680,8 @@ exports[`generateRouteRecord > route block > merges multiple meta properties 1`]
     component: () => import('index.vue'),
     /* no children */
     meta: {
-      \\"one\\": true,
-      \\"two\\": true
+      "one": true,
+      "two": true
     }
   }
 ]"
