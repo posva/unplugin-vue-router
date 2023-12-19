@@ -16,6 +16,7 @@ import {
 } from './dataCache'
 import { _RouteMapGeneric } from '../codegen/generateRouteMap'
 import { includesParams } from './locationUtils'
+import { IS_USE_DATA_LOADER_KEY } from '../data-fetching_new/symbols'
 
 export interface DefineLoaderOptions<isLazy extends boolean = boolean> {
   /**
@@ -297,7 +298,7 @@ export function defineLoader<P extends Promise<any>, isLazy extends boolean>(
     load,
     options,
   }
-  dataLoader[IsLoader] = true
+  dataLoader[IS_USE_DATA_LOADER_KEY] = true
 
   return dataLoader
 }
@@ -320,14 +321,13 @@ function shouldFetchAgain(
 
 type _PromiseMerged<T> = T & Promise<T>
 
-const IsLoader = Symbol()
 /**
  * Check if a value is a `DataLoader`.
  *
  * @param loader - the object to check
  */
 export function isDataLoader(loader: any): loader is DataLoader<unknown> {
-  return loader && loader[IsLoader]
+  return loader && loader[IS_USE_DATA_LOADER_KEY]
 }
 
 /**
@@ -336,7 +336,7 @@ export function isDataLoader(loader: any): loader is DataLoader<unknown> {
 export interface DataLoader<T, isLazy extends boolean = boolean> {
   (): _PromiseMerged<_DataLoaderResult<T, isLazy>>
 
-  [IsLoader]: true
+  [IS_USE_DATA_LOADER_KEY]: true
 
   /**
    * Internal context for the loader.
