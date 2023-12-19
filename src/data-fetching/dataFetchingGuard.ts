@@ -3,6 +3,10 @@ import type { RouteLocationNormalized, Router } from 'vue-router'
 import { _Awaitable } from '../core/utils'
 
 // Symbol used to detect if a route has loaders
+/**
+ * Symbol used to detect if a route has loaders
+ * @deprecated This symbol is no longer needed in the new data fetching API.
+ */
 export const HasDataLoaderMeta = Symbol()
 
 declare module 'vue-router' {
@@ -43,6 +47,14 @@ export interface SetupDataFetchingGuardOptions {
   ) => _Awaitable<NavigationResult | undefined | void>
 }
 
+/**
+ * Setup a data fetching guard that will call all the data loaders of the matched routes.
+ *
+ * @param router - router instance
+ * @param options - options
+ *
+ * @deprecated - This guard is replaced by the new data fetching API and the new `setupLoaderGuard()`.
+ */
 export function setupDataFetchingGuard(
   router: Router,
   { initialData }: SetupDataFetchingGuardOptions = {}

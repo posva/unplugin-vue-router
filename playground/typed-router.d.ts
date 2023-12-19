@@ -179,7 +179,7 @@ declare module 'vue-router/auto' {
     DataLoaderPlugin,
     _setupLoaderGuard as setupLoaderGuard,
 
-    // TODO: remove these
+    // FIXME: remove these in next major
     _HasDataLoaderMeta as HasDataLoaderMeta,
     _setupDataFetchingGuard as setupDataFetchingGuard,
     _stopDataFetchingScope as stopDataFetchingScope,

@@ -13,15 +13,16 @@ import { createRouter as _createRouter } from 'vue-router'
 
 export * from 'vue-router'
 export {
-  // FIXME: readd as deprecated
-  // _defineLoader as defineLoader,
-  _defineBasicLoader as defineBasicLoader,
-  _definePage as definePage,
+  // NOTE: deprecated
   _HasDataLoaderMeta as HasDataLoaderMeta,
   _setupDataFetchingGuard as setupDataFetchingGuard,
   _stopDataFetchingScope as stopDataFetchingScope,
 
-  // FIXME: remove?
+  _defineBasicLoader as defineBasicLoader,
+  // FIXME: remove in next major
+  _definePage as definePage,
+
+  // new data fetching
   _setupLoaderGuard as setupLoaderGuard,
   DataLoaderPlugin,
 } from 'unplugin-vue-router/runtime'
@@ -36,5 +37,5 @@ export function createRouter(options) {
 
   return router
 }
-`
+`.trimStart()
 }

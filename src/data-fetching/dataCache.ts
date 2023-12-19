@@ -122,6 +122,8 @@ export function withinScope<T>(fn: () => T): T {
 /**
  * Stop and invalidate the scope used for data. Note this will make any application stop working. It should be used only
  * if there is a need to manually stop a running application without stopping the process.
+ *
+ * @deprecated No longer used. It wil be removed in the next major version.
  */
 export function stopScope() {
   if (scope) {
