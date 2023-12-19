@@ -46,6 +46,11 @@ const customRoute = useRoute('/deep/nesting/works/custom-path')
             <RouterLink to="/users/2" v-slot="{ href }">{{ href }}</RouterLink>
           </li>
           <li>
+            <RouterLink to="/users/query/1" v-slot="{ href }">{{
+              href
+            }}</RouterLink>
+          </li>
+          <li>
             <RouterLink to="/Eduardo">[name]</RouterLink>
           </li>
           <li>

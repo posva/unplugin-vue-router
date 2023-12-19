@@ -1,23 +1,11 @@
 <script lang="ts">
+import { defineQueryLoader } from 'unplugin-vue-router/runtime'
 export const myExport = 'OUTSIDE SETUP TEST'
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-export const useOldData = defineLoader(
-  '/users/[id]',
-  async (route) => {
-    console.log('useOldData', route)
-    return {
-      when: new Date(),
-      // if the id is not used, this data is cached forever
-      id: route.params.id,
-    }
-  },
-  { key: 'old-user-id', cacheTime: 5000 }
-)
-
 // NOTE: it's a bit different from the one in /[name].vue
-export const useUserData = defineBasicLoader(
+export const useUserData = defineQueryLoader(
   '/users/[id]',
   async (route) => {
     await delay(700)
@@ -30,7 +18,8 @@ export const useUserData = defineBasicLoader(
     return user
   },
   {
-    key: 'user-id',
+    // key: ['user-id'],
+    queryKey: ['user-id'],
     lazy: false,
   }
 )
@@ -40,7 +29,6 @@ export const useUserData = defineBasicLoader(
 const route = useRoute('/users/[id]')
 
 const { data: user, pending, error } = useUserData()
-const { data: user2 } = useOldData()
 
 definePage({
   beforeEnter(to) {
@@ -56,8 +44,7 @@ const MY_VAL = 'INSIDE SETUP TEST'
 
 <template>
   <main>
-    <h1>defineBasicLoader()</h1>
-
+    <h1>defineQueryLoader()</h1>
     <pre>User: {{ route.params.id }}</pre>
     <p>{{ MY_VAL }}</p>
 

@@ -31,12 +31,13 @@ import {
 import { Ref, UnwrapRef, ref, shallowRef } from 'vue'
 import { NavigationResult } from './navigation-guard'
 import {
+  QueryObserverOptions,
   UseQueryOptions,
   UseQueryReturnType,
   useQuery,
 } from '@tanstack/vue-query'
 
-export function defineLoader<
+export function defineQueryLoader<
   P extends Promise<unknown>,
   isLazy extends boolean
 >(
@@ -47,7 +48,7 @@ export function defineLoader<
   ) => P,
   options?: DefineQueryLoaderOptions<isLazy, Awaited<P>>
 ): UseDataLoader<isLazy, Awaited<P>>
-export function defineLoader<
+export function defineQueryLoader<
   P extends Promise<unknown>,
   isLazy extends boolean
 >(
@@ -58,7 +59,7 @@ export function defineLoader<
   options?: DefineQueryLoaderOptions<isLazy, Awaited<P>>
 ): UseDataLoader<isLazy, Awaited<P>>
 
-export function defineLoader<
+export function defineQueryLoader<
   P extends Promise<unknown>,
   isLazy extends boolean
 >(
@@ -339,11 +340,12 @@ export function defineLoader<
 
 export interface DefineQueryLoaderOptions<isLazy extends boolean, Data>
   extends DefineDataLoaderOptionsBase<isLazy>,
-    UseQueryOptions<Data> {
+    Omit<QueryObserverOptions<Data>, 'queryFn'> {
   /**
    * Key to use for SSR state.
+   * @deprecated: use `queryKey` instead
    */
-  key?: string
+  key?: never
 }
 
 export interface QueryLoaderEntry<
