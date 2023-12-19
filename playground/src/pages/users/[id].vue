@@ -3,23 +3,27 @@ export const myExport = 'OUTSIDE SETUP TEST'
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-const useOldData = defineLoader(
+export const useOldData = defineLoader(
   '/users/[id]',
   async (route) => {
     console.log('useOldData', route)
-    return { when: new Date() }
+    return {
+      when: new Date(),
+      // if the id is not used, this data is cached forever
+      id: route.params.id,
+    }
   },
-  { key: 'old-user-id' }
+  { key: 'old-user-id', cacheTime: 5000 }
 )
 
 // NOTE: it's a bit different from the one in /[name].vue
 export const useUserData = defineBasicLoader(
   '/users/[id]',
   async (route) => {
-    await delay(1000)
+    await delay(700)
     const user = {
-      id: route.params.id || 24,
-      // @ts-expect-error: no id param!
+      id: route.params.id,
+      // @ts-expect-error: no param "name"!
       name: route.params.name || 'Edu',
       when: new Date().toUTCString(),
     }
