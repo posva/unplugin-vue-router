@@ -182,8 +182,8 @@ export function getFileBasedRouteName(node: TreeNode): string {
   if (!node.parent) return ''
   return (
     getFileBasedRouteName(node.parent) +
-    '/' +
-    (node.value.rawSegment === 'index' ? '' : node.value.rawSegment)
+    '/' + 
+    (node.value.rawSegment.localeCompare('index', 'en', { sensitivity: 'base' }) ? '' : node.value.rawSegment)
   )
 }
 
