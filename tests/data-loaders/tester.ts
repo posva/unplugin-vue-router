@@ -2,7 +2,6 @@
  * @vitest-environment happy-dom
  */
 import { type App, type Ref, defineComponent, inject, shallowRef } from 'vue'
-// import { defineLoader } from '../defineLoader'
 import { expectType } from 'ts-expect'
 import {
   afterAll,
@@ -33,9 +32,12 @@ import ComponentWithNestedLoader from '~/tests/data-loaders/ComponentWithNestedL
 import { dataOneSpy, dataTwoSpy } from '~/tests/data-loaders/loaders'
 import type { RouteLocationNormalizedLoaded } from 'vue-router'
 
-export function testDefineLoader(
+export function testDefineLoader<
+  DefineLoaderT extends DefineDataLoader<DataLoaderContextBase>
+>(
   name: string,
-  defineLoader: DefineDataLoader<DataLoaderContextBase>
+  defineLoader: DefineLoaderT,
+  { ssrKeyName }: { ssrKeyName: string }
 ) {
   describe(name, () => {
     beforeEach(() => {
@@ -322,7 +324,10 @@ export function testDefineLoader(
     it('does not block navigation when lazy loaded', async () => {
       const [spy, resolve, reject] = mockPromise('resolved')
       const { wrapper, useData, router } = singleLoaderOneRoute(
-        defineLoader(async () => spy(), { lazy: true, key: 'lazy-test' })
+        defineLoader(async () => spy(), {
+          lazy: true,
+          // key: 'lazy-test'
+        })
       )
       expect(spy).not.toHaveBeenCalled()
       await router.push('/fetch')
@@ -390,7 +395,7 @@ export function testDefineLoader(
           return to.query.p
         })
       const useNestedLoader = defineLoader(nestedLoaderSpy, {
-        key: 'nested',
+        // key: 'nested',
       })
 
       let rootCalls = 0
@@ -413,7 +418,9 @@ export function testDefineLoader(
         })
 
       const { wrapper, useData, router, app } = singleLoaderOneRoute(
-        defineLoader(rootLoaderSpy, { key: 'root' })
+        defineLoader(rootLoaderSpy, {
+          // key: 'root'
+        })
       )
       const firstNavigation = router.push('/fetch?p=one')
       // we resolve the first root to give the nested loader a chance to run
@@ -662,7 +669,9 @@ export function testDefineLoader(
           const d = await l1.loader()
           return `${d},${to.query.p}`
         },
-        { key: 'root' }
+        {
+          // key: 'root'
+        }
       )
       const router = getRouter()
       router.addRoute({
@@ -703,7 +712,9 @@ export function testDefineLoader(
           const d = await l1.loader()
           return `${d},${to.query.p}`
         },
-        { key: 'root' }
+        {
+          // key: 'root'
+        }
       )
       const router = getRouter()
       router.addRoute({
@@ -785,7 +796,9 @@ export function testDefineLoader(
             const data = await l1.loader()
             return `${data},${to.query.p}`
           },
-          { key: 'root' }
+          {
+            // key: 'root'
+          }
         )
       )
 
@@ -805,7 +818,10 @@ export function testDefineLoader(
         .fn<[to: RouteLocationNormalizedLoaded], Promise<string>>()
         .mockResolvedValue('initial')
       const { wrapper, app, router, useData } = singleLoaderOneRoute(
-        defineLoader(spy, { key: 'root' }),
+        defineLoader(spy, {
+          // TODO: figure out a way of passing these options that are specific to some
+          [ssrKeyName]: 'root',
+        }),
         {
           initialData: {
             root: 'initial',
@@ -824,7 +840,7 @@ export function testDefineLoader(
         .fn<[to: RouteLocationNormalizedLoaded], Promise<string>>()
         .mockImplementation(async (to) => to.query.p as string)
       const { wrapper, app, router, useData } = singleLoaderOneRoute(
-        defineLoader(spy, { key: 'root' }),
+        defineLoader(spy, { [ssrKeyName]: 'root' }),
         {
           initialData: {
             root: 'initial',

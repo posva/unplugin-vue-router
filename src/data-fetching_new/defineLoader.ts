@@ -328,7 +328,7 @@ export function defineBasicLoader<
 export interface DefineDataLoaderOptions<isLazy extends boolean>
   extends DefineDataLoaderOptionsBase<isLazy> {
   /**
-   * Key to use for SSR state.
+   * Key to use for SSR state. This will be used to read the initial data from `initialData`'s object.
    */
   key?: string
 }

@@ -9,7 +9,7 @@ import { NavigationResult } from './navigation-guard'
 import { testDefineLoader } from '~/tests/data-loaders'
 
 describe('defineLoader', () => {
-  testDefineLoader('Basic', defineBasicLoader)
+  testDefineLoader('Basic', defineBasicLoader, { ssrKeyName: 'key' })
 })
 
 // dts testing
