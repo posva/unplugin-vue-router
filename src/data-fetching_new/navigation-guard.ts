@@ -206,6 +206,7 @@ export function setupLoaderGuard({
     }
 
     if (
+      // NOTE: using a smaller version to cutoff some bytes
       isNavigationFailure(failure, 16 /* NavigationFailureType.duplicated */)
     ) {
       if (router[PENDING_LOCATION_KEY]) {
@@ -221,6 +222,8 @@ export function setupLoaderGuard({
       }
     }
   })
+
+  // TODO: allow throwing a NavigationResult to skip the selectNavigationResult
 
   // abort the signal on thrown errors
   const removeOnError = router.onError((error, to) => {
