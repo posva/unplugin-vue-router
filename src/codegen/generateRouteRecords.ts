@@ -129,6 +129,10 @@ function generatePageImport(
   if (mode === 'async') {
     return `() => import('${filepath}')`
   } else {
+    const existingEntries = importsMap.getImportList(filepath);
+    if (existingEntries.length) {
+      return existingEntries[0].as;
+    }
     const importName = `_page_${importsMap.size}`
     importsMap.addDefault(filepath, importName)
     return importName
