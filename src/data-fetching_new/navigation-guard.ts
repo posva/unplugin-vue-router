@@ -8,7 +8,6 @@ import { effectScope, type App, type EffectScope } from 'vue'
 import {
   ABORT_CONTROLLER_KEY,
   APP_KEY,
-  INITIAL_DATA_KEY,
   LOADER_ENTRIES_KEY,
   LOADER_SET_KEY,
   NAVIGATION_RESULTS_KEY,
@@ -34,7 +33,6 @@ export function setupLoaderGuard({
   app,
   effect,
   selectNavigationResult = (results) => results[0].value,
-  initialData,
 }: SetupLoaderGuardOptions) {
   // avoid creating the guards multiple times
   if (router[LOADER_ENTRIES_KEY] != null) {
@@ -77,11 +75,6 @@ export function setupLoaderGuard({
     to.meta[ABORT_CONTROLLER_KEY] = new AbortController()
     // allow loaders to add navigation results
     to.meta[NAVIGATION_RESULTS_KEY] = []
-    // set the initial data on the route so it can be used by the loaders, including
-    // nested ones
-    to.meta[INITIAL_DATA_KEY] = initialData
-    // clean it up so it can't be used again
-    initialData = undefined
 
     // Collect all the lazy loaded components to await them in parallel
     const lazyLoadingPromises: Promise<unknown>[] = []
@@ -281,11 +274,6 @@ export interface SetupLoaderGuardOptions {
    * The router instance. Adds the guards to it
    */
   router: Router
-
-  /**
-   * Initial data to skip the initial data loaders. This is useful for SSR and should be set only on client side.
-   */
-  initialData?: Record<string, unknown>
 
   /**
    * Called if any data loader returns a `NavigationResult` with an array of them. Should decide what is the outcome of

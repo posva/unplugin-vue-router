@@ -23,7 +23,7 @@ export interface DataLoaderEntryBase<
   /**
    * Data stored in the entry.
    */
-  data: Ref<_DataMaybeLazy<UnwrapRef<Data>, isLazy>>
+  data: Ref<_DataMaybeLazy<Data, isLazy>>
 
   /**
    * Error if there was an error.
@@ -35,6 +35,8 @@ export interface DataLoaderEntryBase<
    * Whether there is an ongoing request.
    */
   pending: Ref<boolean>
+
+  options: DefineDataLoaderOptionsBase<isLazy>
 
   /**
    * The latest pending load. Used to verify if the load is still valid when it resolves.
@@ -178,7 +180,7 @@ export interface DataLoaderContextBase {
 
 export interface DefineDataLoader<Context extends DataLoaderContextBase> {
   <isLazy extends boolean, Data>(
-    fn: DefineLoaderFn<Promise<Data>, Context>,
+    fn: DefineLoaderFn<Data, Context>,
     options?: DefineDataLoaderOptionsBase<isLazy>
     // TODO: or a generic that allows a more complex UseDataLoader
   ): UseDataLoader<isLazy, Data>
@@ -333,9 +335,9 @@ function _testing() {
  * Loader function that can be passed to `defineLoader()`.
  */
 export interface DefineLoaderFn<
-  P extends Promise<unknown>,
+  Data,
   Context extends DataLoaderContextBase = DataLoaderContextBase,
   Route = RouteLocationNormalizedLoaded
 > {
-  (route: Route, context: Context): P
+  (route: Route, context: Context): Promise<Data>
 }

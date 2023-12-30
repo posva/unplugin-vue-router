@@ -1,36 +1,13 @@
 <script lang="ts">
-import { defineQueryLoader } from 'unplugin-vue-router/runtime'
-
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
-
-// NOTE: it's a bit different from the one in /[name].vue
-const useUserData = defineQueryLoader(
-  '/users/[id]',
-  async (route, { signal }) => {
-    console.log('useUserData', route.fullPath)
-    await delay(700)
-    const user = {
-      id: route.params.id,
-      // @ts-expect-error: no param "name"!
-      name: route.params.name || 'Edu',
-      when: new Date().toUTCString(),
-    }
-    return user
-  },
-  {
-    // key: ['user-id'],
-    queryKey: ['user-id'],
-    staleTime: 5000,
-    lazy: false,
-  }
-)
 </script>
 
 <script lang="ts" setup>
+import { computed } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
+
 const route = useRoute('/users/[id]')
 
-const { data: user, pending, error } = useUserData()
 const {
   data: tqUser,
   isPending,
@@ -47,7 +24,7 @@ const {
     }
     return user
   },
-  queryKey: ['user-id', () => route.params.id],
+  queryKey: ['user-id', computed(() => route.params.id)],
   staleTime: 5000,
 })
 </script>
@@ -64,13 +41,6 @@ const {
     <RouterLink :to="{ params: { id: Number(route.params.id) + 1 } }"
       >Next</RouterLink
     >
-
-    <h2>Data Loaders</h2>
-    <pre v-if="pending">Loading...</pre>
-    <pre v-else-if="error">Error: {{ error }}</pre>
-    <pre v-else>{{ user }}</pre>
-
-    <hr />
 
     <h2>TQ</h2>
     <pre v-if="isPending">Loading...</pre>

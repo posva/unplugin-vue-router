@@ -7,7 +7,6 @@ import type {
   PENDING_LOCATION_KEY,
   ABORT_CONTROLLER_KEY,
   NAVIGATION_RESULTS_KEY,
-  INITIAL_DATA_KEY,
 } from './symbols'
 import { type NavigationResult } from './navigation-guard'
 
@@ -19,7 +18,7 @@ export type _DefineLoaderEntryMap = WeakMap<
   // Depending on the `defineLoader()` they might use a different thing as key
   // e.g. an function for basic defineLoader, a doc instance for VueFire
   object,
-  DataLoaderEntryBase
+  DataLoaderEntryBase<boolean, unknown>
 >
 
 // we want to import from this meta extensions to include the changes to route
@@ -68,11 +67,5 @@ declare module 'vue-router' {
      * @internal
      */
     [NAVIGATION_RESULTS_KEY]?: NavigationResult[]
-
-    /**
-     * The initial data of all loaders ran on the server. This is only used once.
-     * @internal
-     */
-    [INITIAL_DATA_KEY]?: Record<string, unknown>
   }
 }
