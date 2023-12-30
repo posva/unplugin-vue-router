@@ -16,7 +16,6 @@ import {
 import {
   ABORT_CONTROLLER_KEY,
   APP_KEY,
-  INITIAL_DATA_KEY,
   IS_USE_DATA_LOADER_KEY,
   LOADER_ENTRIES_KEY,
   NAVIGATION_RESULTS_KEY,
@@ -106,12 +105,14 @@ export function defineBasicLoader<
 
     const { error, pending, data } = entry
 
-    const initialRootData = to.meta[INITIAL_DATA_KEY]
+    // FIXME: the key should be moved here and the strategy adapted to not depend on the navigation guard. This depends on how other loaders can be implemented.
+    const initialRootData = router[INITIAL_DATA_KEY]
     const key = options.key || ''
-    const initialData =
-      initialRootData && key in initialRootData
-        ? initialRootData[key]
-        : STAGED_NO_VALUE
+    let initialData: unknown = STAGED_NO_VALUE
+    if (initialRootData && key in initialRootData) {
+      initialData = initialRootData[key]
+      delete initialRootData[key]
+    }
 
     // we are rendering for the first time and we have initial data
     // we need to synchronously set the value so it's available in components
@@ -354,10 +355,11 @@ function createDefineLoaderEntry<
 ): DataLoaderEntryBase<isLazy, Data> {
   return {
     // force the type to match
-    data: ref() as Ref<_DataMaybeLazy<UnwrapRef<Data>, isLazy>>,
+    data: ref() as Ref<_DataMaybeLazy<Data, isLazy>>,
     pending: ref(false),
     error: shallowRef<any>(),
 
+    options,
     children: new Set(),
     pendingLoad: null,
     pendingTo: null,
@@ -367,7 +369,30 @@ function createDefineLoaderEntry<
 }
 
 /**
+ * Symbol used to store the data in the router so it can be retrieved after the initial navigation.
+ * @internal
+ */
+export const SERVER_INITIAL_DATA_KEY = Symbol()
+
+/**
+ * Initial data generated on server and consumed on client.
+ * @internal
+ */
+export const INITIAL_DATA_KEY = Symbol()
+
+/**
  * TODO:
  * - `refreshData()` -> refresh one or all data loaders
  * - `invalidateData()` / `clearData()` -> clear one or all data loaders (only useful if there is a cache strategy)
  */
+
+declare module 'vue-router' {
+  interface Router {
+    /**
+     * Gives access to the initial state during rendering. Should be set to `false` once it's consumed.
+     * @internal
+     */
+    [SERVER_INITIAL_DATA_KEY]?: Record<string, unknown> | false
+    [INITIAL_DATA_KEY]?: Record<string, unknown> | false
+  }
+}

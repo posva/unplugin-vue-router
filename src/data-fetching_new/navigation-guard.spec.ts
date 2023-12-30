@@ -237,7 +237,7 @@ describe('navigation-guard', () => {
     expect(router.currentRoute.value.path).toBe('/fetch')
   })
 
-  it(' does not run loaders on server side if server: false', async () => {
+  it('does not run loaders on server side if server: false', async () => {
     // @ts-expect-error: normally not allowed
     _utils.IS_CLIENT = false
     const router = getRouter()
@@ -259,7 +259,7 @@ describe('navigation-guard', () => {
     expect(l2.spy).not.toHaveBeenCalled()
   })
 
-  it.each([true, false])(
+  it.each([true, false] as const)(
     'throws if a non lazy loader rejects, IS_CLIENT: %s',
     async (isClient) => {
       // @ts-expect-error: normally not allowed

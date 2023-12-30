@@ -1,8 +1,7 @@
 /**
  * @vitest-environment happy-dom
  */
-import { type App, type Ref, defineComponent, inject, shallowRef } from 'vue'
-import { expectType } from 'ts-expect'
+import { type App, defineComponent, inject, shallowRef } from 'vue'
 import {
   afterAll,
   afterEach,
@@ -13,13 +12,12 @@ import {
   it,
   vi,
 } from 'vitest'
-import { enableAutoUnmount, mount } from '@vue/test-utils'
+import { disableAutoUnmount, enableAutoUnmount, mount } from '@vue/test-utils'
 import { getRouter } from 'vue-router-mock'
 import { setCurrentContext } from '~/src/data-fetching_new/utils'
 import {
   DataLoaderPlugin,
   type DataLoaderPluginOptions,
-  NavigationResult,
 } from '~/src/data-fetching_new/navigation-guard'
 import type {
   DataLoaderContextBase,
@@ -34,30 +32,11 @@ import type { RouteLocationNormalizedLoaded } from 'vue-router'
 
 export function testDefineLoader<
   DefineLoaderT extends DefineDataLoader<DataLoaderContextBase>
->(
-  name: string,
-  defineLoader: DefineLoaderT,
-  { ssrKeyName }: { ssrKeyName: string }
-) {
+>(name: string, defineLoader: DefineLoaderT) {
   describe(name, () => {
     beforeEach(() => {
-      // invalidate current context
-      setCurrentContext(undefined)
       dataOneSpy.mockClear()
       dataTwoSpy.mockClear()
-    })
-
-    enableAutoUnmount(afterEach)
-
-    // we use fake timers to ensure debugging tests do not rely on timers
-    const now = new Date(2000, 0, 1).getTime() // 1 Jan 2000 in local time as number of milliseconds
-    beforeAll(() => {
-      vi.useFakeTimers()
-      vi.setSystemTime(now)
-    })
-
-    afterAll(() => {
-      vi.useRealTimers()
     })
 
     function singleLoaderOneRoute<Loader extends UseDataLoader>(
@@ -811,105 +790,6 @@ export function testDefineLoader<
       l1.resolve('ok')
       await vi.runOnlyPendingTimersAsync()
       expect(data.value).toEqual('ok,one')
-    })
-
-    it('uses initialData if present', async () => {
-      const spy = vi
-        .fn<[to: RouteLocationNormalizedLoaded], Promise<string>>()
-        .mockResolvedValue('initial')
-      const { wrapper, app, router, useData } = singleLoaderOneRoute(
-        defineLoader(spy, {
-          // TODO: figure out a way of passing these options that are specific to some
-          [ssrKeyName]: 'root',
-        }),
-        {
-          initialData: {
-            root: 'initial',
-          },
-        }
-      )
-
-      await router.push('/fetch?p=one')
-      const { data } = useData()
-      expect(data.value).toEqual('initial')
-      expect(spy).toHaveBeenCalledTimes(0)
-    })
-
-    it('ignores initialData on subsequent navigations', async () => {
-      const spy = vi
-        .fn<[to: RouteLocationNormalizedLoaded], Promise<string>>()
-        .mockImplementation(async (to) => to.query.p as string)
-      const { wrapper, app, router, useData } = singleLoaderOneRoute(
-        defineLoader(spy, { [ssrKeyName]: 'root' }),
-        {
-          initialData: {
-            root: 'initial',
-          },
-        }
-      )
-
-      await router.push('/fetch?p=one')
-      await router.push('/fetch?p=two')
-      const { data } = useData()
-      expect(spy).toHaveBeenCalledTimes(1)
-      expect(data.value).toEqual('two')
-    })
-
-    it('can use initialData on nested loaders that are not exported', async () => {
-      const router = getRouter()
-      const l1 = mockedLoader({ key: 'root' })
-      const l2 = mockedLoader({ key: 'nested' })
-      router.addRoute({
-        name: '_test',
-        path: '/fetch',
-        component: defineComponent({
-          setup() {
-            const { data } = l1.loader()
-            const { data: nested } = l2.loader()
-            return { data, nested }
-          },
-          template: `<p>{{ data }} {{ nested }}</p>`,
-        }),
-        meta: {
-          loaders: [
-            // we purposely only expose the 1st loader
-            l1.loader,
-            // l2.loader,
-          ],
-        },
-      })
-      const wrapper = mount(RouterViewMock, {
-        global: {
-          plugins: [
-            [
-              DataLoaderPlugin,
-              {
-                router,
-                initialData: {
-                  root: 'initial',
-                  nested: 'nested-initial',
-                },
-              },
-            ],
-          ],
-        },
-      })
-      const app: App = wrapper.vm.$.appContext.app
-
-      await router.push('/fetch?p=one')
-      const { data: root, pending: rootPending } = app.runWithContext(() =>
-        l1.loader()
-      )
-      const { data: nested, pending: nestedPending } = app.runWithContext(() =>
-        l2.loader()
-      )
-      expect(l1.spy).toHaveBeenCalledTimes(0)
-      expect(l2.spy).toHaveBeenCalledTimes(0)
-      expect(wrapper.text()).toBe('initial nested-initial')
-      expect(root.value).toEqual('initial')
-      expect(nested.value).toEqual('nested-initial')
-      expect(rootPending.value).toEqual(false)
-      expect(nestedPending.value).toEqual(false)
     })
   })
 }

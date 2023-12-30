@@ -16,7 +16,6 @@ import {
 import {
   ABORT_CONTROLLER_KEY,
   APP_KEY,
-  INITIAL_DATA_KEY,
   IS_USE_DATA_LOADER_KEY,
   LOADER_ENTRIES_KEY,
   NAVIGATION_RESULTS_KEY,
@@ -36,51 +35,43 @@ import {
   UseQueryReturnType,
   useQuery,
 } from '@tanstack/vue-query'
+import { SERVER_INITIAL_DATA_KEY } from './defineLoader'
 
-export function defineQueryLoader<
-  P extends Promise<unknown>,
-  isLazy extends boolean
->(
+export function defineQueryLoader<Data, isLazy extends boolean>(
   name: RouteRecordName,
   loader: (
     route: RouteLocationNormalizedLoaded,
     context: QueryLoaderContext
-  ) => P,
-  options?: DefineQueryLoaderOptions<isLazy, Awaited<P>>
-): UseDataLoader<isLazy, Awaited<P>>
-export function defineQueryLoader<
-  P extends Promise<unknown>,
-  isLazy extends boolean
->(
+  ) => Promise<Data>,
+  options?: DefineQueryLoaderOptions<isLazy, Data>
+): UseDataLoader<isLazy, Data>
+export function defineQueryLoader<Data, isLazy extends boolean>(
   loader: (
     route: RouteLocationNormalizedLoaded,
     context: QueryLoaderContext
-  ) => P,
-  options?: DefineQueryLoaderOptions<isLazy, Awaited<P>>
-): UseDataLoader<isLazy, Awaited<P>>
+  ) => Promise<Data>,
+  options?: DefineQueryLoaderOptions<isLazy, Data>
+): UseDataLoader<isLazy, Data>
 
-export function defineQueryLoader<
-  P extends Promise<unknown>,
-  isLazy extends boolean
->(
-  nameOrLoader: RouteRecordName | DefineLoaderFn<P, QueryLoaderContext>,
+export function defineQueryLoader<Data, isLazy extends boolean>(
+  nameOrLoader: RouteRecordName | DefineLoaderFn<Data, QueryLoaderContext>,
   _loaderOrOptions?:
-    | DefineQueryLoaderOptions<isLazy, Awaited<P>>
-    | DefineLoaderFn<P, QueryLoaderContext>,
-  opts?: DefineQueryLoaderOptions<isLazy, Awaited<P>>
-): UseDataLoader<isLazy, Awaited<P>> {
+    | DefineQueryLoaderOptions<isLazy, Data>
+    | DefineLoaderFn<Data, QueryLoaderContext>,
+  opts?: DefineQueryLoaderOptions<isLazy, Data>
+): UseDataLoader<isLazy, Data> {
   // TODO: make it DEV only and remove the first argument in production mode
   // resolve option overrides
   const loader =
     typeof nameOrLoader === 'function'
       ? nameOrLoader
-      : (_loaderOrOptions! as DefineLoaderFn<P, QueryLoaderContext>)
+      : (_loaderOrOptions! as DefineLoaderFn<Data, QueryLoaderContext>)
   opts = typeof _loaderOrOptions === 'object' ? _loaderOrOptions : opts
   const options = assign(
-    {} as DefineQueryLoaderOptions<isLazy, Awaited<P>>,
-    DEFAULT_DEFINE_LOADER_OPTIONS,
+    {} as DefineQueryLoaderOptions<isLazy, Data>,
+    DEFAULT_DEFINE_QUERY_LOADER_OPTIONS,
     opts
-  ) satisfies DefineQueryLoaderOptions<isLazy, Awaited<P>>
+  ) satisfies DefineQueryLoaderOptions<isLazy, Data>
 
   function load(
     to: RouteLocationNormalizedLoaded,
@@ -89,16 +80,16 @@ export function defineQueryLoader<
   ): Promise<void> {
     const entries = router[LOADER_ENTRIES_KEY]!
     if (!entries.has(loader)) {
-      const queryResult = useQuery<Awaited<P>, Error, Awaited<P>>({
+      // TODO: ensure there is an effectScope
+      const queryResult = useQuery<Data, Error>({
         ...options,
         queryFn: () =>
           loader(to, { signal: to.meta[ABORT_CONTROLLER_KEY]!.signal }),
-        // queryKey: ['hey']
       })
       queryResult.data.value
       entries.set(loader, {
         // force the type to match
-        data: ref<unknown>(),
+        data: ref() as Ref<Data>,
         // data: queryResult.data as any,
         pending: ref(false),
         error: shallowRef<any>(),
@@ -111,20 +102,21 @@ export function defineQueryLoader<
         // TODO: could we find a way to make this type safe through the type of loader?
         // @ts-expect-error
         vq: queryResult,
-      } satisfies QueryLoaderEntry<boolean>)
+      } satisfies QueryLoaderEntry<boolean, Data>)
     }
     const entry = entries.get(loader)!
+    const key: string = options.queryKey?.join('/') || ''
 
     // Nested loaders might get called before the navigation guard calls them, so we need to manually skip these calls
     if (entry.pendingTo === to && entry.pendingLoad) {
-      // console.log(`🔁 already loading "${options.key}"`)
+      console.log(`🔁 already loading "${key}"`)
       return entry.pendingLoad
     }
 
     const { error, pending, data } = entry
 
-    const initialRootData = to.meta[INITIAL_DATA_KEY]
-    const key = options.key || ''
+    // FIXME: not needed because vue query has its own state
+    const initialRootData: Record<string, unknown> = {}
     const initialData =
       (initialRootData && key in initialRootData && initialRootData[key]) ??
       STAGED_NO_VALUE
@@ -138,9 +130,9 @@ export function defineQueryLoader<
       return (entry.pendingLoad = Promise.resolve())
     }
 
-    // console.log(
-    //   `😎 Loading context to "${to.fullPath}" with current "${currentContext[2]?.fullPath}"`
-    // )
+    console.log(
+      `😎 Loading context to "${to.fullPath}" with current "${entry.pendingTo?.fullPath}"`
+    )
     // Currently load for this loader
     entry.pendingTo = to
 
@@ -152,7 +144,7 @@ export function defineQueryLoader<
     if (process.env.NODE_ENV === 'development') {
       if (parent !== currentContext[0]) {
         console.warn(
-          `❌👶 "${options.key}" has a different parent than the current context. This shouldn't be happening. Please report a bug with a reproduction to https://github.com/posva/unplugin-vue-router/`
+          `❌👶 "${key}" has a different parent than the current context. This shouldn't be happening. Please report a bug with a reproduction to https://github.com/posva/unplugin-vue-router/`
         )
       }
     }
@@ -164,22 +156,22 @@ export function defineQueryLoader<
       loader(to, { signal: to.meta[ABORT_CONTROLLER_KEY]!.signal })
     )
       .then((d) => {
-        // console.log(
-        //   `✅ resolved ${options.key}`,
-        //   to.fullPath,
-        //   `accepted: ${entry.pendingLoad === currentLoad}; data: ${d}`
-        // )
+        console.log(
+          `✅ resolved ${key}`,
+          to.fullPath,
+          `accepted: ${entry.pendingLoad === currentLoad}; data: ${d}`
+        )
         if (entry.pendingLoad === currentLoad) {
           entry.staged = d
         }
       })
       .catch((e) => {
-        // console.log(
-        //   '‼️ rejected',
-        //   to.fullPath,
-        //   `accepted: ${entry.pendingLoad === currentLoad} =`,
-        //   e
-        // )
+        console.log(
+          '‼️ rejected',
+          to.fullPath,
+          `accepted: ${entry.pendingLoad === currentLoad} =`,
+          e
+        )
         if (entry.pendingLoad === currentLoad) {
           error.value = e
           // propagate error if non lazy or during SSR
@@ -190,10 +182,7 @@ export function defineQueryLoader<
       })
       .finally(() => {
         setCurrentContext(currentContext)
-        // console.log(
-        //   `😩 restored context ${options.key}`,
-        //   currentContext?.[2]?.fullPath
-        // )
+        console.log(`😩 restored context ${key}`, currentContext?.[2]?.fullPath)
         if (entry.pendingLoad === currentLoad) {
           pending.value = false
           // we must run commit here so nested loaders are ready before used by their parents
@@ -208,18 +197,23 @@ export function defineQueryLoader<
 
     // this still runs before the promise resolves even if loader is sync
     entry.pendingLoad = currentLoad
-    // console.log(`🔶 Promise set to pendingLoad "${options.key}"`)
+    console.log(`🔶 Promise set to pendingLoad "${key}"`)
 
     return currentLoad
   }
 
-  function commit(this: QueryLoaderEntry, to: RouteLocationNormalizedLoaded) {
+  function commit(
+    this: QueryLoaderEntry<boolean, Data>,
+    to: RouteLocationNormalizedLoaded
+  ) {
     if (this.pendingTo === to && !this.error.value) {
-      // console.log('👉 commit', this.staged)
+      console.log('👉 commit', this.staged)
       if (process.env.NODE_ENV === 'development') {
         if (this.staged === STAGED_NO_VALUE) {
           console.warn(
-            `Loader "${options.key}"'s "commit()" was called but there is no staged data.`
+            `Loader "${options.queryKey?.join(
+              '/'
+            )}"'s "commit()" was called but there is no staged data.`
           )
         }
       }
@@ -244,7 +238,7 @@ export function defineQueryLoader<
 
   // @ts-expect-error: requires the internals and symbol that are added later
   const useDataLoader: // for ts
-  UseDataLoader<isLazy, Awaited<P>> = () => {
+  UseDataLoader<isLazy, Data> = () => {
     // work with nested data loaders
     const [parentEntry, _router, _route] = getCurrentContext()
     // fallback to the global router and routes for useDataLoaders used within components
@@ -281,9 +275,11 @@ export function defineQueryLoader<
       // the existing pending location isn't good, we need to load again
       (parentEntry && entry.pendingTo !== route)
     ) {
-      // console.log(
-      //   `🔁 loading from useData for "${options.key}": "${route.fullPath}"`
-      // )
+      console.log(
+        `🔁 loading from useData for "${options.queryKey?.join('/')}": "${
+          route.fullPath
+        }"`
+      )
       router[APP_KEY].runWithContext(() => load(route, router, parentEntry))
     }
 
@@ -292,7 +288,9 @@ export function defineQueryLoader<
     // add ourselves to the parent entry children
     if (parentEntry) {
       if (parentEntry === entry) {
-        console.warn(`👶❌ "${options.key}" has itself as parent`)
+        console.warn(
+          `👶❌ "${options.queryKey?.join('/')}" has itself as parent`
+        )
       }
       // console.log(`👶 "${options.key}" has parent ${parentEntry}`)
       parentEntry.children.add(entry!)
@@ -340,13 +338,8 @@ export function defineQueryLoader<
 
 export interface DefineQueryLoaderOptions<isLazy extends boolean, Data>
   extends DefineDataLoaderOptionsBase<isLazy>,
-    Omit<QueryObserverOptions<Data>, 'queryFn'> {
-  /**
-   * Key to use for SSR state.
-   * @deprecated: use `queryKey` instead
-   */
-  key?: never
-}
+    // NOTE: queryFn is always needed and passed as the first argument
+    Omit<QueryObserverOptions<Data>, 'queryFn'> {}
 
 export interface QueryLoaderEntry<
   isLazy extends boolean = boolean,
@@ -357,12 +350,13 @@ export interface QueryLoaderEntry<
 
 export interface QueryLoaderContext extends DataLoaderContextBase {}
 
-const DEFAULT_DEFINE_LOADER_OPTIONS: DefineQueryLoaderOptions<
+const DEFAULT_DEFINE_QUERY_LOADER_OPTIONS: DefineQueryLoaderOptions<
   boolean,
   unknown
 > = {
   lazy: false,
   server: true,
   commit: 'immediate',
-  keepPreviousData: true,
+
+  // keepPreviousData: true,
 }

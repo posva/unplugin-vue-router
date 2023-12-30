@@ -5,14 +5,14 @@ import {
   RouterMockOptions,
 } from 'vue-router-mock'
 import { config } from '@vue/test-utils'
-import { beforeEach, vi, SpyInstance } from 'vitest'
+import { beforeEach, vi, MockInstance } from 'vitest'
 
 export function createRouterMock(options?: RouterMockOptions) {
   return _createRouterMock({
     ...options,
     spy: {
       create: (fn) => vi.fn(fn),
-      reset: (spy: SpyInstance) => spy.mockClear(),
+      reset: (spy: MockInstance) => spy.mockClear(),
       ...options?.spy,
     },
   })
