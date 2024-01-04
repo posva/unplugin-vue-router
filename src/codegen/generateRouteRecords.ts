@@ -2,6 +2,15 @@ import type { TreeNode } from '../core/tree'
 import { ImportsMap } from '../core/utils'
 import { ResolvedOptions, _OptionsImportMode } from '../options'
 
+/**
+ * Generate the route records for the given node.
+ *
+ * @param node - the node to generate the route record for
+ * @param options - the options to use
+ * @param importsMap - the imports map to fill and use
+ * @param indent - the indent level
+ * @returns the code of the routes as a string
+ */
 export function generateRouteRecord(
   node: TreeNode,
   options: ResolvedOptions,
@@ -113,7 +122,8 @@ ${indentStr}},`
 }
 
 /**
- * Generate the import (dynamic or static) for the given filepath. If the filepath is a static import, add it to the
+ * Generate the import (dynamic or static) for the given filepath. If the filepath is a static import, add it to the importsMap.
+ *
  * @param filepath - the filepath to the file
  * @param importMode - the import mode to use
  * @param importsMap - the import list to fill
@@ -128,15 +138,18 @@ function generatePageImport(
     typeof importMode === 'function' ? importMode(filepath) : importMode
   if (mode === 'async') {
     return `() => import('${filepath}')`
-  } else {
-    const existingEntries = importsMap.getImportList(filepath)
-    if (existingEntries.length) {
-      return existingEntries[0].as
-    }
-    const importName = `_page_${importsMap.size}`
-    importsMap.addDefault(filepath, importName)
-    return importName
   }
+  // mode === 'sync'
+  // return the name of the import e.g. `_page_0` for `import _page_0 from '...'`
+  const existingEntry = importsMap
+    .getImportList(filepath)
+    .find((entry) => entry.name === 'default')
+  if (existingEntry) {
+    return existingEntry.as
+  }
+  const importName = `_page_${importsMap.size}`
+  importsMap.addDefault(filepath, importName)
+  return importName
 }
 
 function generateImportList(node: TreeNode, indentStr: string) {

@@ -480,6 +480,23 @@ exports[`generateRouteRecord > nested children 2`] = `
 ]"
 `;
 
+exports[`generateRouteRecord > raw paths insertions > dedupes sync imports for the same component 1`] = `
+"[
+  {
+    path: '/a/b.vue',
+    name: '/a/b.vue',
+    component: _page_0,
+    /* no children */
+  },
+  {
+    path: '/a/c.vue',
+    name: '/a/c.vue',
+    component: _page_0,
+    /* no children */
+  }
+]"
+`;
+
 exports[`generateRouteRecord > raw paths insertions > do not nest raw segments with file based 1`] = `
 "[
   {
