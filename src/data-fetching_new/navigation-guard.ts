@@ -298,7 +298,8 @@ export type _DataLoaderRedirectResult = Exclude<
 >
 
 /**
- * Possible values to change the result of a navigation within a loader.
+ * Possible values to change the result of a navigation within a loader. Can be returned from a data loader and will
+ * appear in `selectNavigationResult`. If thrown, it will immediately cancel the navigation.
  *
  * @example
  * ```ts
