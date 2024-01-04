@@ -1,8 +1,10 @@
 <script lang="ts">
+// FIXME: should be able to import from vue-router or auto import
 import { defineQueryLoader } from 'unplugin-vue-router/runtime'
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
+// FIXME: export once doable
 // NOTE: it's a bit different from the one in /[name].vue
 const useUserData = defineQueryLoader(
   '/users/[id]',
@@ -18,8 +20,8 @@ const useUserData = defineQueryLoader(
     return user
   },
   {
-    // key: ['user-id'],
     queryKey: ['user-id'],
+    // queryKey: (route) => ['users', route.params.id],
     staleTime: 5000,
     lazy: false,
   }
@@ -33,8 +35,9 @@ const route = useRoute('/users/[id]')
 const { data: user, pending, error } = useUserData()
 const {
   data: tqUser,
-  isPending,
   error: tqError,
+  status,
+  fetchStatus,
 } = useQuery({
   async queryFn() {
     console.log('[TQ]useUserData', route.fullPath)
@@ -47,7 +50,8 @@ const {
     }
     return user
   },
-  queryKey: ['user-id', () => route.params.id],
+  // FIXME: (to) => ['user-id', to.params.id]
+  queryKey: ['users', () => route.params.id],
   staleTime: 5000,
 })
 </script>
@@ -55,7 +59,7 @@ const {
 <template>
   <main>
     <h1>defineQueryLoader()</h1>
-    <pre>User: {{ route.params.id }}</pre>
+    <pre>route.params.id: {{ route.params.id }}</pre>
 
     <RouterLink :to="{ params: { id: Number(route.params.id) - 1 } }"
       >Previous</RouterLink
@@ -73,8 +77,13 @@ const {
     <hr />
 
     <h2>TQ</h2>
-    <pre v-if="isPending">Loading...</pre>
-    <pre v-else-if="tqError">Error: {{ tqError }}</pre>
-    <pre v-else>{{ tqUser }}</pre>
+
+    <p>
+      <code>status: {{ status }}</code>
+      <br />
+      <code>fetchStatus: {{ fetchStatus }}</code>
+    </p>
+    <pre v-if="tqError">Error: {{ tqError }}</pre>
+    <pre v-else>{{ tqUser == null ? String(tqUser) : tqUser }}</pre>
   </main>
 </template>

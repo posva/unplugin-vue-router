@@ -3,19 +3,26 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 </script>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 
 const route = useRoute('/users/[id]')
 
+const simulateError = ref(false)
+
 const {
   data: tqUser,
-  isPending,
+  status,
+  fetchStatus,
   error: tqError,
+  refetch,
 } = useQuery({
   async queryFn() {
     console.log('[TQ]useUserData', route.fullPath)
     await delay(500)
+    if (simulateError.value) {
+      throw new Error('Simulated Error')
+    }
     const user = {
       id: route.params.id,
       // @ts-expect-error: no param "name"!
@@ -26,6 +33,7 @@ const {
   },
   queryKey: ['user-id', computed(() => route.params.id)],
   staleTime: 5000,
+  retry: false,
 })
 </script>
 
@@ -33,6 +41,16 @@ const {
   <main>
     <h1>defineQueryLoader()</h1>
     <pre>User: {{ route.params.id }}</pre>
+
+    <fieldset>
+      <legend>Controls</legend>
+
+      <label>
+        <input type="checkbox" v-model="simulateError" /> Throw on Fetch
+      </label>
+      <br />
+      <button @click="refetch()">Refresh</button>
+    </fieldset>
 
     <RouterLink :to="{ params: { id: Number(route.params.id) - 1 } }"
       >Previous</RouterLink
@@ -43,8 +61,13 @@ const {
     >
 
     <h2>TQ</h2>
-    <pre v-if="isPending">Loading...</pre>
-    <pre v-else-if="tqError">Error: {{ tqError }}</pre>
-    <pre v-else>{{ tqUser }}</pre>
+
+    <p>
+      <code>status: {{ status }}</code>
+      <br />
+      <code>fetchStatus: {{ fetchStatus }}</code>
+    </p>
+    <pre v-if="tqError">Error: {{ tqError }}</pre>
+    <pre v-else>{{ tqUser == null ? String(tqUser) : tqUser }}</pre>
   </main>
 </template>
