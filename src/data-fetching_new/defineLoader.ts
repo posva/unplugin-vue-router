@@ -41,44 +41,35 @@ import { NavigationResult } from './navigation-guard'
  * @param loader - function that returns a promise with the data
  * @param options - options to configure the data loader
  */
-export function defineBasicLoader<
-  P extends Promise<unknown>,
-  isLazy extends boolean
->(
+export function defineBasicLoader<Data, isLazy extends boolean>(
   name: RouteRecordName,
   loader: (
     route: RouteLocationNormalizedLoaded,
     context: DataLoaderContext
-  ) => P,
+  ) => Promise<Data>,
   options?: DefineDataLoaderOptions<isLazy>
-): UseDataLoader<isLazy, Awaited<P>>
-export function defineBasicLoader<
-  P extends Promise<unknown>,
-  isLazy extends boolean
->(
+): UseDataLoader<isLazy, Data>
+export function defineBasicLoader<Data, isLazy extends boolean>(
   loader: (
     route: RouteLocationNormalizedLoaded,
     context: DataLoaderContext
-  ) => P,
+  ) => Promise<Data>,
   options?: DefineDataLoaderOptions<isLazy>
-): UseDataLoader<isLazy, Awaited<P>>
+): UseDataLoader<isLazy, Data>
 
-export function defineBasicLoader<
-  P extends Promise<unknown>,
-  isLazy extends boolean
->(
-  nameOrLoader: RouteRecordName | DefineLoaderFn<P, DataLoaderContext>,
+export function defineBasicLoader<Data, isLazy extends boolean>(
+  nameOrLoader: RouteRecordName | DefineLoaderFn<Data, DataLoaderContext>,
   _loaderOrOptions?:
     | DefineDataLoaderOptions<isLazy>
-    | DefineLoaderFn<P, DataLoaderContext>,
+    | DefineLoaderFn<Data, DataLoaderContext>,
   opts?: DefineDataLoaderOptions<isLazy>
-): UseDataLoader<isLazy, Awaited<P>> {
+): UseDataLoader<isLazy, Data> {
   // TODO: make it DEV only and remove the first argument in production mode
   // resolve option overrides
   const loader =
     typeof nameOrLoader === 'function'
       ? nameOrLoader
-      : (_loaderOrOptions! as DefineLoaderFn<P, DataLoaderContext>)
+      : (_loaderOrOptions! as DefineLoaderFn<Data, DataLoaderContext>)
   opts = typeof _loaderOrOptions === 'object' ? _loaderOrOptions : opts
   const options = assign(
     {} as DefineDataLoaderOptions<isLazy>,
@@ -232,7 +223,7 @@ export function defineBasicLoader<
 
   // @ts-expect-error: requires the internals and symbol that are added later
   const useDataLoader: // for ts
-  UseDataLoader<isLazy, Awaited<P>> = () => {
+  UseDataLoader<isLazy, Data> = () => {
     // work with nested data loaders
     const [parentEntry, _router, _route] = getCurrentContext()
     // fallback to the global router and routes for useDataLoaders used within components

@@ -213,7 +213,11 @@ export interface UseDataLoader<
    * ```
    */
   (): _PromiseMerged<
+    // we can await the raw data
+    // excluding NavigationResult allows to ignore it in the type of Data when doing
+    // `return new NavigationResult()` in the loader
     Exclude<Data, NavigationResult>,
+    // or use it as a composable
     UseDataLoaderResult<isLazy, Exclude<Data, NavigationResult>>
   >
 

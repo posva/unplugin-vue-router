@@ -158,21 +158,21 @@ declare module 'vue-router/auto' {
   * @param options - options to configure the data loader
   */
   export function defineBasicLoader<
-    P extends Promise<unknown>,
+    Data,
     isLazy extends boolean = false,
     Name extends keyof RouteNamedMap = keyof RouteNamedMap
   >(
     name: Name,
-    loader: _DefineLoaderFn<P, _DataLoaderContext, RouteLocationNormalizedLoaded<Name>>,
+    loader: _DefineLoaderFn<Data, _DataLoaderContext, RouteLocationNormalizedLoaded<Name>>,
     options?: _DefineDataLoaderOptions<isLazy>
-  ): _UseDataLoader<isLazy, Awaited<P>>
+  ): _UseDataLoader<isLazy, Data>
   export function defineBasicLoader<
-    P extends Promise<unknown>,
+    Data,
     isLazy extends boolean = false
   >(
-    loader: _DefineLoaderFn<P, _DataLoaderContext, RouteLocationNormalizedLoaded<Name>>,
+    loader: _DefineLoaderFn<Data, _DataLoaderContext, RouteLocationNormalizedLoaded<Name>>,
     options?: _DefineDataLoaderOptions<isLazy>
-  ): _UseDataLoader<isLazy, Awaited<P>>
+  ): _UseDataLoader<isLazy, Data>
 
   export {
     _definePage as definePage,
