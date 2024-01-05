@@ -88,6 +88,14 @@ declare module 'vue-router/auto/routes' {
   }
 }
 
+declare module 'unplugin-vue-router/runtime' {
+  import type { RouteNamedMap } from 'vue-router/auto/routes'
+
+  export interface _TypesConfig {
+    RouteNamedMap: RouteNamedMap
+  }
+}
+
 declare module 'vue-router/auto' {
   import type { RouteNamedMap } from 'vue-router/auto/routes'
 

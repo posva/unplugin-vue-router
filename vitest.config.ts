@@ -16,5 +16,13 @@ export default defineConfig({
 
   test: {
     setupFiles: ['./tests/router-mock.ts'],
+    typecheck: {
+      enabled: true,
+      // FIXME: this shouldn't be needed. Currently vitest seems to ignore failing tests
+      ignoreSourceErrors: true,
+      // include: ['./src/**/*.test-d.ts'],
+      // exclude: ['./src/**/*.spec.ts'],
+      tsconfig: './tsconfig.typecheck.json',
+    },
   },
 })

@@ -21,6 +21,16 @@ export {
 } from './data-fetching_new/navigation-guard'
 export type { DataLoaderPluginOptions } from './data-fetching_new/navigation-guard'
 
+// NOTE: we need to expose this type so it can be augmented
+export type { _TypesConfig } from './augmented-types'
+
+// Types that exist in Vue Router but are augmented to be typed if _TypesConfig is provided
+// with the RouteNamedMap
+export type {
+  _RouteLocationNormalized,
+  _RouteRecordName,
+} from './typeExtensions/routeLocation'
+
 // NOTE: for tests only
 export * from './data-fetching_new/defineQueryLoader'
 

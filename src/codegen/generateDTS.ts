@@ -52,6 +52,14 @@ declare module '${routesModule}' {
 ${routeNamedMap}
 }
 
+declare module 'unplugin-vue-router/runtime' {
+  import type { RouteNamedMap } from '${routesModule}'
+
+  export interface _TypesConfig {
+    RouteNamedMap: RouteNamedMap
+  }
+}
+
 declare module '${vueRouterModule}' {
   import type { RouteNamedMap } from '${routesModule}'
 

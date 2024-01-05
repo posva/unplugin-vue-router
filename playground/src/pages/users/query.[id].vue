@@ -1,6 +1,47 @@
 <script lang="ts">
 // FIXME: should be able to import from vue-router or auto import
-import { defineQueryLoader } from 'unplugin-vue-router/runtime'
+import {
+  defineQueryLoader,
+  type _RouteLocationNormalized,
+  type _TypesConfig,
+  type _RouteRecordName,
+} from 'unplugin-vue-router/runtime'
+
+function test(fn: (to: _RouteLocationNormalized) => void): void
+function test<Name extends _RouteRecordName>(
+  name: Name,
+  fn: (to: _RouteLocationNormalized<Name>) => void
+): void
+function test<Name extends _RouteRecordName>(...args: unknown[]) {}
+
+test('/[name]', (to) => {
+  to.params.name
+  // @ts-expect-error
+  to.params.nope
+})
+
+test('/@[profileId]' as _RouteRecordName, (to) => {
+  // @ts-expect-error: no all params have this
+  to.params.profileId
+  if (to.name === '/users/[id].edit') {
+    to.params.id
+    // @ts-expect-error: no param other
+    to.params.other
+  }
+})
+
+test((to) => {
+  // @ts-expect-error: not all params object have a name
+  to.params.name
+  // @ts-expect-error: no route named like that
+  if (to.name === '') {
+  }
+  if (to.name === '/articles/[id]') {
+    to.params.id
+    // @ts-expect-error: no param other
+    to.params.other
+  }
+})
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 

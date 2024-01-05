@@ -1,11 +1,12 @@
 {
   "include": [
     "*.d.ts",
-    "src/**/*.ts",
-    "src/*.d.ts",
-    "tests,"
+    "./src/**/*.ts",
+    "./src/*.d.ts",
+    "./tests,"
   ],
   "exclude": [
+    "./src/**/*.test-d.ts",
     "node_modules",
     "dist"
   ],

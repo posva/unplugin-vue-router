@@ -118,7 +118,7 @@
     "play:build": "npm -C playground run build",
     "release": "node scripts/release.mjs",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 1",
-    "test": "vitest"
+    "test": "vitest --typecheck --ui"
   },
   "gitHooks": {
     "pre-commit": "lint-staged",
@@ -158,6 +158,7 @@
   "devDependencies": {
     "@tanstack/vue-query": "^5.14.1",
     "@vitest/coverage-v8": "^1.1.1",
+    "@vitest/ui": "^1.1.3",
     "@volar/vue-language-core": "^1.6.5",
     "@vue/test-utils": "^2.4.3",
     "chalk": "^5.3.0",

@@ -11,9 +11,23 @@ import type {
   _RouteMapGeneric,
 } from '../codegen/generateRouteMap'
 import type { LiteralStringUnion } from '../core/utils'
+import { _TypesConfig, RouteNamedMap } from '../augmented-types'
+
+export type _RouteRecordName = keyof RouteNamedMap
+
+// export type _RouteLocationNormalized<
+//   Name extends _RouteRecordName = _RouteRecordName
+// > = _TypesConfig extends Record<
+//   'RouteNamedMap',
+//   // infer RouteNamedMap extends Record<Name, RouteRecordInfo>
+//   infer RouteNamedMap
+// >
+//   ? // @ts-expect-error: FIXME: is there a way to make this work while passing all tests?
+//     RouteLocationNormalizedTypedList<RouteNamedMap>[Name]
+//   : RouteLocationNormalized
 
 export interface RouteLocationNormalizedTyped<
-  RouteMap extends _RouteMapGeneric = Record<string, RouteRecordInfo>,
+  RouteMap extends _RouteMapGeneric = _RouteMapGeneric,
   Name extends keyof RouteMap = keyof RouteMap
 > extends RouteLocationNormalized {
   name: Extract<Name, RouteRecordName>
@@ -22,11 +36,15 @@ export interface RouteLocationNormalizedTyped<
 }
 
 export type RouteLocationNormalizedTypedList<
-  RouteMap extends _RouteMapGeneric = Record<string, RouteRecordInfo>
+  RouteMap extends _RouteMapGeneric = _RouteMapGeneric
 > = { [N in keyof RouteMap]: RouteLocationNormalizedTyped<RouteMap, N> }
 
+export type _RouteLocationNormalized<
+  Name extends _RouteRecordName = _RouteRecordName
+> = RouteLocationNormalizedTypedList<RouteNamedMap>[Name]
+
 export interface RouteLocationNormalizedLoadedTyped<
-  RouteMap extends _RouteMapGeneric = Record<string, RouteRecordInfo>,
+  RouteMap extends _RouteMapGeneric = _RouteMapGeneric,
   Name extends keyof RouteMap = keyof RouteMap
 > extends RouteLocationNormalizedLoaded {
   name: Extract<Name, RouteRecordName>
@@ -35,11 +53,11 @@ export interface RouteLocationNormalizedLoadedTyped<
 }
 
 export type RouteLocationNormalizedLoadedTypedList<
-  RouteMap extends _RouteMapGeneric = Record<string, RouteRecordInfo>
+  RouteMap extends _RouteMapGeneric = _RouteMapGeneric
 > = { [N in keyof RouteMap]: RouteLocationNormalizedLoadedTyped<RouteMap, N> }
 
 export interface RouteLocationAsRelativeTyped<
-  RouteMap extends _RouteMapGeneric = Record<string, RouteRecordInfo>,
+  RouteMap extends _RouteMapGeneric = _RouteMapGeneric,
   Name extends keyof RouteMap = keyof RouteMap
 > extends RouteQueryAndHash,
     RouteLocationOptions {
@@ -48,11 +66,11 @@ export interface RouteLocationAsRelativeTyped<
 }
 
 export type RouteLocationAsRelativeTypedList<
-  RouteMap extends _RouteMapGeneric = Record<string, RouteRecordInfo>
+  RouteMap extends _RouteMapGeneric = _RouteMapGeneric
 > = { [N in keyof RouteMap]: RouteLocationAsRelativeTyped<RouteMap, N> }
 
 export interface RouteLocationAsPathTyped<
-  RouteMap extends _RouteMapGeneric = Record<string, RouteRecordInfo>,
+  RouteMap extends _RouteMapGeneric = _RouteMapGeneric,
   Name extends keyof RouteMap = keyof RouteMap
 > extends RouteQueryAndHash,
     RouteLocationOptions {
@@ -60,11 +78,11 @@ export interface RouteLocationAsPathTyped<
 }
 
 export type RouteLocationAsPathTypedList<
-  RouteMap extends _RouteMapGeneric = Record<string, RouteRecordInfo>
+  RouteMap extends _RouteMapGeneric = _RouteMapGeneric
 > = { [N in keyof RouteMap]: RouteLocationAsPathTyped<RouteMap, N> }
 
 export type RouteLocationAsString<
-  RouteMap extends _RouteMapGeneric = Record<string, RouteRecordInfo>
+  RouteMap extends _RouteMapGeneric = _RouteMapGeneric
 > = LiteralStringUnion<RouteMap[keyof RouteMap]['path'], string>
 
 export interface RouteLocationTyped<
@@ -76,7 +94,7 @@ export interface RouteLocationTyped<
 }
 
 export type RouteLocationTypedList<
-  RouteMap extends _RouteMapGeneric = Record<string, RouteRecordInfo>
+  RouteMap extends _RouteMapGeneric = _RouteMapGeneric
 > = { [N in keyof RouteMap]: RouteLocationTyped<RouteMap, N> }
 
 export interface RouteLocationResolvedTyped<
@@ -87,5 +105,5 @@ export interface RouteLocationResolvedTyped<
 }
 
 export type RouteLocationResolvedTypedList<
-  RouteMap extends _RouteMapGeneric = Record<string, RouteRecordInfo>
+  RouteMap extends _RouteMapGeneric = _RouteMapGeneric
 > = { [N in keyof RouteMap]: RouteLocationResolvedTyped<RouteMap, N> }
