@@ -1,11 +1,11 @@
 {
   "include": [
-    "*.d.ts",
     "./src/**/*.ts",
     "./src/*.d.ts",
     "./tests,"
   ],
   "exclude": [
+    "./client.d.ts",
     "./src/**/*.test-d.ts",
     "node_modules",
     "dist"
@@ -22,13 +22,14 @@
         "./*"
       ],
     },
-    "moduleResolution": "node",
+    "moduleResolution": "Bundler",
     "skipLibCheck": true,
     "esModuleInterop": true,
     "strict": true,
     "strictNullChecks": true,
     "resolveJsonModule": true,
     "types": [
+      "node",
       "vite/client"
     ]
   }
