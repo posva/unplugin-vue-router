@@ -25,18 +25,35 @@ export type {
   RouteLocationNormalizedTypedList,
   RouteLocationNormalizedLoadedTyped,
   RouteLocationNormalizedLoadedTypedList,
+
+  // Types that exist in Vue Router but are augmented to be typed if _TypesConfig is provided
+  // with the RouteNamedMap
+  _RouteLocationNormalized as RouteLocationNormalized,
+  _RouteRecordName as RouteRecordName,
+  _RouteLocationNormalizedLoaded as RouteLocationNormalizedLoaded,
+  _RouteLocation as RouteLocation,
+  _RouteLocationAsRelativePath as RouteLocationAsRelativePath,
+  _RouteLocationRaw as RouteLocationRaw,
+  _RouteLocationResolved as RouteLocationResolved,
+  _RouteParams as RouteParams,
+  _RouteParamsRaw as RouteParamsRaw,
 } from './typeExtensions/routeLocation'
 export type {
   NavigationGuard,
   NavigationGuardWithThis,
 } from './typeExtensions/navigationGuards'
-export type { _RouterTyped } from './typeExtensions/router'
+export type {
+  // TODO: deprecate and remove
+  _RouterTyped,
+  _Router as Router,
+} from './typeExtensions/router'
 export type {
   RouterLinkTyped,
   UseLinkFnTyped,
   _UseLinkReturnTyped,
   RouterLinkPropsTyped,
 } from './typeExtensions/RouterLink'
+export type { _TypesConfig } from './typeExtensions/types-config'
 export type {
   ParamValue,
   ParamValueOneOrMore,

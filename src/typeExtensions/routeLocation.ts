@@ -14,7 +14,7 @@ import type {
   _RouteMapGeneric,
 } from '../codegen/generateRouteMap'
 import type { LiteralStringUnion } from '../core/utils'
-import type { RouteNamedMap } from '../augmented-types'
+import type { RouteNamedMap } from './types-config'
 
 export type _RouteRecordName = keyof RouteNamedMap
 

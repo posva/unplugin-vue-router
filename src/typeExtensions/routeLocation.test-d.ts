@@ -3,10 +3,10 @@ import {
   RouteLocationNormalized,
   RouteRecordName,
   _TypesConfig,
-} from '../runtime'
+} from '../types'
 import { ParamValue, ParamValueZeroOrMore, RouteRecordInfo } from '../types'
 
-declare module '../runtime' {
+declare module '../types' {
   // Extend with some custom routes
   interface _TypesConfig {
     RouteNamedMap: {

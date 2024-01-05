@@ -1,10 +1,11 @@
 <script lang="ts">
 // FIXME: should be able to import from vue-router or auto import
+import { defineQueryLoader } from 'unplugin-vue-router/runtime'
+
 import {
-  defineQueryLoader,
   type _TypesConfig,
   type RouteRecordName,
-} from 'unplugin-vue-router/runtime'
+} from 'unplugin-vue-router/types'
 
 // import type { RouteLocationNormalized, _RouteLocationNormalized } from 'vue-router/auto'
 import type {

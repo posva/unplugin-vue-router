@@ -12,7 +12,7 @@ import type {
   NavigationGuardWithThis,
   NavigationHookAfter,
 } from './navigationGuards'
-import type { RouteNamedMap, _TypesConfig } from '../augmented-types'
+import type { RouteNamedMap, _TypesConfig } from './types-config'
 
 export interface _RouterTyped<
   RouteMap extends _RouteMapGeneric = _RouteMapGeneric

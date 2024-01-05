@@ -1,4 +1,4 @@
-import { type RouteRecordInfo } from './types'
+import { type RouteRecordInfo } from '../types'
 
 /**
  * Allows using types that are generated at build. **ONLY FOR INTERNAL USAGE**.

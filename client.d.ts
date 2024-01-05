@@ -82,7 +82,8 @@ declare module 'vue-router/auto' {
     RouteParams,
     RouteParamsRaw,
     NavigationGuard,
-  } from 'unplugin-vue-router/runtime'
+    NavigationGuardWithThis,
+  } from 'unplugin-vue-router/types'
 
   export { _defineBasicLoader as defineBasicLoader } from 'unplugin-vue-router/runtime'
 

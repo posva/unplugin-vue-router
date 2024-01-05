@@ -90,7 +90,7 @@ declare module 'vue-router/auto/routes' {
   }
 }
 
-declare module 'unplugin-vue-router/runtime' {
+declare module 'unplugin-vue-router/types' {
   import type { RouteNamedMap } from 'vue-router/auto/routes'
 
   export interface _TypesConfig {
@@ -102,47 +102,6 @@ declare module 'vue-router/auto' {
   import type { RouteNamedMap } from 'vue-router/auto/routes'
 
   export type RouterTyped = _RouterTyped<RouteNamedMap>
-
-  /**
-   * Type safe version of `RouteLocationNormalized` (the type of `to` and `from` in navigation guards).
-   * Allows passing the name of the route to be passed as a generic.
-   */
-  // export type RouteLocationNormalized<Name extends keyof RouteNamedMap = keyof RouteNamedMap> = RouteLocationNormalizedTypedList<RouteNamedMap>[Name]
-
-  /**
-   * Type safe version of `RouteLocationNormalizedLoaded` (the return type of `useRoute()`).
-   * Allows passing the name of the route to be passed as a generic.
-   */
-  // export type RouteLocationNormalizedLoaded<Name extends keyof RouteNamedMap = keyof RouteNamedMap> = RouteLocationNormalizedLoadedTypedList<RouteNamedMap>[Name]
-
-  /**
-   * Type safe version of `RouteLocationResolved` (the returned route of `router.resolve()`).
-   * Allows passing the name of the route to be passed as a generic.
-   */
-  // export type RouteLocationResolved<Name extends keyof RouteNamedMap = keyof RouteNamedMap> = RouteLocationResolvedTypedList<RouteNamedMap>[Name]
-
-  /**
-   * Type safe version of `RouteLocation` . Allows passing the name of the route to be passed as a generic.
-   */
-  // export type RouteLocation<Name extends keyof RouteNamedMap = keyof RouteNamedMap> = RouteLocationTypedList<RouteNamedMap>[Name]
-
-  /**
-   * Type safe version of `RouteLocationRaw` . Allows passing the name of the route to be passed as a generic.
-   */
-  // export type RouteLocationRaw<Name extends keyof RouteNamedMap = keyof RouteNamedMap> =
-  //   | RouteLocationAsString<RouteNamedMap>
-  //   | RouteLocationAsRelativeTypedList<RouteNamedMap>[Name]
-  //   | RouteLocationAsPathTypedList<RouteNamedMap>[Name]
-
-  /**
-   * Generate a type safe params for a route location. Requires the name of the route to be passed as a generic.
-   */
-  // export type RouteParams<Name extends keyof RouteNamedMap> = RouteNamedMap[Name]['params']
-
-  /**
-   * Generate a type safe raw params for a route location. Requires the name of the route to be passed as a generic.
-   */
-  // export type RouteParamsRaw<Name extends keyof RouteNamedMap> = RouteNamedMap[Name]['paramsRaw']
 
   export function useRouter(): RouterTyped
   export function useRoute<Name extends keyof RouteNamedMap = keyof RouteNamedMap>(name?: Name): RouteLocationNormalizedLoadedTypedList<RouteNamedMap>[Name]
@@ -156,34 +115,6 @@ declare module 'vue-router/auto' {
   export const RouterLinkProps: RouterLinkPropsTyped<RouteNamedMap>
 
   // Experimental Data Fetching
-
-  /**
-  * Creates a data loader composable that can be exported by pages to attach the data loading to a route. This returns a
-  * composable that can be used in any component.
-  *
-  * @experimental
-  * Still under development and subject to change. See https://github.com/vuejs/rfcs/discussions/460
-  *
-  * @param name - name of the route to have typed routes
-  * @param loader - function that returns a promise with the data
-  * @param options - options to configure the data loader
-  */
-  // export function defineBasicLoader<
-  //   Data,
-  //   isLazy extends boolean = false,
-  //   Name extends keyof RouteNamedMap = keyof RouteNamedMap
-  // >(
-  //   name: Name,
-  //   loader: _DefineLoaderFn<Data, _DataLoaderContext, RouteLocationNormalizedLoaded<Name>>,
-  //   options?: _DefineDataLoaderOptions<isLazy>
-  // ): _UseDataLoader<isLazy, Data>
-  // export function defineBasicLoader<
-  //   Data,
-  //   isLazy extends boolean = false
-  // >(
-  //   loader: _DefineLoaderFn<Data, _DataLoaderContext, RouteLocationNormalizedLoaded<Name>>,
-  //   options?: _DefineDataLoaderOptions<isLazy>
-  // ): _UseDataLoader<isLazy, Data>
 
   export {
     _definePage as definePage,
