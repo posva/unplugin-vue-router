@@ -2,17 +2,25 @@
 // FIXME: should be able to import from vue-router or auto import
 import {
   defineQueryLoader,
-  type _RouteLocationNormalized,
   type _TypesConfig,
-  type _RouteRecordName,
+  type RouteRecordName,
 } from 'unplugin-vue-router/runtime'
 
+// import type { RouteLocationNormalized, _RouteLocationNormalized } from 'vue-router/auto'
+import type {
+  RouteLocationNormalized,
+  RouteLocationNormalized as _RouteLocationNormalized,
+} from 'vue-router/auto'
+
+declare const b: RouteLocationNormalized<'/[name]'>
+declare const c: _RouteLocationNormalized<'/[name]'>
+
 function test(fn: (to: _RouteLocationNormalized) => void): void
-function test<Name extends _RouteRecordName>(
+function test<Name extends RouteRecordName>(
   name: Name,
   fn: (to: _RouteLocationNormalized<Name>) => void
 ): void
-function test<Name extends _RouteRecordName>(...args: unknown[]) {}
+function test<Name extends RouteRecordName>(...args: unknown[]) {}
 
 test('/[name]', (to) => {
   to.params.name
@@ -20,7 +28,7 @@ test('/[name]', (to) => {
   to.params.nope
 })
 
-test('/@[profileId]' as _RouteRecordName, (to) => {
+test('/@[profileId]' as RouteRecordName, (to) => {
   // @ts-expect-error: no all params have this
   to.params.profileId
   if (to.name === '/users/[id].edit') {
