@@ -19,9 +19,10 @@ export default defineConfig({
     typecheck: {
       enabled: true,
       // FIXME: this shouldn't be needed. Currently vitest seems to ignore failing tests
+      // without this, it seems to be including too many things
       ignoreSourceErrors: true,
       // include: ['./src/**/*.test-d.ts'],
-      // exclude: ['./src/**/*.spec.ts'],
+      // exclude: ['./client.d.ts'],
       tsconfig: './tsconfig.typecheck.json',
     },
   },
