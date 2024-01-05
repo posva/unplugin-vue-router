@@ -1,8 +1,3 @@
-import type {
-  RouteLocationNormalizedLoaded,
-  RouteRecordName,
-  Router,
-} from 'vue-router'
 import { useRoute, useRouter } from 'vue-router'
 import {
   DataLoaderContextBase,
@@ -35,26 +30,34 @@ import {
   UseQueryReturnType,
   useQuery,
 } from '@tanstack/vue-query'
-import { SERVER_INITIAL_DATA_KEY } from './defineLoader'
+import type {
+  _RouteLocationNormalizedLoaded,
+  _RouteRecordName,
+} from '../typeExtensions/routeLocation'
+import type { _Router } from '../typeExtensions/router'
 
-export function defineQueryLoader<Data, isLazy extends boolean>(
-  name: RouteRecordName,
+export function defineQueryLoader<
+  Name extends _RouteRecordName,
+  Data,
+  isLazy extends boolean
+>(
+  name: Name,
   loader: (
-    route: RouteLocationNormalizedLoaded,
+    route: _RouteLocationNormalizedLoaded<Name>,
     context: QueryLoaderContext
   ) => Promise<Data>,
   options?: DefineQueryLoaderOptions<isLazy, Data>
 ): UseDataLoader<isLazy, Data>
 export function defineQueryLoader<Data, isLazy extends boolean>(
   loader: (
-    route: RouteLocationNormalizedLoaded,
+    route: _RouteLocationNormalizedLoaded,
     context: QueryLoaderContext
   ) => Promise<Data>,
   options?: DefineQueryLoaderOptions<isLazy, Data>
 ): UseDataLoader<isLazy, Data>
 
 export function defineQueryLoader<Data, isLazy extends boolean>(
-  nameOrLoader: RouteRecordName | DefineLoaderFn<Data, QueryLoaderContext>,
+  nameOrLoader: _RouteRecordName | DefineLoaderFn<Data, QueryLoaderContext>,
   _loaderOrOptions?:
     | DefineQueryLoaderOptions<isLazy, Data>
     | DefineLoaderFn<Data, QueryLoaderContext>,
@@ -74,13 +77,14 @@ export function defineQueryLoader<Data, isLazy extends boolean>(
   ) satisfies DefineQueryLoaderOptions<isLazy, Data>
 
   function load(
-    to: RouteLocationNormalizedLoaded,
-    router: Router,
+    to: _RouteLocationNormalizedLoaded,
+    router: _Router,
     parent?: DataLoaderEntryBase
   ): Promise<void> {
     const entries = router[LOADER_ENTRIES_KEY]!
     if (!entries.has(loader)) {
       // TODO: ensure there is an effectScope
+      // @ts-expect-error: FIXME:
       const queryResult = useQuery<Data, Error>({
         ...options,
         queryFn: () =>
@@ -204,7 +208,7 @@ export function defineQueryLoader<Data, isLazy extends boolean>(
 
   function commit(
     this: QueryLoaderEntry<boolean, Data>,
-    to: RouteLocationNormalizedLoaded
+    to: _RouteLocationNormalizedLoaded
   ) {
     if (this.pendingTo === to && !this.error.value) {
       console.log('👉 commit', this.staged)
@@ -242,8 +246,8 @@ export function defineQueryLoader<Data, isLazy extends boolean>(
     // work with nested data loaders
     const [parentEntry, _router, _route] = getCurrentContext()
     // fallback to the global router and routes for useDataLoaders used within components
-    const router = _router || useRouter()
-    const route = _route || useRoute()
+    const router = _router || (useRouter() as _Router)
+    const route = _route || (useRoute() as _RouteLocationNormalizedLoaded)
 
     const entries = router[LOADER_ENTRIES_KEY]!
     let entry = entries.get(loader)
@@ -303,7 +307,8 @@ export function defineQueryLoader<Data, isLazy extends boolean>(
       error,
       pending,
       refresh: (
-        to: RouteLocationNormalizedLoaded = router.currentRoute.value
+        to: _RouteLocationNormalizedLoaded = router.currentRoute
+          .value as _RouteLocationNormalizedLoaded
       ) =>
         router[APP_KEY].runWithContext(() => load(to, router)).then(() =>
           entry!.commit(to)
@@ -328,7 +333,7 @@ export function defineQueryLoader<Data, isLazy extends boolean>(
     load,
     options,
     // @ts-expect-error: return type has the generics
-    getEntry(router: Router) {
+    getEntry(router: _Router) {
       return router[LOADER_ENTRIES_KEY]!.get(loader)!
     },
   }

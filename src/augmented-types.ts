@@ -1,4 +1,3 @@
-import { type RouteRecord, type RouteRecordName } from 'vue-router'
 import { type RouteRecordInfo } from './types'
 
 /**

@@ -1,8 +1,4 @@
-import type {
-  Router,
-  NavigationGuard,
-  RouteLocationNormalizedLoaded,
-} from 'vue-router'
+import type { Router, NavigationGuard } from 'vue-router'
 import { isNavigationFailure } from 'vue-router'
 import { effectScope, type App, type EffectScope } from 'vue'
 import {
@@ -15,6 +11,8 @@ import {
 } from './meta-extensions'
 import { IS_CLIENT, assign, isDataLoader, setCurrentContext } from './utils'
 import type { _Awaitable } from '../core/utils'
+import type { _RouteLocationNormalizedLoaded } from '../typeExtensions/routeLocation'
+import type { _Router } from '../typeExtensions/router'
 
 /**
  * TODO: export functions that allow preloading outside of a navigation guard
@@ -148,7 +146,12 @@ export function setupLoaderGuard({
           .run(() =>
             app
               // allows inject and provide APIs
-              .runWithContext(() => loader._.load(to, router))
+              .runWithContext(() =>
+                loader._.load(
+                  to as _RouteLocationNormalizedLoaded,
+                  router as _Router
+                )
+              )
           )!
           .then(() => {
             // for immediate loaders, the load function handles this
@@ -170,7 +173,9 @@ export function setupLoaderGuard({
         for (const loader of loaders) {
           if (loader) {
             // console.log(`⬇️ Committing ${loader.name}`)
-            loader._.getEntry(router).commit(to)
+            loader._.getEntry(router as _Router).commit(
+              to as _RouteLocationNormalizedLoaded
+            )
           }
         }
         // console.log(
@@ -206,7 +211,7 @@ export function setupLoaderGuard({
         // the PENDING_LOCATION_KEY is set at the same time the LOADER_SET_KEY is set
         // so we know it exists
         router[PENDING_LOCATION_KEY].meta[LOADER_SET_KEY]!.forEach((loader) => {
-          const entry = loader._.getEntry(router)
+          const entry = loader._.getEntry(router as _Router)
           entry.pendingTo = null
           entry.pendingLoad = null
         })
@@ -273,7 +278,7 @@ export interface SetupLoaderGuardOptions {
   /**
    * The router instance. Adds the guards to it
    */
-  router: Router
+  router: _Router
 
   /**
    * Called if any data loader returns a `NavigationResult` with an array of them. Should decide what is the outcome of

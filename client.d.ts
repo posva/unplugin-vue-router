@@ -1,3 +1,4 @@
+// @ts-nocheck
 declare module 'vue-router/auto/routes' {
   import type { RouteRecordRaw } from 'vue-router'
   /**
@@ -7,8 +8,83 @@ declare module 'vue-router/auto/routes' {
 }
 
 declare module 'vue-router/auto' {
-  import type { RouterOptions, Router, RouteRecordRaw } from 'vue-router'
+  // reexport all types that are not augmented by unplugin-vue-router
   export * from 'vue-router'
+  // export type {
+  //   RouterOptions,
+  //   // TODO: make it typed instead of exposing RouterTyped?
+  //   Router,
+  //   RouteRecordRaw,
+  //   ErrorTypes,
+  //   HistoryState,
+  //   PathParserOptions,
+  //   RouteParamValue,
+  //   RouteParamValueRaw,
+  //   RouterLinkProps,
+  //   RouterMatcher,
+  //   LocationAsRelativeRaw,
+  //   LocationQuery,
+  //   LocationQueryRaw,
+  //   LocationQueryValue,
+  //   LocationQueryValueRaw,
+  //   MatcherLocationAsPath,
+  //   RouteComponent,
+  //   RouteLocationOptions,
+  //   UseLinkOptions,
+  //   TypesConfig,
+  //   RouterViewProps,
+  //   RouterHistory,
+  //   RouteRecord,
+  //   RouteRecordMultipleViews,
+  //   RouteRecordMultipleViewsWithChildren,
+  //   RouteRecordNormalized,
+  //   RouteRecordRedirect,
+  //   RouteRecordRedirectOption,
+  //   RouteRecordSingleView,
+  //   RouteRecordSingleViewWithChildren,
+  //   RouterScrollBehavior,
+  //   _RouterLinkI,
+  //   _PathParserOptions,
+  //   _RouteLocationBase,
+  //   _RouteRecordBase,
+  // } from 'vue-router'
+  // export {
+  //   RouterLink,
+  //   RouterView,
+  //   createMemoryHistory,
+  //   createRouterMatcher,
+  //   createWebHashHistory,
+  //   createWebHistory,
+  //   useLink,
+  //   NavigationFailureType,
+  //   START_LOCATION,
+  //   isNavigationFailure,
+  //   loadRouteLocation,
+  //   matchedRouteKey,
+  //   parseQuery,
+  //   stringifyQuery,
+  //   routeLocationKey,
+  //   routerKey,
+  //   viewDepthKey,
+  //   routerViewLocationKey,
+  // } from 'vue-router'
+
+  // Augmented types
+  export type {
+    Router,
+    RouteLocationNormalized,
+    RouteRecordName,
+    RouteLocationNormalizedLoaded,
+    RouteLocation,
+    RouteLocationAsRelativePath,
+    RouteLocationRaw,
+    RouteLocationResolved,
+    RouteParams,
+    RouteParamsRaw,
+    NavigationGuard,
+  } from 'unplugin-vue-router/runtime'
+
+  export { _defineBasicLoader as defineBasicLoader } from 'unplugin-vue-router/runtime'
 
   /**
    * unplugin-vue-router version of `RouterOptions`.
@@ -25,3 +101,5 @@ declare module 'vue-router/auto' {
 
   export function createRouter(options: _RouterOptions): RouterTyped
 }
+
+// NOTE: We could have augmented vue-router stuff here but it doesn't work so we do it in the generated d.ts

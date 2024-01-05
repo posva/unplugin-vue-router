@@ -1,15 +1,11 @@
 import { TypeEqual, expectType } from 'ts-expect'
 import { Ref, ShallowRef, UnwrapRef, effectScope, ref } from 'vue'
-import type {
-  LocationQuery,
-  RouteParams,
-  RouteLocationNormalizedLoaded,
-  Router,
-} from 'vue-router'
 import { IS_USE_DATA_LOADER_KEY, STAGED_NO_VALUE } from './meta-extensions'
 import { _Awaitable } from '../core/utils'
 import { _PromiseMerged } from './utils'
 import { NavigationResult } from './navigation-guard'
+import { _RouteLocationNormalizedLoaded } from '../typeExtensions/routeLocation'
+import { _Router } from '../typeExtensions/router'
 
 /**
  * Base type for a data loader entry. Each Data Loader has its own entry in the `loaderEntries` (accessible via `[LOADER_ENTRIES_KEY]`) map.
@@ -46,7 +42,7 @@ export interface DataLoaderEntryBase<
   /**
    * The latest pending navigation's `to` route. Used to verify if the navigation is still valid when it resolves.
    */
-  pendingTo: RouteLocationNormalizedLoaded | null
+  pendingTo: _RouteLocationNormalizedLoaded | null
 
   /**
    * Data that was staged by a loader. This is used to avoid showing the old data while the new data is loading. Calling
@@ -68,7 +64,7 @@ export interface DataLoaderEntryBase<
    */
   commit(
     this: DataLoaderEntryBase<isLazy, Data>,
-    to: RouteLocationNormalizedLoaded
+    to: _RouteLocationNormalizedLoaded
   ): void
 }
 
@@ -240,8 +236,8 @@ export interface UseDataLoaderInternals<
    * @param parent - parent data loader entry
    */
   load: (
-    route: RouteLocationNormalizedLoaded,
-    router: Router,
+    route: _RouteLocationNormalizedLoaded,
+    router: _Router,
     parent?: DataLoaderEntryBase
   ) => Promise<void>
 
@@ -256,7 +252,7 @@ export interface UseDataLoaderInternals<
    *
    * @param router - router instance
    */
-  getEntry(router: Router): DataLoaderEntryBase<isLazy, Data>
+  getEntry(router: _Router): DataLoaderEntryBase<isLazy, Data>
 }
 
 /**
@@ -305,7 +301,7 @@ export interface UseDataLoaderResult<
    *
    * @param route - route location to refresh the data for
    */
-  refresh(route: RouteLocationNormalizedLoaded): Promise<void>
+  refresh(route: _RouteLocationNormalizedLoaded): Promise<void>
 }
 
 function _testing() {
@@ -341,7 +337,7 @@ function _testing() {
 export interface DefineLoaderFn<
   Data,
   Context extends DataLoaderContextBase = DataLoaderContextBase,
-  Route = RouteLocationNormalizedLoaded
+  Route = _RouteLocationNormalizedLoaded
 > {
   (route: Route, context: Context): Promise<Data>
 }

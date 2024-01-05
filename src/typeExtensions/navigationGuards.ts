@@ -3,49 +3,44 @@
 import type { NavigationGuardNext, NavigationFailure } from 'vue-router'
 import type { _RouteMapGeneric } from '../codegen/generateRouteMap'
 import type {
-  RouteLocationAsPathTypedList,
-  RouteLocationAsRelativeTypedList,
-  RouteLocationAsString,
-  RouteLocationNormalizedLoadedTypedList,
-  RouteLocationNormalizedTypedList,
+  _RouteRecordName,
+  _RouteLocationNormalized,
+  _RouteLocationRaw,
+  _RouteLocationNormalizedLoaded,
 } from './routeLocation'
+import { _Router } from './router'
 
 // type NavigationGuardReturn = void | Error | RouteLocationRaw | boolean | NavigationGuardNextCallback;
-type NavigationGuardReturn<RouteMap extends _RouteMapGeneric> =
+type NavigationGuardReturn =
   | void
   // | Error
   | boolean
-  | RouteLocationAsString<RouteMap>
-  // | RouteLocationAsRelativeTyped<RouteMap, Name>
-  | RouteLocationAsRelativeTypedList<RouteMap>[keyof RouteMap]
-  | RouteLocationAsPathTypedList<RouteMap>[keyof RouteMap]
+  | _RouteLocationRaw
 // type NavigationGuardReturn = Exclude<ReturnType<NavigationGuard>, Promise<any> | RouteLocationRaw>
 
-export interface NavigationGuardWithThis<T, RouteMap extends _RouteMapGeneric> {
+export interface NavigationGuardWithThis<T> {
   (
     this: T,
-    to: RouteLocationNormalizedTypedList<RouteMap>[keyof RouteMap],
-    from: RouteLocationNormalizedLoadedTypedList<RouteMap>[keyof RouteMap],
+    to: _RouteLocationNormalizedLoaded,
+    from: _RouteLocationNormalizedLoaded,
     // intentionally not typed to make people use the other version
     next: NavigationGuardNext
-  ): NavigationGuardReturn<RouteMap> | Promise<NavigationGuardReturn<RouteMap>>
+  ): NavigationGuardReturn | Promise<NavigationGuardReturn>
 }
 
-export interface NavigationGuard<RouteMap extends _RouteMapGeneric> {
+export interface NavigationGuard {
   (
-    to: RouteLocationNormalizedTypedList<RouteMap>[keyof RouteMap],
-    from: RouteLocationNormalizedLoadedTypedList<RouteMap>[keyof RouteMap],
+    to: _RouteLocationNormalized,
+    from: _RouteLocationNormalized,
     // intentionally not typed to make people use the other version
     next: NavigationGuardNext
-  ): NavigationGuardReturn<RouteMap> | Promise<NavigationGuardReturn<RouteMap>>
+  ): NavigationGuardReturn | Promise<NavigationGuardReturn>
 }
 
-export interface NavigationHookAfter<
-  RouteMap extends _RouteMapGeneric = _RouteMapGeneric
-> {
+export interface NavigationHookAfter {
   (
-    to: RouteLocationNormalizedTypedList<RouteMap>[keyof RouteMap],
-    from: RouteLocationNormalizedLoadedTypedList<RouteMap>[keyof RouteMap],
+    to: _RouteLocationNormalizedLoaded,
+    from: _RouteLocationNormalizedLoaded,
     failure?: NavigationFailure | void
   ): any
 }

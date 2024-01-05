@@ -28,7 +28,7 @@ import { mockPromise, mockedLoader } from '~/tests/utils'
 import RouterViewMock from '~/tests/data-loaders/RouterViewMock.vue'
 import ComponentWithNestedLoader from '~/tests/data-loaders/ComponentWithNestedLoader.vue'
 import { dataOneSpy, dataTwoSpy } from '~/tests/data-loaders/loaders'
-import type { RouteLocationNormalizedLoaded } from 'vue-router'
+import type { _RouteLocationNormalizedLoaded } from '~/src/typeExtensions/routeLocation'
 
 export function testDefineLoader<
   DefineLoaderT extends DefineDataLoader<DataLoaderContextBase>
@@ -274,7 +274,7 @@ export function testDefineLoader<
 
     it('passes a signal to the loader', async () => {
       const spy = vi.fn<
-        [to: RouteLocationNormalizedLoaded, context: DataLoaderContextBase],
+        [to: _RouteLocationNormalizedLoaded, context: DataLoaderContextBase],
         Promise<unknown>
       >()
       spy.mockResolvedValueOnce('ok')
@@ -363,7 +363,7 @@ export function testDefineLoader<
       const nestedP1 = new Promise((r) => (resolveNestedFirstCall = r))
       const nestedP2 = new Promise((r) => (resolveNestedSecondCall = r))
       const nestedLoaderSpy = vi
-        .fn<[to: RouteLocationNormalizedLoaded], Promise<unknown>>()
+        .fn<[to: _RouteLocationNormalizedLoaded], Promise<unknown>>()
         .mockImplementation(async (to) => {
           nestedCalls++
           if (nestedCalls === 1) {
@@ -384,7 +384,7 @@ export function testDefineLoader<
       const rootP2 = new Promise((r) => (resolveRootSecondCall = r))
 
       const rootLoaderSpy = vi
-        .fn<[to: RouteLocationNormalizedLoaded], Promise<unknown>>()
+        .fn<[to: _RouteLocationNormalizedLoaded], Promise<unknown>>()
         .mockImplementation(async (to) => {
           rootCalls++
           const data = await useNestedLoader()
@@ -528,7 +528,7 @@ export function testDefineLoader<
       const p2 = new Promise((r) => (resolveCall2 = r))
       const p3 = new Promise((r) => (resolveCall3 = r))
       const spy = vi
-        .fn<[to: RouteLocationNormalizedLoaded], Promise<string>>()
+        .fn<[to: _RouteLocationNormalizedLoaded], Promise<string>>()
         .mockImplementation(async (to) => {
           calls++
           // the first one should be skipped

@@ -26,7 +26,10 @@ export type {
   RouteLocationNormalizedLoadedTyped,
   RouteLocationNormalizedLoadedTypedList,
 } from './typeExtensions/routeLocation'
-export type { NavigationGuard } from './typeExtensions/navigationGuards'
+export type {
+  NavigationGuard,
+  NavigationGuardWithThis,
+} from './typeExtensions/navigationGuards'
 export type { _RouterTyped } from './typeExtensions/router'
 export type {
   RouterLinkTyped,

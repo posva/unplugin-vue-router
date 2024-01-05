@@ -1,7 +1,7 @@
 import { describe, it, expectTypeOf } from 'vitest'
 import {
-  _RouteLocationNormalized,
-  _RouteRecordName,
+  RouteLocationNormalized,
+  RouteRecordName,
   _TypesConfig,
 } from '../runtime'
 import { ParamValue, ParamValueZeroOrMore, RouteRecordInfo } from '../types'
@@ -47,12 +47,12 @@ declare module '../runtime' {
 
 describe('Route Location types', () => {
   it('RouteLocationNormalized', () => {
-    function withRoute(fn: (to: _RouteLocationNormalized) => void): void
-    function withRoute<Name extends _RouteRecordName>(
+    function withRoute(fn: (to: RouteLocationNormalized) => void): void
+    function withRoute<Name extends RouteRecordName>(
       name: Name,
-      fn: (to: _RouteLocationNormalized<Name>) => void
+      fn: (to: RouteLocationNormalized<Name>) => void
     ): void
-    function withRoute<Name extends _RouteRecordName>(...args: unknown[]) {}
+    function withRoute<Name extends RouteRecordName>(...args: unknown[]) {}
 
     withRoute('/[name]', (to) => {
       expectTypeOf(to.params).toEqualTypeOf<{ name: string }>()
@@ -60,7 +60,7 @@ describe('Route Location types', () => {
       expectTypeOf(to.params).not.toEqualTypeOf<{ other: string }>()
     })
 
-    withRoute('/[name]' as _RouteRecordName, (to) => {
+    withRoute('/[name]' as RouteRecordName, (to) => {
       // @ts-expect-error: no all params have this
       to.params.name
       if (to.name === '/[name]') {

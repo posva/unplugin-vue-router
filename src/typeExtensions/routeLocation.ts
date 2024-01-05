@@ -1,4 +1,7 @@
 import type {
+  Router,
+  RouteParams,
+  RouteParamsRaw,
   RouteLocation,
   RouteLocationNormalized,
   RouteLocationNormalizedLoaded,
@@ -11,20 +14,9 @@ import type {
   _RouteMapGeneric,
 } from '../codegen/generateRouteMap'
 import type { LiteralStringUnion } from '../core/utils'
-import { _TypesConfig, RouteNamedMap } from '../augmented-types'
+import type { RouteNamedMap } from '../augmented-types'
 
 export type _RouteRecordName = keyof RouteNamedMap
-
-// export type _RouteLocationNormalized<
-//   Name extends _RouteRecordName = _RouteRecordName
-// > = _TypesConfig extends Record<
-//   'RouteNamedMap',
-//   // infer RouteNamedMap extends Record<Name, RouteRecordInfo>
-//   infer RouteNamedMap
-// >
-//   ? // @ts-expect-error: FIXME: is there a way to make this work while passing all tests?
-//     RouteLocationNormalizedTypedList<RouteNamedMap>[Name]
-//   : RouteLocationNormalized
 
 export interface RouteLocationNormalizedTyped<
   RouteMap extends _RouteMapGeneric = _RouteMapGeneric,
@@ -38,10 +30,6 @@ export interface RouteLocationNormalizedTyped<
 export type RouteLocationNormalizedTypedList<
   RouteMap extends _RouteMapGeneric = _RouteMapGeneric
 > = { [N in keyof RouteMap]: RouteLocationNormalizedTyped<RouteMap, N> }
-
-export type _RouteLocationNormalized<
-  Name extends _RouteRecordName = _RouteRecordName
-> = RouteLocationNormalizedTypedList<RouteNamedMap>[Name]
 
 export interface RouteLocationNormalizedLoadedTyped<
   RouteMap extends _RouteMapGeneric = _RouteMapGeneric,
@@ -107,3 +95,73 @@ export interface RouteLocationResolvedTyped<
 export type RouteLocationResolvedTypedList<
   RouteMap extends _RouteMapGeneric = _RouteMapGeneric
 > = { [N in keyof RouteMap]: RouteLocationResolvedTyped<RouteMap, N> }
+
+/**
+ * Type safe versions of types that are exposed by vue-router
+ */
+
+/**
+ * Type safe version of `RouteLocationNormalized`. Accepts the name of the route as a type parameter.
+ * @see {@link RouteLocationNormalized}
+ */
+export type _RouteLocationNormalized<
+  Name extends _RouteRecordName = _RouteRecordName
+> = RouteLocationNormalizedTypedList<RouteNamedMap>[Name]
+
+/**
+ * Type safe version of `RouteLocationNormalizedLoaded`. Accepts the name of the route as a type parameter.
+ * @see {@link RouteLocationNormalizedLoaded}
+ */
+export type _RouteLocationNormalizedLoaded<
+  Name extends _RouteRecordName = _RouteRecordName
+> = RouteLocationNormalizedLoadedTypedList<RouteNamedMap>[Name]
+
+/**
+ * Type safe version of `RouteLocationAsRelative`. Accepts the name of the route as a type parameter.
+ * @see {@link RouteLocationAsRelative}
+ */
+export type _RouteLocationAsRelativePath<
+  Name extends _RouteRecordName = _RouteRecordName
+> = RouteLocationAsRelativeTypedList<RouteNamedMap>[Name]
+
+/**
+ * Type safe version of `RouteLocationResolved` (the returned route of `router.resolve()`).
+ * Allows passing the name of the route to be passed as a generic.
+ * @see {@link Router['resolve']}
+ */
+export type _RouteLocationResolved<
+  Name extends keyof RouteNamedMap = keyof RouteNamedMap
+> = RouteLocationResolvedTypedList<RouteNamedMap>[Name]
+
+/**
+ * Type safe version of `RouteLocation` . Allows passing the name of the route to be passed as a generic.
+ * @see {@link RouteLocation}
+ */
+export type _RouteLocation<
+  Name extends keyof RouteNamedMap = keyof RouteNamedMap
+> = RouteLocationTypedList<RouteNamedMap>[Name]
+
+/**
+ * Type safe version of `RouteLocationRaw` . Allows passing the name of the route to be passed as a generic.
+ * @see {@link RouteLocationRaw}
+ */
+export type _RouteLocationRaw<
+  Name extends keyof RouteNamedMap = keyof RouteNamedMap
+> =
+  | RouteLocationAsString<RouteNamedMap>
+  | RouteLocationAsRelativeTypedList<RouteNamedMap>[Name]
+  | RouteLocationAsPathTypedList<RouteNamedMap>[Name]
+
+/**
+ * Generate a type safe params for a route location. Requires the name of the route to be passed as a generic.
+ * @see {@link RouteParams}
+ */
+export type _RouteParams<Name extends keyof RouteNamedMap> =
+  RouteNamedMap[Name]['params']
+
+/**
+ * Generate a type safe raw params for a route location. Requires the name of the route to be passed as a generic.
+ * @see {@link RouteParamsRaw}
+ */
+export type _RouteParamsRaw<Name extends keyof RouteNamedMap> =
+  RouteNamedMap[Name]['paramsRaw']

@@ -12,6 +12,7 @@ import type {
   NavigationGuardWithThis,
   NavigationHookAfter,
 } from './navigationGuards'
+import type { RouteNamedMap, _TypesConfig } from '../augmented-types'
 
 export interface _RouterTyped<
   RouteMap extends _RouteMapGeneric = _RouteMapGeneric
@@ -51,12 +52,18 @@ export interface _RouterTyped<
   ): RouteLocationResolvedTypedList<RouteMap>[Name]
 
   beforeEach(
-    guard: NavigationGuardWithThis<undefined, RouteMap>
+    guard: NavigationGuardWithThis<undefined>
   ): ReturnType<Router['beforeEach']>
   beforeResolve(
-    guard: NavigationGuardWithThis<undefined, RouteMap>
+    guard: NavigationGuardWithThis<undefined>
   ): ReturnType<Router['beforeEach']>
-  afterEach(
-    guard: NavigationHookAfter<RouteMap>
-  ): ReturnType<Router['beforeEach']>
+  afterEach(guard: NavigationHookAfter): ReturnType<Router['beforeEach']>
 }
+
+/**
+ * Type safe version of `Router`.
+ * @see {@link Router}
+ */
+export type _Router = _TypesConfig extends Record<'RouteNamedMap', any>
+  ? _RouterTyped<RouteNamedMap>
+  : Router

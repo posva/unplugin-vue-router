@@ -25,7 +25,7 @@ export type _DefineLoaderEntryMap = WeakMap<
 export * from './symbols'
 
 declare module 'vue-router' {
-  interface Router {
+  export interface Router {
     /**
      * The entries used by data loaders. Put on the router for convenience.
      * @internal
@@ -41,7 +41,7 @@ declare module 'vue-router' {
     [APP_KEY]: App<unknown>
   }
 
-  interface RouteMeta {
+  export interface RouteMeta {
     /**
      * The data loaders for a route record. Add any data loader to this array to have it called when the route is
      * navigated to. Note this is only needed when **not** using lazy components (`() => import('./pages/Home.vue')`) or

@@ -1,6 +1,8 @@
 import type { Router, RouteLocationNormalizedLoaded } from 'vue-router'
 import type { DataLoaderEntryBase, UseDataLoader } from './createDataLoader'
 import { IS_USE_DATA_LOADER_KEY } from './symbols'
+import { _Router } from '../typeExtensions/router'
+import { _RouteLocationNormalizedLoaded } from '../typeExtensions/routeLocation'
 
 /**
  * Check if a value is a `DataLoader`.
@@ -14,8 +16,8 @@ export function isDataLoader(loader: any): loader is UseDataLoader {
 export let currentContext:
   | readonly [
       entry: DataLoaderEntryBase,
-      router: Router,
-      route: RouteLocationNormalizedLoaded
+      router: _Router,
+      route: _RouteLocationNormalizedLoaded
     ]
   | undefined
   | null
