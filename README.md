@@ -140,6 +140,9 @@ createRouter({
 
 This will ensure VSCode only suggests `vue-router/auto` for imports. Alternatively, you can also configure [auto imports](#auto-imports).
 
+> ![NOTE]
+> The reason we need to import from `vue-router/auto` rather than `vue-router` is because we override all the types to provide a typed version of the router. It is not possible to override the types from `vue-router` directly as the typed ones are generic types.
+
 Alternatively, **you can also import the `routes` array** and create the router manually or pass it to some plugin. Here is an example with [Vitesse starter](https://github.com/antfu/vitesse/blob/main/src/main.ts):
 
 <!-- TODO: add notes for data fetching guards -->
