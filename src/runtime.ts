@@ -1,4 +1,5 @@
-import type { RouteRecordRaw } from 'vue-router'
+import { type RouteRecordRaw, type RouterOptions } from 'vue-router'
+import { _Router } from './type-extensions/router'
 
 // FIXME: remove in next major
 export { defineLoader as _defineLoader } from './data-fetching/defineLoader'
