@@ -377,6 +377,7 @@ describe('navigation-guard', () => {
       await vi.runOnlyPendingTimersAsync()
       l1.resolve(new NavigationResult('/#ok'))
       await router.getPendingNavigation()
+      expect(selectNavigationResult).toHaveBeenCalledTimes(1)
       expect(router.currentRoute.value.fullPath).toBe('/#ok')
     })
 
@@ -428,6 +429,27 @@ describe('navigation-guard', () => {
       l2.resolve(r2)
       await router.getPendingNavigation()
       expect(router.currentRoute.value.fullPath).toBe('/fetch')
+    })
+
+    it('immediately stops if a NavigationResult is thrown instead of returned inside the loader', async () => {
+      const router = getRouter()
+      const l1 = mockedLoader()
+      router.addRoute({
+        name: '_test',
+        path: '/fetch',
+        component,
+        meta: {
+          loaders: [l1.loader],
+        },
+      })
+
+      router.push('/fetch')
+      await vi.runOnlyPendingTimersAsync()
+      const r1 = new NavigationResult('/#ok')
+      l1.reject(r1)
+      await router.getPendingNavigation().catch(() => {})
+      expect(selectNavigationResult).not.toHaveBeenCalled()
+      expect(router.currentRoute.value.fullPath).toBe('/#ok')
     })
   })
 })

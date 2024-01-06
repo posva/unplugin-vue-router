@@ -187,7 +187,14 @@ export function setupLoaderGuard({
           return selectNavigationResult(to.meta[NAVIGATION_RESULTS_KEY]!)
         }
       })
-    // no catch so errors are propagated to the router
+      .catch((error) =>
+        error instanceof NavigationResult
+          ? error.value
+          : // let the error propagate to router.onError()
+            // we use never because the rejection means we never resolve a value and using anything else
+            // will not be valid from the navigation guard's perspective
+            Promise.reject<never>(error)
+      )
   })
 
   // listen to duplicated navigation failures to reset the pendingTo and pendingLoad
