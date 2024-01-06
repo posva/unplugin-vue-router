@@ -6,7 +6,7 @@ import { defineQueryLoader } from './defineQueryLoader'
 import { expectType } from 'ts-expect'
 import { describe } from 'vitest'
 import { NavigationResult } from './navigation-guard'
-import { testDefineLoader } from '~/tests/data-loaders'
+import { testDefineLoader } from '../../tests/data-loaders'
 
 describe.skip('defineQueryLoader', () => {
   testDefineLoader('Basic', defineQueryLoader, { ssrKeyName: 'key' })

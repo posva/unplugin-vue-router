@@ -19,7 +19,7 @@ import { mockPromise, mockedLoader } from '../utils'
 import RouterViewMock from '../data-loaders/RouterViewMock.vue'
 import ComponentWithNestedLoader from '../data-loaders/ComponentWithNestedLoader.vue'
 import { dataOneSpy, dataTwoSpy } from '../data-loaders/loaders'
-import type { _RouteLocationNormalizedLoaded } from '../../src/typeExtensions/routeLocation'
+import type { _RouteLocationNormalizedLoaded } from '../../src/type-extensions/routeLocation'
 
 export function testDefineLoader<
   DefineLoaderT extends DefineDataLoader<DataLoaderContextBase>

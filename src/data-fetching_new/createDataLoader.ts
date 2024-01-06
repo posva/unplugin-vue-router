@@ -4,8 +4,8 @@ import { IS_USE_DATA_LOADER_KEY, STAGED_NO_VALUE } from './meta-extensions'
 import { _Awaitable } from '../core/utils'
 import { _PromiseMerged } from './utils'
 import { NavigationResult } from './navigation-guard'
-import { _RouteLocationNormalizedLoaded } from '../typeExtensions/routeLocation'
-import { _Router } from '../typeExtensions/router'
+import { _RouteLocationNormalizedLoaded } from '../type-extensions/routeLocation'
+import { _Router } from '../type-extensions/router'
 
 /**
  * Base type for a data loader entry. Each Data Loader has its own entry in the `loaderEntries` (accessible via `[LOADER_ENTRIES_KEY]`) map.

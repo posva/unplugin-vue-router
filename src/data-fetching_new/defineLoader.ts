@@ -2,8 +2,8 @@ import { useRoute, useRouter } from 'vue-router'
 import type {
   _RouteLocationNormalizedLoaded,
   _RouteRecordName,
-} from '../typeExtensions/routeLocation'
-import type { _Router } from '../typeExtensions/router'
+} from '../type-extensions/routeLocation'
+import type { _Router } from '../type-extensions/router'
 import {
   DataLoaderContextBase,
   DataLoaderEntryBase,

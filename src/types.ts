@@ -37,23 +37,23 @@ export type {
   _RouteLocationResolved as RouteLocationResolved,
   _RouteParams as RouteParams,
   _RouteParamsRaw as RouteParamsRaw,
-} from './typeExtensions/routeLocation'
+} from './type-extensions/routeLocation'
 export type {
   NavigationGuard,
   NavigationGuardWithThis,
-} from './typeExtensions/navigationGuards'
+} from './type-extensions/navigationGuards'
 export type {
   // TODO: deprecate and remove
   _RouterTyped,
   _Router as Router,
-} from './typeExtensions/router'
+} from './type-extensions/router'
 export type {
   RouterLinkTyped,
   UseLinkFnTyped,
   _UseLinkReturnTyped,
   RouterLinkPropsTyped,
-} from './typeExtensions/RouterLink'
-export type { _TypesConfig } from './typeExtensions/types-config'
+} from './type-extensions/RouterLink'
+export type { _TypesConfig } from './type-extensions/types-config'
 export type {
   ParamValue,
   ParamValueOneOrMore,

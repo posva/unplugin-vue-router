@@ -11,8 +11,8 @@ import {
 } from './meta-extensions'
 import { IS_CLIENT, assign, isDataLoader, setCurrentContext } from './utils'
 import type { _Awaitable } from '../core/utils'
-import type { _RouteLocationNormalizedLoaded } from '../typeExtensions/routeLocation'
-import type { _Router } from '../typeExtensions/router'
+import type { _RouteLocationNormalizedLoaded } from '../type-extensions/routeLocation'
+import type { _Router } from '../type-extensions/router'
 
 /**
  * TODO: export functions that allow preloading outside of a navigation guard

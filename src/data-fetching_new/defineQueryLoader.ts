@@ -33,8 +33,8 @@ import {
 import type {
   _RouteLocationNormalizedLoaded,
   _RouteRecordName,
-} from '../typeExtensions/routeLocation'
-import type { _Router } from '../typeExtensions/router'
+} from '../type-extensions/routeLocation'
+import type { _Router } from '../type-extensions/router'
 
 export function defineQueryLoader<
   Name extends _RouteRecordName,

@@ -17,22 +17,18 @@ import {
 import { setCurrentContext } from './utils'
 import { getRouter } from 'vue-router-mock'
 import { DataLoaderPlugin, NavigationResult } from './navigation-guard'
-import { mockedLoader } from '~/tests/utils'
+import { mockedLoader } from '../../tests/utils'
 import { ABORT_CONTROLLER_KEY, LOADER_SET_KEY } from './symbols'
 import {
   useDataOne,
   useDataTwo,
-} from '~/tests/data-loaders/ComponentWithLoader.vue'
-import * as _utils from '~/src/data-fetching_new/utils'
+} from '../../tests/data-loaders/ComponentWithLoader.vue'
+import * as _utils from './utils'
 import type { NavigationFailure } from 'vue-router'
 
 vi.mock(
-  '~/src/data-fetching_new/utils.ts',
-  async (
-    importOriginal: () => Promise<
-      typeof import('~/src/data-fetching_new/utils')
-    >
-  ) => {
+  './utils.ts',
+  async (importOriginal: () => Promise<typeof import('./utils')>) => {
     const mod = await importOriginal()
 
     // this allows the variable IS_CLIENT to be rewritten
@@ -157,7 +153,8 @@ describe('navigation-guard', () => {
     router.addRoute({
       name: '_test',
       path: '/fetch',
-      component: () => import('~/tests/data-loaders/ComponentWithLoader.vue'),
+      component: () =>
+        import('../../tests/data-loaders/ComponentWithLoader.vue'),
     })
     await router.push('/fetch')
     const set = router.currentRoute.value.meta[LOADER_SET_KEY]
