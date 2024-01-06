@@ -384,6 +384,8 @@ export const INITIAL_DATA_KEY = Symbol()
  * - `invalidateData()` / `clearData()` -> clear one or all data loaders (only useful if there is a cache strategy)
  */
 
+// TODO: is it better to move this to an ambient declaration file so it's not included in the final bundle?
+
 declare module 'vue-router' {
   interface Router {
     /**
