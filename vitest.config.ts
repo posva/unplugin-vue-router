@@ -8,7 +8,8 @@ const __dirname = fileURLToPath(new URL('./', import.meta.url))
 export default defineConfig({
   resolve: {
     alias: {
-      '~': resolve(__dirname),
+      // '~': resolve(__dirname),
+      '~/': new URL('./', import.meta.url).pathname,
     },
   },
 
@@ -20,8 +21,9 @@ export default defineConfig({
       enabled: true,
       // FIXME: this shouldn't be needed. Currently vitest seems to ignore failing tests
       // without this, it seems to be including too many things
-      ignoreSourceErrors: true,
-      // include: ['./src/**/*.test-d.ts'],
+      // ignoreSourceErrors: true,
+      // only: true,
+      include: ['./src/**/*.test-d.ts'],
       // exclude: ['./client.d.ts'],
       tsconfig: './tsconfig.typecheck.json',
     },

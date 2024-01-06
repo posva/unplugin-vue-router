@@ -14,21 +14,21 @@ import {
 } from 'vitest'
 import { disableAutoUnmount, enableAutoUnmount, mount } from '@vue/test-utils'
 import { getRouter } from 'vue-router-mock'
-import { setCurrentContext } from '~/src/data-fetching_new/utils'
+import { setCurrentContext } from '../../src/data-fetching_new/utils'
 import {
   DataLoaderPlugin,
   type DataLoaderPluginOptions,
-} from '~/src/data-fetching_new/navigation-guard'
+} from '../../src/data-fetching_new/navigation-guard'
 import type {
   DataLoaderContextBase,
   DefineDataLoader,
   UseDataLoader,
-} from '~/src/data-fetching_new/createDataLoader'
-import { mockPromise, mockedLoader } from '~/tests/utils'
-import RouterViewMock from '~/tests/data-loaders/RouterViewMock.vue'
-import ComponentWithNestedLoader from '~/tests/data-loaders/ComponentWithNestedLoader.vue'
-import { dataOneSpy, dataTwoSpy } from '~/tests/data-loaders/loaders'
-import type { _RouteLocationNormalizedLoaded } from '~/src/typeExtensions/routeLocation'
+} from '../../src/data-fetching_new/createDataLoader'
+import { mockPromise, mockedLoader } from '../utils'
+import RouterViewMock from '../data-loaders/RouterViewMock.vue'
+import ComponentWithNestedLoader from '../data-loaders/ComponentWithNestedLoader.vue'
+import { dataOneSpy, dataTwoSpy } from '../data-loaders/loaders'
+import type { _RouteLocationNormalizedLoaded } from '../../src/typeExtensions/routeLocation'
 
 export function testDefineLoader<
   DefineLoaderT extends DefineDataLoader<DataLoaderContextBase>
