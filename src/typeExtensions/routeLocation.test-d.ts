@@ -38,7 +38,6 @@ declare module '../types' {
         '/deep/nesting/works/[[files]]+',
         '/deep/nesting/works/:files*',
         { files?: ParamValueZeroOrMore<true> },
-        // @ts-expect-error: FIXME: shouldn't be nullable, only undefined
         { files?: ParamValueZeroOrMore<false> }
       >
     }

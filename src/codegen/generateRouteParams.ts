@@ -34,10 +34,9 @@ export type ParamValueOneOrMore<isRaw extends boolean> = [
  * Utility type for raw and non raw params like :id*
  *
  */
-export type ParamValueZeroOrMore<isRaw extends boolean> =
-  | ParamValue<isRaw>[]
-  | undefined
-  | null
+export type ParamValueZeroOrMore<isRaw extends boolean> = true extends isRaw
+  ? ParamValue<isRaw>[] | undefined | null
+  : ParamValue<isRaw>[] | undefined
 
 /**
  * Utility type for raw and non raw params like :id?
