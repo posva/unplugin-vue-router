@@ -14,6 +14,7 @@ declare module 'vue-router' {
     /**
      * List of lazy imports of modules that might have a loader. We need to extract the exports that are actually
      * loaders.
+     * @deprecated This symbol is no longer needed in the new data fetching API and will be removed in the next major
      */
     [HasDataLoaderMeta]?: Array<
       () => Promise<Record<string, DataLoader<unknown> | unknown>>
