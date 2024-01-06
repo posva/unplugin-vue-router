@@ -22,12 +22,12 @@ import {
   getCurrentContext,
   setCurrentContext,
 } from './utils'
-import { Ref, UnwrapRef, ref, shallowRef } from 'vue'
+import { type Ref, ref, shallowRef } from 'vue'
 import { NavigationResult } from './navigation-guard'
 import {
-  QueryObserverOptions,
-  UseQueryOptions,
-  UseQueryReturnType,
+  type QueryObserverOptions,
+  type UseQueryOptions,
+  type UseQueryReturnType,
   useQuery,
 } from '@tanstack/vue-query'
 import type {
