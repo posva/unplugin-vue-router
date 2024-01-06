@@ -17,11 +17,6 @@
       "esnext",
       "DOM"
     ],
-    "paths": {
-      "~/*": [
-        "./*"
-      ],
-    },
     "moduleResolution": "Bundler",
     "skipLibCheck": true,
     "esModuleInterop": true,

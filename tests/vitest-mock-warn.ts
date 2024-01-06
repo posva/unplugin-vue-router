@@ -1,6 +1,6 @@
 // https://github.com/posva/jest-mock-warn/blob/master/src/index.js
 
-import { afterEach, beforeEach, expect, MockInstance, vi } from 'vitest'
+import { afterEach, beforeEach, expect, type MockInstance, vi } from 'vitest'
 
 export function mockWarn() {
   expect.extend({

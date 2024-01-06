@@ -1,9 +1,9 @@
 import { vi } from 'vitest'
-import type { NavigationResult } from '~/src/data-fetching_new/navigation-guard'
+import type { NavigationResult } from '../src/data-fetching_new/navigation-guard'
 import {
-  DefineDataLoaderOptions,
+  type DefineDataLoaderOptions,
   defineBasicLoader,
-} from '~/src/data-fetching_new/defineLoader'
+} from '../src/data-fetching_new/defineLoader'
 
 export const delay = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms))

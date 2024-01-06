@@ -1,18 +1,9 @@
 /**
  * @vitest-environment happy-dom
  */
-import { type App, defineComponent, inject, shallowRef } from 'vue'
-import {
-  afterAll,
-  afterEach,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from 'vitest'
-import { disableAutoUnmount, enableAutoUnmount, mount } from '@vue/test-utils'
+import { type App, defineComponent, inject } from 'vue'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { mount } from '@vue/test-utils'
 import { getRouter } from 'vue-router-mock'
 import { setCurrentContext } from '../../src/data-fetching_new/utils'
 import {
