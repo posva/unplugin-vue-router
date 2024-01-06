@@ -10,66 +10,8 @@ declare module 'vue-router/auto/routes' {
 declare module 'vue-router/auto' {
   // reexport all types that are not augmented by unplugin-vue-router
   export * from 'vue-router'
-  // export type {
-  //   RouterOptions,
-  //   // TODO: make it typed instead of exposing RouterTyped?
-  //   Router,
-  //   RouteRecordRaw,
-  //   ErrorTypes,
-  //   HistoryState,
-  //   PathParserOptions,
-  //   RouteParamValue,
-  //   RouteParamValueRaw,
-  //   RouterLinkProps,
-  //   RouterMatcher,
-  //   LocationAsRelativeRaw,
-  //   LocationQuery,
-  //   LocationQueryRaw,
-  //   LocationQueryValue,
-  //   LocationQueryValueRaw,
-  //   MatcherLocationAsPath,
-  //   RouteComponent,
-  //   RouteLocationOptions,
-  //   UseLinkOptions,
-  //   TypesConfig,
-  //   RouterViewProps,
-  //   RouterHistory,
-  //   RouteRecord,
-  //   RouteRecordMultipleViews,
-  //   RouteRecordMultipleViewsWithChildren,
-  //   RouteRecordNormalized,
-  //   RouteRecordRedirect,
-  //   RouteRecordRedirectOption,
-  //   RouteRecordSingleView,
-  //   RouteRecordSingleViewWithChildren,
-  //   RouterScrollBehavior,
-  //   _RouterLinkI,
-  //   _PathParserOptions,
-  //   _RouteLocationBase,
-  //   _RouteRecordBase,
-  // } from 'vue-router'
-  // export {
-  //   RouterLink,
-  //   RouterView,
-  //   createMemoryHistory,
-  //   createRouterMatcher,
-  //   createWebHashHistory,
-  //   createWebHistory,
-  //   useLink,
-  //   NavigationFailureType,
-  //   START_LOCATION,
-  //   isNavigationFailure,
-  //   loadRouteLocation,
-  //   matchedRouteKey,
-  //   parseQuery,
-  //   stringifyQuery,
-  //   routeLocationKey,
-  //   routerKey,
-  //   viewDepthKey,
-  //   routerViewLocationKey,
-  // } from 'vue-router'
 
-  // Augmented types
+  // Augmented types to override the ones exported by vue-router
   export type {
     Router,
     RouteLocationNormalized,
