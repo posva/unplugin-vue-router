@@ -47,17 +47,19 @@ export function defineBasicLoader<
   isLazy extends boolean
 >(
   name: Name,
-  loader: (
-    route: _RouteLocationNormalizedLoaded<Name>,
-    context: DataLoaderContext
-  ) => Promise<Data>,
+  loader: DefineLoaderFn<
+    Data,
+    DataLoaderContext,
+    _RouteLocationNormalizedLoaded<Name>
+  >,
   options?: DefineDataLoaderOptions<isLazy>
 ): UseDataLoader<isLazy, Data>
 export function defineBasicLoader<Data, isLazy extends boolean>(
-  loader: (
-    route: _RouteLocationNormalizedLoaded,
-    context: DataLoaderContext
-  ) => Promise<Data>,
+  loader: DefineLoaderFn<
+    Data,
+    DataLoaderContext,
+    _RouteLocationNormalizedLoaded
+  >,
   options?: DefineDataLoaderOptions<isLazy>
 ): UseDataLoader<isLazy, Data>
 

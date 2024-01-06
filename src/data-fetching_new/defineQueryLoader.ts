@@ -42,17 +42,19 @@ export function defineQueryLoader<
   isLazy extends boolean
 >(
   name: Name,
-  loader: (
-    route: _RouteLocationNormalizedLoaded<Name>,
-    context: QueryLoaderContext
-  ) => Promise<Data>,
+  loader: DefineLoaderFn<
+    Data,
+    QueryLoaderContext,
+    _RouteLocationNormalizedLoaded<Name>
+  >,
   options?: DefineQueryLoaderOptions<isLazy, Data>
 ): UseDataLoader<isLazy, Data>
 export function defineQueryLoader<Data, isLazy extends boolean>(
-  loader: (
-    route: _RouteLocationNormalizedLoaded,
-    context: QueryLoaderContext
-  ) => Promise<Data>,
+  loader: DefineLoaderFn<
+    Data,
+    QueryLoaderContext,
+    _RouteLocationNormalizedLoaded
+  >,
   options?: DefineQueryLoaderOptions<isLazy, Data>
 ): UseDataLoader<isLazy, Data>
 
