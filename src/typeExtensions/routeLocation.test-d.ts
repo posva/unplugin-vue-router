@@ -1,10 +1,14 @@
 import { describe, it, expectTypeOf } from 'vitest'
-import {
+import type {
   RouteLocationNormalized,
   RouteRecordName,
   _TypesConfig,
 } from '../types'
-import { ParamValue, ParamValueZeroOrMore, RouteRecordInfo } from '../types'
+import type {
+  ParamValue,
+  ParamValueZeroOrMore,
+  RouteRecordInfo,
+} from '../types'
 
 declare module '../types' {
   // Extend with some custom routes
