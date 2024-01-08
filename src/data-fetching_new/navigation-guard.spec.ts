@@ -18,7 +18,7 @@ import { setCurrentContext } from './utils'
 import { getRouter } from 'vue-router-mock'
 import { DataLoaderPlugin, NavigationResult } from './navigation-guard'
 import { mockedLoader } from '../../tests/utils'
-import { ABORT_CONTROLLER_KEY, LOADER_SET_KEY } from './symbols'
+import { ABORT_CONTROLLER_KEY, LOADER_SET_KEY } from './meta-extensions'
 import {
   useDataOne,
   useDataTwo,

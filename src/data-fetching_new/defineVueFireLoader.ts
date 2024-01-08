@@ -24,7 +24,7 @@ import {
   IS_USE_DATA_LOADER_KEY,
   LOADER_ENTRIES_KEY,
   STAGED_NO_VALUE,
-} from './symbols'
+} from './meta-extensions'
 import { Ref, UnwrapRef, ref, shallowRef } from 'vue'
 
 export function defineVueFireLoader<

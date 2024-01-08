@@ -15,7 +15,7 @@ import {
   LOADER_ENTRIES_KEY,
   NAVIGATION_RESULTS_KEY,
   STAGED_NO_VALUE,
-} from './symbols'
+} from './meta-extensions'
 import {
   IS_CLIENT,
   assign,
