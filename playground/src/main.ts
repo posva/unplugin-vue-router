@@ -6,6 +6,7 @@ import {
   DataLoaderPlugin,
 } from 'vue-router/auto'
 import { VueQueryPlugin } from '@tanstack/vue-query'
+import { createPinia } from 'pinia'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -18,6 +19,7 @@ const router = createRouter({
 const app = createApp(App)
 
 app.use(DataLoaderPlugin, { router })
+app.use(createPinia())
 app.use(router)
 app.use(VueQueryPlugin, {})
 

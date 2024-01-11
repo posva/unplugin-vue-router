@@ -156,6 +156,7 @@
     }
   },
   "devDependencies": {
+    "@pinia/colada": "^0.1.0",
     "@tanstack/vue-query": "^5.14.1",
     "@types/node": "^20.10.6",
     "@vitest/coverage-v8": "^1.1.1",
@@ -172,6 +173,7 @@
     "minimist": "^1.2.8",
     "nodemon": "^3.0.2",
     "p-series": "^3.0.0",
+    "pinia": "^2.1.7",
     "prettier": "^2.8.8",
     "rimraf": "^5.0.5",
     "rollup": "^4.9.2",

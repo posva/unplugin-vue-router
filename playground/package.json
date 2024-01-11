@@ -16,8 +16,10 @@
     "vue": "^3.3.7"
   },
   "dependencies": {
+    "@pinia/colada": "^0.1.0",
     "@tanstack/vue-query": "^5.14.1",
     "mande": "^2.0.7",
+    "pinia": "^2.1.7",
     "vue": "^3.4.5"
   }
 }

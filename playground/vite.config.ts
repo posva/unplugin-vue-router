@@ -18,9 +18,12 @@ export default defineConfig({
   build: {
     sourcemap: true,
   },
-  // optimizeDeps: {
-  //   exclude: ['ufo', 'mlly', 'magic-string', 'fsevents'],
-  // },
+  optimizeDeps: {
+    exclude: [
+      // easier to test with yalc
+      '@pinia/colada',
+    ],
+  },
 
   plugins: [
     VueRouter({
