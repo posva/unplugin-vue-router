@@ -77,11 +77,13 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
       ? nameOrLoader
       : (_loaderOrOptions! as DefineLoaderFn<Data, DataLoaderContext>)
   opts = typeof _loaderOrOptions === 'object' ? _loaderOrOptions : opts
-  const options = assign(
-    {} as DefineDataLoaderOptions<isLazy>,
-    DEFAULT_DEFINE_LOADER_OPTIONS,
-    opts
-  ) satisfies DefineDataLoaderOptions<isLazy>
+  // {} as DefineDataLoaderOptions<isLazy>,
+  const options = {
+    ...DEFAULT_DEFINE_LOADER_OPTIONS,
+    ...opts,
+    // avoid opts overriding with `undefined`
+    commit: opts?.commit || DEFAULT_DEFINE_LOADER_OPTIONS.commit,
+  } as DefineDataLoaderOptions<isLazy>
 
   function load(
     to: _RouteLocationNormalizedLoaded,
@@ -334,11 +336,11 @@ export interface DefineDataLoaderOptions<isLazy extends boolean>
 
 export interface DataLoaderContext extends DataLoaderContextBase {}
 
-const DEFAULT_DEFINE_LOADER_OPTIONS: DefineDataLoaderOptions<boolean> = {
-  lazy: false,
+const DEFAULT_DEFINE_LOADER_OPTIONS = {
+  lazy: false as boolean,
   server: true,
   commit: 'immediate',
-}
+} satisfies DefineDataLoaderOptions<boolean>
 
 // TODO: move to a different file
 function createDefineLoaderEntry<

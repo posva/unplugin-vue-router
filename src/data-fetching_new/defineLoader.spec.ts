@@ -32,12 +32,16 @@ import RouterViewMock from '../../tests/data-loaders/RouterViewMock.vue'
 import { mockedLoader } from '../../tests/utils'
 import { RouteLocationNormalizedLoaded } from 'vue-router'
 
-describe('defineLoader', () => {
+describe('defineBasicLoader', () => {
   enableAutoUnmount(afterEach)
 
   beforeEach(() => {
     // invalidate current context
     setCurrentContext(undefined)
+    // reset data used for SSR
+    const router = getRouter()
+    delete router[INITIAL_DATA_KEY]
+    delete router[SERVER_INITIAL_DATA_KEY]
   })
 
   // we use fake timers to ensure debugging tests do not rely on timers
@@ -51,7 +55,9 @@ describe('defineLoader', () => {
     vi.useRealTimers()
   })
 
-  testDefineLoader('Basic', defineBasicLoader)
+  testDefineLoader('Basic', ({ fn, commit, lazy, server }) =>
+    defineBasicLoader((...args) => fn(...args), { commit, lazy, server })
+  )
 
   function singleLoaderOneRoute<Loader extends UseDataLoader>(
     useData: Loader,
