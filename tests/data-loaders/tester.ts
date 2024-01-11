@@ -1,13 +1,14 @@
 /**
  * @vitest-environment happy-dom
  */
-import { type App, defineComponent, inject } from 'vue'
+import { type App, defineComponent, inject, type Plugin } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { getRouter } from 'vue-router-mock'
 import { setCurrentContext } from '../../src/data-fetching_new/utils'
 import {
   DataLoaderPlugin,
+  NavigationResult,
   type DataLoaderPluginOptions,
 } from '../../src/data-fetching_new/navigation-guard'
 import type {
@@ -15,25 +16,56 @@ import type {
   DefineDataLoaderOptionsBase,
   UseDataLoader,
 } from '../../src/data-fetching_new/createDataLoader'
-import { mockPromise, mockedLoader } from '../utils'
+import { mockPromise } from '../utils'
 import RouterViewMock from '../data-loaders/RouterViewMock.vue'
 import ComponentWithNestedLoader from '../data-loaders/ComponentWithNestedLoader.vue'
 import { dataOneSpy, dataTwoSpy } from '../data-loaders/loaders'
 import type { _RouteLocationNormalizedLoaded } from '../../src/type-extensions/routeLocation'
 
-export function testDefineLoader(
+export function testDefineLoader<Context = void>(
   loaderFactory: (
     context: {
       fn: (
         to: _RouteLocationNormalizedLoaded,
         context: DataLoaderContextBase
       ) => Promise<unknown>
-    } & DefineDataLoaderOptionsBase<boolean>
-  ) => UseDataLoader
+    } & DefineDataLoaderOptionsBase<boolean> & { key?: string }
+  ) => UseDataLoader,
+  {
+    plugins,
+    beforeEach: _beforeEach,
+  }: {
+    beforeEach?: () => Context
+    plugins?: (
+      context: Context
+    ) => Array<Plugin | [plugin: Plugin, ...options: unknown[]]>
+  } = {}
 ) {
-  beforeEach(() => {
+  let customContext: Context | undefined
+
+  function mockedLoader<T = string | NavigationResult>(
+    // boolean is easier to handle for router mock
+    options?: DefineDataLoaderOptionsBase<boolean> & { key?: string }
+  ) {
+    const [spy, resolve, reject] = mockPromise<T, unknown>(
+      // not correct as T could be something else
+      'ok' as T,
+      new Error('ko')
+    )
+    return {
+      spy,
+      resolve,
+      reject,
+      loader: loaderFactory({ fn: spy, ...options }),
+    }
+  }
+
+  beforeEach(async () => {
     dataOneSpy.mockClear()
     dataTwoSpy.mockClear()
+    if (_beforeEach) {
+      customContext = await _beforeEach()
+    }
   })
 
   function singleLoaderOneRoute(
@@ -68,7 +100,10 @@ export function testDefineLoader(
 
     const wrapper = mount(RouterViewMock, {
       global: {
-        plugins: [[DataLoaderPlugin, { router, ...pluginOptions }]],
+        plugins: [
+          [DataLoaderPlugin, { router, ...pluginOptions }],
+          ...(plugins?.(customContext!) || []),
+        ],
       },
     })
 
@@ -94,7 +129,7 @@ export function testDefineLoader(
     'commit: %s',
     (commit) => {
       describe.each([true, false] as const)('lazy: %s', (lazy) => {
-        it(`can resolve a "null" value with lazy: ${lazy}, commit: ${commit}`, async () => {
+        it(`can resolve a "null" value`, async () => {
           const spy = vi
             .fn<unknown[], Promise<unknown>>()
             .mockResolvedValueOnce(null)
@@ -107,7 +142,7 @@ export function testDefineLoader(
           expect(data.value).toEqual(null)
         })
 
-        it(`sets the value after navigation with lazy: ${lazy}, commit: ${commit}`, async () => {
+        it(`the resolved data is present after navigation`, async () => {
           const spy = vi
             .fn<unknown[], Promise<string>>()
             .mockResolvedValueOnce('resolved')
@@ -125,7 +160,7 @@ export function testDefineLoader(
           expect(data.value).toEqual('resolved')
         })
 
-        it(`can be forced refreshed with lazy: ${lazy}, commit: ${commit}`, async () => {
+        it(`can be forced refreshed`, async () => {
           const spy = vi
             .fn<unknown[], Promise<string>>()
             .mockResolvedValueOnce('resolved 1')
@@ -153,6 +188,7 @@ export function testDefineLoader(
             fn: async () => {
               throw new Error('nope')
             },
+            lazy: false,
             commit,
           })
         )
@@ -287,7 +323,7 @@ export function testDefineLoader(
         }
         return to.query.p
       })
-    const useNestedLoader = loaderFactory({ fn: nestedLoaderSpy })
+    const useNestedLoader = loaderFactory({ fn: nestedLoaderSpy, key: 'a' })
 
     let rootCalls = 0
     let resolveRootFirstCall!: (val?: unknown) => void
@@ -309,7 +345,7 @@ export function testDefineLoader(
       })
 
     const { wrapper, useData, router, app } = singleLoaderOneRoute(
-      loaderFactory({ fn: rootLoaderSpy })
+      loaderFactory({ fn: rootLoaderSpy, key: 'b' })
     )
     const firstNavigation = router.push('/fetch?p=one')
     // we resolve the first root to give the nested loader a chance to run
@@ -382,6 +418,7 @@ export function testDefineLoader(
         }
         return to.query.p
       },
+      key: 'nested',
     })
 
     let rootCalls = 0
@@ -402,6 +439,7 @@ export function testDefineLoader(
           }
           return `${data},${to.query.p}`
         },
+        key: 'root',
       })
     )
     const firstNavigation = router.push('/fetch?p=one')
@@ -492,7 +530,7 @@ export function testDefineLoader(
     const [spy, resolve, reject] = mockPromise('resolved')
 
     const { wrapper, app, useData, router } = singleLoaderOneRoute(
-      loaderFactory({ fn: async () => spy() })
+      loaderFactory({ fn: async () => spy(), key: 'a' })
     )
     router.push('/fetch')
     // ensures the useData is called first
@@ -516,13 +554,14 @@ export function testDefineLoader(
     const spyTwo = vi
       .fn<unknown[], Promise<string>>()
       .mockResolvedValueOnce('two')
-    const useLoaderOne = loaderFactory({ fn: spyOne })
+    const useLoaderOne = loaderFactory({ fn: spyOne, key: 'one' })
     const useLoaderTwo = loaderFactory({
       fn: async () => {
         const one = await useLoaderOne()
         const two = await spyTwo()
         return `${one},${two}`
       },
+      key: 'two',
     })
     const { wrapper, useData, router } = singleLoaderOneRoute(useLoaderTwo)
     await router.push('/fetch')
@@ -560,7 +599,7 @@ export function testDefineLoader(
         const d = await l1.loader()
         return `${d},${to.query.p}`
       },
-      // key: 'root'
+      key: 'root',
     })
     const router = getRouter()
     router.addRoute({
@@ -601,7 +640,7 @@ export function testDefineLoader(
         const d = await l1.loader()
         return `${d},${to.query.p}`
       },
-      // key: 'root'
+      key: 'root',
     })
     const router = getRouter()
     router.addRoute({
@@ -637,8 +676,8 @@ export function testDefineLoader(
 
   it('keeps the old data until all loaders are resolved', async () => {
     const router = getRouter()
-    const l1 = mockedLoader({ commit: 'after-load' })
-    const l2 = mockedLoader({ commit: 'after-load' })
+    const l1 = mockedLoader({ commit: 'after-load', key: 'l1' })
+    const l2 = mockedLoader({ commit: 'after-load', key: 'l2' })
     router.addRoute({
       name: '_test',
       path: '/fetch',
@@ -683,7 +722,7 @@ export function testDefineLoader(
           const data = await l1.loader()
           return `${data},${to.query.p}`
         },
-        // key: 'root'
+        key: 'root',
       })
     )
 
@@ -702,8 +741,6 @@ export function testDefineLoader(
     it('can inject globals', async () => {
       const { wrapper, router, useData, app } = singleLoaderOneRoute(
         loaderFactory({
-          // lazy,
-          // commit,
           async fn() {
             return inject('key', 'ko')
           },
@@ -717,19 +754,17 @@ export function testDefineLoader(
 
     it('can inject globals in nested loaders', async () => {
       const nestedLoader = loaderFactory({
-        // lazy,
-        // commit,
         async fn() {
           return inject('key', 'ko')
         },
+        key: 'nested',
       })
       const { wrapper, router, useData, app } = singleLoaderOneRoute(
         loaderFactory({
-          // lazy,
-          // commit,
           async fn() {
             return await nestedLoader()
           },
+          key: 'root',
         })
       )
       app.provide('key', 'ok')
@@ -743,11 +778,13 @@ export function testDefineLoader(
         fn: async () => {
           return inject('key', 'ko')
         },
+        key: 'l1',
       })
       const l2 = loaderFactory({
         fn: async () => {
           return inject('key', 'ko')
         },
+        key: 'l2',
       })
       const { wrapper, router, useData, app } = singleLoaderOneRoute(
         loaderFactory({
@@ -756,6 +793,7 @@ export function testDefineLoader(
             const b = await l2()
             return `${a},${b}`
           },
+          key: 'root',
         })
       )
       app.provide('key', 'ok')
@@ -785,6 +823,7 @@ export function testDefineLoader(
         fn: async () => {
           return inject('key', 'ko')
         },
+        key: 'l1',
       })
       const l2 = loaderFactory({
         fn: async () => {
@@ -798,6 +837,7 @@ export function testDefineLoader(
             const b = await l2()
             return `${a},${b}`
           },
+          key: 'l2',
         })
       )
       await router.push('/fetch')
