@@ -55,7 +55,7 @@ describe('defineBasicLoader', () => {
     vi.useRealTimers()
   })
 
-  testDefineLoader('Basic', ({ fn, commit, lazy, server }) =>
+  testDefineLoader(({ fn, commit, lazy, server }) =>
     defineBasicLoader((...args) => fn(...args), { commit, lazy, server })
   )
 
