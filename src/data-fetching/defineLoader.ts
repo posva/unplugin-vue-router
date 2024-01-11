@@ -19,7 +19,7 @@ import { includesParams } from './locationUtils'
 
 export interface DefineLoaderOptions<isLazy extends boolean = boolean> {
   /**
-   * How long should we wait to consider the fetched data expired. Amount in ms. Defaults to 5 minutes. A value of 0
+   * How long should we wait to consider the fetched data expired. Amount in ms. Defaults to 5 seconds. A value of 0
    * means no cache while a value of `Infinity` means cache forever.
    */
   cacheTime?: number
