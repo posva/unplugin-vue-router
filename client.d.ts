@@ -42,7 +42,7 @@ declare module 'vue-router/auto' {
     extendRoutes?: (routes: RouteRecordRaw[]) => RouteRecordRaw[] | void
   }
 
-  export function createRouter(options: _RouterOptions): RouterTyped
+  export function createRouter(options: _RouterOptions): Router
 }
 
 // NOTE: We could have augmented vue-router stuff here but it doesn't work so we do it in the generated d.ts
