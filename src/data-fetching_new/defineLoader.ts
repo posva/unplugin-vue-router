@@ -21,13 +21,8 @@ import {
   NAVIGATION_RESULTS_KEY,
   STAGED_NO_VALUE,
 } from './meta-extensions'
-import {
-  IS_CLIENT,
-  assign,
-  getCurrentContext,
-  setCurrentContext,
-} from './utils'
-import { Ref, UnwrapRef, ref, shallowRef } from 'vue'
+import { IS_CLIENT, getCurrentContext, setCurrentContext } from './utils'
+import { Ref, ref, shallowRef } from 'vue'
 import { NavigationResult } from './navigation-guard'
 
 /**
@@ -128,6 +123,7 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
     // Currently load for this loader
     entry.pendingTo = to
 
+    // TODO: move to commit
     error.value = null
     pending.value = true
     // save the current context to restore it later
@@ -164,6 +160,8 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
         //   `accepted: ${entry.pendingLoad === currentLoad} =`,
         //   e
         // )
+        // TODO: move to commit to preserve the current state
+        // TODO: add test
         if (entry.pendingLoad === currentLoad) {
           error.value = e
           // propagate error if non lazy or during SSR
