@@ -10,7 +10,9 @@ import type {
 import type { _RouteMapGeneric } from '../codegen/generateRouteMap'
 import type {
   NavigationGuardWithThis,
+  NavigationGuardWithThisTyped,
   NavigationHookAfter,
+  NavigationHookAfterTyped,
 } from './navigationGuards'
 import type { RouteNamedMap, _TypesConfig } from './types-config'
 
@@ -52,12 +54,14 @@ export interface _RouterTyped<
   ): RouteLocationResolvedTypedList<RouteMap>[Name]
 
   beforeEach(
-    guard: NavigationGuardWithThis<undefined>
+    guard: NavigationGuardWithThisTyped<undefined, RouteMap>
   ): ReturnType<Router['beforeEach']>
   beforeResolve(
-    guard: NavigationGuardWithThis<undefined>
+    guard: NavigationGuardWithThisTyped<undefined, RouteMap>
+  ): ReturnType<Router['beforeResolve']>
+  afterEach(
+    guard: NavigationHookAfterTyped<RouteMap>
   ): ReturnType<Router['beforeEach']>
-  afterEach(guard: NavigationHookAfter): ReturnType<Router['beforeEach']>
 }
 
 /**

@@ -6,15 +6,15 @@
   ],
   "exclude": [
     "./client.d.ts",
-    "./src/**/*.test-d.ts",
+    // "./src/**/*.test-d.ts",
     "node_modules",
     "dist"
   ],
   "compilerOptions": {
-    "target": "ES2021",
-    "module": "esnext",
+    "target": "ESNext",
+    "module": "ESNext",
     "lib": [
-      "esnext",
+      "ESNext",
       "DOM"
     ],
     "moduleResolution": "Bundler",

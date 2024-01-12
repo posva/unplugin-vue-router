@@ -3,13 +3,12 @@ import type {
   RouteLocationNormalized,
   RouteRecordName,
   _TypesConfig,
-} from '../types'
-import type {
   ParamValue,
   ParamValueZeroOrMore,
   RouteRecordInfo,
 } from '../types'
 
+// TODO: could we move this to an .d.ts file that is only loaded for tests?
 declare module '../types' {
   // Extend with some custom routes
   interface _TypesConfig {

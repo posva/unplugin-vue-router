@@ -7,26 +7,58 @@ import type {
   _RouteLocationNormalized,
   _RouteLocationRaw,
   _RouteLocationNormalizedLoaded,
+  RouteLocationNormalizedTypedList,
+  RouteLocationNormalizedLoadedTypedList,
+  RouteLocationAsString,
+  RouteLocationAsRelativeTypedList,
+  RouteLocationAsPathTypedList,
 } from './routeLocation'
-import { _Router } from './router'
+import type { _Router } from './router'
+import type { RouteNamedMap, _TypesConfig } from './types-config'
+import type { _MaybePromise } from '../data-fetching_new/utils'
 
-// type NavigationGuardReturn = void | Error | RouteLocationRaw | boolean | NavigationGuardNextCallback;
-type NavigationGuardReturn =
+/**
+ * Return types for a Navigation Guard. Accepts a type param for the RouteMap.
+ */
+type NavigationGuardReturnTyped<RouteMap extends _RouteMapGeneric> =
   | void
-  // | Error
+  | Error
   | boolean
-  | _RouteLocationRaw
-// type NavigationGuardReturn = Exclude<ReturnType<NavigationGuard>, Promise<any> | RouteLocationRaw>
+  | RouteLocationAsString<RouteMap>
+  | RouteLocationAsRelativeTypedList<RouteMap>[keyof RouteMap]
+  | RouteLocationAsPathTypedList<RouteMap>[keyof RouteMap]
 
-export interface NavigationGuardWithThis<T> {
+/**
+ * Return types for a Navigation Guard. Based on `_TypesConfig`
+ *
+ * @see {@link _TypesConfig}
+ * @see {@link NavigationGuardReturnTyped}
+ */
+export type NavigationGuardReturn = NavigationGuardReturnTyped<RouteNamedMap>
+
+/**
+ * Typed Navigation Guard with a type parameter for `this` and another for the route map.
+ */
+export interface NavigationGuardWithThisTyped<
+  T,
+  RouteMap extends _RouteMapGeneric
+> {
   (
     this: T,
-    to: _RouteLocationNormalized,
-    from: _RouteLocationNormalizedLoaded,
+    to: RouteLocationNormalizedTypedList<RouteMap>[keyof RouteMap],
+    from: RouteLocationNormalizedLoadedTypedList<RouteMap>[keyof RouteMap],
     // intentionally not typed to make people use the return
     next: NavigationGuardNext
-  ): NavigationGuardReturn | Promise<NavigationGuardReturn>
+  ): _MaybePromise<NavigationGuardReturnTyped<RouteMap>>
 }
+
+/**
+ * Typed Navigation Guard with a type parameter for `this`. Based on `_TypesConfig`
+ * @see {@link _TypesConfig}
+ * @see {@link NavigationGuardWithThisTyped}
+ */
+export interface NavigationGuardWithThis<T>
+  extends NavigationGuardWithThisTyped<T, RouteNamedMap> {}
 
 /**
  * In `router.beforeResolve((to) => {})`, the `to` is typed as `RouteLocationNormalizedLoaded`, not
@@ -41,22 +73,43 @@ export interface _NavigationGuardResolved {
     from: _RouteLocationNormalizedLoaded,
     // intentionally not typed to make people use the return
     next: NavigationGuardNext
-  ): NavigationGuardReturn | Promise<NavigationGuardReturn>
+  ): _MaybePromise<NavigationGuardReturn>
 }
 
-export interface NavigationGuard {
+/**
+ * Typed Navigation Guard. Accepts a type param for the RouteMap.
+ */
+export interface NavigationGuardTyped<RouteMap extends _RouteMapGeneric> {
   (
-    to: _RouteLocationNormalized,
-    from: _RouteLocationNormalizedLoaded,
-    // intentionally not typed to make people use the other version
+    to: RouteLocationNormalizedTypedList<RouteMap>[keyof RouteMap],
+    from: RouteLocationNormalizedLoadedTypedList<RouteMap>[keyof RouteMap],
+    // intentionally not typed to make people use the return
     next: NavigationGuardNext
-  ): NavigationGuardReturn | Promise<NavigationGuardReturn>
+  ): _MaybePromise<NavigationGuardReturnTyped<RouteMap>>
 }
 
-export interface NavigationHookAfter {
+/**
+ * Typed Navigation Guard. Based on `_TypesConfig`.
+ * @see {@link _TypesConfig}
+ * @see {@link NavigationGuardWithThisTyped}
+ */
+export interface NavigationGuard extends NavigationGuardTyped<RouteNamedMap> {}
+
+/**
+ * Typed Navigation Hook After. Accepts a type param for the RouteMap.
+ */
+export interface NavigationHookAfterTyped<RouteMap extends _RouteMapGeneric> {
   (
-    to: _RouteLocationNormalizedLoaded,
-    from: _RouteLocationNormalizedLoaded,
+    to: RouteLocationNormalizedTypedList<RouteMap>[keyof RouteMap],
+    from: RouteLocationNormalizedLoadedTypedList<RouteMap>[keyof RouteMap],
     failure?: NavigationFailure | void
-  ): any
+  ): unknown
 }
+
+/**
+ * Typed Navigation Hook After. Based on `_TypesConfig`.
+ * @see {@link _TypesConfig}
+ * @see {@link NavigationHookAfterTyped}
+ */
+export interface NavigationHookAfter
+  extends NavigationHookAfterTyped<RouteNamedMap> {}

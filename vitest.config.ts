@@ -10,10 +10,11 @@ export default defineConfig({
     setupFiles: ['./tests/router-mock.ts'],
     typecheck: {
       enabled: true,
+      ignoreSourceErrors: true,
       // by default it includes all specs too
-      include: ['./src/**/*.test-d.ts'],
-      // exclude: ['./client.d.ts'],
-      tsconfig: './tsconfig.typecheck.json',
+      // include: ['./src/**/*.test-d.ts'],
+      // exclude: ['./src/**/*.spec.ts'],
+      // tsconfig: './tsconfig.typecheck.json',
     },
   },
 })

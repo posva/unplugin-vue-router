@@ -52,3 +52,8 @@ export type _PromiseMerged<PromiseType, RawType = PromiseType> = RawType &
 export const IS_CLIENT = typeof window !== 'undefined'
 
 export const assign = Object.assign
+
+/**
+ * @internal
+ */
+export type _MaybePromise<T> = T | Promise<T>

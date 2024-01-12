@@ -1,4 +1,4 @@
-import { describe, it } from 'vitest'
+import { describe, it, expectTypeOf } from 'vitest'
 import { expectType } from 'ts-expect'
 import type {
   RouteRecordInfo,
@@ -52,19 +52,19 @@ describe('RouterTyped', () => {
 
   it('resolve', () => {
     typeTest(() => {
-      expectType<Record<never, never>>(router.resolve({ name: '/a' }).params)
-      expectType<{ a: ParamValue<true> }>(
+      expectTypeOf<Record<never, never>>(router.resolve({ name: '/a' }).params)
+      expectTypeOf<{ a: ParamValue<true> }>(
         router.resolve({ name: '/[a]' }).params
       )
 
-      expectType<RouteLocationTyped<RouteMap, '/a'>>(
+      expectTypeOf<RouteLocationTyped<RouteMap, '/a'>>(
         router.resolve({ name: '/a' })
       )
-      expectType<'/a'>(
+      expectTypeOf<'/a'>(
         // @ts-expect-error: cannot infer based on path
         router.resolve({ path: '/a' }).name
       )
-      expectType<keyof RouteMap>(router.resolve({ path: '/a' }).name)
+      expectTypeOf<keyof RouteMap>(router.resolve({ path: '/a' }).name)
     })
   })
 
@@ -90,12 +90,12 @@ describe('RouterTyped', () => {
         // @ts-expect-error: no route named this way
         if (to.name === '/[id]') {
         } else if (to.name === '/[a]') {
-          expectType<{ a: ParamValue<true> }>(to.params)
+          expectTypeOf<{ a: ParamValue<true> }>(to.params)
         }
         // @ts-expect-error: no route named this way
         if (from.name === '/[id]') {
         } else if (to.name === '/[a]') {
-          expectType<{ a: ParamValue<true> }>(to.params)
+          expectTypeOf<{ a: ParamValue<true> }>(to.params)
         }
         if (Math.random()) {
           return { name: '/[a]', params: { a: 2 } }
@@ -113,12 +113,12 @@ describe('RouterTyped', () => {
         // @ts-expect-error: no route named this way
         if (to.name === '/[id]') {
         } else if (to.name === '/[a]') {
-          expectType<{ a: ParamValue<true> }>(to.params)
+          expectTypeOf<{ a: ParamValue<true> }>(to.params)
         }
         // @ts-expect-error: no route named this way
         if (from.name === '/[id]') {
         } else if (to.name === '/[a]') {
-          expectType<{ a: ParamValue<true> }>(to.params)
+          expectTypeOf<{ a: ParamValue<true> }>(to.params)
         }
         if (Math.random()) {
           return { name: '/[a]', params: { a: 2 } }
@@ -136,12 +136,12 @@ describe('RouterTyped', () => {
         // @ts-expect-error: no route named this way
         if (to.name === '/[id]') {
         } else if (to.name === '/[a]') {
-          expectType<{ a: ParamValue<true> }>(to.params)
+          expectTypeOf<{ a: ParamValue<true> }>(to.params)
         }
         // @ts-expect-error: no route named this way
         if (from.name === '/[id]') {
         } else if (to.name === '/[a]') {
-          expectType<{ a: ParamValue<true> }>(to.params)
+          expectTypeOf<{ a: ParamValue<true> }>(to.params)
         }
         if (Math.random()) {
           return { name: '/[a]', params: { a: 2 } }
