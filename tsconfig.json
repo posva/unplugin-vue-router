@@ -2,15 +2,18 @@
   "include": [
     "./src/**/*.ts",
     "./src/*.d.ts",
-    "./tests,"
+    "./tests/**/*.ts,"
   ],
   "exclude": [
     "./client.d.ts",
-    // "./src/**/*.test-d.ts",
+    "./src/**/*.test-d.ts",
     "node_modules",
     "dist"
   ],
   "compilerOptions": {
+    "baseUrl": ".",
+    "rootDir": ".",
+    "jsx": "preserve",
     "target": "ESNext",
     "module": "ESNext",
     "lib": [
@@ -18,8 +21,10 @@
       "DOM"
     ],
     "moduleResolution": "Bundler",
+    "skipDefaultLibCheck": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
+    "isolatedModules": true,
     "strict": true,
     "strictNullChecks": true,
     "resolveJsonModule": true,
@@ -27,5 +32,8 @@
       "node",
       "vite/client"
     ]
-  }
+  },
+  "vueCompilerOptions": {
+    "plugins": []
+  },
 }
