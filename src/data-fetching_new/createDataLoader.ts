@@ -182,6 +182,10 @@ export interface DefineDataLoader<Context extends DataLoaderContextBase> {
   ): UseDataLoader<isLazy, Data>
 }
 
+/**
+ * Data Loader composable returned by `defineLoader()`.
+ * @see {@link DefineDataLoader}
+ */
 export interface UseDataLoader<
   isLazy extends boolean = boolean,
   Data = unknown

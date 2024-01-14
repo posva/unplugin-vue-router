@@ -2,12 +2,7 @@
  * @vitest-environment happy-dom
  */
 import { App, Ref, defineComponent, shallowRef } from 'vue'
-import {
-  INITIAL_DATA_KEY,
-  SERVER_INITIAL_DATA_KEY,
-  defineColadaLoader,
-} from './defineColadaLoader'
-import { expectType } from 'ts-expect'
+import { defineColadaLoader } from './defineColadaLoader'
 import {
   describe,
   it,
