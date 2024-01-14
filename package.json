@@ -91,11 +91,7 @@
       },
       "require": "./dist/types.js",
       "import": "./dist/types.mjs"
-    },
-    "./*": [
-      "./*",
-      "./*.d.ts"
-    ]
+    }
   },
   "typesVersions": {
     "*": {

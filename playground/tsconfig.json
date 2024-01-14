@@ -5,6 +5,7 @@
     "./src/**/*.ts",
     "./src/**/*.vue",
     "./typed-router.d.ts",
+    "./typed-router.config.d.ts",
     "./auto-imports.d.ts"
   ],
   "compilerOptions": {

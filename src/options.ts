@@ -184,6 +184,9 @@ export type _OptionsImportMode =
   | 'async'
   | ((filepath: string) => 'sync' | 'async')
 
+/**
+ * unplugin-vue-router plugin options.
+ */
 export interface Options
   extends Partial<Omit<ResolvedOptions, 'routesFolder'>> {
   routesFolder?: RoutesFolder

@@ -1,4 +1,4 @@
-import { type RouteRecordRaw, type RouterOptions } from 'vue-router'
+import { type RouteRecordRaw } from 'vue-router'
 import { _Router } from './type-extensions/router'
 
 // FIXME: remove in next major

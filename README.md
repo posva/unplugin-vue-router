@@ -427,12 +427,16 @@ This plugin generates a `d.ts` file with all the typing overrides when the dev o
 ```js
 {
   // ...
-  "include": [/* ... */ "typed-router.d.ts"]
+  "include": [
+    /* ... */
+    "./typed-router.d.ts",
+    "./typed-router.config.d.ts"
+  ]
   // ...
 }
 ```
 
-Then, you will be able to import from `vue-router/auto` (instead of `vue-router`) to get access to the typed APIs. You can commit the `typed-router.d.ts` file to your repository to make your life easier.
+Then, you will be able to import from `vue-router/auto` (instead of `vue-router`) to get access to the typed APIs. You can commit the newly added `.d.ts` files to your repository to make your life easier.
 
 ### Extra types
 
@@ -472,12 +476,12 @@ declare module 'vue-router/auto/routes' {
 }
 ```
 
-#### `RouterTyped`
+#### `Router`
 
-The `RouterTyped` type gives you access to the typed version of the router instance. It's also the _ReturnType_ of the `useRouter()` function.
+The `Router` type gives you access to the typed version of the router instance. It's also the _ReturnType_ of the `useRouter()` function.
 
 ```ts
-import type { RouterTyped } from 'vue-router/auto'
+import type { Router } from 'vue-router/auto'
 ```
 
 #### `RouteLocationResolved`

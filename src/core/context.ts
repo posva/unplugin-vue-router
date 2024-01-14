@@ -20,7 +20,10 @@ import {
   HandlerContext,
   resolveFolderOptions,
 } from './RoutesFolderWatcher'
-import { generateDTS as _generateDTS } from '../codegen/generateDTS'
+import {
+  generateDTS as _generateDTS,
+  generateTypesConfigDTS,
+} from '../codegen/generateDTS'
 import { generateVueRouterProxy as _generateVueRouterProxy } from '../codegen/vueRouterModule'
 import { hasNamedExports } from '../data-fetching/parse'
 import { definePageTransform, extractDefinePageNameAndPath } from './definePage'
@@ -201,11 +204,7 @@ export function createRoutesContext(options: ResolvedOptions) {
     return _generateDTS({
       vueRouterModule: MODULE_VUE_ROUTER,
       routesModule: MODULE_ROUTES_PATH,
-      routeNamedMap: generateRouteNamedMap(routeTree)
-        .split('\n')
-        .filter((line) => line) // remove empty lines
-        .map((line) => '  ' + line) // Indent by two spaces
-        .join('\n'),
+      routeNamedMap: generateRouteNamedMap(routeTree),
     })
   }
 
@@ -216,24 +215,46 @@ export function createRoutesContext(options: ResolvedOptions) {
   }
 
   let lastDTS: string | undefined
+  let lastTypesConfigDTS: string | undefined
   async function _writeConfigFiles() {
+    console.time('writeConfigFiles')
     log('💾 writing...')
 
     if (options.beforeWriteFiles) {
       await options.beforeWriteFiles(editableRoutes)
+      console.timeLog('writeConfigFiles', 'ran beforeWriteFiles')
     }
 
     logTree(routeTree, log)
     if (dts) {
       const content = generateDTS()
+      let needsServerUpdate = false
       if (lastDTS !== content) {
         await fs.writeFile(dts, content, 'utf-8')
+        console.timeLog('writeConfigFiles', 'wrote dts')
         lastDTS = content
+        needsServerUpdate = true
+      }
+
+      const typesConfigContent = generateTypesConfigDTS(MODULE_ROUTES_PATH)
+      if (lastTypesConfigDTS !== typesConfigContent) {
+        await fs.writeFile(
+          dts.replace('.d.ts', '.config.d.ts'),
+          typesConfigContent,
+          'utf-8'
+        )
+        console.timeLog('writeConfigFiles', 'wrote types config dts')
+        lastTypesConfigDTS = typesConfigContent
+        needsServerUpdate = true
+      }
+
+      if (needsServerUpdate) {
         server?.invalidate(MODULE_ROUTES_PATH)
         server?.invalidate(MODULE_VUE_ROUTER)
         server?.reload()
       }
     }
+    console.timeEnd('writeConfigFiles')
   }
 
   // debounce of 100ms + throttle of 500ms

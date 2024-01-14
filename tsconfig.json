@@ -5,7 +5,6 @@
     "./tests/**/*.ts,"
   ],
   "exclude": [
-    "./client.d.ts",
     "./src/**/*.test-d.ts",
     "node_modules",
     "dist"

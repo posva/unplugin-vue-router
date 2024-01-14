@@ -39,13 +39,19 @@ export type {
   _RouteParamsRaw as RouteParamsRaw,
 } from './type-extensions/routeLocation'
 export type {
+  NavigationGuardReturn,
   NavigationGuard,
   NavigationGuardWithThis,
+  // typed helpers
+  NavigationGuardTyped,
+  NavigationGuardWithThisTyped,
+  NavigationHookAfterTyped,
 } from './type-extensions/navigationGuards'
 export type {
   // TODO: deprecate and remove
   _RouterTyped,
   _Router as Router,
+  _RouterOptions,
 } from './type-extensions/router'
 export type {
   RouterLinkTyped,
@@ -53,7 +59,10 @@ export type {
   _UseLinkReturnTyped,
   RouterLinkPropsTyped,
 } from './type-extensions/RouterLink'
-export type { _TypesConfig } from './type-extensions/types-config'
+export type {
+  _TypesConfig,
+  RouteNamedMap,
+} from './type-extensions/types-config'
 export type {
   ParamValue,
   ParamValueOneOrMore,
