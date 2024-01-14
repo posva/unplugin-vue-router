@@ -137,7 +137,7 @@ export function setupLoaderGuard({
       loaders.map((loader) => {
         const { commit, server, lazy } = loader._.options
         // do not run on the server if specified
-        // TODO: IS_CLIENT should only be true on SSR but it's simpler to just check for the browser environment. Maybe pass as an argument to the loader?
+        // TODO: IS_CLIENT should only be true on SSR but it's simpler to just check for the browser environment. Maybe pass as an argument to the navigation guard?
         if (!server && !IS_CLIENT) {
           return
         }
@@ -163,6 +163,7 @@ export function setupLoaderGuard({
             }
           })
         // on client-side, lazy loaders are not awaited, but on server they are
+        // we already checked for the `server` option above
         return IS_CLIENT && lazy
           ? undefined
           : // return the non-lazy loader to commit changes after all loaders are done
