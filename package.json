@@ -103,7 +103,6 @@
   },
   "files": [
     "dist",
-    "client.d.ts",
     "./route.schema.json"
   ],
   "scripts": {
