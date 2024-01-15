@@ -134,7 +134,7 @@
     "enquirer": "^2.4.1",
     "esno": "^4.0.0",
     "execa": "^8.0.1",
-    "happy-dom": "^12.10.3",
+    "happy-dom": "^13.1.4",
     "lint-staged": "^15.1.0",
     "minimist": "^1.2.8",
     "nodemon": "^3.0.2",
