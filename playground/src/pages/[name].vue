@@ -50,7 +50,7 @@ const thing = 'THING'
 
 // const $route = useRoute()
 
-const { data: user, pending, refresh } = useUserData()
+const { data: user, isLoading, refresh } = useUserData()
 
 const { data: one } = useOne()
 const { data: two } = useTwo()
@@ -120,7 +120,7 @@ definePage({
     <h1>Param: {{ $route.name === '/[name]' && $route.params.name }}</h1>
     <h2>Param: {{ route.params.name }}</h2>
     <p v-show="false">{{ thing }}</p>
-    <p v-if="pending">Loading user...</p>
+    <p v-if="isLoading">Loading user...</p>
     <pre v-else>{{ user }}</pre>
 
     <p>one:</p>

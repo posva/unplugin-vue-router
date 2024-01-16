@@ -62,7 +62,7 @@ export function defineVueFireLoader<
         // NOTE: create entry
         // TODO: maybe a create entry base with only the common properties? but that would just be children?
         data,
-        pending,
+        isLoading: isLoading,
         error,
 
         children: new Set(),
@@ -82,10 +82,10 @@ export function defineVueFireLoader<
       return entry.pendingLoad
     }
 
-    const { error, pending } = entry
+    const { error, isLoading: isLoading } = entry
 
     error.value = null
-    pending.value = true
+    isLoading.value = true
     // save the current context to restore it later
     const currentContext = getCurrentContext()
 
@@ -137,7 +137,7 @@ export function defineVueFireLoader<
         //   currentContext?.[2]?.fullPath
         // )
         if (entry.pendingLoad === currentLoad) {
-          pending.value = false
+          isLoading.value = false
           // we must run commit here so nested loaders are ready before used by their parents
           if (options.lazy || options.commit === 'immediate') {
             entry.commit(to)
@@ -239,12 +239,12 @@ export function defineVueFireLoader<
       parentEntry.children.add(entry!)
     }
 
-    const { data, error, pending } = entry
+    const { data, error, isLoading: isLoading } = entry
 
     const useDataLoaderResult = {
       data,
       error,
-      pending,
+      isLoading: isLoading,
       refresh: (
         to: RouteLocationNormalizedLoaded = router.currentRoute.value
       ) =>
@@ -327,7 +327,7 @@ function createDefineVueFireLoaderEntry<
   return {
     // force the type to match
     data: ref(initialData) as Ref<_DataMaybeLazy<UnwrapRef<Data>, isLazy>>,
-    pending: ref(false),
+    isLoading: ref(false),
     error: shallowRef<any>(),
 
     children: new Set(),

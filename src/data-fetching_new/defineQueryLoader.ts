@@ -97,7 +97,7 @@ export function defineQueryLoader<Data, isLazy extends boolean>(
         // force the type to match
         data: ref() as Ref<Data>,
         // data: queryResult.data as any,
-        pending: ref(false),
+        isLoading: ref(false),
         error: shallowRef<any>(),
 
         children: new Set(),
@@ -119,7 +119,7 @@ export function defineQueryLoader<Data, isLazy extends boolean>(
       return entry.pendingLoad
     }
 
-    const { error, pending, data } = entry
+    const { error, isLoading: isLoading, data } = entry
 
     // FIXME: not needed because vue query has its own state
     const initialRootData: Record<string, unknown> = {}
@@ -143,7 +143,7 @@ export function defineQueryLoader<Data, isLazy extends boolean>(
     entry.pendingTo = to
 
     error.value = null
-    pending.value = true
+    isLoading.value = true
     // save the current context to restore it later
     const currentContext = getCurrentContext()
 
@@ -190,7 +190,7 @@ export function defineQueryLoader<Data, isLazy extends boolean>(
         setCurrentContext(currentContext)
         console.log(`😩 restored context ${key}`, currentContext?.[2]?.fullPath)
         if (entry.pendingLoad === currentLoad) {
-          pending.value = false
+          isLoading.value = false
           // we must run commit here so nested loaders are ready before used by their parents
           if (options.lazy || options.commit === 'immediate') {
             entry.commit(to)
@@ -302,12 +302,12 @@ export function defineQueryLoader<Data, isLazy extends boolean>(
       parentEntry.children.add(entry!)
     }
 
-    const { data, error, pending } = entry
+    const { data, error, isLoading: isLoading } = entry
 
     const useDataLoaderResult = {
       data,
       error,
-      pending,
+      isLoading: isLoading,
       refresh: (
         to: _RouteLocationNormalizedLoaded = router.currentRoute
           .value as _RouteLocationNormalizedLoaded

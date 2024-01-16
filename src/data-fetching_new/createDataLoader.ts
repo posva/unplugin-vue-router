@@ -26,11 +26,11 @@ export interface DataLoaderEntryBase<
    */
   error: ShallowRef<any> // any is simply more convenient for errors
 
-  // TODO: allow delaying pending? maybe allow passing a custom ref that can use refDebounced https://vueuse.org/shared/refDebounced/#refdebounced
+  // TODO: allow delaying isLoading? maybe allow passing a custom ref that can use refDebounced https://vueuse.org/shared/refDebounced/#refdebounced
   /**
    * Whether there is an ongoing request.
    */
-  pending: Ref<boolean>
+  isLoading: Ref<boolean>
 
   options: DefineDataLoaderOptionsBase<isLazy>
 
@@ -73,8 +73,8 @@ export function createDataLoader<Context extends DataLoaderContextBase>({
   after,
 }: CreateDataLoaderOptions<Context>): DefineDataLoader<Context> {
   const defineLoader: DefineDataLoader<Context> = (dataLoader, options) => {
-    const { pending, error, data } = effectScope(true).run(() => ({
-      pending: ref(false),
+    const { isLoading, error, data } = effectScope(true).run(() => ({
+      isLoading: ref(false),
       // TODO: allow generic for error type
       error: ref<unknown | null>(null),
       data: ref<unknown | undefined>(),
@@ -99,14 +99,14 @@ export function createDataLoader<Context extends DataLoaderContextBase>({
           error.value = err
         })
         .finally(() => {
-          pending.value = false
+          isLoading.value = false
         })
 
       // TODO: merge promise
 
       return {
         data: data,
-        pending,
+        isLoading,
         error,
       }
       // we need this cast because we add extra properties to the function object itself
@@ -196,10 +196,10 @@ export interface UseDataLoader<
    * Data Loader composable returned by `defineLoader()`.
    *
    * @example
-   * Returns the Data loader data, pending, error etc. Meant to be used in `setup()` or `<script setup>` **without `await`**:
+   * Returns the Data loader data, isLoading, error etc. Meant to be used in `setup()` or `<script setup>` **without `await`**:
    * ```vue
    * <script setup>
-   * const { data, pending, error } = useUserData()
+   * const { data, isLoading, error } = useUserData()
    * </script>
    * ```
    *
@@ -282,7 +282,7 @@ export interface UseDataLoaderResult<
   /**
    * Whether there is an ongoing request.
    */
-  pending: Ref<boolean>
+  isLoading: Ref<boolean>
 
   /**
    * Whether the loader is running or not. TODO: change pending to this and make pending wait until commit is called

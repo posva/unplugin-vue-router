@@ -97,7 +97,7 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
       return entry.pendingLoad
     }
 
-    const { error, pending, data } = entry
+    const { error, isLoading, data } = entry
 
     // FIXME: the key should be moved here and the strategy adapted to not depend on the navigation guard. This depends on how other loaders can be implemented.
     const initialRootData = router[INITIAL_DATA_KEY]
@@ -125,7 +125,7 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
 
     // TODO: move to commit
     error.value = null
-    pending.value = true
+    isLoading.value = true
     // save the current context to restore it later
     const currentContext = getCurrentContext()
 
@@ -177,7 +177,7 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
         //   currentContext?.[2]?.fullPath
         // )
         if (entry.pendingLoad === currentLoad) {
-          pending.value = false
+          isLoading.value = false
           // we must run commit here so nested loaders are ready before used by their parents
           if (options.lazy || options.commit === 'immediate') {
             entry.commit(to)
@@ -283,12 +283,12 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
       parentEntry.children.add(entry!)
     }
 
-    const { data, error, pending } = entry
+    const { data, error, isLoading } = entry
 
     const useDataLoaderResult = {
       data,
       error,
-      pending,
+      isLoading,
       refresh: (
         // @ts-expect-error: FIXME: should be fixable
         to: _RouteLocationNormalizedLoaded = router.currentRoute.value
@@ -354,7 +354,7 @@ function createDefineLoaderEntry<
   return {
     // force the type to match
     data: ref() as Ref<_DataMaybeLazy<Data, isLazy>>,
-    pending: ref(false),
+    isLoading: ref(false),
     error: shallowRef<any>(),
 
     options,

@@ -104,7 +104,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
         pendingData: data,
         pendingError: error,
         // TODO: rename at some point
-        pending: isFetching,
+        isLoading: isFetching,
         refresh,
         refetch,
       })
@@ -117,7 +117,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       return entry.pendingLoad
     }
 
-    const { error, pending, data } = entry
+    const { error, isLoading: isLoading, data } = entry
 
     // FIXME: the key should be moved here and the strategy adapted to not depend on the navigation guard. This depends on how other loaders can be implemented.
     const initialRootData = router[INITIAL_DATA_KEY]
@@ -144,7 +144,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
     entry.pendingTo = to
 
     error.value = null
-    pending.value = true
+    isLoading.value = true
     // save the current context to restore it later
     const currentContext = getCurrentContext()
 
@@ -192,7 +192,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
         //   currentContext?.[2]?.fullPath
         // )
         if (entry.pendingLoad === currentLoad) {
-          pending.value = false
+          isLoading.value = false
           // we must run commit here so nested loaders are ready before used by their parents
           if (options.lazy || options.commit === 'immediate') {
             entry.commit(to)
@@ -298,12 +298,12 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       parentEntry.children.add(entry!)
     }
 
-    const { data, error, pending } = entry
+    const { data, error, isLoading } = entry
 
     const useDataLoaderResult = {
       data,
       error,
-      pending,
+      isLoading,
       refresh: (
         // @ts-expect-error: FIXME: should be fixable
         to: _RouteLocationNormalizedLoaded = router.currentRoute.value
@@ -364,7 +364,7 @@ function createDefineLoaderEntry<
   return {
     // force the type to match
     data: ref() as Ref<_DataMaybeLazy<Data, isLazy>>,
-    pending: ref(false),
+    isLoading: ref(false),
     error: shallowRef<any>(),
 
     options,
@@ -393,16 +393,3 @@ export const INITIAL_DATA_KEY = Symbol()
  * - `refreshData()` -> refresh one or all data loaders
  * - `invalidateData()` / `clearData()` -> clear one or all data loaders (only useful if there is a cache strategy)
  */
-
-// TODO: is it better to move this to an ambient declaration file so it's not included in the final bundle?
-
-declare module 'vue-router' {
-  interface Router {
-    /**
-     * Gives access to the initial state during rendering. Should be set to `false` once it's consumed.
-     * @internal
-     */
-    [SERVER_INITIAL_DATA_KEY]?: Record<string, unknown> | false
-    [INITIAL_DATA_KEY]?: Record<string, unknown> | false
-  }
-}

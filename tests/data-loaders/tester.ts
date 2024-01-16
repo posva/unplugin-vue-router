@@ -77,15 +77,15 @@ export function testDefineLoader<Context = void>(
       setup() {
         useDataResult = useData()
 
-        const { data, error, pending } = useDataResult
-        return { data, error, pending }
+        const { data, error, isLoading: isLoading } = useDataResult
+        return { data, error, isLoading }
       },
       template: `\
 <div>
   <p id="route">{{ $route.path }}</p>
   <p id="data">{{ data }}</p>
   <p id="error">{{ error }}</p>
-  <p id="pending">{{ pending }}</p>
+  <p id="isLoading">{{ isLoading }}</p>
 </div>`,
     })
     const router = getRouter()
@@ -153,7 +153,7 @@ export function testDefineLoader<Context = void>(
           expect(spy).not.toHaveBeenCalled()
           await router.push('/fetch')
           expect(wrapper.get('#error').text()).toBe('')
-          expect(wrapper.get('#pending').text()).toBe('false')
+          expect(wrapper.get('#isLoading').text()).toBe('false')
           expect(wrapper.get('#data').text()).toBe('resolved')
           expect(spy).toHaveBeenCalledTimes(1)
           const { data } = useData()
@@ -211,7 +211,7 @@ export function testDefineLoader<Context = void>(
         )
         await router.push('/fetch')
         expect(wrapper.get('#error').text()).toBe('Error: nope')
-        expect(wrapper.get('#pending').text()).toBe('false')
+        expect(wrapper.get('#isLoading').text()).toBe('false')
         expect(wrapper.get('#data').text()).toBe('')
         expect(router.currentRoute.value.path).toBe('/fetch')
         const { data } = useData()
@@ -261,14 +261,14 @@ export function testDefineLoader<Context = void>(
     expect(router.currentRoute.value.fullPath).toEqual('/fetch')
     expect(spy).toHaveBeenCalled()
     expect(wrapper.get('#error').text()).toBe('')
-    expect(wrapper.get('#pending').text()).toBe('true')
+    expect(wrapper.get('#isLoading').text()).toBe('true')
     expect(wrapper.get('#data').text()).toBe('')
     const { data } = useData()
     expect(data.value).toEqual(undefined)
     resolve()
     await vi.runAllTimersAsync()
     expect(data.value).toEqual('resolved')
-    expect(wrapper.get('#pending').text()).toBe('false')
+    expect(wrapper.get('#isLoading').text()).toBe('false')
     expect(wrapper.get('#data').text()).toBe('resolved')
   })
 

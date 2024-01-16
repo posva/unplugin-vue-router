@@ -4,12 +4,29 @@
 import { Ref, shallowRef } from 'vue'
 import { defineQueryLoader } from './defineQueryLoader'
 import { expectType } from 'ts-expect'
-import { describe } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { NavigationResult } from './navigation-guard'
 import { testDefineLoader } from '../../tests/data-loaders'
+import { enableAutoUnmount } from '@vue/test-utils'
+import { setCurrentContext } from './utils'
 
 describe.skip('defineQueryLoader', () => {
-  testDefineLoader('Basic', defineQueryLoader)
+  enableAutoUnmount(afterEach)
+  testDefineLoader(
+    ({ fn, key, ...options }) =>
+      defineQueryLoader(fn, {
+        ...options,
+        queryKey: key ? [key] : ['id'],
+      }),
+    {
+      beforeEach() {
+        // invalidate current context
+        setCurrentContext(undefined)
+      },
+      // TODO: query plugin
+      // plugins: ({ pinia }) => [pinia],
+    }
+  )
 })
 
 // dts testing
@@ -33,7 +50,7 @@ dts(async () => {
   expectType<{
     data: Ref<UserData>
     error: Ref<unknown>
-    pending: Ref<boolean>
+    isLoading: Ref<boolean>
     refresh: () => Promise<void>
   }>(useDataLoader())
 
@@ -50,7 +67,7 @@ dts(async () => {
   expectType<{
     data: Ref<UserData>
     error: Ref<unknown>
-    pending: Ref<boolean>
+    isLoading: Ref<boolean>
     refresh: () => Promise<void>
   }>(useWithRef())
 

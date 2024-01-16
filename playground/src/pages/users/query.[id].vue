@@ -82,7 +82,7 @@ const useUserData = defineQueryLoader(
 import { useQuery } from '@tanstack/vue-query'
 const route = useRoute('/users/[id]')
 
-const { data: user, pending, error } = useUserData()
+const { data: user, isLoading, error } = useUserData()
 const {
   data: tqUser,
   error: tqError,
@@ -120,7 +120,7 @@ const {
     >
 
     <h2>Data Loaders</h2>
-    <pre v-if="pending">Loading...</pre>
+    <pre v-if="isLoading">Loading...</pre>
     <pre v-else-if="error">Error: {{ error }}</pre>
     <pre v-else>{{ user }}</pre>
 

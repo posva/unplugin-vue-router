@@ -39,7 +39,7 @@ export const useUserData = defineBasicLoader(
 <script lang="ts" setup>
 const route = useRoute('/users/[id]')
 
-const { data: user, pending, error } = useUserData()
+const { data: user, isLoading, error } = useUserData()
 const { data: user2 } = useOldData()
 
 definePage({
@@ -69,7 +69,7 @@ const MY_VAL = 'INSIDE SETUP TEST'
       >Next</RouterLink
     >
 
-    <pre v-if="pending">Loading...</pre>
+    <pre v-if="isLoading">Loading...</pre>
     <pre v-else-if="error">Error: {{ error }}</pre>
     <pre v-else>{{ user }}</pre>
   </main>

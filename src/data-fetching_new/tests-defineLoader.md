@@ -75,7 +75,7 @@ function _defineVueFireLoader(path: string, docOrCollectionOrQuery: () => unknow
   }
 
   // -> creates the resulting entry that should be a generic for createDataLoader
-  useDocument() // creates data, pending, error, promise
+  useDocument() // creates data, isLoading, error, promise
 
   // then we have the entry
   // each entry will have a way to access the pending location based on the current navigation

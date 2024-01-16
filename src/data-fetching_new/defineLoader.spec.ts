@@ -66,15 +66,15 @@ describe(
           // @ts-expect-error: wat?
           useDataResult = useData()
 
-          const { data, error, pending } = useDataResult
-          return { data, error, pending }
+          const { data, error, isLoading } = useDataResult
+          return { data, error, isLoading }
         },
         template: `\
 <div>
   <p id="route">{{ $route.path }}</p>
   <p id="data">{{ data }}</p>
   <p id="error">{{ error }}</p>
-  <p id="pending">{{ pending }}</p>
+  <p id="isLoading">{{ isLoading }}</p>
 </div>`,
       })
       const router = getRouter()
@@ -229,10 +229,10 @@ describe(
         router[INITIAL_DATA_KEY] = { root: 'initial', nested: 'nested-initial' }
 
         await router.push('/fetch?p=one')
-        const { data: root, pending: rootPending } = app.runWithContext(() =>
+        const { data: root, isLoading: rootPending } = app.runWithContext(() =>
           l1.loader()
         )
-        const { data: nested, pending: nestedPending } = app.runWithContext(
+        const { data: nested, isLoading: nestedPending } = app.runWithContext(
           () => l2.loader()
         )
         expect(l1.spy).toHaveBeenCalledTimes(0)
