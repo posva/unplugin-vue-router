@@ -1,11 +1,7 @@
 # The types
 
-```ts
-// no
-```
-
 ```ts twoslash
-import "unplugin-vue-router/client"
+// @filename: env.d.ts
 declare module 'vue-router/auto-routes' {
    import type {
     RouteRecordInfo,
@@ -35,15 +31,59 @@ declare module 'vue-router/auto-routes' {
     >
   }
 }
+// @filename: index.ts
+import "unplugin-vue-router/client"
+import "./env.d"
 // ---cut---
 // @moduleResolution: bundler
-// @esModuleInterop: true
-// @skipLibCheck: true
-import { useRouter } from 'vue-router/auto'
+// @errors: 2322 2367
+import { useRouter, useRoute } from 'vue-router/auto'
 const router = useRouter()
-router.push({ name: 'nope' })
+router.push({ name: '' })
+//                   ^|
 router.push('/')
-// if (route.name === 'home') {
-//   // 
-// }
+
+const route = useRoute()
+route.name === 'foo'
+//      ^?
+```
+
+
+
+```ts twoslash
+// @filename: env.d.ts
+declare module 'vue-router/auto-routes' {
+   import type {
+    RouteRecordInfo,
+    ParamValue,
+    ParamValueOneOrMore,
+    ParamValueZeroOrMore,
+    ParamValueZeroOrOne,
+  } from 'unplugin-vue-router/types' 
+  export interface RouteNamedMap {
+    '/': RouteRecordInfo<
+      '/',
+      '/',
+      Record<never, never>,
+      Record<never, never>
+    >
+    '/[fooo]': RouteRecordInfo<
+      '/[fooo]',
+      '/:fooo',
+      { fooo: ParamValue<true> },
+      { fooo: ParamValue<false> }
+    >
+  }
+}
+// @filename: index.ts
+import "unplugin-vue-router/client"
+import "./env.d"
+// ---cut---
+// @errors: 2322
+// @moduleResolution: bundler
+import { useRouter, useRoute } from 'vue-router/auto'
+const router = useRouter()
+router.push({ name: '' })
+//      ^|
+router.push('/')
 ```

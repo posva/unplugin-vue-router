@@ -1,0 +1,13 @@
+diff --git a/dist/index.mjs b/dist/index.mjs
+index 9c20e067c95fdaa7fde421fa68e2b034ab01e04d..272df263978c9e5b1c4c4290684650aabb865610 100644
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -4,7 +4,7 @@ export { defaultCompletionIcons, defaultCustomTagIcons, defaultHoverInfoProcesso
+ import 'shikiji-core';
+ 
+ const transformerTwoslash = /* @__PURE__ */ createTransformerFactory(
+-  /* @__PURE__ */ createTwoslasher(),
++  /* @__PURE__ */ createTwoslasher({cache: false}),
+   /* @__PURE__ */ rendererRich()
+ );
+ 
