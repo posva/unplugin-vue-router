@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  shikiji-twoslash@0.10.0-beta.8:
+    hash: pk2ugmizakejrjnxjvd2clrsui
+    path: patches/shikiji-twoslash@0.10.0-beta.8.patch
+
 importers:
 
   .:
@@ -9219,7 +9224,7 @@ packages:
       shikiji: 0.9.19
     dev: true
 
-  /shikiji-twoslash@0.10.0-beta.8(typescript@5.3.3):
+  /shikiji-twoslash@0.10.0-beta.8(patch_hash=pk2ugmizakejrjnxjvd2clrsui)(typescript@5.3.3):
     resolution: {integrity: sha512-EwMASG/hMA+MtC2NleIxScrSea4uk51mi4pYU56/vKdCZMDTqd6FhtVgTcpWftjZ9p+tLeaoWAUwGxY4ucxyOA==}
     dependencies:
       shikiji-core: 0.10.0-beta.8
@@ -9228,6 +9233,7 @@ packages:
       - supports-color
       - typescript
     dev: true
+    patched: true
 
   /shikiji@0.10.0-beta.8:
     resolution: {integrity: sha512-yuaUyXmbeGqK6GLMDJVOZKnmdcVppw5iHJsgP77N9XH6RAM5ojjzJBbx5ROV3DjhQGLKFOAOBiCpf6xgh8o3tw==}
@@ -10613,7 +10619,7 @@ packages:
       mdast-util-gfm: 3.0.0
       mdast-util-to-hast: 13.1.0
       shikiji: 0.10.0-beta.8
-      shikiji-twoslash: 0.10.0-beta.8(typescript@5.3.3)
+      shikiji-twoslash: 0.10.0-beta.8(patch_hash=pk2ugmizakejrjnxjvd2clrsui)(typescript@5.3.3)
       twoslash-vue: 0.0.11(typescript@5.3.3)
       vue: 3.4.14(typescript@5.3.3)
     transitivePeerDependencies:
