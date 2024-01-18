@@ -1,5 +1,5 @@
 import 'vue-router'
-export { }
+export {}
 
 declare module 'vue-router/auto-routes' {
   import type { RouteRecordRaw } from 'vue-router'
@@ -11,23 +11,23 @@ declare module 'vue-router/auto-routes' {
 }
 
 declare module 'unplugin-vue-router/types' {
-import type { RouteNamedMap } from 'vue-router/auto-routes'
+  import type { RouteNamedMap } from 'vue-router/auto-routes'
   export interface _TypesConfig {
     RouteNamedMap: RouteNamedMap
   }
 }
 
 declare module 'vue-router' {
-import type {
-  _RouterOptions,
-  NavigationGuardTyped,
-  NavigationGuardWithThisTyped,
-  RouteLocationNormalizedLoadedTypedList,
-  _RouterTyped,
-  RouterLinkTyped,
-} from 'unplugin-vue-router/types'
+  import type {
+    _RouterOptions,
+    NavigationGuardTyped,
+    NavigationGuardWithThisTyped,
+    RouteLocationNormalizedLoadedTypedList,
+    _RouterTyped,
+    RouterLinkTyped,
+  } from 'unplugin-vue-router/types'
 
-import type { RouteNamedMap } from 'vue-router/auto-routes'
+  import type { RouteNamedMap } from 'vue-router/auto-routes'
   export interface TypesConfig {
     beforeRouteEnter: NavigationGuardWithThisTyped<undefined, RouteNamedMap>
     beforeRouteUpdate: NavigationGuardTyped<RouteNamedMap>
