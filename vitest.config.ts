@@ -1,6 +1,4 @@
-import { fileURLToPath } from 'node:url'
-import { resolve } from 'node:path'
-import { defineConfig } from 'vitest/config'
+import { defineConfig, configDefaults } from 'vitest/config'
 import Vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
@@ -8,12 +6,20 @@ export default defineConfig({
 
   test: {
     setupFiles: ['./tests/router-mock.ts'],
+    // open: false,
     typecheck: {
       enabled: true,
+      checker: 'vue-tsc',
+      // only: true,
       ignoreSourceErrors: true,
       // by default it includes all specs too
-      // include: ['./src/**/*.test-d.ts'],
-      // exclude: ['./src/**/*.spec.ts'],
+      include: ['**/*.test-d.ts'],
+      exclude: [
+        ...configDefaults.typecheck.exclude,
+        // '**/defineColadaLoader.ts',
+        // './src/data-fetching_new/defineColadaLoader.spec.ts',
+        // './src/data-fetching_new/defineVueFireLoader.*',
+      ],
       // tsconfig: './tsconfig.typecheck.json',
     },
   },

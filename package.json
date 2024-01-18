@@ -91,6 +91,9 @@
       },
       "require": "./dist/types.js",
       "import": "./dist/types.mjs"
+    },
+    "./client": {
+      "types": "./client.d.ts"
     }
   },
   "typesVersions": {
@@ -98,6 +101,9 @@
       "*": [
         "./dist/*",
         "./*"
+      ],
+      "./client": [
+        "./client.d.ts"
       ]
     }
   },
@@ -178,10 +184,13 @@
     "typescript": "^5.3.3",
     "unplugin-auto-import": "^0.17.3",
     "unplugin-vue-markdown": "^0.25.2",
+    "unplugin-vue-router": "workspace:*",
     "vite": "^5.0.11",
+    "vitepress": "1.0.0-rc.39",
+    "vitepress-plugin-twoslash": "0.10.0-beta.8",
     "vitest": "^1.2.0",
     "vue": "^3.4.14",
-    "vue-router": "^4.2.5",
+    "vue-router": "4.3.0-alpha.0",
     "vue-router-mock": "^1.0.0",
     "vue-tsc": "^1.8.27",
     "vuefire": "^3.1.22",
