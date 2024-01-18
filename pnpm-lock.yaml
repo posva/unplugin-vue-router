@@ -153,11 +153,11 @@ importers:
         specifier: ^3.4.14
         version: 3.4.14(typescript@5.3.3)
       vue-router:
-        specifier: 4.3.0-alpha.0
-        version: 4.3.0-alpha.0(vue@3.4.14)
+        specifier: 4.3.0-alpha.1
+        version: 4.3.0-alpha.1(vue@3.4.14)
       vue-router-mock:
         specifier: ^1.0.0
-        version: 1.0.0(vue-router@4.3.0-alpha.0)(vue@3.4.14)
+        version: 1.0.0(vue-router@4.3.0-alpha.1)(vue@3.4.14)
       vue-tsc:
         specifier: ^1.8.27
         version: 1.8.27(typescript@5.3.3)
@@ -10818,14 +10818,14 @@ packages:
       vue: 3.4.14(typescript@5.3.3)
     dev: true
 
-  /vue-router-mock@1.0.0(vue-router@4.3.0-alpha.0)(vue@3.4.14):
+  /vue-router-mock@1.0.0(vue-router@4.3.0-alpha.1)(vue@3.4.14):
     resolution: {integrity: sha512-j65lh+jhEuEM7sWAz/eenNsEV0VrRXFreNxtIGgLApZkM2h7orImvHSLJ3LhbUa2sJnTtjuy8otSrvoTsdGVYw==}
     peerDependencies:
       vue: ^3.2.23
       vue-router: ^4.0.12
     dependencies:
       vue: 3.4.14(typescript@5.3.3)
-      vue-router: 4.3.0-alpha.0(vue@3.4.14)
+      vue-router: 4.3.0-alpha.1(vue@3.4.14)
     dev: true
 
   /vue-router@4.2.5(vue@3.3.12):
@@ -10837,8 +10837,8 @@ packages:
       vue: 3.3.12(typescript@5.3.3)
     dev: true
 
-  /vue-router@4.3.0-alpha.0(vue@3.4.14):
-    resolution: {integrity: sha512-j6JyB8jlX2d9yqwU4aRgkV5n12Fzgxd10HvnhiiA3Yh0KZjQ/A7PCNCsN2BgExZuieze99/5it6AkJTziUJn1Q==}
+  /vue-router@4.3.0-alpha.1(vue@3.4.14):
+    resolution: {integrity: sha512-ArFiJFTotNCBnE/gDHpcIBDjPzL51Yk7MbLKub3Mp8PaJ3dgojWotNOO7YaCl2JBe2ljJ6zckytofzk4r6zkfA==}
     peerDependencies:
       vue: ^3.2.0
     dependencies:

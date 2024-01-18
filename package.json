@@ -98,12 +98,12 @@
   },
   "typesVersions": {
     "*": {
+      "./client": [
+        "./client.d.ts"
+      ],
       "*": [
         "./dist/*",
         "./*"
-      ],
-      "./client": [
-        "./client.d.ts"
       ]
     }
   },
@@ -190,7 +190,7 @@
     "vitepress-plugin-twoslash": "0.10.0-beta.8",
     "vitest": "^1.2.0",
     "vue": "^3.4.14",
-    "vue-router": "4.3.0-alpha.0",
+    "vue-router": "4.3.0-alpha.1",
     "vue-router-mock": "^1.0.0",
     "vue-tsc": "^1.8.27",
     "vuefire": "^3.1.22",
