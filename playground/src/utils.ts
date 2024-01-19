@@ -4,7 +4,7 @@ import type {
   RouteLocationNormalizedLoaded,
 } from 'vue-router/auto'
 import { viewDepthKey, useRoute, useRouter } from 'vue-router/auto'
-import type { RouteNamedMap } from 'vue-router/auto/routes'
+import type { RouteNamedMap } from 'vue-router/auto-routes'
 
 type NavigationReturn = RouteLocation | boolean | void
 

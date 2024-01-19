@@ -20,10 +20,7 @@ import {
   HandlerContext,
   resolveFolderOptions,
 } from './RoutesFolderWatcher'
-import {
-  generateDTS as _generateDTS,
-  generateTypesConfigDTS,
-} from '../codegen/generateDTS'
+import { generateDTS as _generateDTS } from '../codegen/generateDTS'
 import { generateVueRouterProxy as _generateVueRouterProxy } from '../codegen/vueRouterModule'
 import { hasNamedExports } from '../data-fetching/parse'
 import { definePageTransform, extractDefinePageNameAndPath } from './definePage'
@@ -208,7 +205,7 @@ export function createRoutesContext(options: ResolvedOptions) {
     })
   }
 
-  // NOTE: this code needs to be generated because otherwise it doesn't go through transforms and `vue-router/auto/routes`
+  // NOTE: this code needs to be generated because otherwise it doesn't go through transforms and `vue-router/auto-routes`
   // cannot be resolved.
   function generateVueRouterProxy() {
     return _generateVueRouterProxy(MODULE_ROUTES_PATH, options)
@@ -228,27 +225,12 @@ export function createRoutesContext(options: ResolvedOptions) {
     logTree(routeTree, log)
     if (dts) {
       const content = generateDTS()
-      let needsServerUpdate = false
       if (lastDTS !== content) {
         await fs.writeFile(dts, content, 'utf-8')
         console.timeLog('writeConfigFiles', 'wrote dts')
         lastDTS = content
-        needsServerUpdate = true
-      }
 
-      const typesConfigContent = generateTypesConfigDTS(MODULE_ROUTES_PATH)
-      if (lastTypesConfigDTS !== typesConfigContent) {
-        await fs.writeFile(
-          dts.replace('.d.ts', '.config.d.ts'),
-          typesConfigContent,
-          'utf-8'
-        )
-        console.timeLog('writeConfigFiles', 'wrote types config dts')
-        lastTypesConfigDTS = typesConfigContent
-        needsServerUpdate = true
-      }
-
-      if (needsServerUpdate) {
+        // update the files
         server?.invalidate(MODULE_ROUTES_PATH)
         server?.invalidate(MODULE_VUE_ROUTER)
         server?.reload()

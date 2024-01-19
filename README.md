@@ -153,7 +153,7 @@ Alternatively, **you can also import the `routes` array** and create the router 
  import App from './App.vue'
  import type { UserModule } from './types'
 -import generatedRoutes from '~pages'
-+import { routes } from 'vue-router/auto/routes'
++import { routes } from 'vue-router/auto-routes'
 
  import '@unocss/reset/tailwind.css'
  import './styles/main.css'
@@ -447,13 +447,13 @@ You can always take a look at the generated `typed-router.d.ts` file to inspect 
 The `RouteNamedMap` interface gives you access to all the metadata associated with a route. It can also be extended to enable types for **dynamic routes** that are added during runtime.
 
 ```ts
-import type { RouteNamedMap } from 'vue-router/auto/routes'
+import type { RouteNamedMap } from 'vue-router/auto-routes'
 ```
 
 Extending types with dynamically added routes:
 
 ```ts
-declare module 'vue-router/auto/routes' {
+declare module 'vue-router/auto-routes' {
   import type {
     RouteRecordInfo,
     ParamValue,
@@ -462,6 +462,7 @@ declare module 'vue-router/auto/routes' {
     ParamValueZeroOrMore,
     ParamValueZeroOrOne,
   } from 'unplugin-vue-router'
+
   export interface RouteNamedMap {
     // the key is the name and should match the first generic of RouteRecordInfo
     'custom-dynamic-name': RouteRecordInfo<

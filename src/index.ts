@@ -111,11 +111,11 @@ export default createUnplugin<Options | undefined>((opt = {}, meta) => {
         }
       }
 
-      // we need to use a virtual module so that vite resolves the vue-router/auto/routes
+      // we need to use a virtual module so that vite resolves the vue-router/auto-routes
       // dependency correctly
       const resolvedId = getVirtualId(id)
 
-      // vue-router/auto/routes
+      // vue-router/auto-routes
       if (resolvedId === MODULE_ROUTES_PATH) {
         return ctx.generateRoutes()
       }
