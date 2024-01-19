@@ -5,14 +5,8 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  shikiji-transformers: 0.10.0-beta.8
-  shikiji-core: 0.10.0-beta.8
-  shikiji: 0.10.0-beta.8
-
-patchedDependencies:
-  shikiji-twoslash@0.10.0-beta.8:
-    hash: pk2ugmizakejrjnxjvd2clrsui
-    path: patches/shikiji-twoslash@0.10.0-beta.8.patch
+  shikiji: 0.10.0-beta.9
+  shikiji-transformers: 0.10.0-beta.9
 
 importers:
 
@@ -149,8 +143,8 @@ importers:
         specifier: 1.0.0-rc.39
         version: 1.0.0-rc.39(@algolia/client-search@4.22.1)(@types/node@20.11.4)(search-insights@2.13.0)(typescript@5.3.3)
       vitepress-plugin-twoslash:
-        specifier: 0.10.0-beta.8
-        version: 0.10.0-beta.8(typescript@5.3.3)
+        specifier: 0.10.0-beta.9
+        version: 0.10.0-beta.9(typescript@5.3.3)
       vitest:
         specifier: ^1.2.0
         version: 1.2.0(@types/node@20.11.4)(@vitest/ui@1.2.0)(happy-dom@13.1.4)
@@ -9215,31 +9209,34 @@ packages:
     resolution: {integrity: sha512-6j1W9l1iAs/4xYBI1SYOVZyFcCis9b4KCLQ8fgAGG07QvzaRLVVRQvAy85yNmmZSjYjg4MWh4gNvlPujU/5LpA==}
     dev: true
 
-  /shikiji-core@0.10.0-beta.8:
-    resolution: {integrity: sha512-GKkzQwE5WhzI4RsDZAs9QsvYmem3YPF4BvEuKMTrTi2OYbhHwUWmplwMcz7nqMwK4mbUyHeJYKhL9ZS+/jUIcg==}
+  /shikiji-core@0.10.0-beta.9:
+    resolution: {integrity: sha512-7dgwTyN9PeKyc4KJeyKo/qW8gi8XbR//c1CO+0B5GaeozWexNTpEL/tSohyIKkj0Z+7spfm2REmAaS39NlC4Lw==}
     dev: true
 
-  /shikiji-transformers@0.10.0-beta.8:
-    resolution: {integrity: sha512-t8ZgIszRsRHFI1vIN85AHEXI0t+sW269Xn6amUUGRHYzlZLET0oJoJchgGMTFYmkG2YGf6rAI5OjIVp4f2IT4w==}
-    dependencies:
-      shikiji: 0.10.0-beta.8
+  /shikiji-core@0.9.19:
+    resolution: {integrity: sha512-AFJu/vcNT21t0e6YrfadZ+9q86gvPum6iywRyt1OtIPjPFe25RQnYJyxHQPMLKCCWA992TPxmEmbNcOZCAJclw==}
     dev: true
 
-  /shikiji-twoslash@0.10.0-beta.8(patch_hash=pk2ugmizakejrjnxjvd2clrsui)(typescript@5.3.3):
-    resolution: {integrity: sha512-EwMASG/hMA+MtC2NleIxScrSea4uk51mi4pYU56/vKdCZMDTqd6FhtVgTcpWftjZ9p+tLeaoWAUwGxY4ucxyOA==}
+  /shikiji-transformers@0.10.0-beta.9:
+    resolution: {integrity: sha512-giqkVspbFtl7wwX1k/wcz+MKEHFlfEAxAkk+d7hU3XfPeLf38TTbTH0zEzr2cPfCZNnL6AN1uRkMnbDchjhKMw==}
     dependencies:
-      shikiji-core: 0.10.0-beta.8
+      shikiji: 0.10.0-beta.9
+    dev: true
+
+  /shikiji-twoslash@0.10.0-beta.9(typescript@5.3.3):
+    resolution: {integrity: sha512-VZNysft2sky0I5p4xCwoJ4BN1VxtRrY+aBu20hYGbX5IetUZl0jDFtdpNC32GUUhOddx/gy0X/fSCoomv0FE2Q==}
+    dependencies:
+      shikiji-core: 0.10.0-beta.9
       twoslash: 0.0.11(typescript@5.3.3)
     transitivePeerDependencies:
       - supports-color
       - typescript
     dev: true
-    patched: true
 
-  /shikiji@0.10.0-beta.8:
-    resolution: {integrity: sha512-yuaUyXmbeGqK6GLMDJVOZKnmdcVppw5iHJsgP77N9XH6RAM5ojjzJBbx5ROV3DjhQGLKFOAOBiCpf6xgh8o3tw==}
+  /shikiji@0.10.0-beta.9:
+    resolution: {integrity: sha512-I+sv642n9M7/FK/dVcXp9vMv7v5Wa8gU2UuKwkIWKQFvyo+qKB8eV1zNNtRYas+jC7BLwdAaflc5BFUozAonFQ==}
     dependencies:
-      shikiji-core: 0.10.0-beta.8
+      shikiji-core: 0.10.0-beta.9
     dev: true
 
   /side-channel@1.0.4:
@@ -10606,15 +10603,15 @@ packages:
       fsevents: 2.3.3
     dev: true
 
-  /vitepress-plugin-twoslash@0.10.0-beta.8(typescript@5.3.3):
-    resolution: {integrity: sha512-gc/Wg2pQhijEzYOYdikd++Y7ToHrjOYBxZKAxZIXMbBYTXKwa3jVvKAKuVoWw6qtvUZiWooUyKGBTxekx+B8zw==}
+  /vitepress-plugin-twoslash@0.10.0-beta.9(typescript@5.3.3):
+    resolution: {integrity: sha512-2KaE8QRaXQCR0KD4TChqwRAOEeax5QCTiMiM/h/uCCQKRcXzevSPackkcz5Rwwxv1djXhL6hJCU2n2cg4OZ8dg==}
     dependencies:
       floating-vue: 5.2.0(vue@3.4.14)
       mdast-util-from-markdown: 2.0.0
       mdast-util-gfm: 3.0.0
       mdast-util-to-hast: 13.1.0
-      shikiji: 0.10.0-beta.8
-      shikiji-twoslash: 0.10.0-beta.8(patch_hash=pk2ugmizakejrjnxjvd2clrsui)(typescript@5.3.3)
+      shikiji: 0.10.0-beta.9
+      shikiji-twoslash: 0.10.0-beta.9(typescript@5.3.3)
       twoslash-vue: 0.0.11(typescript@5.3.3)
       vue: 3.4.14(typescript@5.3.3)
     transitivePeerDependencies:
@@ -10645,9 +10642,9 @@ packages:
       focus-trap: 7.5.4
       mark.js: 8.11.1
       minisearch: 6.3.0
-      shikiji: 0.10.0-beta.8
-      shikiji-core: 0.10.0-beta.8
-      shikiji-transformers: 0.10.0-beta.8
+      shikiji: 0.10.0-beta.9
+      shikiji-core: 0.9.19
+      shikiji-transformers: 0.10.0-beta.9
       vite: 5.0.11(@types/node@20.11.4)
       vue: 3.4.14(typescript@5.3.3)
     transitivePeerDependencies:
