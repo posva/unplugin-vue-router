@@ -200,6 +200,11 @@
   "pnpm": {
     "patchedDependencies": {
       "shikiji-twoslash@0.10.0-beta.8": "patches/shikiji-twoslash@0.10.0-beta.8.patch"
+    },
+    "overrides": {
+      "shikiji-transformers": "0.10.0-beta.8",
+      "shikiji-core": "0.10.0-beta.8",
+      "shikiji": "0.10.0-beta.8"
     }
   }
 }
