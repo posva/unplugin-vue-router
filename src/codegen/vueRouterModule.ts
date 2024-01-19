@@ -1,4 +1,4 @@
-// NOTE: this code needs to be generated because otherwise it doesn't go through transforms and `vue-router/auto/routes`
+// NOTE: this code needs to be generated because otherwise it doesn't go through transforms and `vue-router/auto-routes`
 
 import type { ResolvedOptions } from '../options'
 

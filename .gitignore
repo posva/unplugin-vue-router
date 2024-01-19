@@ -80,3 +80,4 @@ dist
 # IDE
 .idea
 tsconfig.vitest-temp.json
+docs/.vitepress/cache

@@ -1,6 +1,6 @@
 export const MODULE_VUE_ROUTER = 'vue-router/auto'
-// the path is used by the user and having slashes is just more natural
-export const MODULE_ROUTES_PATH = `${MODULE_VUE_ROUTER}/routes`
+// vue-router/auto/routes was more natural but didn't work well with TS
+export const MODULE_ROUTES_PATH = `${MODULE_VUE_ROUTER}-routes`
 
 export const VIRTUAL_PREFIX = 'virtual:'
 

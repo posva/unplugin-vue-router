@@ -2,6 +2,7 @@
   "include": [
     "./src/**/*.ts",
     "./src/*.d.ts",
+    "./client.d.ts",
     "./tests/**/*.ts,"
   ],
   "exclude": [

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useLink, useRoute } from 'vue-router/auto'
-import type { RouteNamedMap } from 'vue-router/auto/routes'
+import type { RouteNamedMap } from 'vue-router/auto-routes'
 import type {
   RouteLocationNormalizedLoaded,
   RouteLocationResolved,

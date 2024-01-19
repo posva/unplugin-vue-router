@@ -6,6 +6,7 @@ import {
   type _TypesConfig,
   type RouteRecordName,
 } from 'unplugin-vue-router/types'
+const a: RouteRecordName = '/articles'
 
 // import type { RouteLocationNormalized, _RouteLocationNormalized } from 'vue-router/auto'
 import type {
