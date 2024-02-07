@@ -80,13 +80,16 @@ declare module 'vue-router/auto-routes' {
 import 'unplugin-vue-router/client'
 import './env.d'
 // ---cut---
-// @errors: 2322
+// @errors: 2322 2339
 // @moduleResolution: bundler
 import { useRouter, useRoute } from 'vue-router/auto'
 const router = useRouter()
-router.push({ name: '/users' })
-//                   ^|
-router.push('/')
+router.push({ name: '/u' })
+//                    ^|
+router.push('')
+//           ^|
+router.pu
+//      ^|
 ```
 
 what
@@ -96,7 +99,12 @@ what
 // @noErrors
 type A = '@foo' | '@bar' | '/foo' | '/bar'
 
-const a: A = '/foo'
+function test(o: { name: A }) {}
+
+const a: A = '/f'
+//              ^|
+const b: A = 'fo'
+test({ name: '/f' })
 //              ^|
 console.log()
 ```
