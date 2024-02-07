@@ -93,8 +93,10 @@ what
 
 ```ts twoslash
 // @errors: 2322 2820
+// @noErrors
 type A = '@foo' | '@bar' | '/foo' | '/bar'
 
-const a: A = '/'
-//             ^|
+const a: A = '/foo'
+//              ^|
+console.log()
 ```
