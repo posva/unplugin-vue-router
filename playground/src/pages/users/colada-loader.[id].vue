@@ -7,7 +7,7 @@ import { computed, ref } from 'vue'
 import { useQuery, serialize } from '@pinia/colada'
 import { getActivePinia } from 'pinia'
 
-const route = useRoute('/users/[id]')
+const route = useRoute('/users/colada-loader.[id]')
 
 const simulateError = ref(false)
 
@@ -81,8 +81,6 @@ const {
       <code>status: {{ status }}</code>
       <br />
       <code>isFetching: {{ pcIsFetching }}</code>
-      <!-- TODO:  -->
-      <!-- <code>fetchStatus: {{ fetchStatus }}</code> -->
     </p>
     <pre v-if="pcError">Error: {{ pcError }}</pre>
     <pre v-else>{{ pcUSer == null ? String(pcUSer) : pcUSer }}</pre>

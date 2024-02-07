@@ -57,6 +57,7 @@ declare module 'vue-router/auto-routes' {
     '/users/': RouteRecordInfo<'/users/', '/users', Record<never, never>, Record<never, never>>,
     '/users/[id]': RouteRecordInfo<'/users/[id]', '/users/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
     '/users/[id].edit': RouteRecordInfo<'/users/[id].edit', '/users/:id/edit', { id: ParamValue<true> }, { id: ParamValue<false> }>,
+    '/users/colada-loader.[id]': RouteRecordInfo<'/users/colada-loader.[id]', '/users/colada-loader/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
     '/users/nested.route.deep': RouteRecordInfo<'/users/nested.route.deep', '/users/nested/route/deep', Record<never, never>, Record<never, never>>,
     '/users/pinia-colada.[id]': RouteRecordInfo<'/users/pinia-colada.[id]', '/users/pinia-colada/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
     '/users/query.[id]': RouteRecordInfo<'/users/query.[id]', '/users/query/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
