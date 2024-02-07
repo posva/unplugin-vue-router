@@ -8,8 +8,11 @@ const simulateError = ref(false)
 // th
 
 export const useUserData = defineColadaLoader('/users/colada-loader.[id]', {
-  async query(to) {
+  async query(to, { signal }) {
     console.log('[🍹] coladaLoader', to.fullPath)
+    signal.addEventListener('abort', () => {
+      console.log('[🍹❌] aborted', to.fullPath)
+    })
     // we need to read these before the delay
     const id = to.params.id
     // @ts-expect-error: no param "name"!

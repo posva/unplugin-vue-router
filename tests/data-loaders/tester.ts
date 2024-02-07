@@ -633,7 +633,7 @@ export function testDefineLoader<Context = void>(
     expect(wrapper.text()).toBe(`ok,one`)
   })
 
-  it(`Can use a nested loaded directly in the component`, async () => {
+  it(`can use a nested loaded directly in the component`, async () => {
     const l1 = mockedLoader({ key: 'nested' })
     const rootLoader = loaderFactory({
       fn: async (to) => {

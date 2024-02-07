@@ -157,6 +157,10 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
     // console.log(
     //   `😎 Loading context to "${to.fullPath}" with current "${currentContext[2]?.fullPath}"`
     // )
+    if (entry.pendingTo.value !== to) {
+      // TODO: test
+      entry.pendingTo.value.meta[ABORT_CONTROLLER_KEY]!.abort()
+    }
     // Currently load for this loader
     entry.pendingTo.value = entry._pendingTo = to
 
