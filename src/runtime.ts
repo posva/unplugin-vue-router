@@ -24,6 +24,7 @@ export type { DataLoaderPluginOptions } from './data-fetching_new/navigation-gua
 
 // NOTE: for tests only
 export * from './data-fetching_new/defineQueryLoader'
+export * from './data-fetching_new/defineColadaLoader'
 
 /**
  * Defines properties of the route for the current page component.

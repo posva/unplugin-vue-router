@@ -1,15 +1,43 @@
 <script lang="ts">
+import { defineColadaLoader } from 'unplugin-vue-router/runtime'
+
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
+const simulateError = ref(false)
+
+// th
+
+export const useUserData = defineColadaLoader('/users/colada-loader.[id]', {
+  async query(to) {
+    console.log('[🍹] coladaLoader', to.fullPath)
+    // we need to read these before the delay
+    const id = to.params.id
+    // @ts-expect-error: no param "name"!
+    const name = to.params.name
+    await delay(500)
+    if (simulateError.value) {
+      throw new Error('Simulated Error')
+    }
+    const user = {
+      id,
+      name,
+      when: new Date().toUTCString(),
+    }
+    return user
+  },
+  key: (to) => {
+    console.log('[🍹] key', to.fullPath)
+    return ['users', to.params.id]
+  },
+})
 </script>
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
-import { useQuery, serialize } from '@pinia/colada'
+import { serialize } from '@pinia/colada'
 import { getActivePinia } from 'pinia'
 
 const route = useRoute('/users/colada-loader.[id]')
-
-const simulateError = ref(false)
 
 const pinia = getActivePinia()!
 function copy() {
@@ -24,35 +52,15 @@ const {
   data: pcUSer,
   status,
   error: pcError,
-  isFetching: pcIsFetching,
-  refetch,
+  isLoading: pcIsFetching,
+  reload,
   refresh,
-} = useQuery({
-  async query() {
-    console.log('[🍹]useUserData', route.fullPath)
-    // we need to read these before the delay
-    const id = route.params.id
-    // @ts-expect-error: no param "name"!
-    const name = route.params.name
-    await delay(500)
-    if (simulateError.value) {
-      throw new Error('Simulated Error')
-    }
-    const user = {
-      id,
-      name,
-      when: new Date().toUTCString(),
-    }
-    return user
-  },
-  key: () => ['users', route.params.id],
-  staleTime: 3000,
-})
+} = useUserData()
 </script>
 
 <template>
   <main>
-    <h1>raw Pinia Colada</h1>
+    <h1>Pinia Colada Loader</h1>
     <pre>User: {{ route.params.id }}</pre>
 
     <fieldset>
@@ -63,7 +71,7 @@ const {
       </label>
       <br />
       <button @click="refresh()">Refresh</button>
-      <button @click="refetch()">Refetch</button>
+      <button @click="reload()">Refetch</button>
       <button @click="copy()">Copy</button>
     </fieldset>
 
@@ -75,7 +83,7 @@ const {
       >Next</RouterLink
     >
 
-    <h2>PC 🍍</h2>
+    <h2>PC 🍍🍹</h2>
 
     <p>
       <code>status: {{ status }}</code>

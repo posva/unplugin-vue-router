@@ -220,8 +220,7 @@ export function setupLoaderGuard({
         // so we know it exists
         router[PENDING_LOCATION_KEY].meta[LOADER_SET_KEY]!.forEach((loader) => {
           const entry = loader._.getEntry(router as _Router)
-          entry.pendingTo = null
-          entry.pendingLoad = null
+          entry.cancelPending()
         })
         // avoid this navigation being considered valid by the loaders
         router[PENDING_LOCATION_KEY] = null

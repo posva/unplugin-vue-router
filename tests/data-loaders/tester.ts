@@ -160,7 +160,7 @@ export function testDefineLoader<Context = void>(
           expect(data.value).toEqual('resolved')
         })
 
-        it(`can be forced refreshed`, async () => {
+        it(`can be forced reloaded`, async () => {
           const spy = vi
             .fn<unknown[], Promise<string>>()
             .mockResolvedValueOnce('resolved 1')
@@ -169,14 +169,14 @@ export function testDefineLoader<Context = void>(
           )
           await router.push('/fetch')
           expect(spy).toHaveBeenCalledTimes(1)
-          const { data, refresh } = useData()
+          const { data, reload } = useData()
           expect(data.value).toEqual('resolved 1')
           spy.mockResolvedValueOnce('resolved 2')
-          await refresh()
-          expect(spy).toHaveBeenCalledTimes(2)
+          await reload()
           expect(data.value).toEqual('resolved 2')
+          expect(spy).toHaveBeenCalledTimes(2)
           spy.mockResolvedValueOnce('resolved 3')
-          await refresh()
+          await reload()
           expect(spy).toHaveBeenCalledTimes(3)
           expect(data.value).toEqual('resolved 3')
         })
@@ -802,7 +802,7 @@ export function testDefineLoader<Context = void>(
       expect(data.value).toEqual('ok,ok')
     })
 
-    it('can inject globals when refreshed', async () => {
+    it('can inject globals when reloaded', async () => {
       const { wrapper, router, useData, app } = singleLoaderOneRoute(
         loaderFactory({
           fn: async () => {
@@ -811,14 +811,14 @@ export function testDefineLoader<Context = void>(
         })
       )
       await router.push('/fetch')
-      const { data, refresh } = useData()
+      const { data, reload } = useData()
       expect(data.value).not.toBe('ok')
       app.provide('key', 'ok')
-      await refresh()
+      await reload()
       expect(data.value).toBe('ok')
     })
 
-    it('can inject globals in nested loaders when refreshed', async () => {
+    it('can inject globals in nested loaders when reloaded', async () => {
       const l1 = loaderFactory({
         fn: async () => {
           return inject('key', 'ko')
@@ -841,10 +841,10 @@ export function testDefineLoader<Context = void>(
         })
       )
       await router.push('/fetch')
-      const { data, refresh } = useData()
+      const { data, reload } = useData()
       expect(data.value).not.toBe('ok,ok')
       app.provide('key', 'ok')
-      await refresh()
+      await reload()
       expect(data.value).toBe('ok,ok')
     })
   })

@@ -25,6 +25,7 @@ import { getRouter } from 'vue-router-mock'
 import { enableAutoUnmount, mount } from '@vue/test-utils'
 import RouterViewMock from '../../tests/data-loaders/RouterViewMock.vue'
 import { setActivePinia, createPinia, Pinia } from 'pinia'
+import { QueryPlugin } from '@pinia/colada'
 
 describe.skip(
   'defineColadaLoader',
@@ -44,7 +45,7 @@ describe.skip(
 
     testDefineLoader(
       ({ fn, key, ...options }) =>
-        defineColadaLoader(fn, { ...options, key: key ?? 'id' }),
+        defineColadaLoader({ ...options, query: fn, key: () => [key ?? 'id'] }),
       {
         beforeEach() {
           const pinia = createPinia()
@@ -53,7 +54,7 @@ describe.skip(
           setActivePinia(pinia)
           return { pinia }
         },
-        plugins: ({ pinia }) => [pinia],
+        plugins: ({ pinia }) => [pinia, QueryPlugin],
       }
     )
 

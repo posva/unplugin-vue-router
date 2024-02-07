@@ -308,7 +308,7 @@ export function defineQueryLoader<Data, isLazy extends boolean>(
       data,
       error,
       isLoading: isLoading,
-      refresh: (
+      reload: (
         to: _RouteLocationNormalizedLoaded = router.currentRoute
           .value as _RouteLocationNormalizedLoaded
       ) =>

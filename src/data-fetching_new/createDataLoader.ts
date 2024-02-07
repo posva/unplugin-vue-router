@@ -35,6 +35,13 @@ export interface DataLoaderEntryBase<
   options: DefineDataLoaderOptionsBase<isLazy>
 
   /**
+   * Called by the navigation guard when the navigation is duplicated. Should be used to reset pendingTo and pendingLoad
+   */
+  cancelPending: () => void
+
+  // FIXME: `pendingLoad` and `pendingTo` should be added by each implementation and not be part of the base type as it is covered by cancelPending
+
+  /**
    * The latest pending load. Used to verify if the load is still valid when it resolves.
    */
   pendingLoad: Promise<void> | null
@@ -295,17 +302,17 @@ export interface UseDataLoaderResult<
   error: ShallowRef<any> // any is simply more convenient for errors
 
   /**
-   * Refresh the data using the current route location. Returns a promise that resolves when the data is refreshed. This
+   * Reload the data using the current route location. Returns a promise that resolves when the data is reloaded. This
    * method should not be called during a navigation as it can conflict with an ongoing load and lead to
    * inconsistencies.
    */
-  refresh(): Promise<void>
+  reload(): Promise<void>
   /**
-   * Refresh the data using the route location passed as argument. Returns a promise that resolves when the data is refreshed.
+   * Reload the data using the route location passed as argument. Returns a promise that resolves when the data is reloaded.
    *
-   * @param route - route location to refresh the data for
+   * @param route - route location to load the data for
    */
-  refresh(route: _RouteLocationNormalizedLoaded): Promise<void>
+  reload(route: _RouteLocationNormalizedLoaded): Promise<void>
 }
 
 function _testing() {

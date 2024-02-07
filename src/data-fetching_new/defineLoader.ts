@@ -219,6 +219,8 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
       }
       this.staged = STAGED_NO_VALUE
       this.pendingTo = null
+      // TODO: we are not changing pendingLoad here to reuse the call even for lazy loaders
+      // but it looks like a code smell to have both properties
 
       // children entries cannot be committed from the navigation guard, so the parent must tell them
       this.children.forEach((childEntry) => {
@@ -289,7 +291,7 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
       data,
       error,
       isLoading,
-      refresh: (
+      reload: (
         // @ts-expect-error: FIXME: should be fixable
         to: _RouteLocationNormalizedLoaded = router.currentRoute.value
       ) =>
@@ -359,6 +361,10 @@ function createDefineLoaderEntry<
 
     options,
     children: new Set(),
+    cancelPending() {
+      this.pendingLoad = null
+      this.pendingTo = null
+    },
     pendingLoad: null,
     pendingTo: null,
     staged: STAGED_NO_VALUE,

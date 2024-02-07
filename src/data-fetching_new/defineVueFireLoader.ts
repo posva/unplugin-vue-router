@@ -245,9 +245,7 @@ export function defineVueFireLoader<
       data,
       error,
       isLoading: isLoading,
-      refresh: (
-        to: RouteLocationNormalizedLoaded = router.currentRoute.value
-      ) =>
+      reload: (to: RouteLocationNormalizedLoaded = router.currentRoute.value) =>
         router[APP_KEY].runWithContext(() => load(to, router)).then(() =>
           entry!.commit(to)
         ),
