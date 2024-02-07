@@ -15,7 +15,7 @@ const pinia = getActivePinia()!
 function copy() {
   console.log(
     JSON.parse(
-      JSON.stringify(serialize(pinia.state.value.PiniaColada.entryRegistry))
+      JSON.stringify(serialize(pinia.state.value._pc_query.entryRegistry))
     )
   )
 }
@@ -27,16 +27,19 @@ const {
   isFetching: pcIsFetching,
   refetch,
 } = useQuery({
-  async fetcher() {
-    console.log('[TQ]useUserData', route.fullPath)
+  async query() {
+    console.log('[🍹]useUserData', route.fullPath)
+    // we need to read these before the delay
+    const id = route.params.id
+    // @ts-expect-error: no param "name"!
+    const name = route.params.name
     await delay(500)
     if (simulateError.value) {
       throw new Error('Simulated Error')
     }
     const user = {
-      id: route.params.id,
-      // @ts-expect-error: no param "name"!
-      name: route.params.name || 'Edu',
+      id,
+      name,
       when: new Date().toUTCString(),
     }
     return user
