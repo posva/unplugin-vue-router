@@ -114,6 +114,7 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch src",
+    "docs": "vitepress dev docs",
     "lint": "prettier -c '{src,examples,playground}/**/*.{ts,vue}'",
     "play": "npm -C playground run dev",
     "play:build": "npm -C playground run build",
@@ -158,6 +159,7 @@
   },
   "devDependencies": {
     "@pinia/colada": "^0.2.0",
+    "@shikijs/vitepress-twoslash": "1.0.0-rc.0",
     "@tanstack/vue-query": "^5.17.13",
     "@types/node": "^20.11.4",
     "@vitest/coverage-v8": "^1.2.0",
@@ -186,8 +188,7 @@
     "unplugin-vue-markdown": "^0.25.2",
     "unplugin-vue-router": "workspace:*",
     "vite": "^5.0.11",
-    "vitepress": "1.0.0-rc.39",
-    "vitepress-plugin-twoslash": "0.10.0-beta.9",
+    "vitepress": "1.0.0-rc.42",
     "vitest": "^1.2.0",
     "vue": "^3.4.14",
     "vue-router": "4.3.0-alpha.1",
@@ -196,9 +197,5 @@
     "vuefire": "^3.1.22",
     "webpack": "^5.89.0",
     "yorkie": "^2.0.0"
-  },
-  "resolutions": {
-    "shikiji": "0.10.0-beta.9",
-    "shikiji-transformers": "0.10.0-beta.9"
   }
 }

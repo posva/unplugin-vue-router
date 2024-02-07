@@ -92,9 +92,9 @@ router.push('/')
 what
 
 ```ts twoslash
-// @errors: 2322
+// @errors: 2322 2820
 type A = '@foo' | '@bar' | '/foo' | '/bar'
 
-const a: A = '@'
+const a: A = '/'
 //             ^|
 ```
