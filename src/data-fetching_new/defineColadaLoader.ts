@@ -1,4 +1,4 @@
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute, useRouter, type LocationQuery } from 'vue-router'
 import type {
   _RouteLocationNormalizedLoaded,
   _RouteRecordName,
@@ -26,7 +26,9 @@ import {
   IS_CLIENT,
   assign,
   getCurrentContext,
+  isSubsetOf,
   setCurrentContext,
+  trackRoute,
 } from './utils'
 import { Ref, ShallowRef, ref, shallowRef } from 'vue'
 import { NavigationResult } from './navigation-guard'
@@ -94,6 +96,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       DataLoaderColadaEntry<boolean, unknown>
     >
     const key = keyText(options.key(to))
+    const [trackedRoute, params, query, hash] = trackRoute(to)
     if (!entries.has(loader)) {
       const pendingTo = shallowRef<_RouteLocationNormalizedLoaded>(to)
       entries.set(loader, {
@@ -113,6 +116,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
         // @ts-expect-error: FIXME: once pendingTo is removed from DataLoaderEntryBase
         commit,
 
+        tracked: new Map(),
         ext: null,
 
         pendingTo,
@@ -133,16 +137,25 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       entry.ext = useQuery({
         ...options,
         // FIXME: type Promise<Data> instead of Promise<unknown>
-        query: () =>
-          // TODO: run within app context?
-          loader(entry.pendingTo.value, {
-            signal: entry.pendingTo.value.meta[ABORT_CONTROLLER_KEY]!.signal,
-          }),
+        query: () => {
+          const route = entry.pendingTo.value
+          const [trackedRoute, params, query, hash] = trackRoute(route)
+          entry.tracked.set(options.key(trackedRoute).join('|'), {
+            ready: false,
+            params,
+            query,
+            hash,
+          })
+
+          return loader(trackedRoute, {
+            signal: route.meta[ABORT_CONTROLLER_KEY]!.signal,
+          })
+        },
         key: () => options.key(entry.pendingTo.value),
       })
     }
 
-    const { error, isLoading, data, ext } = entry
+    const { isLoading, data, ext } = entry
 
     // we are rendering for the first time and we have initial data
     // we need to synchronously set the value so it's available in components
@@ -163,8 +176,9 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       // TODO: test
       entry.pendingTo.value.meta[ABORT_CONTROLLER_KEY]!.abort()
       // ensure we call refetch instead of refresh
-      // TODO: only if to is different from the pendintTo **consumed** properties
-      reload = true
+      // TODO: only if to is different from the pendingTo **consumed** properties
+      const tracked = entry.tracked.get(key.join('|'))
+      reload = !tracked || hasRouteChanged(to, tracked)
     }
 
     // Currently load for this loader
@@ -187,13 +201,14 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
 
     const currentLoad = ext[reload ? 'refetch' : 'refresh']()
       .then((d) => {
-        console.log(
-          `✅ resolved ${key}`,
-          to.fullPath,
-          `accepted: ${
-            entry.pendingLoad === currentLoad
-          }; data:\n${JSON.stringify(d)}\n${JSON.stringify(ext.data.value)}`
-        )
+        // console.log(
+        //   `✅ resolved ${key}`,
+        //   to.fullPath,
+        //   `accepted: ${
+        //     entry.pendingLoad === currentLoad
+        //   }; data:\n${JSON.stringify(d)}\n${JSON.stringify(ext.data.value)}`
+        // )
+        console.log(`👀 Tracked stuff`, entry.tracked)
         if (entry.pendingLoad === currentLoad) {
           // propagate the error
           if (ext.error.value) {
@@ -264,6 +279,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
           to.meta[NAVIGATION_RESULTS_KEY]!.push(this.staged)
         } else {
           this.data.value = this.staged
+          this.tracked.get(key.join('|'))!.ready = true
         }
       }
       // The navigation was changed so avoid resetting the error
@@ -432,10 +448,31 @@ export interface DataLoaderColadaEntry<isLazy extends boolean, Data>
   pendingTo: ShallowRef<_RouteLocationNormalizedLoaded>
   _pendingTo: _RouteLocationNormalizedLoaded | null
 
+  tracked: Map<string, TrackedRoute>
+
   /**
    * Extended options for pinia colada
    */
   ext: UseQueryReturn<Data> | null
+}
+
+interface TrackedRoute {
+  ready: boolean
+  params: Partial<LocationQuery>
+  query: Partial<LocationQuery>
+  hash: { v: string | null }
+}
+
+function hasRouteChanged(
+  to: _RouteLocationNormalizedLoaded,
+  tracked: TrackedRoute
+): boolean {
+  return (
+    !tracked.ready ||
+    !isSubsetOf(tracked.params, to.params) ||
+    !isSubsetOf(tracked.query, to.query) ||
+    (tracked.hash.v != null && tracked.hash.v !== to.hash)
+  )
 }
 
 const DEFAULT_DEFINE_LOADER_OPTIONS = {

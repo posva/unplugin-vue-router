@@ -35,6 +35,7 @@ export const useUserData = defineColadaLoader('/users/colada-loader.[id]', {
     console.log('[🍹] key', to.fullPath)
     return ['loader-users', to.params.id]
   },
+  staleTime: 10000,
 })
 </script>
 

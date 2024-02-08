@@ -117,7 +117,7 @@ describe(
       }
     }
 
-    it.todo('avoids refetching fresh data when navigating', async () => {
+    it('avoids refetching fresh data when navigating', async () => {
       const query = vi.fn().mockResolvedValue('data')
       const useData = defineColadaLoader({
         query,
