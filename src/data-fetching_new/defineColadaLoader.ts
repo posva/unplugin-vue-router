@@ -368,11 +368,17 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
     } satisfies UseDataLoaderResult
 
     // load ensures there is a pending load
-    const promise = entry.pendingLoad!.then(() => {
-      // nested loaders might wait for all loaders to be ready before setting data
-      // so we need to return the staged value if it exists as it will be the latest one
-      return entry!.staged === STAGED_NO_VALUE ? ext!.data.value : entry!.staged
-    })
+    const promise = entry
+      .pendingLoad!.then(() => {
+        // nested loaders might wait for all loaders to be ready before setting data
+        // so we need to return the staged value if it exists as it will be the latest one
+        return entry!.staged === STAGED_NO_VALUE
+          ? ext!.data.value
+          : entry!.staged
+      })
+      // we only want the error if we are nesting the loader
+      // otherwise this will end up in "Unhandled promise rejection"
+      .catch((e) => (parentEntry ? Promise.reject(e) : null))
 
     return Object.assign(promise, useDataLoaderResult)
   }

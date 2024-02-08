@@ -116,6 +116,29 @@ describe(
         app,
       }
     }
+
+    it.todo('avoids refetching fresh data when navigating', async () => {
+      const query = vi.fn().mockResolvedValue('data')
+      const useData = defineColadaLoader({
+        query,
+        key: (to) => [to.query.q as string],
+      })
+
+      const { router } = singleLoaderOneRoute(useData)
+
+      // same key
+      await router.push('/fetch?q=1&v=1')
+      expect(query).toHaveBeenCalledTimes(1)
+      await router.push('/fetch?q=1&v=2')
+      expect(query).toHaveBeenCalledTimes(1)
+
+      // different key
+      await router.push('/fetch?q=2&v=3')
+      expect(query).toHaveBeenCalledTimes(2)
+      // already fetched
+      await router.push('/fetch?q=1&v=4')
+      expect(query).toHaveBeenCalledTimes(2)
+    })
   },
   // fail faster on unresolved promises
   { timeout: 100 }

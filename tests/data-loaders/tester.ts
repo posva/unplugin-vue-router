@@ -327,6 +327,29 @@ export function testDefineLoader<Context = void>(
         expect(data.value).toBe(undefined)
         expect(router.currentRoute.value.path).toBe('/fetch')
       })
+
+      it('propagates errors from nested loaders', async () => {
+        const l1 = mockedLoader({
+          key: 'nested',
+          commit,
+          lazy: false,
+        })
+        const { wrapper, app, router, useData } = singleLoaderOneRoute(
+          loaderFactory({
+            fn: async (to) => {
+              const data = await l1.loader()
+              return `${data},${to.query.p}`
+            },
+            key: 'root',
+          })
+        )
+
+        const p = router.push('/fetch?p=one')
+        await vi.runOnlyPendingTimersAsync()
+
+        l1.reject(new Error('nope'))
+        await expect(p).rejects.toThrow('nope')
+      })
     }
   )
 
