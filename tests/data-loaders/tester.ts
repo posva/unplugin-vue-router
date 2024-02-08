@@ -142,6 +142,60 @@ export function testDefineLoader<Context = void>(
           expect(data.value).toEqual(null)
         })
 
+        it('can return a NavigationResult without affecting initial data', async () => {
+          let calls = 0
+          const spy = vi.fn(async (to: _RouteLocationNormalizedLoaded) => {
+            return calls++ === 0 ? new NavigationResult('/other') : to.query.p
+          })
+          const { useData, router } = singleLoaderOneRoute(
+            loaderFactory({ lazy, commit, fn: spy })
+          )
+          await router.push('/fetch?p=ko')
+          expect(spy).toHaveBeenCalled()
+          const { data } = useData()
+          expect(data.value).toEqual(undefined)
+        })
+
+        it('can return a NavigationResult without affecting loaded data', async () => {
+          let calls = 0
+          const spy = vi.fn(async (to: _RouteLocationNormalizedLoaded) => {
+            return calls++ > 0 ? new NavigationResult('/other') : to.query.p
+          })
+          const { useData, router } = singleLoaderOneRoute(
+            loaderFactory({ lazy, commit, fn: spy })
+          )
+          await router.push('/fetch?p=ok')
+          const { data } = useData()
+          expect(spy).toHaveBeenCalled()
+          expect(data.value).toEqual('ok')
+          await router.push('/fetch?p=ko')
+          expect(data.value).toEqual('ok')
+        })
+
+        // NOTE: not sure about what would be expected in this case.
+        // in lazy false, commit after-load, the error prevents the navigation
+        // so the error doesn't even get a chance to be used
+        it.skipIf(!lazy && commit === 'after-load')(
+          'can return a NavigationResult without affecting the last error',
+          async () => {
+            let calls = 0
+            const spy = vi.fn(async (to: _RouteLocationNormalizedLoaded) => {
+              return calls++ > 0
+                ? new NavigationResult('/other')
+                : Promise.reject(new Error(to.query.p as string))
+            })
+            const { useData, router } = singleLoaderOneRoute(
+              loaderFactory({ lazy, commit, fn: spy })
+            )
+            await router.push('/fetch?p=ok').catch(() => {})
+            const { error, data } = useData()
+            expect(spy).toHaveBeenCalled()
+            expect(error.value).toEqual(new Error('ok'))
+            await router.push('/fetch?p=ko').catch(() => {})
+            expect(error.value).toEqual(new Error('ok'))
+          }
+        )
+
         it(`the resolved data is present after navigation`, async () => {
           const spy = vi
             .fn<unknown[], Promise<string>>()
@@ -180,6 +234,63 @@ export function testDefineLoader<Context = void>(
           expect(spy).toHaveBeenCalledTimes(3)
           expect(data.value).toEqual('resolved 3')
         })
+
+        it('always reloads if the previous result is an error', async () => {
+          let calls = 0
+          const spy = vi.fn(async () => {
+            if (calls++ === 0) {
+              throw new Error('nope')
+            } else {
+              return 'ok'
+            }
+          })
+          const { useData, router, wrapper } = singleLoaderOneRoute(
+            loaderFactory({
+              fn: spy,
+              lazy,
+              commit,
+            })
+          )
+          await router.push('/fetch').catch(() => {})
+          // await vi.runAllTimersAsync()
+          expect(spy).toHaveBeenCalledTimes(1)
+
+          // for lazy loaders we need to navigate to trigger the loader
+          // so we add a hash to enforce that
+          await router.push('/fetch#two').catch(() => {})
+          const { data, error } = useData()
+          // await vi.runAllTimersAsync()
+          expect(spy).toHaveBeenCalledTimes(2)
+          expect(data.value).toBe('ok')
+          expect(error.value).toBe(null)
+        })
+
+        it.todo(
+          'keeps the existing error until the new data is resolved',
+          async () => {
+            let calls = 0
+            const { useData, router } = singleLoaderOneRoute(
+              loaderFactory({
+                fn: async (to) => {
+                  if (calls++ === 0) {
+                    throw new Error(to.query.p as string)
+                  } else {
+                    return to.query.p
+                  }
+                },
+                lazy,
+                commit,
+              })
+            )
+            await router.push('/fetch?p=ko').catch(() => {})
+            const { data, error } = useData()
+            expect(error.value).toEqual(new Error('ko'))
+            // TODO: delay with the controlled promises to ensure the error is not null
+            await router.push('/fetch?p=ok').catch(() => {})
+            expect(error.value).toBe(null)
+            expect(data.value).toBe('ok')
+          }
+        )
       })
 
       it(`should abort the navigation if a non lazy loader throws, commit: ${commit}`, async () => {
@@ -210,12 +321,11 @@ export function testDefineLoader<Context = void>(
           })
         )
         await router.push('/fetch')
+        const { data, error, isLoading } = useData()
         expect(wrapper.get('#error').text()).toBe('Error: nope')
-        expect(wrapper.get('#isLoading').text()).toBe('false')
-        expect(wrapper.get('#data').text()).toBe('')
+        expect(isLoading.value).toBe(false)
+        expect(data.value).toBe(undefined)
         expect(router.currentRoute.value.path).toBe('/fetch')
-        const { data } = useData()
-        expect(data.value).toEqual(undefined)
       })
     }
   )

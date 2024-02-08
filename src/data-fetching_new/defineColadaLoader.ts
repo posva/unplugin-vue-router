@@ -109,6 +109,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
           this.pendingLoad = null
         },
         staged: STAGED_NO_VALUE,
+        stagedError: null,
         // @ts-expect-error: FIXME: once pendingTo is removed from DataLoaderEntryBase
         commit,
 
@@ -162,15 +163,13 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       // TODO: test
       entry.pendingTo.value.meta[ABORT_CONTROLLER_KEY]!.abort()
       // ensure we call refetch instead of refresh
-      // FIXME: write test that colada loaders refresh if possible. No need to reload if the key changes. Ad to current context the reload flag
+      // TODO: only if to is different from the pendintTo **consumed** properties
       reload = true
     }
-    // TODO: if _pendingTo is diferent reload true?
+
     // Currently load for this loader
     entry.pendingTo.value = entry._pendingTo = to
 
-    // TODO: should be set only if success
-    error.value = null
     isLoading.value = true
     // save the current context to restore it later
     const currentContext = getCurrentContext()
@@ -204,13 +203,17 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
             //   `accepted: ${entry.pendingLoad === currentLoad} =`,
             //   e
             // )
-            error.value = ext.error.value
+            // in this case, commit will never be called so we should just drop the error
+            if (options.lazy || options.commit !== 'after-load') {
+              entry.stagedError = ext.error.value
+            }
             // propagate error if non lazy or during SSR
             if (!options.lazy || !IS_CLIENT) {
               return Promise.reject(ext.error.value)
             }
+          } else {
+            entry.staged = ext.data.value
           }
-          entry.staged = ext.data.value
         }
       })
       .finally(() => {
@@ -245,7 +248,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
   ) {
     const key = keyText(options.key(to))
     console.log(`👉 commit "${key}"`)
-    if (this._pendingTo === to && !this.error.value) {
+    if (this._pendingTo === to) {
       console.log(' ->', this.staged)
       if (process.env.NODE_ENV === 'development') {
         if (this.staged === STAGED_NO_VALUE) {
@@ -263,7 +266,12 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
           this.data.value = this.staged
         }
       }
+      // The navigation was changed so avoid resetting the error
+      if (!(this.staged instanceof NavigationResult)) {
+        this.error.value = this.stagedError
+      }
       this.staged = STAGED_NO_VALUE
+      this.stagedError = null
       this._pendingTo = null
 
       // children entries cannot be committed from the navigation guard, so the parent must tell them
@@ -316,7 +324,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
     if (
       // if the entry doesn't exist, create it with load and ensure it's loading
       !entry ||
-      // the existing pending location isn't good, we need to load again
+      // we are nested and the parent is loading a different route than us
       (parentEntry && entry._pendingTo !== route)
     ) {
       // console.log(
@@ -340,7 +348,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       parentEntry.children.add(entry!)
     }
 
-    const { data, error, isLoading } = entry
+    const { data, error, isLoading, ext } = entry
 
     const useDataLoaderResult = {
       data,
@@ -363,7 +371,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
     const promise = entry.pendingLoad!.then(() => {
       // nested loaders might wait for all loaders to be ready before setting data
       // so we need to return the staged value if it exists as it will be the latest one
-      return entry!.staged === STAGED_NO_VALUE ? data.value : entry!.staged
+      return entry!.staged === STAGED_NO_VALUE ? ext!.data.value : entry!.staged
     })
 
     return Object.assign(promise, useDataLoaderResult)

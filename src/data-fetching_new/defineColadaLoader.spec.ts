@@ -1,7 +1,7 @@
 /**
  * @vitest-environment happy-dom
  */
-import { App, Ref, defineComponent, shallowRef } from 'vue'
+import { App, Ref, defineComponent, ref, shallowRef } from 'vue'
 import { defineColadaLoader } from './defineColadaLoader'
 import {
   describe,

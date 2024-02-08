@@ -57,6 +57,8 @@ export interface DataLoaderEntryBase<
    */
   staged: Data | typeof STAGED_NO_VALUE
 
+  stagedError: any | null
+
   // entry instance
 
   /**

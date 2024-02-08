@@ -123,8 +123,6 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
     // Currently load for this loader
     entry.pendingTo = to
 
-    // TODO: move to commit
-    error.value = null
     isLoading.value = true
     // save the current context to restore it later
     const currentContext = getCurrentContext()
@@ -160,10 +158,11 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
         //   `accepted: ${entry.pendingLoad === currentLoad} =`,
         //   e
         // )
-        // TODO: move to commit to preserve the current state
-        // TODO: add test
         if (entry.pendingLoad === currentLoad) {
-          error.value = e
+          // in this case, commit will never be called so we should just drop the error
+          if (options.lazy || options.commit !== 'after-load') {
+            entry.stagedError = e
+          }
           // propagate error if non lazy or during SSR
           if (!options.lazy || !IS_CLIENT) {
             return Promise.reject(e)
@@ -199,7 +198,7 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
     this: DataLoaderEntryBase,
     to: _RouteLocationNormalizedLoaded
   ) {
-    if (this.pendingTo === to && !this.error.value) {
+    if (this.pendingTo === to) {
       // console.log('👉 commit', this.staged)
       if (process.env.NODE_ENV === 'development') {
         if (this.staged === STAGED_NO_VALUE) {
@@ -217,7 +216,12 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
           this.data.value = this.staged
         }
       }
+      // The navigation was changed so avoid resetting the error
+      if (!(this.staged instanceof NavigationResult)) {
+        this.error.value = this.stagedError
+      }
       this.staged = STAGED_NO_VALUE
+      this.stagedError = null
       this.pendingTo = null
       // TODO: we are not changing pendingLoad here to reuse the call even for lazy loaders
       // but it looks like a code smell to have both properties
@@ -368,6 +372,7 @@ function createDefineLoaderEntry<
     pendingLoad: null,
     pendingTo: null,
     staged: STAGED_NO_VALUE,
+    stagedError: null,
     commit,
   } satisfies DataLoaderEntryBase<isLazy, Data>
 }
