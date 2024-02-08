@@ -72,7 +72,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
     _options ||
     (nameOrOptions as DefineDataLoaderOptions<isLazy, _RouteRecordName, Data>)
   const loader = _options.query
-  type B = ReturnType<typeof loader>
+
   const options = {
     ...DEFAULT_DEFINE_LOADER_OPTIONS,
     ..._options,
@@ -133,8 +133,9 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
         ...options,
         // FIXME: type Promise<Data> instead of Promise<unknown>
         query: () =>
+          // TODO: run within app context?
           loader(entry.pendingTo.value, {
-            signal: to.meta[ABORT_CONTROLLER_KEY]!.signal,
+            signal: entry.pendingTo.value.meta[ABORT_CONTROLLER_KEY]!.signal,
           }),
         key: () => options.key(entry.pendingTo.value),
       })
@@ -160,7 +161,11 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
     if (entry.pendingTo.value !== to) {
       // TODO: test
       entry.pendingTo.value.meta[ABORT_CONTROLLER_KEY]!.abort()
+      // ensure we call refetch instead of refresh
+      // FIXME: write test that colada loaders refresh if possible. No need to reload if the key changes. Ad to current context the reload flag
+      reload = true
     }
+    // TODO: if _pendingTo is diferent reload true?
     // Currently load for this loader
     entry.pendingTo.value = entry._pendingTo = to
 
@@ -191,22 +196,21 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
           }; data:\n${JSON.stringify(d)}\n${JSON.stringify(ext.data.value)}`
         )
         if (entry.pendingLoad === currentLoad) {
-          entry.staged = ext.data.value
-        }
-      })
-      .catch((e) => {
-        // console.log(
-        //   '‼️ rejected',
-        //   to.fullPath,
-        //   `accepted: ${entry.pendingLoad === currentLoad} =`,
-        //   e
-        // )
-        if (entry.pendingLoad === currentLoad) {
-          error.value = e
-          // propagate error if non lazy or during SSR
-          if (!options.lazy || !IS_CLIENT) {
-            return Promise.reject(e)
+          // propagate the error
+          if (ext.error.value) {
+            // console.log(
+            //   '‼️ rejected',
+            //   to.fullPath,
+            //   `accepted: ${entry.pendingLoad === currentLoad} =`,
+            //   e
+            // )
+            error.value = ext.error.value
+            // propagate error if non lazy or during SSR
+            if (!options.lazy || !IS_CLIENT) {
+              return Promise.reject(ext.error.value)
+            }
           }
+          entry.staged = ext.data.value
         }
       })
       .finally(() => {
@@ -318,7 +322,9 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       // console.log(
       //   `🔁 loading from useData for "${options.key}": "${route.fullPath}"`
       // )
-      router[APP_KEY].runWithContext(() => load(route, router, parentEntry))
+      router[APP_KEY].runWithContext(() =>
+        load(route, router, parentEntry, true)
+      )
     }
 
     entry = entries.get(loader)!

@@ -27,7 +27,7 @@ import RouterViewMock from '../../tests/data-loaders/RouterViewMock.vue'
 import { setActivePinia, createPinia, Pinia } from 'pinia'
 import { QueryPlugin } from '@pinia/colada'
 
-describe.skip(
+describe(
   'defineColadaLoader',
   () => {
     enableAutoUnmount(afterEach)
@@ -68,7 +68,7 @@ describe.skip(
           // @ts-expect-error: wat?
           useDataResult = useData()
 
-          const { data, error, isLoading: isLoading } = useDataResult
+          const { data, error, isLoading } = useDataResult
           return { data, error, isLoading }
         },
         template: `\
@@ -91,7 +91,11 @@ describe.skip(
 
       const wrapper = mount(RouterViewMock, {
         global: {
-          plugins: [[DataLoaderPlugin, { router, ...pluginOptions }]],
+          plugins: [
+            [DataLoaderPlugin, { router, ...pluginOptions }],
+            createPinia(),
+            QueryPlugin,
+          ],
         },
       })
 

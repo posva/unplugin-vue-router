@@ -77,7 +77,7 @@ export function testDefineLoader<Context = void>(
       setup() {
         useDataResult = useData()
 
-        const { data, error, isLoading: isLoading } = useDataResult
+        const { data, error, isLoading } = useDataResult
         return { data, error, isLoading }
       },
       template: `\
@@ -580,7 +580,10 @@ export function testDefineLoader<Context = void>(
     })
     const wrapper = mount(RouterViewMock, {
       global: {
-        plugins: [[DataLoaderPlugin, { router }]],
+        plugins: [
+          [DataLoaderPlugin, { router }],
+          ...(plugins?.(customContext!) || []),
+        ],
       },
     })
     const app: App = wrapper.vm.$.appContext.app
@@ -618,7 +621,10 @@ export function testDefineLoader<Context = void>(
     })
     const wrapper = mount(RouterViewMock, {
       global: {
-        plugins: [[DataLoaderPlugin, { router }]],
+        plugins: [
+          [DataLoaderPlugin, { router }],
+          ...(plugins?.(customContext!) || []),
+        ],
       },
     })
     const app: App = wrapper.vm.$.appContext.app
@@ -660,7 +666,10 @@ export function testDefineLoader<Context = void>(
     })
     const wrapper = mount(RouterViewMock, {
       global: {
-        plugins: [[DataLoaderPlugin, { router }]],
+        plugins: [
+          [DataLoaderPlugin, { router }],
+          ...(plugins?.(customContext!) || []),
+        ],
       },
     })
 
@@ -690,7 +699,10 @@ export function testDefineLoader<Context = void>(
     })
     const wrapper = mount(RouterViewMock, {
       global: {
-        plugins: [[DataLoaderPlugin, { router }]],
+        plugins: [
+          [DataLoaderPlugin, { router }],
+          ...(plugins?.(customContext!) || []),
+        ],
       },
     })
     const app: App = wrapper.vm.$.appContext.app
@@ -812,6 +824,7 @@ export function testDefineLoader<Context = void>(
       )
       await router.push('/fetch')
       const { data, reload } = useData()
+      // we provide afterwards to ensure the nested child is called again
       expect(data.value).not.toBe('ok')
       app.provide('key', 'ok')
       await reload()
@@ -829,6 +842,7 @@ export function testDefineLoader<Context = void>(
         fn: async () => {
           return inject('key', 'ko')
         },
+        key: 'l2',
       })
       const { wrapper, router, useData, app } = singleLoaderOneRoute(
         loaderFactory({
@@ -837,11 +851,12 @@ export function testDefineLoader<Context = void>(
             const b = await l2()
             return `${a},${b}`
           },
-          key: 'l2',
+          key: 'root',
         })
       )
       await router.push('/fetch')
       const { data, reload } = useData()
+      // we provide afterwards to ensure the nested child is called again
       expect(data.value).not.toBe('ok,ok')
       app.provide('key', 'ok')
       await reload()

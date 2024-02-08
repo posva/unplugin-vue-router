@@ -21,7 +21,7 @@ export function mockPromise<Resolved, Err>(resolved: Resolved, rejected?: Err) {
   }
   function reject(rejectedValue?: Err) {
     if (!_reject || !promise)
-      throw new Error('Resolve called with no active promise')
+      throw new Error('Reject called with no active promise')
     _reject(rejectedValue ?? rejected)
     _resolve = null
     _reject = null
