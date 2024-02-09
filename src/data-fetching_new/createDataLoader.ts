@@ -191,6 +191,8 @@ export interface DefineDataLoader<Context extends DataLoaderContextBase> {
   ): UseDataLoader<isLazy, Data>
 }
 
+// TODO: should be in each data loader. Refactor the base type to accept the needed generics
+
 /**
  * Data Loader composable returned by `defineLoader()`.
  * @see {@link DefineDataLoader}

@@ -222,9 +222,12 @@ export function setupLoaderGuard({
           const entry = loader._.getEntry(router as _Router)
           entry.cancelPending()
         })
-        // avoid this navigation being considered valid by the loaders
-        router[PENDING_LOCATION_KEY] = null
       }
+    }
+
+    if (router[PENDING_LOCATION_KEY] === to) {
+      // avoid this navigation being considered valid by the loaders
+      router[PENDING_LOCATION_KEY] = null
     }
   })
 
@@ -236,6 +239,10 @@ export function setupLoaderGuard({
     // that creates the abort controller could not be triggered depending on the error
     if (to.meta[ABORT_CONTROLLER_KEY]) {
       to.meta[ABORT_CONTROLLER_KEY].abort(error)
+    }
+    if (router[PENDING_LOCATION_KEY] === to) {
+      // avoid this navigation being considered valid by the loaders
+      router[PENDING_LOCATION_KEY] = null
     }
   })
 

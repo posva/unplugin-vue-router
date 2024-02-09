@@ -19,6 +19,7 @@ import {
   IS_USE_DATA_LOADER_KEY,
   LOADER_ENTRIES_KEY,
   NAVIGATION_RESULTS_KEY,
+  PENDING_LOCATION_KEY,
   STAGED_NO_VALUE,
 } from './meta-extensions'
 import { IS_CLIENT, getCurrentContext, setCurrentContext } from './utils'
@@ -160,7 +161,12 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
         // )
         if (entry.pendingLoad === currentLoad) {
           // in this case, commit will never be called so we should just drop the error
-          if (options.lazy || options.commit !== 'after-load') {
+          if (
+            options.lazy ||
+            options.commit !== 'after-load' ||
+            !router[PENDING_LOCATION_KEY]
+          ) {
+            console.log(`🚨 error in "${options.key}"`, e)
             entry.stagedError = e
           }
           // propagate error if non lazy or during SSR
@@ -175,10 +181,16 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
         //   `😩 restored context ${options.key}`,
         //   currentContext?.[2]?.fullPath
         // )
+        console.log(`🗄️ is same load: ${entry.pendingLoad === currentLoad}`)
         if (entry.pendingLoad === currentLoad) {
           isLoading.value = false
           // we must run commit here so nested loaders are ready before used by their parents
-          if (options.lazy || options.commit === 'immediate') {
+          if (
+            options.lazy ||
+            options.commit === 'immediate' ||
+            // outside of navigation
+            !router[PENDING_LOCATION_KEY]
+          ) {
             entry.commit(to)
           }
         }
