@@ -115,6 +115,7 @@
     "build": "tsup",
     "dev": "tsup --watch src",
     "docs": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
     "lint": "prettier -c '{src,examples,playground}/**/*.{ts,vue}'",
     "play": "npm -C playground run dev",
     "play:build": "npm -C playground run build",
