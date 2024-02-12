@@ -52,8 +52,8 @@ importers:
         specifier: ^0.4.3
         version: 0.4.3
       '@shikijs/vitepress-twoslash':
-        specifier: 1.0.0
-        version: 1.0.0(typescript@5.3.3)
+        specifier: 1.1.1
+        version: 1.1.1(typescript@5.3.3)
       '@tanstack/vue-query':
         specifier: ^5.20.1
         version: 5.20.1(vue@3.4.18)
@@ -2786,12 +2786,12 @@ packages:
     requiresBuild: true
     optional: true
 
-  /@shikijs/core@1.0.0:
-    resolution: {integrity: sha512-UMKGMZ+8b88N0/n6DWwWth1PHsOaxjW+R2u+hzSiargZWTv+l3s1l8dhuIxUSsEUPlBDKLs2CSMiFZeviKQM1w==}
-    dev: true
-
   /@shikijs/core@1.0.0-rc.0:
     resolution: {integrity: sha512-j/7te+hvEYlQTvk/wPoA+1rOklZTz8QuyqVvV81KcEN/g1WXKVnqp9WZ7jFuv0ZVLqBtDx/V8viRDROJniyMLA==}
+    dev: true
+
+  /@shikijs/core@1.1.1:
+    resolution: {integrity: sha512-WSHuW0i4W04+UZgim378oxHBAp4S5X3hVI2zXh+t5v2fx2u/7QXz9VNisoOD/CA4O9Lc6Zs97TrKiDbWyZua6Q==}
     dev: true
 
   /@shikijs/transformers@1.0.0-rc.0:
@@ -2800,26 +2800,27 @@ packages:
       shiki: 1.0.0-rc.0
     dev: true
 
-  /@shikijs/twoslash@1.0.0(typescript@5.3.3):
-    resolution: {integrity: sha512-kwd4sGC49A1Vor4RRDimo1g2NZNzVYatoVfwOy5+p6gPZb/+lPB5eDsuk/F84Scau15tPyJoLB3/iDqCtkRUQQ==}
+  /@shikijs/twoslash@1.1.1(typescript@5.3.3):
+    resolution: {integrity: sha512-v9qhwJSeelA55+Z5e72331rvXNavqabP0jqgKNmUQkiAvEGo7upJaq/TDXcnMyC8NDqPq2fuU6xoHItzDj+Rcw==}
     dependencies:
-      '@shikijs/core': 1.0.0
-      twoslash: 0.1.2(typescript@5.3.3)
+      '@shikijs/core': 1.1.1
+      twoslash: 0.2.1(typescript@5.3.3)
     transitivePeerDependencies:
       - supports-color
       - typescript
     dev: true
 
-  /@shikijs/vitepress-twoslash@1.0.0(typescript@5.3.3):
-    resolution: {integrity: sha512-SlHLsTo59390tlIi9kcaWQfC+bMqxDqOla3XWf8MI9o9fth0SYuPUmClnNci07pT/0p1RzmakZQmpoETos9otQ==}
+  /@shikijs/vitepress-twoslash@1.1.1(typescript@5.3.3):
+    resolution: {integrity: sha512-V4LY5FUH5sj0GaVFxaHx7Wbv/e/Bk/ejw3IuMZMpMKXQTh3xiGvbprhp05DleHdZ0J6OtMBjJw6aL42s6Zgbew==}
     dependencies:
-      '@shikijs/twoslash': 1.0.0(typescript@5.3.3)
+      '@shikijs/twoslash': 1.1.1(typescript@5.3.3)
       floating-vue: 5.2.2(vue@3.4.18)
       mdast-util-from-markdown: 2.0.0
       mdast-util-gfm: 3.0.0
       mdast-util-to-hast: 13.1.0
-      shiki: 1.0.0
-      twoslash-vue: 0.1.2(typescript@5.3.3)
+      shiki: 1.1.1
+      twoslash: 0.2.1(typescript@5.3.3)
+      twoslash-vue: 0.2.1(typescript@5.3.3)
       vue: 3.4.18(typescript@5.3.3)
     transitivePeerDependencies:
       - '@nuxt/kit'
@@ -8962,16 +8963,16 @@ packages:
     resolution: {integrity: sha512-6j1W9l1iAs/4xYBI1SYOVZyFcCis9b4KCLQ8fgAGG07QvzaRLVVRQvAy85yNmmZSjYjg4MWh4gNvlPujU/5LpA==}
     dev: true
 
-  /shiki@1.0.0:
-    resolution: {integrity: sha512-rOUGJa3yFGgOrEoiELYxraoBbag3ZWf9bpodlr05Wjm85Scx8OIX+otdSefq9Pk7L47TKEzGodSQb4L38jka6A==}
-    dependencies:
-      '@shikijs/core': 1.0.0
-    dev: true
-
   /shiki@1.0.0-rc.0:
     resolution: {integrity: sha512-aeEjERF5qeK+YChgEv94LOjcEcjZBLd0acPaHginz0N8FvyTn2iSLhO0AtoqfvlZ8cWGCJRKLWtDApnQVQB6/Q==}
     dependencies:
       '@shikijs/core': 1.0.0-rc.0
+    dev: true
+
+  /shiki@1.1.1:
+    resolution: {integrity: sha512-7ksyiu01NltBvEcLq9GcguF+7RGa5lDwozjgdbiXnlkro1FtMCcrVtHUWbKuYBSOZW74gC4KlnBcgRCwK2ERAw==}
+    dependencies:
+      '@shikijs/core': 1.1.1
     dev: true
 
   /side-channel@1.0.4:
@@ -9606,24 +9607,30 @@ packages:
       - supports-color
     dev: true
 
-  /twoslash-vue@0.1.2(typescript@5.3.3):
-    resolution: {integrity: sha512-LCD3VTw0+gKVMXou/nP8OAtpajGAoKuzFx9oyGteBkeMRgDj2DO95WDBHy/o+ihkckYZ0lUbvIFFjzmDy7zHag==}
+  /twoslash-protocol@0.2.1:
+    resolution: {integrity: sha512-ppACotZJJQlhI7UdoAQ1SOhLsnAyVHoY69gmBY6ygw+mULShR13zVToHpM0eUA/GqS2jiNCAeE2HrcXZ+1qLfg==}
+    dev: true
+
+  /twoslash-vue@0.2.1(typescript@5.3.3):
+    resolution: {integrity: sha512-j/5xaz5aD/8Wiyz/8MXJPQ26hPFefHozcy3XfGuEcR4yjxJv+ErOnjBhts3pKVMpkRbExLtyE/z9qJjZRcpOFA==}
     peerDependencies:
       typescript: '*'
     dependencies:
       '@vue/language-core': 1.8.27(typescript@5.3.3)
-      twoslash: 0.1.2(typescript@5.3.3)
+      twoslash: 0.2.1(typescript@5.3.3)
+      twoslash-protocol: 0.2.1
       typescript: 5.3.3
     transitivePeerDependencies:
       - supports-color
     dev: true
 
-  /twoslash@0.1.2(typescript@5.3.3):
-    resolution: {integrity: sha512-q0jnapnD3b0umNGCJCRlo6Em1oSFl2OBPwsXqhLzijtEzuORrGVrJffG7E1k1KPHFlwBSRX2q6yYA61etn5hSg==}
+  /twoslash@0.2.1(typescript@5.3.3):
+    resolution: {integrity: sha512-V8J0OGo9gj5pZ2UlZvIYlr71PThc/eYEfK/UnnrhysUpEtzhdMC102ucm3C43RHXdUMLYBccwILiOGl87zswDA==}
     peerDependencies:
       typescript: '*'
     dependencies:
       '@typescript/vfs': 1.5.0
+      twoslash-protocol: 0.2.1
       typescript: 5.3.3
     transitivePeerDependencies:
       - supports-color
