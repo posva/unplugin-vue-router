@@ -166,8 +166,6 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
 
-  docs: {}
-
   examples/nuxt:
     devDependencies:
       nuxt:
