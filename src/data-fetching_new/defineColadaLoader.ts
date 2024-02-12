@@ -31,7 +31,7 @@ import {
   setCurrentContext,
   trackRoute,
 } from './utils'
-import { Ref, ShallowRef, ref, shallowRef, toRaw, watch } from 'vue'
+import { Ref, ShallowRef, ref, shallowRef, watch } from 'vue'
 import { NavigationResult } from './navigation-guard'
 import {
   UseQueryKey,
@@ -445,7 +445,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       // otherwise this will end up in "Unhandled promise rejection"
       .catch((e) => (parentEntry ? Promise.reject(e) : null))
 
-    return Object.assign(promise, useDataLoaderResult)
+    return assign(promise, useDataLoaderResult)
   }
 
   // mark it as a data loader
