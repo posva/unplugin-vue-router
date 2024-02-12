@@ -1,6 +1,5 @@
-import { LocationQuery } from 'vue-router'
+import { type LocationQuery } from 'vue-router'
 
-// FIXME: this exists in vue-router
 /**
  * Returns true if `inner` is a subset of `outer`
  *

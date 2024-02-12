@@ -112,7 +112,6 @@ export function setupDataFetchingGuard(
                       router,
                       undefined,
                       initialData
-                      // FIXME: could the data.value be passed as an argument here?
                     ).then(() => {
                       if (!initialData) {
                         // TODO: warn if we have an incomplete initialData

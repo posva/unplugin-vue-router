@@ -173,9 +173,17 @@ export const VueRouterExports: Array<
  */
 export const VueRouterAutoImports: Record<
   string,
-  Array<string | [string, string]>
+  Array<string | [importName: string, alias: string]>
 > = {
-  'vue-router/auto': VueRouterExports,
+  'vue-router/auto': [
+    'useRoute',
+    'useRouter',
+    'defineBasicLoader',
+    'onBeforeRouteUpdate',
+    'onBeforeRouteLeave',
+    // NOTE: the typing seems broken locally, so instead we export it directly from unplugin-vue-router/runtime
+    // 'definePage',
+  ],
   'unplugin-vue-router/runtime': [
     ['_definePage', 'definePage'],
     // FIXME: remove after deprecation
