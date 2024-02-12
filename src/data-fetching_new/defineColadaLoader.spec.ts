@@ -25,7 +25,7 @@ import { getRouter } from 'vue-router-mock'
 import { enableAutoUnmount, mount } from '@vue/test-utils'
 import RouterViewMock from '../../tests/data-loaders/RouterViewMock.vue'
 import { setActivePinia, createPinia, Pinia } from 'pinia'
-import { QueryPlugin } from '@pinia/colada'
+import { QueryPlugin, useQuery } from '@pinia/colada'
 
 describe(
   'defineColadaLoader',
@@ -138,6 +138,31 @@ describe(
       // already fetched
       await router.push('/fetch?q=1&v=4')
       expect(query).toHaveBeenCalledTimes(2)
+    })
+
+    it('updates data loader data if internal data changes', async () => {
+      const query = vi.fn().mockResolvedValue('data')
+
+      const { router, useData } = singleLoaderOneRoute(
+        defineColadaLoader({
+          query,
+          key: () => ['id'],
+        })
+      )
+
+      await router.push('/fetch?v=1')
+      expect(query).toHaveBeenCalledTimes(1)
+      const { data: loaderData } = useData()
+      const { data: coladaData, refetch } = useQuery({
+        query,
+        key: ['id'],
+      })
+      query.mockResolvedValue('new')
+      await refetch()
+      await vi.runAllTimersAsync()
+      expect(query).toHaveBeenCalledTimes(2)
+      expect(coladaData.value).toBe('new')
+      expect(loaderData.value).toBe('new')
     })
   },
   // fail faster on unresolved promises

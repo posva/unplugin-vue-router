@@ -371,6 +371,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
 
     const { data, error, isLoading, ext } = entry
 
+    // update the data when pinia colada updates it e.g. after visibility change
     watch(ext!.data, (newData) => {
       console.log(
         `👀 "${options.key}" data changed`,
@@ -384,13 +385,13 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
     })
 
     watch(ext!.isFetching, (isFetching) => {
-      if (!entry!._pendingTo) {
+      if (!router[PENDING_LOCATION_KEY]) {
         isLoading.value = isFetching
       }
     })
 
     watch(ext!.error, (newError) => {
-      if (!entry!._pendingTo) {
+      if (!router[PENDING_LOCATION_KEY]) {
         error.value = newError
       }
     })
