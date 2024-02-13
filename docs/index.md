@@ -19,7 +19,7 @@ features:
   - title: Type Safe
     icon: 🔑
     details: Catch invalid routes at runtime, and get autocompletion for links.
-    link: /guide/typed-routes
+    link: /guide/typescript
   - title: File based
     icon: 📁
     details: Automatically generate the routes from your file structure.

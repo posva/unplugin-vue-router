@@ -8,13 +8,16 @@ This plugin generates a `d.ts` file with all the typing overrides when the dev o
   "include": [
     /* ... */
     "./typed-router.d.ts",
-    "./typed-router.config.d.ts"
   ]
   // ...
 }
 ```
 
-Then, you will be able to import from `vue-router/auto` (instead of `vue-router`) to get access to the typed APIs. You can commit the newly added `.d.ts` files to your repository to make your life easier.
+Then, you will be able to import from `vue-router/auto` (instead of `vue-router`) to get access to the typed APIs.
+
+::: tip
+You can commit the newly added `.d.ts` files to your repository to make your life easier.
+:::
 
 ## Extra types
 
@@ -30,7 +33,19 @@ import type { RouteNamedMap } from 'vue-router/auto-routes'
 
 Extending types with dynamically added routes:
 
-```ts
+```ts twoslash
+// @filename: env.d.ts
+declare module 'vue-router/auto-routes' {
+  export interface RouteNamedMap {}
+}
+export {}
+// @filename: index.ts
+import 'unplugin-vue-router/client'
+import './env.d'
+export {}
+// ---cut---
+// @moduleResolution: bundler
+// @errors: 2664 2307
 declare module 'vue-router/auto-routes' {
   import type {
     RouteRecordInfo,
@@ -39,7 +54,7 @@ declare module 'vue-router/auto-routes' {
     ParamValueOneOrMore,
     ParamValueZeroOrMore,
     ParamValueZeroOrOne,
-  } from 'unplugin-vue-router'
+  } from 'unplugin-vue-router/types'
 
   export interface RouteNamedMap {
     // the key is the name and should match the first generic of RouteRecordInfo
@@ -53,6 +68,7 @@ declare module 'vue-router/auto-routes' {
     >
   }
 }
+export {}
 ```
 
 ### `Router`
@@ -77,7 +93,11 @@ This type is also the return type of `router.resolve()`.
 
 You have the same equivalents for `RouteLocation`, `RouteLocationNormalized`, and `RouteLocationNormalizedLoaded`. All of them exist in `vue-router` but `vue-router/auto` override them to provide a type safe version of them. In addition to that, you can pass the name of the route as a generic:
 
-```ts
+```ts twoslash
+import 'unplugin-vue-router/client'
+import { type RouteLocationNormalizedLoaded, useRoute } from 'vue-router/auto'
+// ---cut---
+// @moduleResolution: bundler
 // these are all valid
 let userWithId: RouteLocationNormalizedLoaded<'/users/[id]'> = useRoute()
 userWithId = useRoute<'/users/[id]'>()

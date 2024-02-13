@@ -151,11 +151,7 @@ function sidebarGuide(): SidebarGroup {
         link: '/guide/file-based-routing',
       },
       {
-        text: 'Typed routes',
-        link: '/guide/typed-routes',
-      },
-      {
-        text: 'TypeScript',
+        text: 'Typed Routes',
         link: '/guide/typescript',
       },
       {
