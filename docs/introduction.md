@@ -76,15 +76,19 @@ build({
 
 ## Setup
 
-After adding this plugin, **start the dev server** (usually `npm run dev`) **to generate the first version of the types** at `typed-router.d.ts` which should be added to your `tsconfig.json`. This is what it should look like:
+After adding this plugin, **start the dev server** (usually `npm run dev`) **to generate the first version of the types** at `typed-router.d.ts` which should be added to your `tsconfig.json` along with `unplugin-vue-router/client` to `types`. This is what it should look like:
 
 ::: code-group
 
-```json [tsconfig.json]
+```json{4,8} [tsconfig.json]
 {
   "include": [
     // other files...
     "./typed-router.d.ts"
+  ],
+  "types": [
+    // other types...
+    "unplugin-vue-router/client"
   ]
   // other options...
 }

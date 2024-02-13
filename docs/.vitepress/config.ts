@@ -12,7 +12,46 @@ import {
 
 export default defineConfig({
   markdown: {
-    codeTransformers: [transformerTwoslash()],
+    codeTransformers: [
+      transformerTwoslash({
+        twoslashOptions: {
+          extraFiles: {
+            'typed-router.d.ts': `
+declare module 'vue-router/auto-routes' {
+  import type {
+    RouteRecordInfo,
+    ParamValue,
+    ParamValueOneOrMore,
+    ParamValueZeroOrMore,
+    ParamValueZeroOrOne,
+  } from 'unplugin-vue-router/types'
+  export interface RouteNamedMap {
+    '/': RouteRecordInfo<'/', '/', Record<never, never>, Record<never, never>>
+    '/users': RouteRecordInfo<
+      '/users',
+      '/users',
+      Record<never, never>,
+      Record<never, never>
+    >
+    '/users/[id]': RouteRecordInfo<
+      '/users/[id]',
+      '/users/:id',
+      { id: ParamValue<true> },
+      { id: ParamValue<false> }
+    >
+    '/users/[id]/edit': RouteRecordInfo<
+      '/users/[id]/edit',
+      '/users/:id/edit',
+      { id: ParamValue<true> },
+      { id: ParamValue<false> }
+    >
+  }
+}
+`,
+          },
+        },
+      }),
+    ],
   },
 
   title: headTitle,
@@ -153,6 +192,10 @@ function sidebarGuide(): SidebarGroup {
       {
         text: 'Typed Routes',
         link: '/guide/typescript',
+      },
+      {
+        text: 'Extending Routes',
+        link: '/guide/extending-routes',
       },
       {
         text: 'ESlint',
