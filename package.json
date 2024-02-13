@@ -160,7 +160,7 @@
   },
   "devDependencies": {
     "@pinia/colada": "^0.4.3",
-    "@shikijs/vitepress-twoslash": "1.1.1",
+    "@shikijs/vitepress-twoslash": "1.1.2",
     "@tanstack/vue-query": "^5.20.1",
     "@types/node": "^20.11.17",
     "@vitest/coverage-v8": "^1.2.2",
@@ -191,17 +191,12 @@
     "vite": "^5.1.1",
     "vitepress": "1.0.0-rc.42",
     "vitest": "^1.2.2",
-    "vue": "^3.4.18",
+    "vue": "^3.4.19",
     "vue-router": "4.3.0-alpha.1",
     "vue-router-mock": "^1.1.0",
     "vue-tsc": "^1.8.27",
     "vuefire": "^3.1.22",
     "webpack": "^5.90.1",
     "yorkie": "^2.0.0"
-  },
-  "pnpm": {
-    "patchedDependencies": {
-      "twoslash@0.2.1": "patches/twoslash@0.2.1.patch"
-    }
   }
 }

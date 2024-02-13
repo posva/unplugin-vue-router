@@ -20,41 +20,10 @@ You can commit the newly added `.d.ts` files to your repository to make your lif
 :::
 
 ```ts twoslash
-// @filename: env.d.ts
-declare module 'vue-router/auto-routes' {
-  import type {
-    RouteRecordInfo,
-    ParamValue,
-    ParamValueOneOrMore,
-    ParamValueZeroOrMore,
-    ParamValueZeroOrOne,
-  } from 'unplugin-vue-router/types'
-  export interface RouteNamedMap {
-    '/': RouteRecordInfo<'/', '/', Record<never, never>, Record<never, never>>
-    '/users': RouteRecordInfo<
-      '/users',
-      '/users',
-      Record<never, never>,
-      Record<never, never>
-    >
-    '/users/[id]': RouteRecordInfo<
-      '/users/[id]',
-      '/users/:id',
-      { id: ParamValue<true> },
-      { id: ParamValue<false> }
-    >
-    '/users/[id]/edit': RouteRecordInfo<
-      '/users/[id]/edit',
-      '/users/:id/edit',
-      { id: ParamValue<true> },
-      { id: ParamValue<false> }
-    >
-  }
-}
-// @filename: index.ts
+// ---cut-start---
 import 'unplugin-vue-router/client'
-import './env.d'
-// ---cut---
+import './typed-router.d'
+// ---cut-end---
 // @errors: 2322 2339
 // @moduleResolution: bundler
 import { useRouter, useRoute } from 'vue-router/auto'
@@ -126,13 +95,19 @@ This type is also the return type of `router.resolve()`.
 You have the same equivalents for `RouteLocation`, `RouteLocationNormalized`, and `RouteLocationNormalizedLoaded`. All of them exist in `vue-router` but `vue-router/auto` override them to provide a type safe version of them. In addition to that, you can pass the name of the route as a generic:
 
 ```ts twoslash
+// ---cut-start---
 import 'unplugin-vue-router/client'
-import { type RouteLocationNormalizedLoaded, useRoute } from 'vue-router/auto'
-// ---cut---
+import './typed-router.d'
+import { useRoute, type RouteLocationNormalizedLoaded } from 'vue-router/auto'
+// ---cut-end---
+// @errors: 2322 2339
 // @moduleResolution: bundler
 // these are all valid
-let userWithId: RouteLocationNormalizedLoaded<'/users/[id]'> = useRoute()
+let userWithId = useRoute() as RouteLocationNormalizedLoaded<'/users/[id]'>
 userWithId = useRoute<'/users/[id]'>()
 // 👇 this one is the easiest to write because it autocompletes
 userWithId = useRoute('/users/[id]')
+
+userWithId.params
+//         ^?
 ```
