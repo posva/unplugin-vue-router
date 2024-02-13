@@ -1,7 +1,7 @@
 {
   "prettier.enable": true,
+  "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.preferences.autoImportFileExcludePatterns": [
-    "vue-router",
+    "vue-router$",
   ],
-  "typescript.tsdk": "node_modules/typescript/lib"
 }

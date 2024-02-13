@@ -1,8 +1,8 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import {
-  createWebHistory,
   createRouter,
+  createWebHistory,
   DataLoaderPlugin,
 } from 'vue-router/auto'
 import { VueQueryPlugin } from '@tanstack/vue-query'
