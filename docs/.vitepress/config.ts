@@ -126,8 +126,8 @@ function sidebarGettingStarted(): SidebarGroup {
     collapsed: false,
     items: [
       {
-        text: 'Quick Start',
-        link: '/quick-start',
+        text: 'Introduction',
+        link: '/introduction',
       },
       {
         text: 'Why?',

@@ -10,7 +10,7 @@ hero:
   actions:
     - theme: brand
       text: Get Started
-      link: /quick-start
+      link: /introduction
     # - theme: alt
     #   text: Demo
     #   link: https://stackblitz.com/github/posva/unplugin-vue-router-example
