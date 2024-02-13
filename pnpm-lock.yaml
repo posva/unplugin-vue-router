@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  twoslash@0.2.1:
+    hash: vkiav6pmb63ovvxaekbw3bkwzi
+    path: patches/twoslash@0.2.1.patch
+
 importers:
 
   .:
@@ -2563,7 +2568,7 @@ packages:
     resolution: {integrity: sha512-v9qhwJSeelA55+Z5e72331rvXNavqabP0jqgKNmUQkiAvEGo7upJaq/TDXcnMyC8NDqPq2fuU6xoHItzDj+Rcw==}
     dependencies:
       '@shikijs/core': 1.1.1
-      twoslash: 0.2.1(typescript@5.3.3)
+      twoslash: 0.2.1(patch_hash=vkiav6pmb63ovvxaekbw3bkwzi)(typescript@5.3.3)
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -2578,7 +2583,7 @@ packages:
       mdast-util-gfm: 3.0.0
       mdast-util-to-hast: 13.1.0
       shiki: 1.1.1
-      twoslash: 0.2.1(typescript@5.3.3)
+      twoslash: 0.2.1(patch_hash=vkiav6pmb63ovvxaekbw3bkwzi)(typescript@5.3.3)
       twoslash-vue: 0.2.1(typescript@5.3.3)
       vue: 3.4.18(typescript@5.3.3)
     transitivePeerDependencies:
@@ -9221,14 +9226,14 @@ packages:
       typescript: '*'
     dependencies:
       '@vue/language-core': 1.8.27(typescript@5.3.3)
-      twoslash: 0.2.1(typescript@5.3.3)
+      twoslash: 0.2.1(patch_hash=vkiav6pmb63ovvxaekbw3bkwzi)(typescript@5.3.3)
       twoslash-protocol: 0.2.1
       typescript: 5.3.3
     transitivePeerDependencies:
       - supports-color
     dev: true
 
-  /twoslash@0.2.1(typescript@5.3.3):
+  /twoslash@0.2.1(patch_hash=vkiav6pmb63ovvxaekbw3bkwzi)(typescript@5.3.3):
     resolution: {integrity: sha512-V8J0OGo9gj5pZ2UlZvIYlr71PThc/eYEfK/UnnrhysUpEtzhdMC102ucm3C43RHXdUMLYBccwILiOGl87zswDA==}
     peerDependencies:
       typescript: '*'
@@ -9239,6 +9244,7 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
+    patched: true
 
   /type-detect@4.0.8:
     resolution: {integrity: sha512-0fr/mIH1dlO+x7TlcMy+bIDqKPsw/70tVyeHW787goQjhmqaZe10uwLujubK9q9Lg6Fiho1KUKDYz0Z7k7g5/g==}

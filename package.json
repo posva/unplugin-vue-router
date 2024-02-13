@@ -198,5 +198,10 @@
     "vuefire": "^3.1.22",
     "webpack": "^5.90.1",
     "yorkie": "^2.0.0"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "twoslash@0.2.1": "patches/twoslash@0.2.1.patch"
+    }
   }
 }
