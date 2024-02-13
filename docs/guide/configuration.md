@@ -2,7 +2,14 @@
 
 Have a glimpse of all the existing configuration options with their corresponding **default values**:
 
-```ts
+```ts twoslash
+import VueRouter from 'unplugin-vue-router/vite'
+import type { TreeNode } from 'unplugin-vue-router/types'
+const myOwnGenerateRouteName = (routeNode: TreeNode) => {
+  return 'ok'
+}
+// ---cut---
+// @moduleResolution: bundler
 VueRouter({
   // Folder(s) to scan for vue components and generate routes. Can be a string, or
   // an object, or an array of those. Each option allows to override global options.

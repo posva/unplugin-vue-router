@@ -84,13 +84,6 @@ export interface ResolvedOptions {
    */
   extensions: string[]
 
-  /**
-   * Folder containing the components that should be used for routes. Can also be an array if you want to add multiple
-   * folders, or an object if you want to define a route prefix. Supports glob patterns but must be a folder, use
-   * `extensions` and `exclude` to filter files.
-   *
-   * @default "src/pages"
-   */
   routesFolder: RoutesFolderOption[]
 
   /**
@@ -189,6 +182,13 @@ export type _OptionsImportMode =
  */
 export interface Options
   extends Partial<Omit<ResolvedOptions, 'routesFolder'>> {
+  /**
+   * Folder containing the components that should be used for routes. Can also be an array if you want to add multiple
+   * folders, or an object if you want to define a route prefix. Supports glob patterns but must be a folder, use
+   * `extensions` and `exclude` to filter files.
+   *
+   * @default "src/pages"
+   */
   routesFolder?: RoutesFolder
 }
 
