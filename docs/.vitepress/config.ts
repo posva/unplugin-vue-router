@@ -1,15 +1,12 @@
 import { DefaultTheme, defineConfig } from 'vitepress'
 import { transformerTwoslash } from '@shikijs/vitepress-twoslash'
-import { version } from '../package.json'
+import { version } from '../../package.json'
 import {
   headTitle,
   headDescription,
-  ogUrl,
-  ogImage,
   twitter,
   github,
   releases,
-  contributing,
   discord,
 } from './meta'
 
@@ -50,10 +47,18 @@ export default defineConfig({
     ],
     ['meta', { property: 'og:title', content: headTitle }],
     ['meta', { property: 'og:description', content: headDescription }],
-    ['meta', { property: 'og:url', content: ogUrl }],
-    ['meta', { property: 'og:image', content: ogImage }],
     ['meta', { name: 'twitter:title', content: headTitle }],
     ['meta', { name: 'twitter:description', content: headDescription }],
+
+    [
+      'script',
+      {
+        src: 'https://cdn.usefathom.com/script.js',
+        'data-site': 'SAIIHJKJ',
+        'data-spa': 'auto',
+        defer: '',
+      },
+    ],
   ],
 
   themeConfig: {
@@ -138,12 +143,24 @@ function sidebarGuide(): SidebarGroup {
     text: 'Guide',
     items: [
       {
+        text: 'Configuration',
+        link: '/guide/configuration',
+      },
+      {
         text: 'File-based Routing',
         link: '/guide/file-based-routing',
       },
       {
         text: 'Typed routes',
         link: '/guide/typed-routes',
+      },
+      {
+        text: 'TypeScript',
+        link: '/guide/typescript',
+      },
+      {
+        text: 'ESlint',
+        link: '/guide/eslint',
       },
     ],
   }

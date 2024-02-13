@@ -4,10 +4,6 @@
 export const headTitle = 'Unplugin Vue Router'
 export const headDescription = 'Typed file-based routing for Vue Router'
 
-/* vitepress head */
-export const ogUrl = 'https://vuefire.vuejs.org/'
-export const ogImage = `${ogUrl}og.png`
-
 /* GitHub and social links */
 export const github = 'https://github.com/posva/unplugin-vue-router'
 export const releases = 'https://github.com/posva/unplugin-vue-router/releases'
