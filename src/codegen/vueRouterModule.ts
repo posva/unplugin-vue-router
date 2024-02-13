@@ -19,8 +19,7 @@ export {
   _stopDataFetchingScope as stopDataFetchingScope,
 
   _defineBasicLoader as defineBasicLoader,
-  // FIXME: remove in next major
-  _definePage as definePage,
+  definePage,
 
   // new data fetching
   _setupLoaderGuard as setupLoaderGuard,

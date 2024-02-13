@@ -185,7 +185,7 @@ export const VueRouterAutoImports: Record<
     // 'definePage',
   ],
   'unplugin-vue-router/runtime': [
-    ['_definePage', 'definePage'],
+    ['definePage', 'definePage'],
     // FIXME: remove after deprecation
     ['_defineLoader', 'defineLoader'],
   ],

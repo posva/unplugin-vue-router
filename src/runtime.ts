@@ -30,8 +30,15 @@ export * from './data-fetching_new/defineColadaLoader'
  * Defines properties of the route for the current page component.
  *
  * @param route - route information to be added to this page
+ * @deprecated - use `definePage` instead
  */
 export const _definePage = (route: DefinePage) => route
+/**
+ * Defines properties of the route for the current page component.
+ *
+ * @param route - route information to be added to this page
+ */
+export const definePage = (route: DefinePage) => route
 
 /**
  * Merges route records.

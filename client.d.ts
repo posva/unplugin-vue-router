@@ -1,4 +1,5 @@
 import 'vue-router'
+import 'unplugin-vue-router/runtime'
 export {}
 
 declare module 'vue-router/auto-routes' {
@@ -102,7 +103,7 @@ declare module 'vue-router/auto' {
 
   // Experimental Data Fetching
   export {
-    _definePage as definePage,
+    definePage,
     DataLoaderPlugin,
     _setupLoaderGuard as setupLoaderGuard,
     _defineBasicLoader as defineBasicLoader,
