@@ -152,8 +152,8 @@ export interface DefineDataLoaderOptionsBase<isLazy extends boolean> {
   lazy?: isLazy
 
   /**
-   * Whether this loader should be called on the server side or not. Combined with the `lazy` option, this can be useful
-   * when the data is not needed on the first render.
+   * Whether this loader should be awaited on the server side or not. Combined with the `lazy` option, this gives full
+   * control over how to await for the data.
    *
    * @defaultValue `true`
    */
