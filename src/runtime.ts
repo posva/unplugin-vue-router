@@ -14,8 +14,9 @@ export {
 export { stopScope as _stopDataFetchingScope } from './data-fetching/dataCache'
 
 // new data fetching
-export { defineBasicLoader as _defineBasicLoader } from './data-fetching_new/defineLoader'
+export { defineBasicLoader } from './data-fetching_new/defineLoader'
 export {
+  // TODO: remove in favor of the plugin
   setupLoaderGuard as _setupLoaderGuard,
   DataLoaderPlugin,
   NavigationResult,
@@ -23,8 +24,8 @@ export {
 export type { DataLoaderPluginOptions } from './data-fetching_new/navigation-guard'
 
 // NOTE: for tests only
-export * from './data-fetching_new/defineQueryLoader'
-export * from './data-fetching_new/defineColadaLoader'
+// export * from './data-fetching_new/defineQueryLoader'
+export { defineColadaLoader } from './data-fetching_new/defineColadaLoader'
 
 /**
  * Defines properties of the route for the current page component.

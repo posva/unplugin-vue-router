@@ -18,7 +18,7 @@ export {
   _setupDataFetchingGuard as setupDataFetchingGuard,
   _stopDataFetchingScope as stopDataFetchingScope,
 
-  _defineBasicLoader as defineBasicLoader,
+  defineBasicLoader,
   definePage,
 
   // new data fetching
