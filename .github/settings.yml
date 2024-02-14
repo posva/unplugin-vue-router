@@ -1,3 +1,6 @@
+repository:
+  homepage: https://uvr.esm.is
+  description: Next Generation file based typed routing for Vue Router
 labels:
   - name: 🐞 bug
     color: ee0701
