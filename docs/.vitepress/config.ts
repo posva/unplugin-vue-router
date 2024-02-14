@@ -151,6 +151,7 @@ declare module 'vue-router/auto-routes' {
         //
         sidebarGettingStarted(),
         sidebarGuide(),
+        sidebarRFC(),
         sidebarNuxt(),
       ],
     },
@@ -213,6 +214,27 @@ function sidebarNuxt(): SidebarGroup {
       {
         text: 'Getting Started',
         link: '/nuxt/getting-started',
+      },
+    ],
+  }
+}
+
+function sidebarRFC(): SidebarGroup {
+  return {
+    collapsed: false,
+    text: 'RFC',
+    items: [
+      {
+        text: 'Data Loaders',
+        link: '/rfcs/data-loaders/',
+      },
+      {
+        text: 'Pinia Colada loader',
+        link: '/rfcs/data-loaders/colada',
+      },
+      {
+        text: 'Basic Loader',
+        link: '/rfcs/data-loaders/basic',
       },
     ],
   }

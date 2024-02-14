@@ -11,9 +11,9 @@ hero:
     - theme: brand
       text: Get Started
       link: /introduction
-    # - theme: alt
-    #   text: Demo
-    #   link: https://stackblitz.com/github/posva/unplugin-vue-router-example
+    - theme: alt
+      text: Data Loaders RFC
+      link: /rfcs/data-loaders/
 
 features:
   - title: Type Safe
