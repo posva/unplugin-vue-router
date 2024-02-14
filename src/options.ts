@@ -34,6 +34,11 @@ export interface RoutesFolderOption {
    *     return file.slice(file.lastIndexOf(prefix) + prefix.length + 1).replace('/pages', '')
    *   },
    * },
+   * {
+   *   src: 'src/docs',
+   *   // adds a prefix with a param
+   *   path: 'docs/[lang]/',
+   * },
    * ```
    *
    */
