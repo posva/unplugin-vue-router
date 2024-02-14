@@ -18,12 +18,11 @@ export {
   _setupDataFetchingGuard as setupDataFetchingGuard,
   _stopDataFetchingScope as stopDataFetchingScope,
 
-  defineBasicLoader,
   definePage,
 
   // new data fetching
-  _setupLoaderGuard as setupLoaderGuard,
   DataLoaderPlugin,
+  defineBasicLoader,
 } from 'unplugin-vue-router/runtime'
 
 export function createRouter(options) {

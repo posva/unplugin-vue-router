@@ -16,8 +16,6 @@ export { stopScope as _stopDataFetchingScope } from './data-fetching/dataCache'
 // new data fetching
 export { defineBasicLoader } from './data-fetching_new/defineLoader'
 export {
-  // TODO: remove in favor of the plugin
-  setupLoaderGuard as _setupLoaderGuard,
   DataLoaderPlugin,
   NavigationResult,
 } from './data-fetching_new/navigation-guard'

@@ -3,6 +3,8 @@ import { defineComponent } from 'vue'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import { defineBasicLoader } from './defineLoader'
 
+// TODO: transform into a test-d file
+
 describe('meta-extensions', () => {
   it('has tds', () => {})
 })

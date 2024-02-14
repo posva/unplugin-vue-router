@@ -129,7 +129,7 @@ By default, **data loaders block the navigation**, meaning they _just work_ with
 The simplest of data loaders can be defined in just one line and types will be automatically inferred:
 
 ```ts twoslash
-import { _defineBasicLoader as defineLoader } from 'unplugin-vue-router/runtime'
+import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/runtime'
 interface Book {
   title: string
   isbn: string
@@ -227,19 +227,15 @@ const app = createApp(App)
 app.use(DataLoaderPlugin, { router })
 ```
 
-### `setupLoaderGuard()`
+### The Plugin
 
-`setupLoaderGuard()` setups a navigation guard that handles all the loaders. It has a few options
-
-#### `app`
-
-The Vue app instance created with `createApp()`
+`DataLoaderPlugin` adds the navigation guard that handles the data loaders. It requires access to the router instance to attach the navigation guard as wel as some other options
 
 #### `router`
 
 The Vue Router instance.
 
-#### `selectNavigationResult`
+#### `selectNavigationResult` (optional)
 
 Called wih an array of `NavigationResult` returned by loaders. It allows to decide the _fate_ of the navigation.
 

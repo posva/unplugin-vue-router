@@ -150,15 +150,7 @@ export { EditableTreeNode } from './core/extendRoutes'
  */
 export const VueRouterExports: Array<
   string | [importName: string, alias: string]
-> = [
-  'useRoute',
-  'useRouter',
-  'defineBasicLoader',
-  'onBeforeRouteUpdate',
-  'onBeforeRouteLeave',
-  // NOTE: the typing seems broken locally, so instead we export it directly from unplugin-vue-router/runtime
-  // 'definePage',
-]
+> = ['useRoute', 'useRouter', 'onBeforeRouteUpdate', 'onBeforeRouteLeave']
 
 /**
  * Adds useful auto imports to the AutoImport config:
@@ -178,14 +170,13 @@ export const VueRouterAutoImports: Record<
   'vue-router/auto': [
     'useRoute',
     'useRouter',
-    'defineBasicLoader',
     'onBeforeRouteUpdate',
     'onBeforeRouteLeave',
     // NOTE: the typing seems broken locally, so instead we export it directly from unplugin-vue-router/runtime
     // 'definePage',
   ],
   'unplugin-vue-router/runtime': [
-    ['definePage', 'definePage'],
+    'definePage',
     // FIXME: remove after deprecation
     ['_defineLoader', 'defineLoader'],
   ],
