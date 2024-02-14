@@ -82,9 +82,9 @@ export default defineConfig({
         },
         {
           src: 'src/docs',
-          path: 'docs/:lang/',
+          path: 'docs/[lang]/',
           // doesn't take into account files directly at src/docs, only subfolders
-          filePatterns: ['*/**/*'],
+          filePatterns: ['*/**'],
           // ignores .vue files
           extensions: ['.md'],
         },

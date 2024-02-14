@@ -36,7 +36,7 @@ declare module 'vue-router/auto-routes' {
     'deep the most rebel': RouteRecordInfo<'deep the most rebel', '/deep-most-rebel', Record<never, never>, Record<never, never>>,
     '/deep/nesting/works/custom-path': RouteRecordInfo<'/deep/nesting/works/custom-path', '/deep-surprise-:id(\d+)', Record<never, never>, Record<never, never>>,
     'deep a rebel': RouteRecordInfo<'deep a rebel', '/deep/nesting/works/custom-name', Record<never, never>, Record<never, never>>,
-    '/docs/:lang/real/': RouteRecordInfo<'/docs/:lang/real/', '/docs/:lang/real', Record<never, never>, Record<never, never>>,
+    '/docs/[lang]/real/': RouteRecordInfo<'/docs/[lang]/real/', '/docs/:lang/real', { lang: ParamValue<true> }, { lang: ParamValue<false> }>,
     '/feature-1/': RouteRecordInfo<'/feature-1/', '/feature-1', Record<never, never>, Record<never, never>>,
     '/feature-1/about': RouteRecordInfo<'/feature-1/about', '/feature-1/about', Record<never, never>, Record<never, never>>,
     '/feature-2/': RouteRecordInfo<'/feature-2/', '/feature-2', Record<never, never>, Record<never, never>>,

@@ -184,7 +184,7 @@ const getIdentifiers = (stmts: Statement[]) => {
       body: stmts,
       directives: [],
       sourceType: 'module',
-      sourceFile: '',
+      // sourceFile: '',
     },
     {
       enter(node) {

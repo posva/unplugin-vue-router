@@ -21,6 +21,8 @@ export function generateRouteParams(node: TreeNode, isRaw: boolean): string {
       'Record<never, never>'
 }
 
+// TODO: refactor to ParamValueRaw and ParamValue ?
+
 /**
  * Utility type for raw and non raw params like :id+
  *
