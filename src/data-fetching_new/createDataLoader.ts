@@ -1,5 +1,5 @@
 import { TypeEqual, expectType } from 'ts-expect'
-import { Ref, ShallowRef, UnwrapRef, effectScope, ref } from 'vue'
+import { type ShallowRef, effectScope, shallowRef } from 'vue'
 import { IS_USE_DATA_LOADER_KEY, STAGED_NO_VALUE } from './meta-extensions'
 import { _Awaitable } from '../core/utils'
 import { _PromiseMerged } from './utils'
@@ -14,12 +14,10 @@ export interface DataLoaderEntryBase<
   isLazy extends boolean = boolean,
   Data = unknown
 > {
-  // state
-
   /**
    * Data stored in the entry.
    */
-  data: Ref<_DataMaybeLazy<Data, isLazy>>
+  data: ShallowRef<_DataMaybeLazy<Data, isLazy>>
 
   /**
    * Error if there was an error.
@@ -29,7 +27,7 @@ export interface DataLoaderEntryBase<
   /**
    * Whether there is an ongoing request.
    */
-  isLoading: Ref<boolean>
+  isLoading: ShallowRef<boolean>
 
   options: DefineDataLoaderOptionsBase<isLazy>
 
@@ -54,6 +52,10 @@ export interface DataLoaderEntryBase<
    */
   staged: Data | typeof STAGED_NO_VALUE
 
+  /**
+   * Error that was staged by a loader. This is used to avoid showing the old error while the new data is loading.
+   * Calling the internal `commit()` function will replace the error with the staged error.
+   */
   stagedError: any | null
 
   // entry instance
@@ -77,10 +79,10 @@ export function createDataLoader<Context extends DataLoaderContextBase>({
 }: CreateDataLoaderOptions<Context>): DefineDataLoader<Context> {
   const defineLoader: DefineDataLoader<Context> = (dataLoader, options) => {
     const { isLoading, error, data } = effectScope(true).run(() => ({
-      isLoading: ref(false),
+      isLoading: shallowRef(false),
       // TODO: allow generic for error type
-      error: ref<unknown | null>(null),
-      data: ref<unknown | undefined>(),
+      error: shallowRef<unknown | null>(null),
+      data: shallowRef<unknown | undefined>(),
     }))!
 
     const useDataLoader: UseDataLoader<boolean, unknown> = (() => {
@@ -282,17 +284,12 @@ export interface UseDataLoaderResult<
   /**
    * Data returned by the loader. If the data loader is lazy, it will be undefined until the first load.
    */
-  data: Ref<UnwrapRef<_DataMaybeLazy<Data, isLazy>>>
+  data: ShallowRef<_DataMaybeLazy<Data, isLazy>>
 
   /**
    * Whether there is an ongoing request.
    */
-  isLoading: Ref<boolean>
-
-  /**
-   * Whether the loader is running or not. TODO: change pending to this and make pending wait until commit is called
-   */
-  // fetching: Ref<boolean>
+  isLoading: ShallowRef<boolean>
 
   /**
    * Error if there was an error.

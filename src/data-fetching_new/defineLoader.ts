@@ -23,7 +23,7 @@ import {
   STAGED_NO_VALUE,
 } from './meta-extensions'
 import { IS_CLIENT, getCurrentContext, setCurrentContext } from './utils'
-import { Ref, ref, shallowRef } from 'vue'
+import { shallowRef } from 'vue'
 import { NavigationResult } from './navigation-guard'
 
 /**
@@ -90,8 +90,8 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
     if (!entries.has(loader)) {
       entries.set(loader, {
         // force the type to match
-        data: ref() as Ref<_DataMaybeLazy<Data, isLazy>>,
-        isLoading: ref(false),
+        data: shallowRef<_DataMaybeLazy<Data, isLazy>>(),
+        isLoading: shallowRef(false),
         error: shallowRef<any>(),
 
         options,

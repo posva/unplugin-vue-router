@@ -31,7 +31,7 @@ import {
   setCurrentContext,
   trackRoute,
 } from './utils'
-import { Ref, ShallowRef, ref, shallowRef, watch } from 'vue'
+import { type ShallowRef, shallowRef, watch } from 'vue'
 import { NavigationResult } from './navigation-guard'
 import {
   UseQueryKey,
@@ -100,8 +100,8 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       const route = shallowRef<_RouteLocationNormalizedLoaded>(to)
       entries.set(loader, {
         // force the type to match
-        data: ref() as Ref<_DataMaybeLazy<Data, isLazy>>,
-        isLoading: ref(false),
+        data: shallowRef<_DataMaybeLazy<Data, isLazy>>(),
+        isLoading: shallowRef(false),
         error: shallowRef<any>(),
 
         options,
