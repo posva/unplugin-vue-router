@@ -1,17 +1,5 @@
 import { type RouteRecordRaw } from 'vue-router'
-import { _Router } from './type-extensions/router'
-
-// FIXME: remove in next major
-export { defineLoader as _defineLoader } from './data-fetching/defineLoader'
-export type {
-  DefineLoaderOptions,
-  DataLoader,
-} from './data-fetching/defineLoader'
-export {
-  setupDataFetchingGuard as _setupDataFetchingGuard,
-  HasDataLoaderMeta as _HasDataLoaderMeta,
-} from './data-fetching/dataFetchingGuard'
-export { stopScope as _stopDataFetchingScope } from './data-fetching/dataCache'
+import { type _Router } from './type-extensions/router'
 
 // new data fetching
 export { defineBasicLoader } from './data-fetching_new/defineLoader'

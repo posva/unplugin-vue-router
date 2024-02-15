@@ -13,16 +13,12 @@ import { createRouter as _createRouter } from 'vue-router'
 
 export * from 'vue-router'
 export {
-  // NOTE: deprecated
-  _HasDataLoaderMeta as HasDataLoaderMeta,
-  _setupDataFetchingGuard as setupDataFetchingGuard,
-  _stopDataFetchingScope as stopDataFetchingScope,
-
   definePage,
-
   // new data fetching
   DataLoaderPlugin,
   defineBasicLoader,
+  defineColadaLoader,
+  NavigationResult,
 } from 'unplugin-vue-router/runtime'
 
 export function createRouter(options) {

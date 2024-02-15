@@ -47,11 +47,6 @@ class _TreeNodeValueBase {
   // TODO: cache the overrides generation
 
   /**
-   * Should we add the loader guard to the route record.
-   */
-  includeLoaderGuard: boolean = false
-
-  /**
    * View name (Vue Router feature) mapped to their corresponding file. By default, the view name is `default` unless
    * specified with a `@` e.g. `index@aux.vue` will have a view name of `aux`.
    */

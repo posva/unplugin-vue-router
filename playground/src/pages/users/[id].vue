@@ -1,20 +1,20 @@
 <script lang="ts">
+import { defineColadaLoader } from 'unplugin-vue-router/runtime'
 export const myExport = 'OUTSIDE SETUP TEST'
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-export const useOldData = defineLoader(
-  '/users/[id]',
-  async (route) => {
-    console.log('useOldData', route)
+export const useOldData = defineColadaLoader('/users/[id]', {
+  async query(route) {
     return {
       when: new Date(),
       // if the id is not used, this data is cached forever
       id: route.params.id,
     }
   },
-  { key: 'old-user-id', cacheTime: 5000 }
-)
+  key: (to) => ['user-id', to.params.id],
+  staleTime: 5000,
+})
 
 // NOTE: it's a bit different from the one in /[name].vue
 export const useUserData = defineBasicLoader(

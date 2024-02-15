@@ -2,6 +2,14 @@
 
 Loaders that use [@pinia/colada](https://github.com/posva/pinia-colada) under the hood. These loaders provide a more efficient way to have asynchronous state with cache, ssr support and more.
 
+The key used in these loaders are directly passed to `useQuery()` from `@pinia/colada` and are therefore invalidated by `useMutation()` calls.
+
+## Setup
+
+Follow the instructions in [@pinia/colada](https://github.com/posva/pinia-colada).
+
+## Example
+
 ```vue
 <script lang="ts">
 import { defineColadaLoader } from 'unplugin-vue-router/runtime'
@@ -76,7 +84,7 @@ export const useUserData = defineColadaLoader('/users/[id]', {
 
 ## Refresh by default
 
-To avoid unnecesarry frequent refreshes, Pinia Colada refreshes the data when navigating (instead of _refetching_). Change the `staleTime` option to control how often the data should be refreshed, e.g. setting it to 0 will refresh the data every time the route changes.
+To avoid unnecessary frequent refreshes, Pinia Colada refreshes the data when navigating (instead of _refetching_). Change the `staleTime` option to control how often the data should be refreshed, e.g. setting it to 0 will refresh the data every time the route changes.
 
 ## Route tracking
 

@@ -101,13 +101,12 @@ declare module 'vue-router/auto' {
     options: _RouterOptions
   ): _RouterTyped<RouteNamedMap>
 
-  // Experimental Data Fetching
   export {
+    // Experimental Data Fetching
     definePage,
     DataLoaderPlugin,
-    // FIXME: remove these in next major
-    _HasDataLoaderMeta as HasDataLoaderMeta,
-    _setupDataFetchingGuard as setupDataFetchingGuard,
-    _stopDataFetchingScope as stopDataFetchingScope,
+    defineBasicLoader,
+    defineColadaLoader,
+    NavigationResult,
   } from 'unplugin-vue-router/runtime'
 }

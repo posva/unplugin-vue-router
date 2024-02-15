@@ -219,13 +219,9 @@ export class TreeNode {
    * Returns the meta property as an object.
    */
   get metaAsObject(): Readonly<RouteMeta> {
-    const meta = {
+    return {
       ...this.value.overrides.meta,
     }
-    if (this.value.includeLoaderGuard) {
-      meta._loaderGuard = true
-    }
-    return meta
   }
 
   /**

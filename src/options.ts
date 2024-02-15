@@ -132,13 +132,6 @@ export interface ResolvedOptions {
    */
   beforeWriteFiles?: (rootRoute: EditableTreeNode) => _Awaitable<void>
 
-  // TODO: remove as it's not longer needed
-  /**
-   * Enables EXPERIMENTAL data fetching. See https://github.com/posva/unplugin-vue-router/tree/main/src/data-fetching
-   * @experimental
-   */
-  dataFetching: boolean
-
   /**
    * Defines how page components should be imported. Defaults to dynamic imports to enable lazy loading of pages.
    */
@@ -207,7 +200,6 @@ export const DEFAULT_OPTIONS: ResolvedOptions = {
   filePatterns: '**/*',
   routeBlockLang: 'json5',
   getRouteName: getFileBasedRouteName,
-  dataFetching: false,
   importMode: 'async',
   root: process.cwd(),
   dts: isPackageExists('typescript'),

@@ -1,1 +1,7 @@
 # `defineBasicLoader()`
+
+## Setup
+
+## Example
+
+## SSR

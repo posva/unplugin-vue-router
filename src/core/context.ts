@@ -22,7 +22,6 @@ import {
 } from './RoutesFolderWatcher'
 import { generateDTS as _generateDTS } from '../codegen/generateDTS'
 import { generateVueRouterProxy as _generateVueRouterProxy } from '../codegen/vueRouterModule'
-import { hasNamedExports } from '../data-fetching/parse'
 import { definePageTransform, extractDefinePageNameAndPath } from './definePage'
 import { EditableTreeNode } from './extendRoutes'
 
@@ -117,8 +116,6 @@ export function createRoutesContext(options: ResolvedOptions) {
       ...routeBlock,
       ...definedPageNameAndPath,
     })
-    node.value.includeLoaderGuard =
-      options.dataFetching && (await hasNamedExports(filePath))
   }
 
   async function addPage(
@@ -181,10 +178,6 @@ export function createRoutesContext(options: ResolvedOptions) {
       options,
       importsMap
     )}`
-
-    if (options.dataFetching) {
-      importsMap.add('unplugin-vue-router/runtime', '_HasDataLoaderMeta')
-    }
 
     // generate the list of imports
     let imports = `${importsMap}`

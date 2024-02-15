@@ -152,35 +152,13 @@ function generatePageImport(
   return importName
 }
 
-function generateImportList(node: TreeNode, indentStr: string) {
-  const files = Array.from(node.value.components)
-
-  return `[
-${files
-  .map(([_key, path]) => `${indentStr}  () => import('${path}')`)
-  .join(',\n')}
-${indentStr}]`
-}
-
-const LOADER_GUARD_RE = /['"]_loaderGuard['"]:.*$/
-
 function formatMeta(node: TreeNode, indent: string): string {
   const meta = node.meta
   const formatted =
     meta &&
     meta
       .split('\n')
-      .map(
-        // FIXME: remove after deprecated defineLoader is removed
-        (line) =>
-          indent +
-          line.replace(
-            LOADER_GUARD_RE,
-            '[_HasDataLoaderMeta]: ' +
-              generateImportList(node, indent + '  ') +
-              ','
-          )
-      )
+      .map((line) => indent + line)
       .join('\n')
 
   return formatted ? '\n' + indent + 'meta: ' + formatted.trimStart() : ''
