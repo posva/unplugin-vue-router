@@ -163,7 +163,7 @@ export interface DefineDataLoaderOptionsBase<isLazy extends boolean> {
    * When the data should be committed to the entry. This only applies to non-lazy loaders.
    *
    * @see {@link DefineDataLoaderCommit}
-   * @defaultValue `'immediate'`
+   * @defaultValue `'after-load'`
    */
   commit?: DefineDataLoaderCommit
 }

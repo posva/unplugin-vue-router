@@ -166,5 +166,5 @@ describe(
     })
   },
   // fail faster on unresolved promises
-  { timeout: 100 }
+  { timeout: 200 }
 )

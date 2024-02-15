@@ -363,7 +363,7 @@ const DEFAULT_DEFINE_QUERY_LOADER_OPTIONS: DefineQueryLoaderOptions<
 > = {
   lazy: false,
   server: true,
-  commit: 'immediate',
+  commit: 'after-load',
 
   // keepPreviousData: true,
 }

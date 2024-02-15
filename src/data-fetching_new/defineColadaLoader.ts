@@ -79,7 +79,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
   const options = {
     ...DEFAULT_DEFINE_LOADER_OPTIONS,
     ..._options,
-    commit: _options?.commit || 'immediate',
+    commit: _options?.commit || 'after-load',
   } as DefineDataLoaderOptions<isLazy, _RouteRecordName, Data>
 
   let isInitial = true
@@ -532,7 +532,7 @@ function hasRouteChanged(
 const DEFAULT_DEFINE_LOADER_OPTIONS = {
   lazy: false,
   server: true,
-  commit: 'immediate',
+  commit: 'after-load',
 } satisfies Omit<
   DefineDataLoaderOptions<boolean, _RouteRecordName, unknown>,
   'key' | 'query'

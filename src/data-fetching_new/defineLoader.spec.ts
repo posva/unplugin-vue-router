@@ -245,5 +245,7 @@ describe(
       })
     })
   },
-  { timeout: 100 }
+  // change it during dev while working on features
+  // CI might need higher timeout
+  { timeout: 200 }
 )
