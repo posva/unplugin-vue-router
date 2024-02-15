@@ -14,12 +14,6 @@ export default defineConfig({
       ignoreSourceErrors: true,
       // by default it includes all specs too
       include: ['**/*.test-d.ts'],
-      exclude: [
-        ...configDefaults.typecheck.exclude,
-        // '**/defineColadaLoader.ts',
-        // './src/data-fetching_new/defineColadaLoader.spec.ts',
-        // './src/data-fetching_new/defineVueFireLoader.*',
-      ],
       // tsconfig: './tsconfig.typecheck.json',
     },
   },

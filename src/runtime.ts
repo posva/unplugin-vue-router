@@ -2,16 +2,16 @@ import { type RouteRecordRaw } from 'vue-router'
 import { type _Router } from './type-extensions/router'
 
 // new data fetching
-export { defineBasicLoader } from './data-fetching_new/defineLoader'
+export { defineBasicLoader } from './data-fetching/defineLoader'
 export {
   DataLoaderPlugin,
   NavigationResult,
-} from './data-fetching_new/navigation-guard'
-export type { DataLoaderPluginOptions } from './data-fetching_new/navigation-guard'
+} from './data-fetching/navigation-guard'
+export type { DataLoaderPluginOptions } from './data-fetching/navigation-guard'
 
 // NOTE: for tests only
-// export * from './data-fetching_new/defineQueryLoader'
-export { defineColadaLoader } from './data-fetching_new/defineColadaLoader'
+// export * from './data-fetching/defineQueryLoader'
+export { defineColadaLoader } from './data-fetching/defineColadaLoader'
 
 /**
  * Defines properties of the route for the current page component.

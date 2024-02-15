@@ -80,12 +80,12 @@ export type {
 export type {
   DefineLoaderFn as _DefineLoaderFn,
   UseDataLoader as _UseDataLoader,
-} from './data-fetching_new/createDataLoader'
+} from './data-fetching/createDataLoader'
 export type {
   // ...
   NavigationResult,
-} from './data-fetching_new/navigation-guard'
+} from './data-fetching/navigation-guard'
 export type {
   DefineDataLoaderOptions as _DefineDataLoaderOptions,
   DataLoaderContext as _DataLoaderContext,
-} from './data-fetching_new/defineLoader'
+} from './data-fetching/defineLoader'

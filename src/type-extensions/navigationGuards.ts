@@ -15,7 +15,7 @@ import type {
 } from './routeLocation'
 import type { _Router } from './router'
 import type { RouteNamedMap, _TypesConfig } from './types-config'
-import type { _MaybePromise } from '../data-fetching_new/utils'
+import type { _MaybePromise } from '../data-fetching/utils'
 
 /**
  * Return types for a Navigation Guard. Accepts a type param for the RouteMap.
