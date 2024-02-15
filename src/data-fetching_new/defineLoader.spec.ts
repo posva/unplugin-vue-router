@@ -244,5 +244,5 @@ describe(
   },
   // change it during dev while working on features
   // CI might need higher timeout
-  { timeout: 200 }
+  { timeout: process.env.CI ? 1000 : 100 }
 )

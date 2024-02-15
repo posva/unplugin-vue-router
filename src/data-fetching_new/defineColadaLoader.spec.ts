@@ -166,5 +166,5 @@ describe(
     })
   },
   // fail faster on unresolved promises
-  { timeout: 200 }
+  { timeout: process.env.CI ? 1000 : 100 }
 )

@@ -28,6 +28,24 @@ describe('definePage', () => {
     expect(result?.code).toMatchSnapshot()
   })
 
+  it.todo('works with jsx', async () => {
+    const code = `
+    const a = 1
+    definePage({
+      name: 'custom',
+      path: '/custom',
+    })
+    const b = 1
+    `,
+      result = (await definePageTransform({
+        code,
+        id: 'src/pages/basic.vue?definePage&jsx',
+      })) as Exclude<TransformResult, string>
+    expect(result).toBeDefined()
+    expect(result).toHaveProperty('code')
+    expect(result?.code).toMatchInlineSnapshot()
+  })
+
   it('extracts name and path', async () => {
     expect(
       await extractDefinePageNameAndPath(sampleCode, 'src/pages/basic.vue')
