@@ -1,3 +1,7 @@
+---
+outline: 'deep'
+---
+
 # Data Loaders
 
 - Start Date: 2022-07-14
@@ -56,14 +60,18 @@ We define data loaders anywhere and _attach them_ to **page components** (compon
 
 Exported from a non-setup `<script>` in a page component:
 
-```vue
+```vue twoslash
 <script lang="ts">
+// ---cut-start---
+import { defineComponent } from 'vue'
+import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/runtime'
+// ---cut-end---
+// @moduleResolution: bundler
 import { getUserById } from '../api'
-import { defineLoader } from 'vue-router'
 
 // name the loader however you want **and export it**
 export const useUserData = defineLoader(async (route) => {
-  const user = await getUserById(route.params.id)
+  const user = await getUserById(route.params.id as string)
   // ...
   // return anything you want to expose
   return user
@@ -202,7 +210,7 @@ You might only be interested in the actual final implementation of the Data Load
 
 Defining a minimal set of information and options for Data Loaders is what enables external libraries to implement their own data loaders. They are meant to extend these interfaces to add more features that are specific to them. You can see a practical example with the [Pinia Colada](#pinia-colada) implementation.
 
-::: info
+::: danger
 This section is still a work in progress, see the [implementations](#implementations) instead.
 :::
 
@@ -281,7 +289,7 @@ const routes = [
 When using vue router named views, each named view can have their own loaders but note any navigation to the route will trigger **all loaders from all page components**. This is because the router doesn't know which named views wil be used.
 
 ::: tip
-Note: with [unplugin-vue-router][uvr], a named view can be declared by appending `@name` at the end of the file name:
+With [unplugin-vue-router][uvr], a named view can be declared by appending `@name` at the end of the file name:
 
 ```text
 src/pages/
@@ -344,7 +352,43 @@ const {
 
 #### `lazy`
 
+By default, loaders block the navigation. This means that the navigation is only allowed to continue once all loaders are resolved. Lazy loaders **do not block the navigation**. `data` and other properties are updated as soon as the loader resolves, even if the navigation is still ongoing.
+
+```ts twoslash
+import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/runtime'
+interface Book {
+  title: string
+  isbn: string
+  description: string
+}
+function fetchBookCollection(): Promise<Book[]> {
+  return {} as any
+}
+// ---cut---
+export const useBookCollection = defineLoader(fetchBookCollection, {
+  lazy: true,
+})
+```
+
 #### `commit`
+
+In the case of non-lazy loaders, you can choose to delay the update of the data until all loaders are resolved. This is useful to avoid displaying partially up-to-date data and inconsistent state. The default behavior is set to `after-load` and can be changed to `immediate`:
+
+```ts twoslash
+import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/runtime'
+interface Book {
+  title: string
+  isbn: string
+  description: string
+}
+function fetchBookCollection(): Promise<Book[]> {
+  return {} as any
+}
+// ---cut---
+export const useBookCollection = defineLoader(fetchBookCollection, {
+  commit: 'immediate',
+})
+```
 
 ### Implementing a custom `defineLoader()`
 
@@ -382,7 +426,7 @@ export const useUserCommonFriends = defineLoader(async (route) => {
 You will notice here that we have two different usages for `useUserData()`:
 
 - One that returns all the necessary information we need _synchronously_ (not used here). This is the composable that we use in components
-- A second version that **only returns a promise of the data**. This is the version used within data loaders
+- A second version that **only returns a promise of the data**. This is the version used within data loaders that enables sequential fetching.
 
 // TODO: only applicable to specific loaders and must be implemented
 // this means there needs to be a way to refer to parent loaders
@@ -585,15 +629,21 @@ In such scenarios, moving the data loader to a separate file allows to better co
 
 Types are automatically generated for the routes by [unplugin-vue-router][uvr] and can be referenced with the name of each route to hint `defineLoader()` the possible values of the current types:
 
-```vue
+```vue twoslash
 <script lang="ts">
+// ---cut-start---
+import 'unplugin-vue-router/client'
+import './typed-router.d'
+import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/runtime'
+// ---cut-end---
 import { getUserById } from '../api'
-import { defineLoader } from 'vue-router'
 
 export const useUserData = defineLoader('/users/[id]', async (route) => {
-  //                                     ^ autocompleted by unplugin-vue-router ✨
+  //                                              ^|
+
+  //
   const user = await getUserById(route.params.id)
-  //                                          ^ typed!
+  //                                          ^|
   // ...
   return user
 })
@@ -601,6 +651,8 @@ export const useUserData = defineLoader('/users/[id]', async (route) => {
 
 <script lang="ts" setup>
 const { data: user, isLoading, error } = useUserData()
+//            ^?
+//            👆 hover or tap
 </script>
 ```
 
@@ -612,11 +664,17 @@ The arguments can be removed during the compilation step in production mode sinc
 
 Also known as [lazy async data in Nuxt](https://v3.nuxtjs.org/api/composables/use-async-data), loaders can be marked as lazy to **not block the navigation**.
 
-```vue
+```vue{10,16-17} twoslash
 <script lang="ts">
+// ---cut-start---
+import 'unplugin-vue-router/client'
+import './typed-router.d'
+import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/runtime'
+// ---cut-end---
 import { getUserById } from '../api'
 
 export const useUserData = defineLoader(
+  '/users/[id]',
   async (route) => {
     const user = await getUserById(route.params.id)
     return user
@@ -628,15 +686,16 @@ export const useUserData = defineLoader(
 <script setup>
 // Differently from the example above, `user.value` can and will be initially `undefined`
 const { data: user, isLoading, error } = useUserData()
-//      ^ Ref<User | undefined>
+//            ^?
+//            👆 hover or tap
 </script>
 ```
 
-This patterns is useful to avoid blocking the navigation while _less important data_ is being fetched. It will display the page earlier while some of the parts of it are still loading and you are able to display loader indicators thanks to the `isLoading` property.
+This patterns is useful to avoid blocking the navigation while _non critical data_ is being fetched. It will display the page earlier while some of the parts of it are still loading and you are able to display loader indicators thanks to the `isLoading` property.
 
 Note this still allows for having different behavior during SSR and client side navigation, e.g.: if we want to wait for the loader during SSR but not during client side navigation:
 
-```ts
+```ts{6-7}
 export const useUserData = defineLoader(
   async (route) => {
     // ...
@@ -653,8 +712,8 @@ Existing questions:
 - [~~Should it be possible to await all pending loaders with `await allPendingLoaders()`? Is it useful for SSR? Otherwise we could always ignore lazy loaders in SSR. Do we need both? Do we need to selectively await some of them?~~](https://github.com/vuejs/rfcs/discussions/460#discussioncomment-3532011)
 - Should we be able to transform a loader into a lazy version of it: `const useUserDataLazy = asLazyLoader(useUserData)`
 
-// TODO: move up to `selectNavigationResult()`
-// note down that custom implementations might not take a function and therefore not expose a way to the user to control the navigation
+- TODO: move up to `selectNavigationResult()`
+- note down that custom implementations might not take a function and therefore not expose a way to the user to control the navigation
 
 ### Controlling the navigation
 
@@ -664,7 +723,7 @@ Since the data fetching happens within a navigation guard, it's possible to cont
 - Redirection: `return new NavigationResult(targetLocation)` -> like `return targetLocation` in a regular navigation guard
 - Cancelling the navigation: `return new NavigationResult(false)` like `return false` in a regular navigation guard
 
-```ts
+```ts{1,11,14}
 import { NavigationResult } from 'vue-router'
 
 export const useUserData = defineLoader(
@@ -691,9 +750,9 @@ Some alternatives:
 
 - `createNavigationResult()`: too verbose
 - `NavigationResult()` (no `new`): `NavigationResult` is not a primitive so it should use `new`
-- Accept a second argument for extra custom context
+- Accept a second argument for extra custom context that can be retrieved in `selectNavigationResult()`
 
-The only difference between throwing an error and returning a `NavigationResult` of an error is that the latter will still trigger the [`selectNavigationResult()` mentioned right below](#handling-multiple-navigation-results) while a thrown error will always take the priority.
+The only difference between throwing an error and returning a `NavigationResult` of an error is that the latter still triggers the [`selectNavigationResult()` mentioned right below](#handling-multiple-navigation-results) while a thrown error always takes the priority.
 
 #### Handling multiple navigation results
 
@@ -708,16 +767,14 @@ setupLoaderGuard(router, {
 })
 ```
 
-`selectNavigationResult()` will be called with an array of the values passed to `new NavigationResult(value)` **after all data loaders** have been resolved. **If any of them throws an error** or if none of them return a `NavigationResult`, `selectNavigationResult()` won't be called.
+`selectNavigationResult()` is called with an array of the values passed to `new NavigationResult(value)` **after all data loaders** have been resolved. **If any of them throws an error** or if none of them return a `NavigationResult`, `selectNavigationResult()` won't be called.
 
 #### Eagerly changing the navigation
 
-If a loader wants to eagerly change the navigation, it can `throw` the `NavigationResult` instead of returning it. This will skip the `selectNavigationResult()` and take precedence.
+If a loader wants to eagerly change the navigation, it can `throw` the `NavigationResult` instead of returning it. This skips the `selectNavigationResult()` and take precedence.
 
-// TODO: use a different example
-
-```ts
-import { NavigationResult } from 'vue-router'
+```ts{10-15}
+import { NavigationResult } from 'vue-router/auto'
 
 export const useUserData = defineLoader(
   async ({ params, path, query, hash }) => {
@@ -744,7 +801,7 @@ The loader receives in a second argument access to an [`AbortSignal`](https://de
 ```ts
 export const useBookCatalog = defineLoader(async (_route, { signal }) => {
   // assuming getBookCatalog() passes the `signal` to `fetch()`
-  const books = markRaw(await getBookCatalog({ signal }))
+  const books = await getBookCatalog({ signal })
   return books
 })
 ```
@@ -812,23 +869,6 @@ One of the advantages of having an initial state is that we can avoid fetching o
 
 <!-- TBD: do we need to support this use case? We could allow it by having a `force` option on the loader and passing the initial state in the second argument of the loader. -->
 
-// TODO: Move to additional notes
-
-### Performance Tip
-
-**When fetching large data sets** that is never modified, it's convenient to mark the fetched data as _raw_ before returning it:
-
-```ts
-export const useBookCatalog = defineLoader(async () => {
-  const books = markRaw(await getBookCatalog())
-  return books
-})
-```
-
-[More in Vue docs](https://vuejs.org/api/reactivity-advanced.html#markraw)
-
-An alternative would be to internally use `shallowRef()` instead of `ref()` inside `defineLoader()` but that would prevent users from modifying the returned value and overall less convenient. Having to use `markRaw()` seems like a good trade off in terms of API and performance.
-
 <!-- ## Custom `defineLoader()` for libraries
 
 It's possible to extend the `defineLoader()` function to add new features such as a more complex cache system. TODO:
@@ -865,7 +905,7 @@ TBD: is this worth it? Are any other functions needed?
 
 ### Suspense
 
-Using Suspense is probably the first alternative that comes to mind and it has been considered as a solution for data fetching by implementing proofs of concepts. It however suffer from major drawbacks that are tied to its current design and is not a viable solution for data fetching.
+Using Suspense is probably the first alternative that comes to mind and it has been considered as a solution for data fetching by implementing proofs of concepts. It however suffers from major drawbacks that are tied to its current design and is not a viable solution for data fetching.
 
 One could imagine being able to write something like:
 
@@ -995,7 +1035,7 @@ On top of this it's important to note that this RFC doesn't limit you: you can s
 
 - Nested/Sequential Loaders drawbacks
 
-  - Allowing `await getUserById()` could make people think they should also await inside `<script setup>` and that would be a problem because it would force them to use `<Suspense>` when they don't need to.
+  - Allowing `await getUserById()` could make people think they should also await inside `<script setup>` and that would be a problem because it would force them to use `<Suspense>` when they don't need to. I think this is solved by changing the return type of the loader to a promise of just data, making it easy to spot the mistake.
 
   - Another alternative is to pass an array of loaders to the loader that needs them and let it retrieve them through an argument, but it feels _considerably_ less ergonomic:
 
@@ -1016,7 +1056,7 @@ On top of this it's important to note that this RFC doesn't limit you: you can s
 
 - Advanced `lazy`
 
-  The `lazy` flag could be extended to also accept a number (timeout) or a function (dynamic value). I think this is too much and should therefore not be included.
+  The `lazy` flag could be extended to also accept a number (timeout) or a function (dynamic value). I think this is too much and should therefore not be included. It can always be implemented by custom data loaders but I don't think it should be a requirement for the basic API.
 
   Passing a _number_ to `lazy` could block the navigation for that number of milliseconds, then let it be:
 

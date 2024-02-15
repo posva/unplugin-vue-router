@@ -48,6 +48,17 @@ declare module 'vue-router/auto-routes' {
   }
 }
 `,
+            '../api/index.ts': `
+export interface User {
+  id: number
+  name: string
+  photoURL: string
+}
+
+export async function getUserById(id: string | number) {
+  return {} as User
+}
+`,
           },
         },
       }),
