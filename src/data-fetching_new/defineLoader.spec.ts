@@ -160,10 +160,7 @@ describe(
           .fn<[to: RouteLocationNormalizedLoaded], Promise<string>>()
           .mockResolvedValue('initial')
         const { wrapper, app, router, useData } = singleLoaderOneRoute(
-          defineBasicLoader(spy, {
-            // TODO: figure out a way of passing these options that are specific to some
-            key: 'root',
-          })
+          defineBasicLoader(spy, { key: 'root' })
         )
         router[INITIAL_DATA_KEY] = { root: 'initial' }
 

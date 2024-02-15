@@ -93,13 +93,11 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
     const entries = router[
       LOADER_ENTRIES_KEY
     ]! as unknown as _DefineLoaderEntryMap<
-      // @ts-expect-error: FIXME: once pendingTo is removed from DataLoaderEntryBase
       DataLoaderColadaEntry<boolean, unknown>
     >
     const key = keyText(options.key(to))
-    const [trackedRoute, params, query, hash] = trackRoute(to)
     if (!entries.has(loader)) {
-      const pendingTo = shallowRef<_RouteLocationNormalizedLoaded>(to)
+      const route = shallowRef<_RouteLocationNormalizedLoaded>(to)
       entries.set(loader, {
         // force the type to match
         data: ref() as Ref<_DataMaybeLazy<Data, isLazy>>,
@@ -108,38 +106,38 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
 
         options,
         children: new Set(),
-        cancelPending() {
-          this._pendingTo = null
+        resetPending() {
+          this.pendingTo = null
           this.pendingLoad = null
+          this.isLoading.value = false
         },
         staged: STAGED_NO_VALUE,
         stagedError: null,
-        // @ts-expect-error: FIXME: once pendingTo is removed from DataLoaderEntryBase
         commit,
 
         tracked: new Map(),
         ext: null,
 
-        pendingTo,
-        _pendingTo: null,
+        route,
+        pendingTo: null,
         pendingLoad: null,
       })
     }
     const entry = entries.get(loader)!
 
     // Nested loaders might get called before the navigation guard calls them, so we need to manually skip these calls
-    if (entry._pendingTo === to && entry.pendingLoad) {
-      console.log(`🔁 already loading "${key}"`)
+    if (entry.pendingTo === to && entry.pendingLoad) {
+      // console.log(`🔁 already loading "${key}"`)
       return entry.pendingLoad
     }
 
     if (!entry.ext) {
-      console.log(`🚀 creating query for "${key}"`)
+      // console.log(`🚀 creating query for "${key}"`)
       entry.ext = useQuery({
         ...options,
         // FIXME: type Promise<Data> instead of Promise<unknown>
         query: () => {
-          const route = entry.pendingTo.value
+          const route = entry.route.value
           const [trackedRoute, params, query, hash] = trackRoute(route)
           entry.tracked.set(options.key(trackedRoute).join('|'), {
             ready: false,
@@ -152,7 +150,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
             signal: route.meta[ABORT_CONTROLLER_KEY]!.signal,
           })
         },
-        key: () => options.key(entry.pendingTo.value),
+        key: () => options.key(entry.route.value),
       })
     }
 
@@ -173,17 +171,16 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
     // console.log(
     //   `😎 Loading context to "${to.fullPath}" with current "${currentContext[2]?.fullPath}"`
     // )
-    if (entry.pendingTo.value !== to) {
+    if (entry.route.value !== to) {
       // TODO: test
-      entry.pendingTo.value.meta[ABORT_CONTROLLER_KEY]!.abort()
+      entry.route.value.meta[ABORT_CONTROLLER_KEY]!.abort()
       // ensure we call refetch instead of refresh
-      // TODO: only if to is different from the pendingTo **consumed** properties
       const tracked = entry.tracked.get(key.join('|'))
       reload = !tracked || hasRouteChanged(to, tracked)
     }
 
     // Currently load for this loader
-    entry.pendingTo.value = entry._pendingTo = to
+    entry.route.value = entry.pendingTo = to
 
     isLoading.value = true
     // save the current context to restore it later
@@ -197,7 +194,6 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       }
     }
     // set the current context before loading so nested loaders can use it
-    // @ts-expect-error: FIXME: once pendingTo is removed from DataLoaderEntryBase
     setCurrentContext([entry, router, to])
 
     const currentLoad = ext[reload ? 'refetch' : 'refresh']()
@@ -209,7 +205,6 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
         //     entry.pendingLoad === currentLoad
         //   }; data:\n${JSON.stringify(d)}\n${JSON.stringify(ext.data.value)}`
         // )
-        console.log(`👀 Tracked stuff`, entry.tracked)
         if (entry.pendingLoad === currentLoad) {
           // propagate the error
           if (ext.error.value) {
@@ -237,7 +232,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
           }
         } else {
           // TODO: add test that checks we don't set the load was discarded
-          console.log(`❌ Discarded old result for "${key}"`, d, ext.data.value)
+          // console.log(`❌ Discarded old result for "${key}"`, d, ext.data.value)
           ext.data.value = data.value
           ext.error.value = error.value
         }
@@ -249,8 +244,6 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
         //   currentContext?.[2]?.fullPath
         // )
         if (entry.pendingLoad === currentLoad) {
-          // TODO: should this be delayed with commit too?
-          isLoading.value = false
           // we must run commit here so nested loaders are ready before used by their parents
           if (
             options.lazy ||
@@ -258,7 +251,6 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
             // outside of a navigation
             !router[PENDING_LOCATION_KEY]
           ) {
-            // @ts-expect-error: FIXME: once pendingTo is removed from DataLoaderEntryBase
             entry.commit(to)
           }
         }
@@ -269,7 +261,6 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
 
     // this still runs before the promise resolves even if loader is sync
     entry.pendingLoad = currentLoad
-    console.log(`🔶 Promise set to pendingLoad "${key}"`)
 
     return currentLoad
   }
@@ -279,9 +270,9 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
     to: _RouteLocationNormalizedLoaded
   ) {
     const key = keyText(options.key(to))
-    console.log(`👉 commit "${key}"`)
-    if (this._pendingTo === to) {
-      console.log(' ->', this.staged)
+    // console.log(`👉 commit "${key}"`)
+    if (this.pendingTo === to) {
+      // console.log(' ->', this.staged)
       if (process.env.NODE_ENV === 'development') {
         if (this.staged === STAGED_NO_VALUE) {
           console.warn(
@@ -305,15 +296,17 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       }
       this.staged = STAGED_NO_VALUE
       this.stagedError = null
-      this._pendingTo = null
+      this.pendingTo = null
 
       // children entries cannot be committed from the navigation guard, so the parent must tell them
       this.children.forEach((childEntry) => {
         childEntry.commit(to)
       })
     } else {
-      console.log(` -> skipped`)
+      // console.log(` -> skipped`)
     }
+    // we reset loading in commit to ensure it's consistent with when the data is made available
+    this.isLoading.value = false
   }
 
   // @ts-expect-error: requires the internals and symbol that are added later
@@ -328,7 +321,6 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
     const entries = router[
       LOADER_ENTRIES_KEY
     ]! as unknown as _DefineLoaderEntryMap<
-      // @ts-expect-error: FIXME: once pendingTo is removed from DataLoaderEntryBase
       DataLoaderColadaEntry<boolean, unknown>
     >
     let entry = entries.get(loader)
@@ -341,12 +333,11 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       }
     }
 
-    // TODO: skip if route is not the router pending location. Check if it changes anything compared to the current check with only entry.pendingTo
     if (
       // if the entry doesn't exist, create it with load and ensure it's loading
       !entry ||
       // we are nested and the parent is loading a different route than us
-      (parentEntry && entry._pendingTo !== route)
+      (parentEntry && entry.pendingTo !== route)
     ) {
       // console.log(
       //   `🔁 loading from useData for "${options.key}": "${route.fullPath}"`
@@ -360,12 +351,12 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
 
     // add ourselves to the parent entry children
     if (parentEntry) {
-      // @ts-expect-error: TODO:
       if (parentEntry === entry) {
-        console.warn(`👶❌ "${options.key}" has itself as parent`)
+        console.warn(
+          `👶❌ "${options.key}" has itself as parent.  This shouldn't be happening. Please report a bug with a reproduction to https://github.com/posva/unplugin-vue-router/`
+        )
       }
       // console.log(`👶 "${options.key}" has parent ${parentEntry}`)
-      // @ts-expect-error: TODO:
       parentEntry.children.add(entry!)
     }
 
@@ -373,11 +364,6 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
 
     // update the data when pinia colada updates it e.g. after visibility change
     watch(ext!.data, (newData) => {
-      console.log(
-        `👀 "${options.key}" data changed`,
-        newData,
-        entry!.pendingLoad
-      )
       // only if we are not in the middle of a navigation
       if (!router[PENDING_LOCATION_KEY]) {
         data.value = newData
@@ -401,32 +387,25 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       error,
       isLoading,
       reload: (
-        // @ts-expect-error: FIXME: should be fixable
+        // @ts-expect-error: needed for typed routes
         to: _RouteLocationNormalizedLoaded = router.currentRoute.value
       ) =>
         router[APP_KEY].runWithContext(() =>
           load(to, router, undefined, true)
-        ).then(() =>
-          // @ts-expect-error: FIXME:
-          entry!.commit(to)
-        ),
+        ).then(() => entry!.commit(to)),
       // pinia colada
       refetch: (
-        // @ts-expect-error: FIXME: should be fixable
+        // @ts-expect-error: needed for typed routes
         to: _RouteLocationNormalizedLoaded = router.currentRoute.value
       ) =>
         router[APP_KEY].runWithContext(() =>
           load(to, router, undefined, true)
-        ).then(() =>
-          // @ts-expect-error: FIXME:
-          entry!.commit(to)
-        ),
+        ).then(() => entry!.commit(to)),
       refresh: (
-        // @ts-expect-error: FIXME: should be fixable
+        // @ts-expect-error: needed for typed routes
         to: _RouteLocationNormalizedLoaded = router.currentRoute.value
       ) =>
         router[APP_KEY].runWithContext(() => load(to, router)).then(() =>
-          // @ts-expect-error: FIXME:
           entry!.commit(to)
         ),
       isPending: ext!.isPending,
@@ -497,10 +476,8 @@ export interface UseDataLoaderColadaResult<isLazy extends boolean, Data>
     > {}
 
 export interface DataLoaderColadaEntry<isLazy extends boolean, Data>
-  // TODO: remove Omit once pendingTo is removed from DataLoaderEntryBase
-  extends Omit<DataLoaderEntryBase<isLazy, Data>, 'pendingTo'> {
-  pendingTo: ShallowRef<_RouteLocationNormalizedLoaded>
-  _pendingTo: _RouteLocationNormalizedLoaded | null
+  extends DataLoaderEntryBase<isLazy, Data> {
+  route: ShallowRef<_RouteLocationNormalizedLoaded>
 
   tracked: Map<string, TrackedRoute>
 
@@ -538,17 +515,12 @@ const DEFAULT_DEFINE_LOADER_OPTIONS = {
   'key' | 'query'
 >
 
-/**
- * TODO:
- * - `refreshData()` -> refresh one or all data loaders
- * - `invalidateData()` / `clearData()` -> clear one or all data loaders (only useful if there is a cache strategy)
- */
-
 // DEBUG ONLY
 const keyText = (key: UseQueryOptions['key']): string[] => {
   const keys = Array.isArray(key) ? key : [key]
   return keys.map(stringifyFlatObject)
 }
+// TODO: import from pinia-colada
 export function stringifyFlatObject(obj: unknown): string {
   return obj && typeof obj === 'object'
     ? JSON.stringify(obj, Object.keys(obj).sort())

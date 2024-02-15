@@ -88,7 +88,24 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
   ): Promise<void> {
     const entries = router[LOADER_ENTRIES_KEY]!
     if (!entries.has(loader)) {
-      entries.set(loader, createDefineLoaderEntry<boolean>(options, commit))
+      entries.set(loader, {
+        // force the type to match
+        data: ref() as Ref<_DataMaybeLazy<Data, isLazy>>,
+        isLoading: ref(false),
+        error: shallowRef<any>(),
+
+        options,
+        children: new Set(),
+        resetPending() {
+          this.pendingLoad = null
+          this.pendingTo = null
+        },
+        pendingLoad: null,
+        pendingTo: null,
+        staged: STAGED_NO_VALUE,
+        stagedError: null,
+        commit,
+      })
     }
     const entry = entries.get(loader)!
 
@@ -166,7 +183,7 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
             options.commit !== 'after-load' ||
             !router[PENDING_LOCATION_KEY]
           ) {
-            console.log(`🚨 error in "${options.key}"`, e)
+            // console.log(`🚨 error in "${options.key}"`, e)
             entry.stagedError = e
           }
           // propagate error if non lazy or during SSR
@@ -234,8 +251,7 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
       this.staged = STAGED_NO_VALUE
       this.stagedError = null
       this.pendingTo = null
-      // TODO: we are not changing pendingLoad here to reuse the call even for lazy loaders
-      // but it looks like a code smell to have both properties
+      // we intentionally keep pendingLoad so it can be reused until the navigation is finished
 
       // children entries cannot be committed from the navigation guard, so the parent must tell them
       this.children.forEach((childEntry) => {
@@ -276,7 +292,6 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
       }
     }
 
-    // TODO: skip if route is not the router pending location. Check if it changes anything compared to the current check with only entry.pendingTo
     if (
       // if the entry doesn't exist, create it with load and ensure it's loading
       !entry ||
@@ -294,7 +309,9 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
     // add ourselves to the parent entry children
     if (parentEntry) {
       if (parentEntry === entry) {
-        console.warn(`👶❌ "${options.key}" has itself as parent`)
+        console.warn(
+          `👶❌ "${options.key}" has itself as parent. This shouldn't be happening. Please report a bug with a reproduction to https://github.com/posva/unplugin-vue-router/`
+        )
       }
       // console.log(`👶 "${options.key}" has parent ${parentEntry}`)
       parentEntry.children.add(entry!)
@@ -307,7 +324,7 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
       error,
       isLoading,
       reload: (
-        // @ts-expect-error: FIXME: should be fixable
+        // @ts-expect-error: needed for typed routes
         to: _RouteLocationNormalizedLoaded = router.currentRoute.value
       ) =>
         router[APP_KEY].runWithContext(() => load(to, router)).then(() =>
@@ -361,37 +378,6 @@ const DEFAULT_DEFINE_LOADER_OPTIONS = {
   commit: 'immediate',
 } satisfies DefineDataLoaderOptions<boolean>
 
-// TODO: move to a different file
-function createDefineLoaderEntry<
-  isLazy extends boolean = boolean,
-  Data = unknown
->(
-  options: DefineDataLoaderOptions<isLazy>,
-  commit: (
-    this: DataLoaderEntryBase<isLazy, Data>,
-    to: _RouteLocationNormalizedLoaded
-  ) => void
-): DataLoaderEntryBase<isLazy, Data> {
-  return {
-    // force the type to match
-    data: ref() as Ref<_DataMaybeLazy<Data, isLazy>>,
-    isLoading: ref(false),
-    error: shallowRef<any>(),
-
-    options,
-    children: new Set(),
-    cancelPending() {
-      this.pendingLoad = null
-      this.pendingTo = null
-    },
-    pendingLoad: null,
-    pendingTo: null,
-    staged: STAGED_NO_VALUE,
-    stagedError: null,
-    commit,
-  } satisfies DataLoaderEntryBase<isLazy, Data>
-}
-
 /**
  * Symbol used to store the data in the router so it can be retrieved after the initial navigation.
  * @internal
@@ -403,12 +389,6 @@ export const SERVER_INITIAL_DATA_KEY = Symbol()
  * @internal
  */
 export const INITIAL_DATA_KEY = Symbol()
-
-/**
- * TODO:
- * - `refreshData()` -> refresh one or all data loaders
- * - `invalidateData()` / `clearData()` -> clear one or all data loaders (only useful if there is a cache strategy)
- */
 
 // TODO: is it better to move this to an ambient declaration file so it's not included in the final bundle?
 

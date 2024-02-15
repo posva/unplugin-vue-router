@@ -26,7 +26,6 @@ export interface DataLoaderEntryBase<
    */
   error: ShallowRef<any> // any is simply more convenient for errors
 
-  // TODO: allow delaying isLoading? maybe allow passing a custom ref that can use refDebounced https://vueuse.org/shared/refDebounced/#refdebounced
   /**
    * Whether there is an ongoing request.
    */
@@ -35,14 +34,12 @@ export interface DataLoaderEntryBase<
   options: DefineDataLoaderOptionsBase<isLazy>
 
   /**
-   * Called by the navigation guard when the navigation is duplicated. Should be used to reset pendingTo and pendingLoad
+   * Called by the navigation guard when the navigation is duplicated. Should be used to reset pendingTo and pendingLoad and any other property that should be reset.
    */
-  cancelPending: () => void
-
-  // FIXME: `pendingLoad` and `pendingTo` should be added by each implementation and not be part of the base type as it is covered by cancelPending
+  resetPending: () => void
 
   /**
-   * The latest pending load. Used to verify if the load is still valid when it resolves.
+   * The latest pending load. Allows to verify if the load is still valid when it resolves.
    */
   pendingLoad: Promise<void> | null
 
@@ -71,10 +68,7 @@ export interface DataLoaderEntryBase<
    * finished loading. It should be implemented by the loader. It **must be called** from the entry itself:
    * `entry.commit(to)`.
    */
-  commit(
-    this: DataLoaderEntryBase<isLazy, Data>,
-    to: _RouteLocationNormalizedLoaded
-  ): void
+  commit(to: _RouteLocationNormalizedLoaded): void
 }
 
 export function createDataLoader<Context extends DataLoaderContextBase>({

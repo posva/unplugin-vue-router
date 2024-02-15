@@ -1,4 +1,4 @@
-import type { Ref } from 'vue'
+import type { ShallowRef } from 'vue'
 import type {
   Router,
   RouteLocationNormalizedLoaded,
@@ -14,9 +14,7 @@ import type {
 } from './routeLocation'
 import type { _RouteMapGeneric } from '../codegen/generateRouteMap'
 import type {
-  NavigationGuardWithThis,
   NavigationGuardWithThisTyped,
-  NavigationHookAfter,
   NavigationHookAfterTyped,
 } from './navigationGuards'
 import type { RouteNamedMap, _TypesConfig } from './types-config'
@@ -31,23 +29,24 @@ export interface _RouterTyped<
     | 'beforeEach'
     | 'beforeResolve'
     | 'afterEach'
+    | 'currentRoute'
   > {
-  currentRoute: Ref<
+  currentRoute: ShallowRef<
     RouteLocationNormalizedLoadedTypedList<RouteMap>[keyof RouteMap]
   >
 
-  push<Name extends keyof RouteMap = keyof RouteMap>(
+  push(
     to:
       | RouteLocationAsString<RouteMap>
-      | RouteLocationAsRelativeTyped<RouteMap, Name>
-      | RouteLocationAsPathTyped<RouteMap, Name>
+      | RouteLocationAsRelativeTyped<RouteMap>
+      | RouteLocationAsPathTyped<RouteMap>
   ): ReturnType<Router['push']>
 
-  replace<Name extends keyof RouteMap = keyof RouteMap>(
+  replace(
     to:
       | RouteLocationAsString<RouteMap>
-      | RouteLocationAsRelativeTyped<RouteMap, Name>
-      | RouteLocationAsPathTyped<RouteMap, Name>
+      | RouteLocationAsRelativeTyped<RouteMap>
+      | RouteLocationAsPathTyped<RouteMap>
   ): ReturnType<Router['replace']>
 
   resolve<Name extends keyof RouteMap = keyof RouteMap>(

@@ -1,4 +1,4 @@
-import type { Router, NavigationGuard } from 'vue-router'
+import type { NavigationGuard } from 'vue-router'
 import { isNavigationFailure } from 'vue-router'
 import { effectScope, type App, type EffectScope } from 'vue'
 import {
@@ -220,7 +220,7 @@ export function setupLoaderGuard({
         // so we know it exists
         router[PENDING_LOCATION_KEY].meta[LOADER_SET_KEY]!.forEach((loader) => {
           const entry = loader._.getEntry(router as _Router)
-          entry.cancelPending()
+          entry.resetPending()
         })
       }
     }
