@@ -33,6 +33,8 @@ export function definePageTransform({
 }): Thenable<TransformResult> {
   if (!code.includes(MACRO_DEFINE_PAGE)) return
 
+  // TODO: handle also non SFC
+
   const sfc = parseSFC(code, id)
   if (!sfc.scriptSetup) return
 
