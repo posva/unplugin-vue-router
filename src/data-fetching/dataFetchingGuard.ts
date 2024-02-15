@@ -63,7 +63,7 @@ export function setupDataFetchingGuard(
   if (process.env.NODE_ENV !== 'production') {
     if (ADDED_SYMBOL in router) {
       console.warn(
-        '[vue-router]: Data fetching guard added twice. Make sure to remove the extra call.'
+        '[vue-router]: Data Loader guard added twice. Make sure to remove the extra call.'
       )
       return
     }

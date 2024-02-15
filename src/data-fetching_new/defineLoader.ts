@@ -181,7 +181,6 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
         //   `😩 restored context ${options.key}`,
         //   currentContext?.[2]?.fullPath
         // )
-        console.log(`🗄️ is same load: ${entry.pendingLoad === currentLoad}`)
         if (entry.pendingLoad === currentLoad) {
           isLoading.value = false
           // we must run commit here so nested loaders are ready before used by their parents

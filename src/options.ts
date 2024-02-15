@@ -3,8 +3,11 @@ import { _Awaitable, getFileBasedRouteName, isArray, warn } from './core/utils'
 import type { TreeNode } from './core/tree'
 import { resolve } from 'pathe'
 import { EditableTreeNode } from './core/extendRoutes'
-import { ParseSegmentOptions } from './core/treeNodeValue'
+import { type ParseSegmentOptions } from './core/treeNodeValue'
 
+/**
+ * Options for a routes folder.
+ */
 export interface RoutesFolderOption {
   /**
    * Folder to scan files that should be used for routes. **Cannot be a glob**, use the `path`, `filePatterns`, and
@@ -40,7 +43,6 @@ export interface RoutesFolderOption {
    *   path: 'docs/[lang]/',
    * },
    * ```
-   *
    */
   path?: string | ((filepath: string) => string)
 
@@ -130,6 +132,7 @@ export interface ResolvedOptions {
    */
   beforeWriteFiles?: (rootRoute: EditableTreeNode) => _Awaitable<void>
 
+  // TODO: remove as it's not longer needed
   /**
    * Enables EXPERIMENTAL data fetching. See https://github.com/posva/unplugin-vue-router/tree/main/src/data-fetching
    * @experimental

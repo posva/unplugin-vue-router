@@ -36,7 +36,7 @@ export function setupLoaderGuard({
   if (router[LOADER_ENTRIES_KEY] != null) {
     if (process.env.NODE_ENV !== 'production') {
       console.warn(
-        '[vue-router]: Data fetching was setup twice. Make sure to setup only once.'
+        '[vue-router]: Data Loader was setup twice. Make sure to setup only once.'
       )
     }
     return () => {}
@@ -45,7 +45,7 @@ export function setupLoaderGuard({
   // explicit dev to avoid warnings in tests
   if (process.env.NODE_ENV === 'development') {
     console.warn(
-      '[vue-router]: Data fetching is experimental and subject to breaking changes in the future.'
+      '[vue-router]: Data Loader is experimental and subject to breaking changes in the future.'
     )
   }
 
