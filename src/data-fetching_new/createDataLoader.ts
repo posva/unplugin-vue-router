@@ -228,6 +228,10 @@ export interface UseDataLoader<
     UseDataLoaderResult<isLazy, Exclude<Data, NavigationResult>>
   >
 
+  /**
+   * Internals of the data loader.
+   * @internal
+   */
   _: UseDataLoaderInternals<isLazy, Exclude<Data, NavigationResult>>
 }
 

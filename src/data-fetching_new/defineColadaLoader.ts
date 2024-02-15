@@ -25,6 +25,7 @@ import {
 } from './meta-extensions'
 import {
   IS_CLIENT,
+  _PromiseMerged,
   assign,
   getCurrentContext,
   isSubsetOf,
@@ -58,17 +59,17 @@ export function defineColadaLoader<
 >(
   name: Name,
   options: DefineDataLoaderOptions<isLazy, Name, Data>
-): UseDataLoader<isLazy, Data>
+): UseDataLoaderColada<isLazy, Data>
 export function defineColadaLoader<Data, isLazy extends boolean>(
   options: DefineDataLoaderOptions<isLazy, _RouteRecordName, Data>
-): UseDataLoader<isLazy, Data>
+): UseDataLoaderColada<isLazy, Data>
 
 export function defineColadaLoader<Data, isLazy extends boolean>(
   nameOrOptions:
     | _RouteRecordName
     | DefineDataLoaderOptions<isLazy, _RouteRecordName, Data>,
   _options?: DefineDataLoaderOptions<isLazy, _RouteRecordName, Data>
-): UseDataLoader<isLazy, Data> {
+): UseDataLoaderColada<isLazy, Data> {
   // TODO: make it DEV only and remove the first argument in production mode
   // resolve option overrides
   _options =
@@ -311,7 +312,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
 
   // @ts-expect-error: requires the internals and symbol that are added later
   const useDataLoader: // for ts
-  UseDataLoader<isLazy, Data> = () => {
+  UseDataLoaderColada<isLazy, Data> = () => {
     // work with nested data loaders
     const [parentEntry, _router, _route] = getCurrentContext()
     // fallback to the global router and routes for useDataLoaders used within components
@@ -475,10 +476,51 @@ export interface UseDataLoaderColadaResult<isLazy extends boolean, Data>
       'isPending' | 'refetch' | 'refresh' | 'status'
     > {}
 
+/**
+ * Data Loader composable returned by `defineColadaLoader()`.
+ */
+export interface UseDataLoaderColada<isLazy extends boolean, Data>
+  extends UseDataLoader<isLazy, Data> {
+  /**
+   * Data Loader composable returned by `defineColadaLoader()`.
+   *
+   * @example
+   * Returns the Data loader data, isLoading, error etc. Meant to be used in `setup()` or `<script setup>` **without `await`**:
+   * ```vue
+   * <script setup>
+   * const { data, isLoading, error } = useUserData()
+   * </script>
+   * ```
+   *
+   * @example
+   * It also returns a promise of the data when used in nested loaders. Note this `data` is **not a ref**. This is not meant to be used in `setup()` or `<script setup>`.
+   * ```ts
+   * export const useUserConnections = defineLoader(async () => {
+   *   const user = await useUserData()
+   *   return fetchUserConnections(user.id)
+   * })
+   * ```
+   */
+  (): _PromiseMerged<
+    // we can await the raw data
+    // excluding NavigationResult allows to ignore it in the type of Data when doing
+    // `return new NavigationResult()` in the loader
+    Exclude<Data, NavigationResult>,
+    // or use it as a composable
+    UseDataLoaderColadaResult<isLazy, Exclude<Data, NavigationResult>>
+  >
+}
+
 export interface DataLoaderColadaEntry<isLazy extends boolean, Data>
   extends DataLoaderEntryBase<isLazy, Data> {
+  /**
+   * Reactive route passed to pinia colada so it automatically refetch
+   */
   route: ShallowRef<_RouteLocationNormalizedLoaded>
 
+  /**
+   * Tracked routes to know when the data should be refreshed. Key is the key of the query.
+   */
   tracked: Map<string, TrackedRoute>
 
   /**
