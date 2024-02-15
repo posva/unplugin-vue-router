@@ -56,10 +56,11 @@ function copy() {
 }
 
 const {
-  data: pcUSer,
+  //
+  data: user,
   status,
-  error: pcError,
-  isLoading: pcIsFetching,
+  error,
+  isLoading,
   reload,
   refresh,
 } = useUserData()
@@ -95,9 +96,9 @@ const {
     <p>
       <code>status: {{ status }}</code>
       <br />
-      <code>isFetching: {{ pcIsFetching }}</code>
+      <code>isFetching: {{ isLoading }}</code>
     </p>
-    <pre v-if="pcError">Error: {{ pcError }}</pre>
-    <pre v-else>{{ pcUSer == null ? String(pcUSer) : pcUSer }}</pre>
+    <pre v-if="error">Error: {{ error }}</pre>
+    <pre v-else>{{ user == null ? String(user) : user }}</pre>
   </main>
 </template>
