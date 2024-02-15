@@ -78,7 +78,7 @@ export default defineConfig({
         {
           src: 'src/pages',
           // can even add params
-          // path: ':lang/',
+          // path: '[lang]/',
         },
         {
           src: 'src/docs',
@@ -120,13 +120,19 @@ export default defineConfig({
     }),
     Markdown({}),
     AutoImport({
-      imports: [VueRouterAutoImports],
+      imports: [
+        VueRouterAutoImports,
+        {
+          'unplugin-vue-router/runtime': ['defineBasicLoader'],
+        },
+      ],
     }),
     Inspect(),
   ],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '~': fileURLToPath(new URL('./src', import.meta.url)),
       'unplugin-vue-router/runtime': fileURLToPath(
         new URL('../src/runtime.ts', import.meta.url)
       ),

@@ -105,7 +105,6 @@ declare module 'vue-router/auto' {
   export {
     definePage,
     DataLoaderPlugin,
-    defineBasicLoader,
     // FIXME: remove these in next major
     _HasDataLoaderMeta as HasDataLoaderMeta,
     _setupDataFetchingGuard as setupDataFetchingGuard,
