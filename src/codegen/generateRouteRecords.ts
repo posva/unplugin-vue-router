@@ -1,6 +1,6 @@
 import type { TreeNode } from '../core/tree'
 import { ImportsMap } from '../core/utils'
-import { ResolvedOptions, _OptionsImportMode } from '../options'
+import { type ResolvedOptions } from '../options'
 
 /**
  * Generate the route records for the given node.
@@ -99,7 +99,7 @@ ${routeRecord},
 function generateRouteRecordComponent(
   node: TreeNode,
   indentStr: string,
-  importMode: _OptionsImportMode,
+  importMode: ResolvedOptions['importMode'],
   importsMap: ImportsMap
 ): string {
   const files = Array.from(node.value.components)
@@ -131,7 +131,7 @@ ${indentStr}},`
  */
 function generatePageImport(
   filepath: string,
-  importMode: _OptionsImportMode,
+  importMode: ResolvedOptions['importMode'],
   importsMap: ImportsMap
 ) {
   const mode =

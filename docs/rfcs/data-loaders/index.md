@@ -35,25 +35,28 @@ That is the goal of this RFC, to standardize and improve data fetching with vue-
 - Avoid `<Suspense>`
   - No cascading loading states
   - No double mounting
+  - TODO: add items from below
 - Provide atomic and global access to loading/error states
-- Establish a set of Interfaces that enable other libraries like [VueFire](https://vuefire.vuejs.org), [@pinia/colada][pinia-colada], [vue-apollo](https://apollo.vuejs.org/), [@tanstack/vue-query][vue-query], etc to implement their own data loaders
+- Allow 3rd party libraries to extend the loaders functionality by establish a set of Interfaces that can be implemented. This targets libraries like [VueFire](https://vuefire.vuejs.org), [@pinia/colada][pinia-colada], [vue-apollo](https://apollo.vuejs.org/), [@tanstack/vue-query][vue-query], etc to provide features like caching, pagination, etc. specific to their use cases.
 
 <!-- Extra Goals:
 
 - Automatically rerun when used params/query params/hash changes (avoid unnecessary fetches)
-- Basic client-side caching with time-based expiration to only fetch once per navigation while using it anywhere -->
+- -->
 
-This proposal concerns Vue Router 4 and is implemented under [unplugin-vue-router][uvr]. This enables types in data loaders but is not necessary. This feature is independent of the rest of the plugin and can be used without it, namely **without file-based routing**.
+This proposal concerns Vue Router 4 and is implemented under [unplugin-vue-router][uvr]. This enables types in data loaders but **is not necessary**. This feature is independent of the rest of the plugin and can be used without it, namely **without file-based routing**.
 
-::: info
+::: tip
 In this RFC, data loaders are often referred as _loaders_ for short. API names also use the word _loader_ instead of _data loader_ for brevity.
+
+💡 Some of the examples are interactive: hover or tap on the code to see the types and other information.
 :::
 
 ## Basic example
 
-We define data loaders anywhere and _attach them_ to **page components** (components associated to a route). They return a **composable that can be used in any component** (not only pages).
+We create data loaders with a `defineLoader()` function that returns a **composable that can be used in any component** (not only pages component).
 
-**A loader can be attached to a page in two ways**:
+The loader is then picked up by a Navigation guard. It can be attached to a page component in two ways:
 
 - Export the loader from the page component it is attached to
 - Manually add the loader to the route definition
@@ -93,14 +96,17 @@ const { data: user, isLoading, error, reload } = useUserData()
 
 When a loader is exported by the page component, it is **automatically** picked up as long as the route is **lazy loaded** (which is a best practice). If the route isn't lazy loaded, the loader can be directly defined in an array of data loaders on `meta.loaders`:
 
-```ts
-import { createRouter } from 'vue-router'
-import UserList from '~/pages/UserList.vue'
+```ts twoslash
+import './shims-vue.d'
+// ---cut---
+// @moduleResolution: bundler
+import { createRouter, createWebHistory } from 'vue-router'
+import UserList from './pages/UserList.vue'
 // could be anywhere
-import { useUserList } from '~/loaders/users'
+import { useUserList, useUserData, type User } from './loaders/users'
 
 export const router = createRouter({
-  // ...
+  history: createWebHistory(),
   routes: [
     {
       path: '/users',
@@ -113,7 +119,7 @@ export const router = createRouter({
     {
       path: '/users/:id',
       // automatically picks up all exported loaders
-      component: () => import('~/pages/UserDetails.vue'),
+      component: () => import('./pages/UserDetails.vue'),
     },
   ],
 })
@@ -121,18 +127,20 @@ export const router = createRouter({
 
 Regarding the returned values from `useUserData()`:
 
-- `data` (aliased to `user`), `isLoading`, and `error` are refs and therefore reactive.
+- `data` (aliased to `user`), `isLoading`, and `error` are shallow ref and therefore reactive.
 - `reload` is a function that can be called to force a reload of the data without a new navigation.
 
-Note `useUserData()` can be used in **any component**, not only in the page component. We import the function and call it within `<script setup>` like other composables
+Note `useUserData()` can be used in **any component**, not only in the page component: just import the function and call it within `<script setup>` like other composables
 
 <!-- Advanced use case (cached):
 
 - Loaders smartly know which params/query params/hash they depend on to force a reload when navigating:
   - Going from `/users/2` to `/users/3` will reload the data no matter how recent the other fetch was because `useUserData` depends on `route.params.id`
-  - Going from `/users/2?name=fab` to `/users/2?name=fab#filters` will try to avoid fetching again as the `route.params.id` didn't change: it will check if the current client side cache expired and if it did, it will fetch again -->
+  - Going from `/users/2?name=fab` to `/users/2?name=fab#filters` will try to avoid fetching again as the `route.params.id` didn't change: it will check if the current client side cache expired and if it did, it will fetch again
 
-By default, **data loaders block the navigation**, meaning they _just work_ with SSR and errors are propagated to the router level (`router.onError()`). On top of that, data loads are deduplicated, which means that no mather how many times you use the same data loader in different routes or components, **it will still load the data just once per navigation**.
+ -->
+
+By default, **data loaders block the navigation**, meaning they _just work_ with SSR and errors are propagated to the router level (`router.onError()`). On top of that, data loads are deduplicated, which means that no mather how many page components uses the same loader in multiple pages (e.g. nested pages), **it will still load the data just once per navigation**.
 
 The simplest of data loaders can be defined in just one line and types will be automatically inferred:
 
@@ -158,15 +166,14 @@ Note that this syntax will intentionally be avoided in the RFC. Instead, we will
 There are currently too many ways of handling data fetching with vue-router and all of them have problems:
 
 - With navigation guards:
-  - using `onBeforeRouteUpdate()`: missing data when entering tha page
+  - using `onBeforeRouteUpdate()`: only works on subsequent navigations. Cannot be properly combined with `beforeRouteEnter()`.
   - using `beforeRouteEnter()`: non typed and non-ergonomic API with `next()`, requires a data store (pinia, vuex, apollo, etc), does not exist in script setup
   - using `meta`: complex to setup even for simple cases, too low level for such a common case
 - using a watcher on `route.params...`: component renders without the data (doesn't work with SSR)
-- [Using Suspense](#suspense) and _awaiting_ data within page components
+- Using Suspense and _awaiting_ data within page components
   - Cascading (slow) async states
   - Only loads once
-  - Double mounting
-  - Does not wait for navigation
+  - Does not wait for navigation or requires double mounting
   - Requires handling UI loading state
   - [And more](#suspense)
 
@@ -174,57 +181,28 @@ People are left with a low level API (navigation guards) to handle data fetching
 
 Thus, the goal of this proposal is to provide a simple yet extendable way of defining data loading in your application that is easy to understand and use. It should also be compatible with SSR and not limited to simple _fetch calls_, but rather any async state. It should be adoptable by frameworks like Nuxt.js to provide an augmented data fetching layer that integrates well with Vue.js Concepts and the future of Web APIs like the [Navigation API](https://github.com/WICG/navigation-api/).
 
-<!-- TODO: remove this section
-
-There are features that are out of scope for this proposal but should be implementable in user-land thanks to an _extendable API_:
-
-- Implement a full-fledged cached API like vue-query
-- Implement pagination
-- Automatically refetch data when **outside of navigations** (e.g. there is no intention to implement advanced APIs such as `refetchInterval`, refetch on focus, etc) -->
-
-TODO: this explains why blocking is good, move to the detailed design
-
-This RFC also aims to integrate data fetching within navigations while still not forcing you to block navigation with data fetching. This pattern is useful for multiple reasons:
-
-- Ensure data is present before mounting the component (blocks navigation)
-- Flexibility to not wait for non critical data with lazy data loaders
-- Enables the UX pattern of letting the browser handle loading state (aligns better with [future Navigation API](https://github.com/WICG/navigation-api))
-- Makes scrolling work out of the box when navigating between pages (when data loaders are blocking)
-- Ensure one single request per loader and navigation
-- Extremely lightweight compared to more complex fetching solutions like @tastack/vue-query, apollo/graphql, etc
-
 ## Detailed design
 
 The design of Data Loaders is split into two parts
 
-- The set of [Interfaces (types)](#interfaces) that define a Data Loader
 - [Implementation of two Data Loaders](#implementations)
   - A bare bones data loaders
   - A more advanced data loader with client side caching using [@pinia/colada][pinia-colada]
+- The set of [Interfaces (types)](#interfaces) that define a Data Loader
 
 ::: tip
-You might only be interested in the actual final implementation of the Data Loaders. In that case, you can skip to the interfaces section and jump right into the [implementations](#implemenations).
-:::
-
-### Interfaces
-
-Defining a minimal set of information and options for Data Loaders is what enables external libraries to implement their own data loaders. They are meant to extend these interfaces to add more features that are specific to them. You can see a practical example with the [Pinia Colada](#pinia-colada) implementation.
-
-::: danger
-This section is still a work in progress, see the [implementations](#implementations) instead.
-:::
-
-### Implementations
-
-::: tip
-Throughout this section, we will import from `vue-router/auto`. This is added by [unplugin-vue-router][uvr] but you can also import from `unplugin-vue-router/runtime` if you don't want to use file-based routing.
+You might only be interested in trying out Data Loaders. Check out the [implementations](#implementations) section for instructions on how to use this. It's still recommended to read the rest of the RFC to understand what to expect from Data Loaders.
 :::
 
 ### Data Loader Setup
 
-All data loaders are handled in a navigation guard that must be setup in the application:
+`DataLoaderPlugin` adds the [navigation guard](#the-navigation-guard) that handles the data loaders. It requires access to the router instance to attach the navigation guard as wel as some other options:
 
-```ts{1,8}
+- `router`: The Vue Router instance.
+- `selectNavigationResult` (optional): Called wih an array of `NavigationResult` returned by loaders. It allows to decide the _fate_ of the navigation. See [NavigationResult](#handling-multiple-navigation-results)
+
+```ts{2,9}
+import { createApp } from 'vue'
 import { DataLoaderPlugin, createRouter } from 'vue-router/auto'
 
 const router = createRouter({
@@ -233,192 +211,158 @@ const router = createRouter({
 
 const app = createApp(App)
 app.use(DataLoaderPlugin, { router })
+// add the router after the DataLoaderPlugin
+app.use(router)
 ```
 
-### The Plugin
+It's important to add the `DataLoaderPlugin` before the router to ensure the navigation guards are attached before the router creates the first navigation.
 
-`DataLoaderPlugin` adds the navigation guard that handles the data loaders. It requires access to the router instance to attach the navigation guard as wel as some other options
+### Core Data Loader features
 
-#### `router`
+These are the core features of the Data Loader API that every data loader should implement. Throughout the RFC, we will use a **non-existent generic** `defineLoader()`. This is a placeholder for the actual name of the function, e.g. [`defineBasicLoader()`](./basic.md), [`defineColadaLoader()`](./colada.md), etc. In practice, one can globally alias the function to `defineLoader` with unplugin-auto-import.
 
-The Vue Router instance.
+Data Loaders should be able to load data based solely on the URL. This ensures that the page can be shared and that the rendering is consistent between the server and the client.
 
-#### `selectNavigationResult` (optional)
+#### `defineLoader()` signature
 
-Called wih an array of `NavigationResult` returned by loaders. It allows to decide the _fate_ of the navigation.
+Data loaders must accept an optional first parameter to type the route:
 
-// TODO:
+```ts twoslash
+import 'unplugin-vue-router/client'
+import './typed-router.d'
+import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/runtime'
+// ---cut---
+import { getUserById } from '../api'
 
-See [NavigationResult](#navigation-result)
-Note this isn't called if no data loaders return a `NavigationResult` or if an error or `NavigationResult` is thrown. In that case, the first throw will take precedence.
-
-By default, `selectNavigation` returns the first value of the array.
-
-TODO: move this lower
-
-This navigation guard picks up the loaders attached to page components that are lazy loaded:
-
-```ts
-// lazy loaded route
-const routes = [
-  {
-    path: '/users/:id',
-    // automatically picks up any loader exported
-    component: () => import('~/pages/UserDetails.vue'),
-  },
-]
+export const useUserData = defineLoader('/users/[id]', async (route) => {
+  return getUserById(route.params.id)
+})
 ```
 
-If the route isn't lazy loaded, the loader can be directly defined in an array of loaders on `meta.loaders`:
-
-```ts
-import { useUserDetails } from '~/loaders/users'
-import UserDetails from '~/pages/UserDetails.vue'
-
-const routes = [
-  {
-    path: '/users/:id',
-    component: UserDetails,
-    meta: {
-      loaders: [useUserDetails],
-    },
-  },
-]
-```
-
-When using vue router named views, each named view can have their own loaders but note any navigation to the route will trigger **all loaders from all page components**. This is because the router doesn't know which named views wil be used.
-
-::: tip
-With [unplugin-vue-router][uvr], a named view can be declared by appending `@name` at the end of the file name:
-
-```text
-src/pages/
-└── users/
-    ├── index.vue
-    └── index@aux.vue
-```
-
-This creates a `components: { default: ..., aux: ... }` entry in the route config.
-:::
-
-### Basic Data Loader
-
-In its simplest form, the basic implementation for `defineLoader()` in [unplugin-vue-router][uvr] takes a function that returns a promise (of data) and returns a composable that **can be used in any component**, not only in the one that defines it. We call these _loaders_. They receive the target `route` from the current navigation and some other properties as function parameters and they must return a Promise. The resolved value will then be directly accessible as a `ref` when calling the composable.
-
-TODO: move to the interface section when talking about the parameters of the loader function
-
-Limiting the loader access to only the target route, ensures that the data can be fetched **when the user refreshes the page**. In enforces a good practice of correctly storing the necessary information in the route as params or query params to create sharable URLs.
+The rest of the parameters are up to the implementation of the loader but they should accept [extra options](#defineloader-options).
 
 Within loaders there is no access to the current component or page instance, but it's possible to access global injections created with `app.provide()`. This includes stores created with [Pinia](https://pinia.vuejs.org).
 
-// TODO: remove or reduce. Duplication regarding the deduping
+#### Returned Composables
 
-Loaders also have the advantage of behaving as singleton requests. This means that they are only fetched once per navigation no matter how many times the loader is attached or how many regular components use it. It also means that all the refs (`data`, `isLoading`, etc) are created only once and shared by all components, reducing memory usage.
+Data Loaders are composables that return a set of properties:
 
-In the rest of the code samples here, `defineLoader()` refers to the minimal implementation of `defineBasicLoader()`. It returns a composable with the following properties:
-
-```ts
-const useLoader = defineLoader(...)
+```ts twoslash
+import 'unplugin-vue-router/client'
+import './typed-router.d'
+import { useUserData } from './loaders/users'
+// ---cut---
 const {
-  data, // Ref<T> T being the awaited return type of the function passed to `defineLoader()`
-  isLoading, // Ref<boolean>
-  error, // Ref<any>
-  reload, // () => Promise<void>
-} = useLoader()
+  // hover over each property to see the type
+  data,
+  isLoading,
+  error,
+  reload,
+} = useUserData()
 ```
 
-- `data` contains the resolved value returned by the loader
+- `data` contains the resolved value returned by the loader. It's a shallow ref to be more performant, especially with large data-sets
 - `isLoading` is `true` while a request is isLoading and becomes `false` once the request is settled
 - `error` becomes `null` each time a request starts and contains any error thrown by the loader
 - `reload()` invokes the loader (an internal version that sets the `isLoading` and other flags)
 
 In practice, rename `data` (or others) to something more meaningful:
 
-```ts
-import { getUserById } from '~/api/users'
-
-const useUserData = defineLoader(async ({ params }) => {
-  const user = await getUserById(params.id)
-  return user // can be anything
-})
-
-const {
-  // ... same as above
-  data: user, // Ref<UserData>
-} = useUserData()
-```
-
-`defineLoader()` can be passed some options to customize its behavior
-
-#### `lazy`
-
-By default, loaders block the navigation. This means that the navigation is only allowed to continue once all loaders are resolved. Lazy loaders **do not block the navigation**. `data` and other properties are updated as soon as the loader resolves, even if the navigation is still ongoing.
-
 ```ts twoslash
-import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/runtime'
-interface Book {
-  title: string
-  isbn: string
-  description: string
-}
-function fetchBookCollection(): Promise<Book[]> {
-  return {} as any
-}
+import 'unplugin-vue-router/client'
+import './typed-router.d'
+import { useUserData } from './loaders/users'
 // ---cut---
-export const useBookCollection = defineLoader(fetchBookCollection, {
-  lazy: true,
-})
+const { data: user } = useUserData()
 ```
 
-#### `commit`
+#### `defineLoader()` options
 
-In the case of non-lazy loaders, you can choose to delay the update of the data until all loaders are resolved. This is useful to avoid displaying partially up-to-date data and inconsistent state. The default behavior is set to `after-load` and can be changed to `immediate`:
+- `lazy`: By default, loaders block the navigation. This means that the navigation is only allowed to continue once all loaders are resolved. Lazy loaders **do not block the navigation**. `data` and other properties are updated as soon as the loader resolves, even if the navigation is still ongoing.
 
-```ts twoslash
-import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/runtime'
-interface Book {
-  title: string
-  isbn: string
-  description: string
-}
-function fetchBookCollection(): Promise<Book[]> {
-  return {} as any
-}
-// ---cut---
-export const useBookCollection = defineLoader(fetchBookCollection, {
-  commit: 'immediate',
-})
-```
+  ```ts twoslash
+  import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/runtime'
+  interface Book {
+    title: string
+    isbn: string
+    description: string
+  }
+  function fetchBookCollection(): Promise<Book[]> {
+    return {} as any
+  }
+  // ---cut---
+  export const useBookCollection = defineLoader(fetchBookCollection, {
+    lazy: true,
+  })
+  const { data: bookCollection } = useBookCollection()
+  //            ^ can be undefined
+  ```
 
-### Implementing a custom `defineLoader()`
+- `commit`: In the case of non-lazy loaders, you can choose to delay the update of the data until all loaders are resolved. This is useful to avoid displaying partially up-to-date data and inconsistent state. The default behavior is set to `after-load` and can be changed to `immediate`:
 
-The goal if this API is to also expose an implementable interface for external libraries to create more advanced _defineLoaders()_. For example, vue-query could be directly used to create a custom define loader that handles caching and other advanced features.
+  ```ts twoslash
+  import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/runtime'
+  interface Book {
+    title: string
+    isbn: string
+    description: string
+  }
+  function fetchBookCollection(): Promise<Book[]> {
+    return {} as any
+  }
+  // ---cut---
+  export const useBookCollection = defineLoader(fetchBookCollection, {
+    commit: 'immediate',
+  })
+  ```
 
-### Loaders
+- `server`: By default, loaders are executed on both, client, and server. Setting this to false will skip its execution on the server.
 
-- Discard pending loaders with new navigations even within nested loaders and when discarded loaders resolve later
+  ```ts twoslash
+  import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/runtime'
+  interface Book {
+    title: string
+    isbn: string
+    description: string
+  }
+  function fetchBookCollection(): Promise<Book[]> {
+    return {} as any
+  }
+  // ---cut---
+  export const useBookCollection = defineLoader(fetchBookCollection, {
+    server: false,
+  })
+  ```
 
-### Parallel Fetching
+Each custom implementation can augment the returned properties with more information. For example, [Pinia Colada](./colada.md) adds `refresh()`, `status` and other properties.
+
+#### Parallel Fetching
 
 By default, loaders are executed as soon as possible, in parallel. This scenario works well for most use cases where data fetching only requires route params/query params or nothing at all.
 
-### Sequential fetching
+#### Sequential fetching
 
 Sometimes, requests depend on other fetched data (e.g. fetching additional user information). For these scenarios, we can simply import the other loaders and use them **within a different loader**:
 
 Call **and `await`** the loader inside the one that needs it, it will only be fetched once no matter how many times it is called:
 
-```ts
+```ts twoslash
+import 'unplugin-vue-router/client'
+import './typed-router.d'
+import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/runtime'
+// ---cut---
 // import the loader for user information
-import { useUserData } from '~/loaders/users'
+import { useUserData } from './loaders/users'
+import { getCommonFriends, getCurrentUser } from './api'
 
 export const useUserCommonFriends = defineLoader(async (route) => {
   // loaders must be awaited inside other loaders
   // .        ⤵
   const user = await useUserData() // magically works
+  const me = await getCurrentUser()
 
   // fetch other data
-  const commonFriends = await getCommonFriends(user.value.id)
+  const commonFriends = await getCommonFriends(me.id, user.id)
   return { ...user, commonFriends }
 })
 ```
@@ -428,41 +372,54 @@ You will notice here that we have two different usages for `useUserData()`:
 - One that returns all the necessary information we need _synchronously_ (not used here). This is the composable that we use in components
 - A second version that **only returns a promise of the data**. This is the version used within data loaders that enables sequential fetching.
 
-// TODO: only applicable to specific loaders and must be implemented
-// this means there needs to be a way to refer to parent loaders
+::: danger
+`useUserData()` expects the route to have an `id` param to fetch the current user. We could maybe allow passing the route as a parameter to ensure the type safety as well to further differentiate the two usages (and their type).
+:::
 
-#### Nested invalidation
+##### Nested invalidation
 
-Since `useUserCommonFriends()` loader calls `useUserData()`, if `useUserData()`'s cache expires or gets manually invalidated, it will also automatically invalidate `useUserCommonFriends()`.
+Since `useUserCommonFriends()` loader calls `useUserData()`, if `useUserData()`is somehow _invalidated_, it will also automatically invalidate `useUserCommonFriends()`. This depends on the implementation of the loader and is not a requirement of the API.
 
-> ![]
-> Two loaders cannot use each other as that would create a _dead lock_.
+::: warning
+Two loaders cannot use each other as that would create a _dead lock_.
+:::
 
 This can get complex with multiple pages exposing the same loader and other pages using some of their _already exported_ loaders within other loaders. But it's not an issue, **the user shouldn't need to handle anything differently**, loaders are still only called once:
 
-```ts
-import { getFriends, getUserById } from '~/api/users'
+```ts twoslash
+import 'unplugin-vue-router/client'
+import './typed-router.d'
+import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/runtime'
+// ---cut---
+import {
+  getFriends,
+  getCommonFriends,
+  getUserById,
+  getCurrentUser,
+} from './api'
 
-export const useUserData = defineLoader(async (route) => {
-  const user = await getUserById(route.params.id)
-  return user
+export const useUserData = defineLoader('/users/[id]', async (route) => {
+  return getUserById(route.params.id)
 })
 
-export const useCurrentUserData(async route => {
+export const useCurrentUserData = defineLoader('/users/[id]', async (route) => {
   const me = await getCurrentUser()
   // imagine legacy APIs that cannot be grouped into one single fetch
-  const friends = await getFriends(user.value.id)
+  const friends = await getFriends(me.id)
 
   return { ...me, friends }
 })
 
-export const useUserCommonFriends = defineLoader(async (route) => {
-  const user = await useUserData()
-  const me = await useCurrentUserData()
+export const useUserCommonFriends = defineLoader(
+  '/users/[id]',
+  async (route) => {
+    const user = await useUserData()
+    const me = await useCurrentUserData()
 
-  const friends = await getCommonFriends(user.id, me.id)
-  return { ...me, commonFriends: { with: user, friends } }
-})
+    const friends = await getCommonFriends(user.id, me.id)
+    return { ...me, commonFriends: { with: user, friends } }
+  }
+)
 ```
 
 In the example above we are exporting multiple loaders but we don't need to care about the order in which they are called nor try optimizing them because **they are only called once and share the data**.
@@ -470,7 +427,7 @@ In the example above we are exporting multiple loaders but we don't need to care
 ::: danger
 **Caveat**: must call **and await** all nested loaders at the top of the parent loader (see `useUserData()` and `useCurrentUserData()`). You cannot put a different regular `await` in between. If you really need to await **anything that isn't a loader** in between, wrap the promise with `withDataContext()` to ensure the loader context is properly restored:
 
-```ts
+```ts{3}
 export const useUserCommonFriends = defineLoader(async (route) => {
   const user = await useUserData()
   await withContext(functionThatReturnsAPromise())
@@ -483,28 +440,20 @@ export const useUserCommonFriends = defineLoader(async (route) => {
 This allows nested loaders to be aware of their _parent loader_. This could probably be linted with an eslint plugin. It is similar to the problem `<script setup>` had before introducing the automatic `withAsyncContext()`. The same feature could be introduced but will also have a performance cost. In the future, this _might_ be solved with the [async-context](https://github.com/tc39/proposal-async-context) proposal (stage 2).
 :::
 
-### Cache and loader reuse
+#### Cache and loader reuse <Badge type="warning" text=">=0.8.0" />
 
-Each loader has its own cache and it's **not shared** across multiple application instances **as long as they use a different `router` instance** (the `router` is internally used as the key of a `WeakMap()`). This aligns with the recommendation of using one router instance per request in the ecosystem and usually one won't even need to know about this.
+::: warning
+This part has been removed from the core features of the API. It's now part of custom implementations like [Pinia Colada](./colada.md).
+:::
 
-The cache is a very simple time based expiration cache that defaults to 5 seconds. When a loader is called, it will wait 5s before calling the loader function again. This can be changed with the `cacheTime` option:
+#### Smart Refreshing
 
-```ts
-defineLoader(..., { cacheTime: 1000 * 60 * 5 }) // 5 minutes
-defineLoader(..., { cacheTime: 0 }) // No cache (still avoids calling the loader twice in parallel)
-defineLoader(..., { cacheTime: Infinity }) // Cache forever
-```
+When navigating, depending on the loader, the data is refreshed **automatically based on what params, query params, and hash** are used within the loader.
 
-### Refreshing the data
-
-TODO: give the loaders the ability to know what was the last location? Maybe only internally but not expose it to the user. Although custom loaders could if they wanted to.
-
-When navigating, the data is refreshed **automatically based on what params, query params, and hash** are used within the loader.
-
-Given this loader in page `/users/:id`:
+e.g. using [Pinia Colada](./colada.md), given this loader in page `/users/:id`:
 
 ```ts
-export const useUserData = defineLoader(async (route) => {
+export const useUserData = defineColadaLoader(async (route) => {
   const user = await getUserById(route.params.id)
   return user
 })
@@ -512,79 +461,159 @@ export const useUserData = defineLoader(async (route) => {
 
 Going from `/users/1` to `/users/2` will reload the data but going from `/users/2` to `/users/2#projects` will not unless the cache expires or is manually invalidated.
 
-<!-- ### With navigation
+#### Deduplication
 
-TODO: maybe an option `reload`:
+Loaders also have the advantage of behaving as singleton requests. This means that they are only fetched once per navigation no matter how many times the loader is attached or how many regular components use it. It also means that all the refs (`data`, `isLoading`, etc) are created only once and shared by all components, reducing memory usage.
+
+#### SSR
+
+Each Data Loader implementation is responsible for providing a way to serialize the data loaded on the server and pass it to the client. This is a requirement for SSR to work properly.
+
+Different implementations could have different kind of keys. The simplest form is a string:
 
 ```ts
-export const useUserData = defineLoader(
-  async (route) => {
-    const friends = await getFriends(user.value.id)
-    return { user, friends }
+export const useBookCollection = defineLoader(
+  async () => {
+    const books = await fetchBookCollection()
+    return books
   },
-  {
-    // force reload the data on navigation if /users/24?force=true
-    reload: (route) => !!route.query.force
+  { key: 'bookCollection' }
+)
+```
+
+##### Avoiding double fetch on the client
+
+One of the advantages of having an initial state is that we can avoid fetching on the client. Data Loaders can implement a mechanism to skip fetching on the client if the initial state is provided ([Pinia Colada](./colada.md) implements this). This means nested loaders **aren't executed either**. Since data loaders shouldn't contain side effects besides data fetching, this shouldn't be a problem.
+
+### The Navigation Guard
+
+The bulk of the logic of data loaders is handled with navigation guards:
+
+- one `router.beforeEach()` to collect loaders from lazy loaded components
+- one `router.beforeResolve()` (triggers after other guards) to execute the loaders
+
+`router.afterEach()` and `router.onError()` are also used to handle errors and cleanup.
+
+Handling the data loading in a navigation guards has the following advantages:
+
+- Ensure data is present before mounting the component
+- Flexibility to not wait for non critical data with lazy data loaders
+- Enables the UX pattern of letting the browser handle loading state (aligns with [future Navigation API](https://github.com/WICG/navigation-api))
+- Makes scrolling work out of the box when navigating between pages (when data loaders are blocking)
+- Ensure one single request per loader and navigation
+
+#### Controlling the navigation
+
+Since the data fetching happens within a navigation guard, it's possible to control the navigation like in regular navigation guards:
+
+- Thrown errors (or rejected Promises) cancel the navigation (same behavior as in a regular navigation guard) and are intercepted by [Vue Router's error handling](https://router.vuejs.org/api/interfaces/router.html#onerror)
+- Redirection: `return new NavigationResult(targetLocation)` -> like `return targetLocation` in a regular navigation guard
+- Cancelling the navigation: `return new NavigationResult(false)` like `return false` in a regular navigation guard
+
+```ts{1,11,14}
+import { NavigationResult } from 'vue-router'
+
+export const useUserData = defineLoader(
+  async (to) => {
+    try {
+      const user = await getUserById(to.params.id)
+
+      return user
+    } catch (error) {
+      if (error.status === 404) {
+        return new NavigationResult({ name: 'not-found', params: { pathMatch: '' } }
+        )
+      } else {
+        throw error // aborts the vue router navigation
+      }
+    }
   }
 )
 ```
 
-This kind of option should be added by custom loaders because some loaders like vue-query or pinia colada can automatically handle this.
+`new NavigationResult()` accepts as its only argument anything that [can be returned in a navigation guard](https://router.vuejs.org/guide/advanced/navigation-guards.html#global-before-guards).
 
--->
+Some alternatives:
 
-#### Manually refreshing the data
+::: details
 
-Manually call the `reload()` function to execute the loader again. Depending on the implementation this will end up in a new request or not. For example, a basic loader could _always_ refetch, while a more advanced one, like [Pinia Colada][pinia-colada] will only refetch if the cached value is _stale_ or if any of the parameters change.
+- `createNavigationResult()`: too verbose
+- `NavigationResult()` (no `new`): `NavigationResult` is not a primitive so it should use `new`
+- Accept a second argument for extra custom context that can be retrieved in `selectNavigationResult()`
 
-```vue
-<script setup>
-import { useInterval } from '@vueuse/core'
-import { useUserData } from '~/pages/users/[id].vue'
+:::
 
-const { data: user, reload } = useUserData()
+::: tip
 
-// reload the data every 10s
-useInterval(reload, 10000)
-</script>
+Throwing an error do not trigger the `selectNavigationResult()` method. Instead, it immediately cancels the navigation and triggers the `router.onError()` method, just like in a regular navigation guard.
 
-<template>
-  <div>
-    <h1>User: {{ user.name }}</h1>
-  </div>
-</template>
+:::
+
+#### Handling multiple navigation results
+
+Since navigation loaders can run in parallel, they can return different navigation results as well. In this case, you can decide which result should be used by providing a `selectNavigationResult()` method to [DataLoaderPlugin](#data-loader-setup):
+
+```ts{3-6} twoslash
+import 'unplugin-vue-router/client'
+import { createApp } from 'vue'
+import { DataLoaderPlugin, createRouter, createWebHistory } from 'vue-router/auto'
+const app = createApp({})
+const router = createRouter({
+  history: createWebHistory(),
+})
+// ---cut---
+// @moduleResolution: bundler
+// @noErrors
+app.use(DataLoaderPlugin, {
+  router,
+  selectNavigationResult(results) {
+    for (const { value } of results) {
+      if (
+        typeof value === 'object' &&
+        'name' in value &&
+        value.name === 'not-found'
+      ) {
+        return value
+      }
+    }
+  },
+})
 ```
 
-<!--
+`selectNavigationResult()` is called with an array of all the returned `new NavigationResult(value)` **after all data loaders** have been resolved. **If any of them throws an error** or if none of them return a `NavigationResult`, `selectNavigationResult()` won't be called.
 
- ## Combining loaders
+By default, `selectNavigation` returns the first value of the array.
 
-TBD: is this necessary? At the end, this is achievable with similar composables like [logicAnd](https://vueuse.org/math/logicAnd/).
+#### Eagerly changing the navigation
 
-It's possible to combine multiple loaders into one loader with `combineLoaders()` to not combine the results of multiple loaders into a single object but also merge `isLoading`, `error`, etc
+If a loader wants to eagerly change the navigation, it can `throw` the `NavigationResult` instead of returning it. This skips the `selectNavigationResult()` and take precedence without triggering `router.onError()`.
 
-```vue
-<script>
-import { useUserData } from '~/pages/users/[id].vue'
-import { usePostData } from '~/pages/posts/[id].vue'
+```ts{10-15}
+import { NavigationResult } from 'vue-router/auto'
 
-export const useCombinedLoader = combineLoaders(useUserData, usePostData)
-</script>
+export const useUserData = defineLoader(
+  async (to) => {
+    try {
+      const user = await getUserById(to.params.id)
 
-<script setup>
-const {
-  data,
-  // both are loading
-  isLoading,
-  // any error that happens
-  error,
-  // reload both
-  reload
-} = useCombinedLoader()
-const { user, post } = toRefs(data.value)
-</script>
+      return user
+    } catch (error) {
+      throw new NavigationResult({
+        name: 'not-found',
+        params: { pathMatch: to.path.split('/') },
+        query: to.query,
+        hash: to.hash,
+      })
+    }
+  }
+)
 ```
- -->
+
+::: info
+
+When using vue router named views, each named view can have their own loaders but note any navigation to the route will trigger **all loaders from all page components**. This is because the router doesn't know which named views will be used.
+
+:::
 
 ### Usage outside of page components
 
@@ -621,10 +650,6 @@ const { data: user } = useUserData()
 </script>
 ```
 
-::: tip
-In such scenarios, moving the data loader to a separate file allows to better control code splitting.
-:::
-
 ### TypeScript
 
 Types are automatically generated for the routes by [unplugin-vue-router][uvr] and can be referenced with the name of each route to hint `defineLoader()` the possible values of the current types:
@@ -657,8 +682,6 @@ const { data: user, isLoading, error } = useUserData()
 ```
 
 The arguments can be removed during the compilation step in production mode since they are only used for types and are ignored at runtime.
-
-// TODO: move to the inerface section when talking about lazy
 
 ### Non blocking data fetching (Lazy Loaders)
 
@@ -712,173 +735,43 @@ Existing questions:
 - [~~Should it be possible to await all pending loaders with `await allPendingLoaders()`? Is it useful for SSR? Otherwise we could always ignore lazy loaders in SSR. Do we need both? Do we need to selectively await some of them?~~](https://github.com/vuejs/rfcs/discussions/460#discussioncomment-3532011)
 - Should we be able to transform a loader into a lazy version of it: `const useUserDataLazy = asLazyLoader(useUserData)`
 
-- TODO: move up to `selectNavigationResult()`
-- note down that custom implementations might not take a function and therefore not expose a way to the user to control the navigation
-
-### Controlling the navigation
-
-Since the data fetching happens within a navigation guard, it's possible to control the navigation like in regular navigation guards:
-
-- Thrown errors (or rejected Promises) cancel the navigation (same behavior as in a regular navigation guard) and are intercepted by [Vue Router's error handling](https://router.vuejs.org/api/interfaces/router.html#onerror)
-- Redirection: `return new NavigationResult(targetLocation)` -> like `return targetLocation` in a regular navigation guard
-- Cancelling the navigation: `return new NavigationResult(false)` like `return false` in a regular navigation guard
-
-```ts{1,11,14}
-import { NavigationResult } from 'vue-router'
-
-export const useUserData = defineLoader(
-  async ({ params, path ,query, hash }) => {
-    try {
-      const user = await getUserById(params.id)
-
-      return user
-    } catch (error) {
-      if (error.status === 404) {
-        return new NavigationResult({ name: 'not-found', params: { pathMatch:  } }
-        )
-      } else {
-        throw error // aborts the vue router navigation
-      }
-    }
-  }
-)
-```
-
-`new NavigationResult()` accepts as its only argument anything that [can be returned in a navigation guard](https://router.vuejs.org/guide/advanced/navigation-guards.html#global-before-guards).
-
-Some alternatives:
-
-- `createNavigationResult()`: too verbose
-- `NavigationResult()` (no `new`): `NavigationResult` is not a primitive so it should use `new`
-- Accept a second argument for extra custom context that can be retrieved in `selectNavigationResult()`
-
-The only difference between throwing an error and returning a `NavigationResult` of an error is that the latter still triggers the [`selectNavigationResult()` mentioned right below](#handling-multiple-navigation-results) while a thrown error always takes the priority.
-
-#### Handling multiple navigation results
-
-Since navigation loaders can run in parallel, they can return different navigation results as well. In this case, you can decide which result should be used by providing a `selectNavigationResult()` method to `setupLoaderGuard()`:
-
-```ts
-setupLoaderGuard(router, {
-  selectNavigationResult(results) {
-    // results is an array of the unwrapped results passed to `new NavigationResult(result)`
-    return results.find((result) => result.name === 'not-found')
-  },
-})
-```
-
-`selectNavigationResult()` is called with an array of the values passed to `new NavigationResult(value)` **after all data loaders** have been resolved. **If any of them throws an error** or if none of them return a `NavigationResult`, `selectNavigationResult()` won't be called.
-
-#### Eagerly changing the navigation
-
-If a loader wants to eagerly change the navigation, it can `throw` the `NavigationResult` instead of returning it. This skips the `selectNavigationResult()` and take precedence.
-
-```ts{10-15}
-import { NavigationResult } from 'vue-router/auto'
-
-export const useUserData = defineLoader(
-  async ({ params, path, query, hash }) => {
-    try {
-      const user = await getUserById(params.id)
-
-      return user
-    } catch (error) {
-      throw new NavigationResult({
-        name: 'not-found',
-        params: { pathMatch: path.split('/') },
-        query,
-        hash,
-      })
-    }
-  }
-)
-```
-
 ### AbortSignal
 
 The loader receives in a second argument access to an [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) that can be passed on to `fetch` and other Web APIs. If the navigation is cancelled because of errors or a new navigation, the signal aborts, causing any request using it to abort as well.
 
-```ts
-export const useBookCatalog = defineLoader(async (_route, { signal }) => {
-  // assuming getBookCatalog() passes the `signal` to `fetch()`
-  const books = await getBookCatalog({ signal })
-  return books
+```ts twoslash
+import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/runtime'
+interface Book {
+  title: string
+  isbn: string
+  description: string
+}
+function fetchBookCollection(options: {
+  signal: AbortSignal
+}): Promise<Book[]> {
+  return {} as any
+}
+// ---cut---
+export const useBookCollection = defineLoader(async (_route, { signal }) => {
+  return fetchBookCollection({ signal })
 })
 ```
 
 This aligns with the future [Navigation API](https://github.com/WICG/navigation-api#navigation-monitoring-and-interception) and other web APIs that use the `AbortSignal` to cancel an ongoing invocation.
 
-### SSR
+### Implementations
 
-Data Loaders are responsible for handling SSR.
+::: tip
+Throughout this section, we will import from `vue-router/auto`. This is added by [unplugin-vue-router][uvr] but you can also import from `unplugin-vue-router/runtime` if you don't want to use file-based routing.
+:::
 
-// TODO: example using the basic loader and @pinia/colada
+### Interfaces
 
-To support SSR we need to do two things:
+Defining a minimal set of information and options for Data Loaders is what enables external libraries to implement their own data loaders. They are meant to extend these interfaces to add more features that are specific to them. You can see a practical example with the [Pinia Colada](colada.md) implementation.
 
-- A way to serialize each data loaded on the server with a unique _key_. Note: Would an array work? I don't think the order of execution is guaranteed.
-- On the client side, pass the initial state to `setupLoaderGuard()`. The initial state is used once and discarded afterwards.
-
-Different implementations could have different kind of keys. The simplest form is a string:
-
-```ts
-export const useBookCollection = defineLoader(
-  async () => {
-    const books = await fetchBookCollection()
-    return books
-  },
-  { key: 'bookCollection' }
-)
-```
-
-The configuration of `setupLoaderGuard()` depends on the SSR configuration, here is an example with vite-ssg:
-
-```ts
-import { ViteSSG } from 'vite-ssg'
-import { setupLoaderGuard } from 'vue-router'
-import App from './App.vue'
-import { routes } from './routes'
-
-export const createApp = ViteSSG(
-  App,
-  { routes },
-  async ({ router, isClient, initialState }) => {
-    // fetchedData will be populated during navigation
-    const fetchedData = setupLoaderGuard(router, {
-      // FIXME: no longer like this
-      initialData: isClient
-        ? // on the client we pass the initial state
-          initialState.vueRouter
-        : // on server we want to generate the initial state
-          undefined,
-    })
-
-    // on the server, we serialize the fetchedData
-    if (!isClient) {
-      initialState.vueRouter = fetchedData
-    }
-  }
-)
-```
-
-Note that `setupLoaderGuard()` **should be called before `app.use(router)`** so it takes effect on the initial navigation. Otherwise a new navigation must be triggered after the navigation guard is added.
-
-#### Avoiding double fetch on the client
-
-One of the advantages of having an initial state is that we can avoid fetching on the client, in fact, loaders are **completely skipped** on the client if the initial state is provided. This means nested loaders **aren't executed either**. Since data loaders shouldn't contain side effects besides data fetching, this shouldn't be a problem. Note that any loader **without a key** won't be serialized and will always be executed on both client and server.
-
-<!-- TBD: do we need to support this use case? We could allow it by having a `force` option on the loader and passing the initial state in the second argument of the loader. -->
-
-<!-- ## Custom `defineLoader()` for libraries
-
-It's possible to extend the `defineLoader()` function to add new features such as a more complex cache system. TODO:
-
-ideas:
-
-- Export an interface that must be implemented by a composable so external libraries can implement custom strategies (e.g. vue-query)
-- allow global and local config (+ types)
-
-TODO: investigate how integrating with vue-apollo would look like -->
+::: danger
+This section is still a work in progress, see the [implementations](#implementations) instead.
+:::
 
 ### Global API
 
@@ -944,12 +837,6 @@ onBeforeRouteUpdate(async (to) => {
 </script>
 ```
 
-// TODO: move when we talk about the blocking mechanism, remove the NOTE
-
-::: info
-One of the reasons to block the navigation while fetching is to align with the upcoming [Navigation API](https://github.com/WICG/navigation-api) which will show a spinning indicator (same as when entering a URL) on the browser UI while the navigation is blocked.
-:::
-
 This setup has many limitations:
 
 - Nested routes will force **sequential data fetching**: it's not possible to ensure an **optimal parallel fetching**
@@ -970,6 +857,8 @@ On top of this it's important to note that this RFC doesn't limit you: you can s
 
 - Allowing blocking data loaders to return objects of properties:
 
+  ::: details
+
   ```ts
   export const useUserData = defineLoader(async (route) => {
     const user = await getUserById(route.params.id)
@@ -982,7 +871,11 @@ On top of this it's important to note that this RFC doesn't limit you: you can s
 
   This was the initial proposal but since this is not possible with lazy loaders it was more complex and less intuitive. Having one single version is overall easier to handle.
 
+  :::
+
 - Adding a new `<script loader>` similar to `<script setup>`:
+
+  ::: details
 
   ```vue
   <script lang="ts" loader="useUserData">
@@ -1001,13 +894,17 @@ On top of this it's important to note that this RFC doesn't limit you: you can s
 
   Too magical without clear benefit.
 
+  :::
+
 - Pass route properties instead of the whole `route` object:
+
+  ::: details
 
   ```ts
   import { getUserById } from '../api'
 
-  export const useUserData = defineLoader(async ({ params, query, hash }) => {
-    const user = await getUserById(params.id)
+  export const useUserData = defineLoader(async (to) => {
+    const user = await getUserById(to.params.id)
     return { user }
   })
   ```
@@ -1026,14 +923,22 @@ On top of this it's important to note that this RFC doesn't limit you: you can s
   })
   ```
 
+  :::
+
 - Naming
+
+  ::: details
 
   Variables could be named differently and proposals are welcome:
 
   - `isLoading` -> `isPending`, `pending` (same as Nuxt)
   - Rename `defineLoader()` to `defineDataFetching()` (or others)
 
+  :::
+
 - Nested/Sequential Loaders drawbacks
+
+  ::: details
 
   - Allowing `await getUserById()` could make people think they should also await inside `<script setup>` and that would be a problem because it would force them to use `<Suspense>` when they don't need to. I think this is solved by changing the return type of the loader to a promise of just data, making it easy to spot the mistake.
 
@@ -1054,7 +959,11 @@ On top of this it's important to note that this RFC doesn't limit you: you can s
     )
     ```
 
+  :::
+
 - Advanced `lazy`
+
+  ::: details
 
   The `lazy` flag could be extended to also accept a number (timeout) or a function (dynamic value). I think this is too much and should therefore not be included. It can always be implemented by custom data loaders but I don't think it should be a requirement for the basic API.
 
@@ -1096,6 +1005,8 @@ On top of this it's important to note that this RFC doesn't limit you: you can s
     }
   )
   ```
+
+  :::
 
 - One could argue being able to reuse the result of loaders across any component other than page components is a bad practice. Other frameworks expose a single _load_ function from page components (SvelteKit, Remix)
 

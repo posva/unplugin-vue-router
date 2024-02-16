@@ -278,7 +278,7 @@ export function isAsyncModule(
 /**
  * Options to initialize the data loader guard.
  */
-export interface SetupLoaderGuardOptions {
+export interface SetupLoaderGuardOptions extends DataLoaderPluginOptions {
   /**
    * The Vue app instance. Used to access the `provide` and `inject` APIs.
    */
@@ -288,22 +288,6 @@ export interface SetupLoaderGuardOptions {
    * The effect scope to use for the data loaders.
    */
   effect: EffectScope
-
-  /**
-   * The router instance. Adds the guards to it
-   */
-  router: _Router
-
-  /**
-   * Called if any data loader returns a `NavigationResult` with an array of them. Should decide what is the outcome of
-   * the data fetching guard. Note this isn't called if no data loaders return a `NavigationResult` or if an error is thrown.
-   * @defaultValue `(results) => results[0].value`
-   */
-  selectNavigationResult?: (
-    results: NavigationResult[]
-  ) => _Awaitable<
-    Exclude<ReturnType<NavigationGuard>, Function | Promise<unknown>>
-  >
 }
 
 /**
@@ -372,5 +356,20 @@ export function DataLoaderPlugin(app: App, options: DataLoaderPluginOptions) {
 /**
  * Options passed to the DataLoaderPlugin.
  */
-export interface DataLoaderPluginOptions
-  extends Omit<SetupLoaderGuardOptions, 'app' | 'effect'> {}
+export interface DataLoaderPluginOptions {
+  /**
+   * The router instance. Adds the guards to it
+   */
+  router: _Router
+
+  /**
+   * Called if any data loader returns a `NavigationResult` with an array of them. Should decide what is the outcome of
+   * the data fetching guard. Note this isn't called if no data loaders return a `NavigationResult` or if an error is thrown.
+   * @defaultValue `(results) => results[0].value`
+   */
+  selectNavigationResult?: (
+    results: NavigationResult[]
+  ) => _Awaitable<
+    Exclude<ReturnType<NavigationGuard>, Function | Promise<unknown>>
+  >
+}

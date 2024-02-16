@@ -9,6 +9,12 @@ import {
   releases,
   discord,
 } from './meta'
+import {
+  apiIndexFile,
+  typedRouterFile,
+  usersLoaderFile,
+  vueShimFile,
+} from './twoslash-files'
 
 export default defineConfig({
   markdown: {
@@ -16,49 +22,11 @@ export default defineConfig({
       transformerTwoslash({
         twoslashOptions: {
           extraFiles: {
-            'typed-router.d.ts': `
-declare module 'vue-router/auto-routes' {
-  import type {
-    RouteRecordInfo,
-    ParamValue,
-    ParamValueOneOrMore,
-    ParamValueZeroOrMore,
-    ParamValueZeroOrOne,
-  } from 'unplugin-vue-router/types'
-  export interface RouteNamedMap {
-    '/': RouteRecordInfo<'/', '/', Record<never, never>, Record<never, never>>
-    '/users': RouteRecordInfo<
-      '/users',
-      '/users',
-      Record<never, never>,
-      Record<never, never>
-    >
-    '/users/[id]': RouteRecordInfo<
-      '/users/[id]',
-      '/users/:id',
-      { id: ParamValue<true> },
-      { id: ParamValue<false> }
-    >
-    '/users/[id]/edit': RouteRecordInfo<
-      '/users/[id]/edit',
-      '/users/:id/edit',
-      { id: ParamValue<true> },
-      { id: ParamValue<false> }
-    >
-  }
-}
-`,
-            '../api/index.ts': `
-export interface User {
-  id: number
-  name: string
-  photoURL: string
-}
-
-export async function getUserById(id: string | number) {
-  return {} as User
-}
-`,
+            'typed-router.d.ts': typedRouterFile,
+            'api/index.ts': apiIndexFile,
+            '../api/index.ts': apiIndexFile,
+            'loaders/users.ts': usersLoaderFile,
+            'shims-vue.d.ts': vueShimFile,
           },
         },
       }),

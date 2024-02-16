@@ -264,7 +264,7 @@ export interface ParseSegmentOptions {
   /**
    * Should we allow dot nesting in the param name. e.g. `users.[id]` will be parsed as `users/[id]` if this is `true`,
    * nesting. Note this only works for the `file` format.
-   * @default true
+   * @default `true`
    */
   dotNesting?: boolean
 }
