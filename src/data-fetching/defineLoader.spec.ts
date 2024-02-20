@@ -28,6 +28,9 @@ import { RouteLocationNormalizedLoaded } from 'vue-router'
 
 describe(
   'defineBasicLoader',
+  // change it during dev while working on features
+  // CI might need higher timeout
+  { timeout: process.env.CI ? 1000 : 100 },
   () => {
     enableAutoUnmount(afterEach)
 
@@ -241,8 +244,5 @@ describe(
         expect(nestedPending.value).toEqual(false)
       })
     })
-  },
-  // change it during dev while working on features
-  // CI might need higher timeout
-  { timeout: process.env.CI ? 1000 : 100 }
+  }
 )

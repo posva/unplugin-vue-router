@@ -21,6 +21,7 @@ import RouterViewMock from '../data-loaders/RouterViewMock.vue'
 import ComponentWithNestedLoader from '../data-loaders/ComponentWithNestedLoader.vue'
 import { dataOneSpy, dataTwoSpy } from '../data-loaders/loaders'
 import type { _RouteLocationNormalizedLoaded } from '../../src/type-extensions/routeLocation'
+import { mockWarn } from '../vitest-mock-warn'
 
 export function testDefineLoader<Context = void>(
   loaderFactory: (
@@ -59,6 +60,9 @@ export function testDefineLoader<Context = void>(
       loader: loaderFactory({ fn: spy, ...options }),
     }
   }
+
+  // TODO:
+  // mockWarn()
 
   beforeEach(async () => {
     dataOneSpy.mockClear()
@@ -873,6 +877,55 @@ export function testDefineLoader<Context = void>(
     expect(one.value).toEqual('one')
     expect(two.value).toEqual('two')
   })
+
+  it.each([new NavigationResult(false), new Error('ko')] as const)(
+    'does not commit new data if loader returns %s',
+    async (resolvedValue) => {
+      const l1 = mockedLoader({ lazy: false, commit: 'after-load', key: 'l1' })
+      const l2 = mockedLoader({ lazy: false, commit: 'after-load', key: 'l2' })
+      const router = getRouter()
+      router.addRoute({
+        name: '_test',
+        path: '/fetch',
+        component: defineComponent({
+          template: `<p></p>`,
+        }),
+        meta: {
+          loaders: [l1.loader, l2.loader],
+        },
+      })
+
+      const wrapper = mount(RouterViewMock, {
+        global: {
+          plugins: [
+            [DataLoaderPlugin, { router }],
+            ...(plugins?.(customContext!) || []),
+          ],
+        },
+      })
+      const app: App = wrapper.vm.$.appContext.app
+
+      const p = router.push('/fetch').catch(() => {})
+      await vi.runOnlyPendingTimersAsync()
+      l1.resolve('ko')
+      await vi.runOnlyPendingTimersAsync()
+      expect(l1.spy).toHaveBeenCalledTimes(1)
+      expect(l2.spy).toHaveBeenCalledTimes(1)
+      if (resolvedValue instanceof NavigationResult) {
+        l2.resolve(resolvedValue)
+      } else {
+        l2.reject(resolvedValue)
+      }
+      await vi.runOnlyPendingTimersAsync()
+      await p
+      const { data: one, error: e1 } = app.runWithContext(() => l1.loader())
+      const { data: two, error: e2 } = app.runWithContext(() => l2.loader())
+      expect(one.value).toBeUndefined()
+      expect(e1.value).toBeUndefined()
+      expect(two.value).toBeUndefined()
+      expect(e2.value).toBeUndefined()
+    }
+  )
 
   it('awaits for a lazy loader if used as a nested loader', async () => {
     const l1 = mockedLoader({ lazy: true, key: 'nested' })

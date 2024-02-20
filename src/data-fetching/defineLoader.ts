@@ -154,6 +154,9 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
     }
     // set the current context before loading so nested loaders can use it
     setCurrentContext([entry, router, to])
+    entry.staged = STAGED_NO_VALUE
+    // preserve error until data is committed
+    entry.stagedError = error.value
 
     // Promise.resolve() allows loaders to also be sync
     const currentLoad = Promise.resolve(
@@ -166,7 +169,13 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
         //   `accepted: ${entry.pendingLoad === currentLoad}; data: ${d}`
         // )
         if (entry.pendingLoad === currentLoad) {
-          entry.staged = d
+          // let the navigation guard collect the result
+          if (d instanceof NavigationResult) {
+            to.meta[NAVIGATION_RESULTS_KEY]!.push(d)
+          } else {
+            entry.staged = d
+            entry.stagedError = null
+          }
         }
       })
       .catch((e) => {
@@ -178,15 +187,10 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
         // )
         if (entry.pendingLoad === currentLoad) {
           // in this case, commit will never be called so we should just drop the error
-          if (
-            options.lazy ||
-            options.commit !== 'after-load' ||
-            !router[PENDING_LOCATION_KEY]
-          ) {
-            // console.log(`🚨 error in "${options.key}"`, e)
-            entry.stagedError = e
-          }
+          // console.log(`🚨 error in "${options.key}"`, e)
+          entry.stagedError = e
           // propagate error if non lazy or during SSR
+          // NOTE: Cannot be handled at the guard level because of nested loaders
           if (!options.lazy || !IS_CLIENT) {
             return Promise.reject(e)
           }
@@ -198,17 +202,22 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
         //   `😩 restored context ${options.key}`,
         //   currentContext?.[2]?.fullPath
         // )
+        // TODO: could we replace with signal.aborted?
         if (entry.pendingLoad === currentLoad) {
           isLoading.value = false
           // we must run commit here so nested loaders are ready before used by their parents
           if (
-            options.lazy ||
             options.commit === 'immediate' ||
             // outside of navigation
             !router[PENDING_LOCATION_KEY]
           ) {
             entry.commit(to)
           }
+        } else {
+          // For debugging purposes and refactoring the code
+          // console.log(
+          //   to.meta[ABORT_CONTROLLER_KEY]!.signal.aborted ? '✅' : '❌'
+          // )
         }
       })
 
@@ -235,28 +244,25 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
           )
         }
       }
+
       // if the entry is null, it means the loader never resolved, maybe there was an error
       if (this.staged !== STAGED_NO_VALUE) {
-        // collect navigation results instead of setting the data
-        if (this.staged instanceof NavigationResult) {
-          to.meta[NAVIGATION_RESULTS_KEY]!.push(this.staged)
-        } else {
-          this.data.value = this.staged
-        }
+        this.data.value = this.staged
       }
-      // The navigation was changed so avoid resetting the error
-      if (!(this.staged instanceof NavigationResult)) {
-        this.error.value = this.stagedError
-      }
+      // we always commit the error unless the navigation was cancelled
+      this.error.value = this.stagedError
+
+      // reset the staged values so they can't be commit
       this.staged = STAGED_NO_VALUE
-      this.stagedError = null
+      // preserve error until data is committed
+      this.stagedError = this.error.value
       this.pendingTo = null
       // we intentionally keep pendingLoad so it can be reused until the navigation is finished
 
       // children entries cannot be committed from the navigation guard, so the parent must tell them
-      this.children.forEach((childEntry) => {
+      for (const childEntry of this.children) {
         childEntry.commit(to)
-      })
+      }
     }
   }
 

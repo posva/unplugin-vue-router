@@ -1,5 +1,5 @@
 import type { NavigationGuard } from 'vue-router'
-import { isNavigationFailure } from 'vue-router'
+import { isNavigationFailure, NavigationFailure } from 'vue-router'
 import { effectScope, type App, type EffectScope } from 'vue'
 import {
   ABORT_CONTROLLER_KEY,
@@ -57,12 +57,12 @@ export function setupLoaderGuard({
 
   // guard to add the loaders to the meta property
   const removeLoaderGuard = router.beforeEach((to) => {
-    // Here we could check if there is a pending navigation and call abort:
+    // Abort any pending navigation. For cancelled navigations, this will happen before the `router.afterEach()`
     // if (router[PENDING_LOCATION_KEY]) {
-    //   router[PENDING_LOCATION_KEY].meta[ABORT_CONTROLLER_KEY]!.abort()
+    //   router[PENDING_LOCATION_KEY].meta[ABORT_CONTROLLER_KEY]?.abort()
     // }
-    // but we don't need it because we already abort in afterEach and onError
-    // and both are called if a new navigation happens
+    // TODO: test out if worth adding here since the afterEach will also abort the signal and with a reason parameter
+    // NOTE: in tests, it does allow to have an aborted signal faster but not in all cases
 
     // global pending location, used by nested loaders to know if they should load or not
     router[PENDING_LOCATION_KEY] = to
@@ -128,7 +128,7 @@ export function setupLoaderGuard({
 
     // TODO: could we benefit anywhere here from verifying the signal is aborted and not call the loaders at all
     // if (to.meta[ABORT_CONTROLLER_KEY]!.signal.aborted) {
-    //   return
+    //   return to.meta[ABORT_CONTROLLER_KEY]!.signal.reason ?? false
     // }
 
     // unset the context so all loaders are executed as root loaders
@@ -171,14 +171,6 @@ export function setupLoaderGuard({
       })
     ) // let the navigation go through by returning true or void
       .then((loaders) => {
-        for (const loader of loaders) {
-          if (loader) {
-            // console.log(`⬇️ Committing ${loader.name}`)
-            loader._.getEntry(router as _Router).commit(
-              to as _RouteLocationNormalizedLoaded
-            )
-          }
-        }
         // console.log(
         //   `✨ Navigation results "${to.fullPath}": [${to.meta[
         //     NAVIGATION_RESULTS_KEY
@@ -204,29 +196,39 @@ export function setupLoaderGuard({
     // console.log(
     //   `🔚 afterEach "${_from.fullPath}" -> "${to.fullPath}": ${failure?.message}`
     // )
-    // abort the signal of a failed navigation
-    // we need to check if it exists because the navigation guard that creates
-    // the abort controller could not be triggered depending on the failure
-    if (failure && to.meta[ABORT_CONTROLLER_KEY]) {
-      to.meta[ABORT_CONTROLLER_KEY].abort(failure)
-    }
+    if (failure) {
+      // abort the signal of a failed navigation
+      // we need to check if it exists because the navigation guard that creates
+      // the abort controller could not be triggered depending on the failure
+      to.meta[ABORT_CONTROLLER_KEY]?.abort(failure)
 
-    if (
-      // NOTE: using a smaller version to cutoff some bytes
-      isNavigationFailure(failure, 16 /* NavigationFailureType.duplicated */)
-    ) {
-      if (router[PENDING_LOCATION_KEY]) {
-        // the PENDING_LOCATION_KEY is set at the same time the LOADER_SET_KEY is set
-        // so we know it exists
-        router[PENDING_LOCATION_KEY].meta[LOADER_SET_KEY]!.forEach((loader) => {
+      if (
+        // NOTE: using a smaller version to cutoff some bytes
+        isNavigationFailure(failure, 16 /* NavigationFailureType.duplicated */)
+      ) {
+        for (const loader of to.meta[LOADER_SET_KEY]!) {
           const entry = loader._.getEntry(router as _Router)
           entry.resetPending()
-        })
+        }
+      }
+    } else {
+      for (const loader of to.meta[LOADER_SET_KEY]!) {
+        const { commit, lazy } = loader._.options
+        if (commit === 'after-load') {
+          const entry = loader._.getEntry(router as _Router)
+          // lazy loaders do not block the navigation so the navigation guard
+          // might call commit before the loader is ready
+          if (!lazy || !entry.isLoading.value) {
+            loader._.getEntry(router as _Router).commit(
+              to as _RouteLocationNormalizedLoaded
+            )
+          }
+        }
       }
     }
 
+    // avoid this navigation being considered valid by the loaders
     if (router[PENDING_LOCATION_KEY] === to) {
-      // avoid this navigation being considered valid by the loaders
       router[PENDING_LOCATION_KEY] = null
     }
   })
@@ -237,11 +239,9 @@ export function setupLoaderGuard({
   const removeOnError = router.onError((error, to) => {
     // same as with afterEach, we check if it exists because the navigation guard
     // that creates the abort controller could not be triggered depending on the error
-    if (to.meta[ABORT_CONTROLLER_KEY]) {
-      to.meta[ABORT_CONTROLLER_KEY].abort(error)
-    }
+    to.meta[ABORT_CONTROLLER_KEY]?.abort(error)
+    // avoid this navigation being considered valid by the loaders
     if (router[PENDING_LOCATION_KEY] === to) {
-      // avoid this navigation being considered valid by the loaders
       router[PENDING_LOCATION_KEY] = null
     }
   })
@@ -302,7 +302,8 @@ export type _DataLoaderRedirectResult = Exclude<
 
 /**
  * Possible values to change the result of a navigation within a loader. Can be returned from a data loader and will
- * appear in `selectNavigationResult`. If thrown, it will immediately cancel the navigation.
+ * appear in `selectNavigationResult`. If thrown, it will immediately cancel the navigation. It can only contain values
+ * that cancel the navigation.
  *
  * @example
  * ```ts

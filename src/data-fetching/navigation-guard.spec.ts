@@ -320,6 +320,10 @@ describe('navigation-guard', () => {
     expect(router.currentRoute.value.path).not.toBe('/fetch')
   })
 
+  it.todo(
+    'does not call commit for a loader if the navigation is canceled by another loader'
+  )
+
   describe('signal', () => {
     it('aborts the signal if the navigation throws', async () => {
       const router = getRouter()

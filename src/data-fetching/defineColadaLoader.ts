@@ -298,9 +298,9 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       this.pendingTo = null
 
       // children entries cannot be committed from the navigation guard, so the parent must tell them
-      this.children.forEach((childEntry) => {
+      for (const childEntry of this.children) {
         childEntry.commit(to)
-      })
+      }
     } else {
       // console.log(` -> skipped`)
     }
