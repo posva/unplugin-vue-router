@@ -116,10 +116,10 @@ class _TreeNodeValueBase {
    * @param key - key to remove from the override, e.g. path, name, etc
    */
   removeOverride(key: keyof CustomRouteBlock) {
-    this._overrides.forEach((routeBlock) => {
+    for (const [_filePath, routeBlock] of this._overrides) {
       // @ts-expect-error
       delete routeBlock[key]
-    })
+    }
   }
 
   /**
