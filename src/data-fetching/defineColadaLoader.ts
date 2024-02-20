@@ -173,8 +173,6 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
     //   `😎 Loading context to "${to.fullPath}" with current "${currentContext[2]?.fullPath}"`
     // )
     if (entry.route.value !== to) {
-      // TODO: test
-      entry.route.value.meta[ABORT_CONTROLLER_KEY]!.abort()
       // ensure we call refetch instead of refresh
       const tracked = entry.tracked.get(key.join('|'))
       reload = !tracked || hasRouteChanged(to, tracked)
@@ -455,7 +453,7 @@ export interface DefineDataLoaderOptions<
    * Key associated with the data and passed to pinia colada
    * @param to - Route to load the data
    */
-  key: (to: _RouteLocationNormalizedLoaded<Name>) => UseQueryKey[]
+  key: (to: _RouteLocationNormalizedLoaded<Name>) => UseQueryKey
 
   /**
    * Function that returns a promise with the data.

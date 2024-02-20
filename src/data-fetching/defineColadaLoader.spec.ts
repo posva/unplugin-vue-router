@@ -1,7 +1,7 @@
 /**
  * @vitest-environment happy-dom
  */
-import { App, Ref, defineComponent, ref, shallowRef } from 'vue'
+import { App, defineComponent } from 'vue'
 import { defineColadaLoader } from './defineColadaLoader'
 import {
   describe,
@@ -9,26 +9,24 @@ import {
   expect,
   vi,
   afterEach,
-  beforeEach,
   beforeAll,
   afterAll,
 } from 'vitest'
-import {
-  DataLoaderPlugin,
-  DataLoaderPluginOptions,
-  NavigationResult,
-} from './navigation-guard'
+import { DataLoaderPlugin, DataLoaderPluginOptions } from './navigation-guard'
 import { testDefineLoader } from '../../tests/data-loaders'
 import { setCurrentContext } from './utils'
 import { UseDataLoader } from './createDataLoader'
 import { getRouter } from 'vue-router-mock'
 import { enableAutoUnmount, mount } from '@vue/test-utils'
 import RouterViewMock from '../../tests/data-loaders/RouterViewMock.vue'
-import { setActivePinia, createPinia, Pinia } from 'pinia'
+import { setActivePinia, createPinia } from 'pinia'
 import { QueryPlugin, useQuery } from '@pinia/colada'
+import { RouteLocationNormalizedLoaded } from 'vue-router'
 
 describe(
   'defineColadaLoader',
+  // fail faster on unresolved promises
+  { timeout: process.env.CI ? 1000 : 100 },
   () => {
     enableAutoUnmount(afterEach)
 
@@ -164,7 +162,31 @@ describe(
       expect(coladaData.value).toBe('new')
       expect(loaderData.value).toBe('new')
     })
-  },
-  // fail faster on unresolved promises
-  { timeout: process.env.CI ? 1000 : 100 }
+
+    it('restores previous data if fetching succeeds but navigation is cancelled', async () => {
+      const query = vi.fn(
+        async (to: RouteLocationNormalizedLoaded) => to.query.v
+      )
+
+      const { router, useData } = singleLoaderOneRoute(
+        defineColadaLoader({
+          query,
+          key: () => ['id'],
+        })
+      )
+
+      await router.push('/fetch?v=1')
+      expect(query).toHaveBeenCalledTimes(1)
+      const { data: loaderData } = useData()
+
+      // cancel next navigation after running loaders
+      // it cannot be a beforeEach because it wouldn't run the loaders
+      router.beforeResolve(() => false)
+      await router.push('/fetch?v=2')
+      await vi.runAllTimersAsync()
+      // we ensure that it was called
+      expect(query).toHaveBeenCalledTimes(2)
+      expect(loaderData.value).toBe('1')
+    })
+  }
 )

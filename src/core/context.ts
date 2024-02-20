@@ -239,9 +239,7 @@ export function createRoutesContext(options: ResolvedOptions) {
 
   function stopWatcher() {
     if (watchers.length) {
-      if (options.logs) {
-        console.log('🛑 stopping watcher')
-      }
+      log('🛑 stopping watcher')
       watchers.forEach((watcher) => watcher.close())
     }
   }

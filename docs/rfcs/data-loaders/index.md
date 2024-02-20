@@ -17,6 +17,7 @@ List of things that haven't been added to the document yet:
 - [x] ~~Show how to use the data loader without `vue-router/auto`~~
 - [x] ~~Explain what `vue-router/auto` brings~~
 - [ ] Extendable API for data fetching libraries like vue-apollo, vuefire, vue-query, etc
+- [ ] Warn if a non lazy loader is used without data: meaning it was used in a component without it being exported by a page component. Either make it lazy or export it
 
 ## Summary
 
@@ -315,6 +316,8 @@ const { data: user } = useUserData()
     commit: 'immediate',
   })
   ```
+
+  This doesn't affect lazy loaders as they are not awaited in navigations so the update could happen before or after the navigation is completed.
 
 - `server`: By default, loaders are executed on both, client, and server. Setting this to false will skip its execution on the server.
 
