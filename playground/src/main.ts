@@ -19,10 +19,10 @@ const router = createRouter({
 
 const app = createApp(App)
 
-app.use(DataLoaderPlugin, { router })
 app.use(createPinia())
 app.use(QueryPlugin)
-app.use(router)
 app.use(VueQueryPlugin, {})
+app.use(DataLoaderPlugin, { router })
+app.use(router)
 
 app.mount('#app')

@@ -177,9 +177,6 @@ importers:
 
   playground:
     dependencies:
-      '@pinia/colada':
-        specifier: ^0.5.2
-        version: 0.5.2
       '@tanstack/vue-query':
         specifier: ^5.22.2
         version: 5.22.2(vue@3.4.19)
@@ -2254,10 +2251,6 @@ packages:
       '@parcel/watcher-win32-ia32': 2.4.0
       '@parcel/watcher-win32-x64': 2.4.0
     dev: true
-
-  /@pinia/colada@0.5.2:
-    resolution: {integrity: sha512-f8ULBaPVGhdU+blBZCTHCLaTNASPLj4IvPQedkg1s0PLRxEq+dtEfM+0G+n8+OZ4R6irwYfsMcrhunvJCBlusQ==}
-    dev: false
 
   /@pinia/colada@0.5.3:
     resolution: {integrity: sha512-1vIVYtP3WKCVfNaTBiEuUDTvluAU1ofba3upUyB6qa5qBki+2xjtpiY8rKuzD5i/IefxOU5x1vKps4zm7In2BQ==}
