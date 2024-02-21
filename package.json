@@ -109,7 +109,8 @@
   },
   "files": [
     "dist",
-    "./route.schema.json"
+    "client.d.ts",
+    "route.schema.json"
   ],
   "scripts": {
     "build": "tsup",

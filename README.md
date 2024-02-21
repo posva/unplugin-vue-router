@@ -116,7 +116,26 @@ build({
 
 ## Setup
 
-After installing, **you should run your dev server** (usually `npm run dev`) **to generate the first version of the types**. Then, you should replace your imports from `vue-router` to `vue-router/auto`:
+After installing, **you should run your dev server** (usually `npm run dev`) **to generate the first version of the types**. Then you need to add the types to your `tsconfig.json`:
+
+```json
+{
+  "include": [
+    // ...
+    "./typed-router.d.ts"
+  ],
+  // ...
+  "compilerOptions": {
+  // ...
+    "types": [
+      // ...
+      "unplugin-vue-router/client"
+    ]
+  }
+}
+```
+
+Finally, you should replace your imports from `vue-router` to `vue-router/auto`:
 
 ```diff
 -import { createRouter, createWebHistory } from 'vue-router'
