@@ -61,8 +61,7 @@ export function testDefineLoader<Context = void>(
     }
   }
 
-  // TODO:
-  // mockWarn()
+  mockWarn()
 
   beforeEach(async () => {
     dataOneSpy.mockClear()

@@ -19,7 +19,7 @@ import { UseDataLoader } from './createDataLoader'
 import { getRouter } from 'vue-router-mock'
 import { enableAutoUnmount, mount } from '@vue/test-utils'
 import RouterViewMock from '../../tests/data-loaders/RouterViewMock.vue'
-import { setActivePinia, createPinia } from 'pinia'
+import { setActivePinia, createPinia, getActivePinia } from 'pinia'
 import { QueryPlugin, useQuery } from '@pinia/colada'
 import { RouteLocationNormalizedLoaded } from 'vue-router'
 
@@ -141,7 +141,7 @@ describe(
     it('updates data loader data if internal data changes', async () => {
       const query = vi.fn().mockResolvedValue('data')
 
-      const { router, useData } = singleLoaderOneRoute(
+      const { router, useData, app } = singleLoaderOneRoute(
         defineColadaLoader({
           query,
           key: () => ['id'],
@@ -151,15 +151,29 @@ describe(
       await router.push('/fetch?v=1')
       expect(query).toHaveBeenCalledTimes(1)
       const { data: loaderData } = useData()
-      const { data: coladaData, refetch } = useQuery({
-        query,
-        key: ['id'],
-      })
+      // we use a full mount to ensure we can use inject and onScopeDispose in useQuery
+      // and avoid warning
+      const wrapper = mount(
+        defineComponent({
+          setup() {
+            return useQuery({
+              query,
+              key: ['id'],
+            })
+          },
+          template: `<div>{{ data }}</div>`,
+        }),
+        {
+          global: {
+            plugins: [getActivePinia()!, QueryPlugin],
+          },
+        }
+      )
       query.mockResolvedValue('new')
-      await refetch()
+      await wrapper.vm.refetch()
       await vi.runAllTimersAsync()
       expect(query).toHaveBeenCalledTimes(2)
-      expect(coladaData.value).toBe('new')
+      expect(wrapper.vm.data).toBe('new')
       expect(loaderData.value).toBe('new')
     })
 

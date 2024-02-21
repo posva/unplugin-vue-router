@@ -49,8 +49,8 @@ importers:
         version: 2.3.4
     devDependencies:
       '@pinia/colada':
-        specifier: ^0.5.2
-        version: 0.5.2
+        specifier: ^0.5.3
+        version: 0.5.3
       '@shikijs/vitepress-twoslash':
         specifier: 1.1.5
         version: 1.1.5(typescript@5.3.3)
@@ -2257,6 +2257,11 @@ packages:
 
   /@pinia/colada@0.5.2:
     resolution: {integrity: sha512-f8ULBaPVGhdU+blBZCTHCLaTNASPLj4IvPQedkg1s0PLRxEq+dtEfM+0G+n8+OZ4R6irwYfsMcrhunvJCBlusQ==}
+    dev: false
+
+  /@pinia/colada@0.5.3:
+    resolution: {integrity: sha512-1vIVYtP3WKCVfNaTBiEuUDTvluAU1ofba3upUyB6qa5qBki+2xjtpiY8rKuzD5i/IefxOU5x1vKps4zm7In2BQ==}
+    dev: true
 
   /@pkgjs/parseargs@0.11.0:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
