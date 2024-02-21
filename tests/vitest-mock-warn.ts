@@ -1,6 +1,6 @@
 // https://github.com/posva/jest-mock-warn/blob/master/src/index.js
 
-import { afterEach, beforeEach, expect, SpyInstance, vi } from 'vitest'
+import { afterEach, beforeEach, expect, type MockInstance, vi } from 'vitest'
 
 export function mockWarn() {
   expect.extend({
@@ -77,7 +77,7 @@ export function mockWarn() {
     },
   })
 
-  let warn: SpyInstance
+  let warn: MockInstance
   const asserted = new Map<string, string | RegExp>()
 
   beforeEach(() => {
@@ -107,12 +107,13 @@ export function mockWarn() {
   })
 }
 
-declare global {
-  namespace Vi {
-    interface JestAssertion<T = any> {
-      toHaveBeenWarned(): void
-      toHaveBeenWarnedLast(): void
-      toHaveBeenWarnedTimes(n: number): void
-    }
-  }
+interface CustomMatchers<R = unknown> {
+  toHaveBeenWarned(): R
+  toHaveBeenWarnedLast(): R
+  toHaveBeenWarnedTimes(n: number): R
+}
+
+declare module 'vitest' {
+  interface Assertion<T = any> extends CustomMatchers<T> {}
+  interface AsymmetricMatchersContaining extends CustomMatchers {}
 }

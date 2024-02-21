@@ -321,6 +321,12 @@ export class ImportsMap {
     return this.add(path, { name: 'default', as })
   }
 
+  /**
+   * Get the list of imports for the given path.
+   *
+   * @param path - the path to get the import list for
+   * @returns the list of imports for the given path
+   */
   getImportList(path: string): Required<ImportEntry>[] {
     if (!this.map.has(path)) return []
     return Array.from(this.map.get(path)!).map(([as, name]) => ({

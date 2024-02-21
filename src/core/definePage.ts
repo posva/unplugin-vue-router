@@ -1,5 +1,5 @@
 import {
-  getTransformResult,
+  generateTransform,
   isCallOf,
   parseSFC,
   MagicString,
@@ -32,6 +32,8 @@ export function definePageTransform({
   id: string
 }): Thenable<TransformResult> {
   if (!code.includes(MACRO_DEFINE_PAGE)) return
+
+  // TODO: handle also non SFC
 
   const sfc = parseSFC(code, id)
   if (!sfc.scriptSetup) return
@@ -86,7 +88,7 @@ export function definePageTransform({
     s.remove(0, setupOffset + routeRecord.start!)
     s.prepend(`export default `)
 
-    return getTransformResult(s, id)
+    return generateTransform(s, id)
   } else {
     // console.log('!!!', definePageNode)
 
@@ -98,7 +100,7 @@ export function definePageTransform({
       setupOffset + definePageNode.end!
     )
 
-    return getTransformResult(s, id)
+    return generateTransform(s, id)
   }
 }
 
@@ -184,7 +186,6 @@ const getIdentifiers = (stmts: Statement[]) => {
       body: stmts,
       directives: [],
       sourceType: 'module',
-      sourceFile: '',
     },
     {
       enter(node) {

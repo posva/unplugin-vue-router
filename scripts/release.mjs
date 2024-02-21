@@ -350,8 +350,6 @@ async function getChangedPackages() {
             lastTag,
             '--',
             // apparently {src,package.json} doesn't work
-            join(folder, 'client.d.ts'),
-            join(folder, 'client.d.ts'),
             join(folder, 'src'),
             join(folder, 'package.json'),
           ],

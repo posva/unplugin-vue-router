@@ -219,13 +219,9 @@ export class TreeNode {
    * Returns the meta property as an object.
    */
   get metaAsObject(): Readonly<RouteMeta> {
-    const meta = {
+    return {
       ...this.value.overrides.meta,
     }
-    if (this.value.includeLoaderGuard) {
-      meta._loaderGuard = true
-    }
-    return meta
   }
 
   /**
@@ -314,13 +310,6 @@ export class PrefixTree extends TreeNode {
       this.map.delete(filePath)
     }
   }
-}
-
-/**
- * @deprecated Use `new PrefixTree()` instead.
- */
-export function createPrefixTree(options: ResolvedOptions) {
-  return new PrefixTree(options)
 }
 
 /**

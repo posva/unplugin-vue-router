@@ -1,28 +1,39 @@
 {
   "include": [
-    "*.d.ts",
-    "src/**/*.ts",
-    "src/*.d.ts"
+    "./src/**/*.ts",
+    "./src/*.d.ts",
+    "./client.d.ts",
+    "./tests/**/*.ts,"
   ],
   "exclude": [
+    "./src/**/*.test-d.ts",
     "node_modules",
     "dist"
   ],
   "compilerOptions": {
-    "target": "es2017",
-    "module": "esnext",
+    "baseUrl": ".",
+    "rootDir": ".",
+    "jsx": "preserve",
+    "target": "ESNext",
+    "module": "ESNext",
     "lib": [
-      "esnext",
+      "ESNext",
       "DOM"
     ],
-    "moduleResolution": "node",
+    "moduleResolution": "Bundler",
+    "skipDefaultLibCheck": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
+    "isolatedModules": true,
     "strict": true,
     "strictNullChecks": true,
     "resolveJsonModule": true,
     "types": [
+      "node",
       "vite/client"
     ]
-  }
+  },
+  "vueCompilerOptions": {
+    "plugins": []
+  },
 }

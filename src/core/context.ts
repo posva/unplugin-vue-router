@@ -22,7 +22,6 @@ import {
 } from './RoutesFolderWatcher'
 import { generateDTS as _generateDTS } from '../codegen/generateDTS'
 import { generateVueRouterProxy as _generateVueRouterProxy } from '../codegen/vueRouterModule'
-import { hasNamedExports } from '../data-fetching/parse'
 import { definePageTransform, extractDefinePageNameAndPath } from './definePage'
 import { EditableTreeNode } from './extendRoutes'
 
@@ -38,11 +37,15 @@ export function createRoutesContext(options: ResolvedOptions) {
   const routeTree = new PrefixTree(options)
   const editableRoutes = new EditableTreeNode(routeTree)
 
-  function log(...args: any[]) {
-    if (options.logs) {
-      console.log(...args)
-    }
-  }
+  const logger = new Proxy(console, {
+    get(target, prop) {
+      const res = Reflect.get(target, prop)
+      if (typeof res === 'function') {
+        return options.logs ? res : () => {}
+      }
+      return res
+    },
+  })
 
   // populated by the initial scan pages
   const watchers: RoutesFolderWatcher[] = []
@@ -112,20 +115,18 @@ export function createRoutesContext(options: ResolvedOptions) {
       getRouteBlock(filePath, options),
     ])
     // TODO: should warn if hasDefinePage and customRouteBlock
-    // if (routeBlock) log(routeBlock)
+    // if (routeBlock) logger.log(routeBlock)
     node.setCustomRouteBlock(filePath, {
       ...routeBlock,
       ...definedPageNameAndPath,
     })
-    node.value.includeLoaderGuard =
-      options.dataFetching && (await hasNamedExports(filePath))
   }
 
   async function addPage(
     { filePath, routePath }: HandlerContext,
     triggerExtendRoute = false
   ) {
-    log(`added "${routePath}" for "${filePath}"`)
+    logger.log(`added "${routePath}" for "${filePath}"`)
     // TODO: handle top level named view HMR
     const node = routeTree.insert(routePath, filePath)
 
@@ -137,10 +138,10 @@ export function createRoutesContext(options: ResolvedOptions) {
   }
 
   async function updatePage({ filePath, routePath }: HandlerContext) {
-    log(`updated "${routePath}" for "${filePath}"`)
+    logger.log(`updated "${routePath}" for "${filePath}"`)
     const node = routeTree.getChild(filePath)
     if (!node) {
-      console.warn(`Cannot update "${filePath}": Not found.`)
+      logger.warn(`Cannot update "${filePath}": Not found.`)
       return
     }
     await writeRouteInfoToNode(node, filePath)
@@ -148,12 +149,12 @@ export function createRoutesContext(options: ResolvedOptions) {
   }
 
   function removePage({ filePath, routePath }: HandlerContext) {
-    log(`remove "${routePath}" for "${filePath}"`)
+    logger.log(`remove "${routePath}" for "${filePath}"`)
     routeTree.removeChild(filePath)
   }
 
   function setupWatcher(watcher: RoutesFolderWatcher) {
-    log(`🤖 Scanning files in ${watcher.src}`)
+    logger.log(`🤖 Scanning files in ${watcher.src}`)
 
     return watcher
       .on('change', async (ctx) => {
@@ -182,10 +183,6 @@ export function createRoutesContext(options: ResolvedOptions) {
       importsMap
     )}`
 
-    if (options.dataFetching) {
-      importsMap.add('unplugin-vue-router/runtime', '_HasDataLoaderMeta')
-    }
-
     // generate the list of imports
     let imports = `${importsMap}`
     // add an empty line for readability
@@ -201,39 +198,41 @@ export function createRoutesContext(options: ResolvedOptions) {
     return _generateDTS({
       vueRouterModule: MODULE_VUE_ROUTER,
       routesModule: MODULE_ROUTES_PATH,
-      routeNamedMap: generateRouteNamedMap(routeTree)
-        .split('\n')
-        .filter((line) => line) // remove empty lines
-        .map((line) => '  ' + line) // Indent by two spaces
-        .join('\n'),
+      routeNamedMap: generateRouteNamedMap(routeTree),
     })
   }
 
-  // NOTE: this code needs to be generated because otherwise it doesn't go through transforms and `vue-router/auto/routes`
+  // NOTE: this code needs to be generated because otherwise it doesn't go through transforms and `vue-router/auto-routes`
   // cannot be resolved.
   function generateVueRouterProxy() {
     return _generateVueRouterProxy(MODULE_ROUTES_PATH, options)
   }
 
   let lastDTS: string | undefined
+  let lastTypesConfigDTS: string | undefined
   async function _writeConfigFiles() {
-    log('💾 writing...')
+    logger.time('writeConfigFiles')
 
     if (options.beforeWriteFiles) {
       await options.beforeWriteFiles(editableRoutes)
+      logger.timeLog('writeConfigFiles', 'beforeWriteFiles()')
     }
 
-    logTree(routeTree, log)
+    logTree(routeTree, logger.log)
     if (dts) {
       const content = generateDTS()
       if (lastDTS !== content) {
         await fs.writeFile(dts, content, 'utf-8')
+        logger.timeLog('writeConfigFiles', 'wrote dts file')
         lastDTS = content
+
+        // update the files
         server?.invalidate(MODULE_ROUTES_PATH)
         server?.invalidate(MODULE_VUE_ROUTER)
         server?.reload()
       }
     }
+    logger.timeEnd('writeConfigFiles')
   }
 
   // debounce of 100ms + throttle of 500ms
@@ -243,9 +242,7 @@ export function createRoutesContext(options: ResolvedOptions) {
 
   function stopWatcher() {
     if (watchers.length) {
-      if (options.logs) {
-        console.log('🛑 stopping watcher')
-      }
+      logger.log('🛑 stopping watcher')
       watchers.forEach((watcher) => watcher.close())
     }
   }

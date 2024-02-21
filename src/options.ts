@@ -1,10 +1,13 @@
-import { isPackageExists } from 'local-pkg'
+import { isPackageExists as isPackageInstalled } from 'local-pkg'
 import { _Awaitable, getFileBasedRouteName, isArray, warn } from './core/utils'
 import type { TreeNode } from './core/tree'
 import { resolve } from 'pathe'
 import { EditableTreeNode } from './core/extendRoutes'
-import { ParseSegmentOptions } from './core/treeNodeValue'
+import { type ParseSegmentOptions } from './core/treeNodeValue'
 
+/**
+ * Options for a routes folder.
+ */
 export interface RoutesFolderOption {
   /**
    * Folder to scan files that should be used for routes. **Cannot be a glob**, use the `path`, `filePatterns`, and
@@ -34,8 +37,12 @@ export interface RoutesFolderOption {
    *     return file.slice(file.lastIndexOf(prefix) + prefix.length + 1).replace('/pages', '')
    *   },
    * },
+   * {
+   *   src: 'src/docs',
+   *   // adds a prefix with a param
+   *   path: 'docs/[lang]/',
+   * },
    * ```
-   *
    */
   path?: string | ((filepath: string) => string)
 
@@ -79,24 +86,19 @@ export type RoutesFolder = _RoutesFolder[] | _RoutesFolder
 
 export interface ResolvedOptions {
   /**
-   * Extensions of files to be considered as pages. Defaults to `['.vue']`. Cannot be empty. This allows to strip a
+   * Extensions of files to be considered as pages. Cannot be empty. This allows to strip a
    * bigger part of the filename e.g. `index.page.vue` -> `index` if an extension of `.page.vue` is provided.
+   * @default `['.vue']`
    */
   extensions: string[]
 
-  /**
-   * Folder containing the components that should be used for routes. Can also be an array if you want to add multiple
-   * folders, or an object if you want to define a route prefix. Supports glob patterns but must be a folder, use
-   * `extensions` and `exclude` to filter files.
-   *
-   * @default "src/pages"
-   */
   routesFolder: RoutesFolderOption[]
 
   /**
-   * Array of `picomatch` globs to ignore. Defaults to `[]`. Note the globs are relative to the cwd, so avoid writing
+   * Array of `picomatch` globs to ignore. Note the globs are relative to the cwd, so avoid writing
    * something like `['ignored']` to match folders named that way, instead provide a path similar to the `routesFolder`:
    * `['src/pages/ignored/**']` or use `['**​/ignored']` to match every folder named `ignored`.
+   * @default `[]`
    */
   exclude: string[]
 
@@ -104,12 +106,13 @@ export interface ResolvedOptions {
   /**
    * Pattern to match files in the `routesFolder`. Defaults to `**‍/*` plus a combination of all the possible extensions,
    * e.g. `**‍/*.{vue,md}` if `extensions` is set to `['.vue', '.md']`.
-   * @default "**‍/*"
+   * @default `'**‍/*'`
    */
   filePatterns: string | string[]
 
   /**
-   * Method to generate the name of a route.
+   * Method to generate the name of a route. It's recommended to keep the default value to guarantee a consistent,
+   * unique, and predictable naming.
    */
   getRouteName: (node: TreeNode) => string
 
@@ -133,29 +136,27 @@ export interface ResolvedOptions {
   beforeWriteFiles?: (rootRoute: EditableTreeNode) => _Awaitable<void>
 
   /**
-   * Enables EXPERIMENTAL data fetching. See https://github.com/posva/unplugin-vue-router/tree/main/src/data-fetching
-   * @experimental
-   */
-  dataFetching: boolean
-
-  /**
    * Defines how page components should be imported. Defaults to dynamic imports to enable lazy loading of pages.
+   * @default `'async'`
    */
-  importMode: _OptionsImportMode
+  importMode: 'sync' | 'async' | ((filepath: string) => 'sync' | 'async')
 
   /**
-   * Root of the project. All paths are resolved relatively to this one. Defaults to `process.cwd()`.
+   * Root of the project. All paths are resolved relatively to this one.
+   * @default `process.cwd()`
    */
   root: string
 
   /**
-   * Language for `<route>` blocks in SFC files. Defaults to `'json5'`.
+   * Language for `<route>` blocks in SFC files.
+   * @default `'json5'`
    */
   routeBlockLang: 'yaml' | 'yml' | 'json5' | 'json'
 
   /**
    * Should we generate d.ts files or ont. Defaults to `true` if `typescript` is installed. Can be set to a string of
    * the filepath to write the d.ts files to. By default it will generate a file named `typed-router.d.ts`.
+   * @default `true`
    */
   dts: boolean | string
 
@@ -177,29 +178,38 @@ export interface ResolvedOptions {
 }
 
 /**
- * @internal
+ * unplugin-vue-router plugin options.
  */
-export type _OptionsImportMode =
-  | 'sync'
-  | 'async'
-  | ((filepath: string) => 'sync' | 'async')
-
 export interface Options
   extends Partial<Omit<ResolvedOptions, 'routesFolder'>> {
+  /**
+   * Folder(s) to scan for files and generate routes. Can also be an array if you want to add multiple
+   * folders, or an object if you want to define a route prefix. Supports glob patterns but must be a folder, use
+   * `extensions` and `exclude` to filter files.
+   *
+   * @default `"src/pages"`
+   */
   routesFolder?: RoutesFolder
 }
 
 export const DEFAULT_OPTIONS: ResolvedOptions = {
   extensions: ['.vue'],
   exclude: [],
-  routesFolder: [{ src: 'src/pages' }],
+  routesFolder: [
+    {
+      src: 'src/pages',
+      exclude: (excluded) => excluded,
+      filePatterns: (filePatterns) => filePatterns,
+      extensions: (extensions) => extensions,
+      path: (filepath) => filepath,
+    },
+  ],
   filePatterns: '**/*',
   routeBlockLang: 'json5',
   getRouteName: getFileBasedRouteName,
-  dataFetching: false,
   importMode: 'async',
   root: process.cwd(),
-  dts: isPackageExists('typescript'),
+  dts: isPackageInstalled('typescript'),
   logs: false,
   _inspect: false,
   pathParser: {

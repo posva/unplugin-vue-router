@@ -1,5 +1,5 @@
 import { SFCBlock, parse } from '@vue/compiler-sfc'
-import { promises as fs } from 'fs'
+import fs from 'node:fs/promises'
 import { ResolvedOptions } from '../options'
 import JSON5 from 'json5'
 import { parse as YAMLParser } from 'yaml'

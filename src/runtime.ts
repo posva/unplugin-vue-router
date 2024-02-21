@@ -1,22 +1,31 @@
-import type { RouteRecordRaw } from 'vue-router'
+import { type RouteRecordRaw } from 'vue-router'
+import { type _Router } from './type-extensions/router'
 
-export { defineLoader as _defineLoader } from './data-fetching/defineLoader'
-export type {
-  DefineLoaderOptions,
-  DataLoader,
-} from './data-fetching/defineLoader'
+// new data fetching
+export { defineBasicLoader } from './data-fetching/defineLoader'
 export {
-  setupDataFetchingGuard as _setupDataFetchingGuard,
-  HasDataLoaderMeta as _HasDataLoaderMeta,
-} from './data-fetching/dataFetchingGuard'
-export { stopScope as _stopDataFetchingScope } from './data-fetching/dataCache'
+  DataLoaderPlugin,
+  NavigationResult,
+} from './data-fetching/navigation-guard'
+export type { DataLoaderPluginOptions } from './data-fetching/navigation-guard'
+
+// NOTE: for tests only
+// export * from './data-fetching/defineQueryLoader'
+export { defineColadaLoader } from './data-fetching/defineColadaLoader'
 
 /**
  * Defines properties of the route for the current page component.
  *
  * @param route - route information to be added to this page
+ * @deprecated - use `definePage` instead
  */
 export const _definePage = (route: DefinePage) => route
+/**
+ * Defines properties of the route for the current page component.
+ *
+ * @param route - route information to be added to this page
+ */
+export const definePage = (route: DefinePage) => route
 
 /**
  * Merges route records.

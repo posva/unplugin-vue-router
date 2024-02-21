@@ -47,11 +47,6 @@ class _TreeNodeValueBase {
   // TODO: cache the overrides generation
 
   /**
-   * Should we add the loader guard to the route record.
-   */
-  includeLoaderGuard: boolean = false
-
-  /**
    * View name (Vue Router feature) mapped to their corresponding file. By default, the view name is `default` unless
    * specified with a `@` e.g. `index@aux.vue` will have a view name of `aux`.
    */
@@ -121,10 +116,10 @@ class _TreeNodeValueBase {
    * @param key - key to remove from the override, e.g. path, name, etc
    */
   removeOverride(key: keyof CustomRouteBlock) {
-    this._overrides.forEach((routeBlock) => {
+    for (const [_filePath, routeBlock] of this._overrides) {
       // @ts-expect-error
       delete routeBlock[key]
-    })
+    }
   }
 
   /**
@@ -269,7 +264,7 @@ export interface ParseSegmentOptions {
   /**
    * Should we allow dot nesting in the param name. e.g. `users.[id]` will be parsed as `users/[id]` if this is `true`,
    * nesting. Note this only works for the `file` format.
-   * @default true
+   * @default `true`
    */
   dotNesting?: boolean
 }

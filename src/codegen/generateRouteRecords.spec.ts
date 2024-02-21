@@ -9,7 +9,14 @@ const DEFAULT_OPTIONS = resolveOptions({})
 
 describe('generateRouteRecord', () => {
   function generateRouteRecordSimple(tree: TreeNode) {
-    return generateRouteRecord(tree, DEFAULT_OPTIONS, new ImportsMap())
+    return generateRouteRecord(
+      tree,
+      {
+        ...DEFAULT_OPTIONS,
+        ...tree.options,
+      },
+      new ImportsMap()
+    )
   }
 
   it('works with an empty tree', () => {
@@ -314,6 +321,19 @@ describe('generateRouteRecord', () => {
       tree.insert('a/b.vue')
       // should be separated
       tree.insertParsedPath('a/b/c', 'a.vue')
+      expect(generateRouteRecordSimple(tree)).toMatchSnapshot()
+    })
+
+    it('dedupes sync imports for the same component', () => {
+      const tree = new PrefixTree({
+        ...DEFAULT_OPTIONS,
+        importMode: 'sync',
+      })
+
+      tree.insertParsedPath('a/b.vue', 'a.vue')
+      tree.insertParsedPath('a/c.vue', 'a.vue')
+
+      // what matters is that the import name is reused _page_0
       expect(generateRouteRecordSimple(tree)).toMatchSnapshot()
     })
   })

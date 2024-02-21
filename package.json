@@ -1,7 +1,7 @@
 {
   "name": "unplugin-vue-router",
   "version": "0.7.0",
-  "packageManager": "pnpm@8.10.2",
+  "packageManager": "pnpm@8.15.1",
   "description": "File based typed routing for Vue Router",
   "keywords": [
     "vue-router",
@@ -29,66 +29,99 @@
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
+      "types": {
+        "require": "./dist/index.d.ts",
+        "import": "./dist/index.d.mts"
+      },
       "require": "./dist/index.js",
       "import": "./dist/index.mjs"
     },
     "./vite": {
-      "types": "./dist/vite.d.ts",
+      "types": {
+        "require": "./dist/vite.d.ts",
+        "import": "./dist/vite.d.mts"
+      },
       "require": "./dist/vite.js",
       "import": "./dist/vite.mjs"
     },
     "./webpack": {
-      "types": "./dist/webpack.d.ts",
+      "types": {
+        "require": "./dist/webpack.d.ts",
+        "import": "./dist/webpack.d.mts"
+      },
       "require": "./dist/webpack.js",
       "import": "./dist/webpack.mjs"
     },
     "./rollup": {
-      "types": "./dist/rollup.d.ts",
+      "types": {
+        "require": "./dist/rollup.d.ts",
+        "import": "./dist/rollup.d.mts"
+      },
       "require": "./dist/rollup.js",
       "import": "./dist/rollup.mjs"
     },
     "./esbuild": {
-      "types": "./dist/esbuild.d.ts",
+      "types": {
+        "require": "./dist/esbuild.d.ts",
+        "import": "./dist/esbuild.d.mts"
+      },
       "require": "./dist/esbuild.js",
       "import": "./dist/esbuild.mjs"
     },
     "./options": {
-      "types": "./dist/options.d.ts",
+      "types": {
+        "require": "./dist/options.d.ts",
+        "import": "./dist/options.d.mts"
+      },
       "require": "./dist/options.js",
       "import": "./dist/options.mjs"
     },
     "./runtime": {
-      "types": "./dist/runtime.d.ts",
+      "types": {
+        "require": "./dist/runtime.d.ts",
+        "import": "./dist/runtime.d.mts"
+      },
       "require": "./dist/runtime.js",
       "import": "./dist/runtime.mjs"
     },
     "./types": {
-      "types": "./dist/types.d.ts",
+      "types": {
+        "require": "./dist/types.d.ts",
+        "import": "./dist/types.d.mts"
+      },
       "require": "./dist/types.js",
       "import": "./dist/types.mjs"
     },
     "./client": {
       "types": "./client.d.ts"
-    },
-    "./*": "./*"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "./client": [
+        "./client.d.ts"
+      ],
+      "*": [
+        "./dist/*",
+        "./*"
+      ]
+    }
   },
   "files": [
     "dist",
-    "./route.schema.json",
-    "*.d.ts"
+    "./route.schema.json"
   ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch src",
-    "build:fix": "esno scripts/postbuild.ts",
+    "docs": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
     "lint": "prettier -c '{src,examples,playground}/**/*.{ts,vue}'",
     "play": "npm -C playground run dev",
     "play:build": "npm -C playground run build",
     "release": "node scripts/release.mjs",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 1",
-    "start": "esno src/index.ts",
-    "test": "vitest"
+    "test": "vitest --typecheck --ui"
   },
   "gitHooks": {
     "pre-commit": "lint-staged",
@@ -103,18 +136,18 @@
     ]
   },
   "dependencies": {
-    "@babel/types": "^7.23.0",
-    "@rollup/pluginutils": "^5.0.5",
-    "@vue-macros/common": "^1.8.0",
+    "@babel/types": "^7.23.9",
+    "@rollup/pluginutils": "^5.1.0",
+    "@vue-macros/common": "^1.10.0",
     "ast-walker-scope": "^0.5.0",
-    "chokidar": "^3.5.3",
-    "fast-glob": "^3.3.1",
+    "chokidar": "^3.6.0",
+    "fast-glob": "^3.3.2",
     "json5": "^2.2.3",
     "local-pkg": "^0.5.0",
-    "mlly": "^1.4.2",
-    "pathe": "^1.1.1",
-    "scule": "^1.0.0",
-    "unplugin": "^1.5.0",
+    "mlly": "^1.5.0",
+    "pathe": "^1.1.2",
+    "scule": "^1.3.0",
+    "unplugin": "^1.7.1",
     "yaml": "^2.3.4"
   },
   "peerDependencies": {
@@ -126,34 +159,44 @@
     }
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^0.34.6",
+    "@pinia/colada": "^0.5.3",
+    "@shikijs/vitepress-twoslash": "1.1.6",
+    "@tanstack/vue-query": "^5.22.2",
+    "@types/node": "^20.11.19",
+    "@vitest/coverage-v8": "^1.3.0",
+    "@vitest/ui": "^1.3.0",
     "@volar/vue-language-core": "^1.6.5",
-    "@vue/test-utils": "^2.4.1",
+    "@vue/test-utils": "^2.4.4",
     "chalk": "^5.3.0",
     "conventional-changelog-cli": "^4.1.0",
     "enquirer": "^2.4.1",
-    "esno": "^4.0.0",
     "execa": "^8.0.1",
-    "happy-dom": "^12.10.3",
-    "lint-staged": "^15.1.0",
+    "firebase": "^10.8.0",
+    "happy-dom": "^13.3.8",
+    "lint-staged": "^15.2.2",
     "minimist": "^1.2.8",
-    "nodemon": "^3.0.2",
+    "nodemon": "^3.0.3",
     "p-series": "^3.0.0",
+    "pinia": "^2.1.7",
     "prettier": "^2.8.8",
     "rimraf": "^5.0.5",
-    "rollup": "^4.3.0",
-    "semver": "^7.5.4",
+    "rollup": "^4.12.0",
+    "semver": "^7.6.0",
     "ts-expect": "^1.3.0",
-    "tsup": "^8.0.1",
-    "typescript": "^5.2.2",
-    "unplugin-auto-import": "^0.16.7",
-    "vite": "^5.0.4",
-    "vite-plugin-vue-markdown": "^0.23.8",
-    "vitest": "^0.34.6",
-    "vue": "^3.3.7",
-    "vue-router": "^4.2.5",
-    "vue-router-mock": "^1.0.0",
-    "webpack": "^5.89.0",
+    "tsup": "^8.0.2",
+    "typescript": "^5.3.3",
+    "unplugin-auto-import": "^0.17.5",
+    "unplugin-vue-markdown": "^0.25.0",
+    "unplugin-vue-router": "workspace:*",
+    "vite": "^5.1.4",
+    "vitepress": "1.0.0-rc.44",
+    "vitest": "^1.3.0",
+    "vue": "^3.4.19",
+    "vue-router": "4.3.0-alpha.1",
+    "vue-router-mock": "^1.1.0",
+    "vue-tsc": "^1.8.27",
+    "vuefire": "^3.1.22",
+    "webpack": "^5.90.3",
     "yorkie": "^2.0.0"
   }
 }

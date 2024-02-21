@@ -79,5 +79,5 @@ dist
 
 # IDE
 .idea
-/*.d.ts
-!client.d.ts
+tsconfig.vitest-temp.json
+docs/.vitepress/cache

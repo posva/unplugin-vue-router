@@ -2,7 +2,7 @@ import { fileURLToPath, URL } from 'url'
 import { defineConfig } from 'vite'
 import { join } from 'node:path'
 import Inspect from 'vite-plugin-inspect'
-import Markdown from 'vite-plugin-vue-markdown'
+import Markdown from 'unplugin-vue-markdown/vite'
 // @ts-ignore: the plugin should not be checked in the playground
 import VueRouter from '../src/vite'
 import {
@@ -18,13 +18,15 @@ export default defineConfig({
   build: {
     sourcemap: true,
   },
-  // optimizeDeps: {
-  //   exclude: ['ufo', 'mlly', 'magic-string', 'fsevents'],
-  // },
+  optimizeDeps: {
+    exclude: [
+      // easier to test with yalc
+      '@pinia/colada',
+    ],
+  },
 
   plugins: [
     VueRouter({
-      dataFetching: true,
       extensions: ['.page.vue', '.vue', '.md'],
       extendRoute(route) {
         // console.log('extending route', route.meta)
@@ -75,13 +77,13 @@ export default defineConfig({
         {
           src: 'src/pages',
           // can even add params
-          // path: ':lang/',
+          // path: '[lang]/',
         },
         {
           src: 'src/docs',
-          path: 'docs/:lang/',
+          path: 'docs/[lang]/',
           // doesn't take into account files directly at src/docs, only subfolders
-          filePatterns: ['*/**/*'],
+          filePatterns: ['*/**'],
           // ignores .vue files
           extensions: ['.md'],
         },
@@ -115,15 +117,27 @@ export default defineConfig({
     Vue({
       include: [/\.vue$/, /\.md$/],
     }),
-    Markdown(),
+    Markdown({}),
     AutoImport({
-      imports: [VueRouterAutoImports],
+      imports: [
+        VueRouterAutoImports,
+        {
+          'unplugin-vue-router/runtime': ['defineBasicLoader'],
+        },
+      ],
     }),
     Inspect(),
   ],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '~': fileURLToPath(new URL('./src', import.meta.url)),
+      'unplugin-vue-router/runtime': fileURLToPath(
+        new URL('../src/runtime.ts', import.meta.url)
+      ),
+      'unplugin-vue-router/types': fileURLToPath(
+        new URL('../src/types.ts', import.meta.url)
+      ),
     },
   },
 })

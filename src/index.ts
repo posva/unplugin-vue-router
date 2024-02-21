@@ -111,11 +111,11 @@ export default createUnplugin<Options | undefined>((opt = {}, meta) => {
         }
       }
 
-      // we need to use a virtual module so that vite resolves the vue-router/auto/routes
+      // we need to use a virtual module so that vite resolves the vue-router/auto-routes
       // dependency correctly
       const resolvedId = getVirtualId(id)
 
-      // vue-router/auto/routes
+      // vue-router/auto-routes
       if (resolvedId === MODULE_ROUTES_PATH) {
         return ctx.generateRoutes()
       }
@@ -139,23 +139,8 @@ export { createRoutesContext }
 export { getFileBasedRouteName, getPascalCaseRouteName } from './core/utils'
 
 // Route Tree and edition
-// FIXME: deprecated, remove in next major
-export { createPrefixTree } from './core/tree'
 export { createTreeNodeValue } from './core/treeNodeValue'
 export { EditableTreeNode } from './core/extendRoutes'
-
-/**
- * @deprecated use `VueRouterAutoImports` instead
- */
-export const VueRouterExports: Array<string | [string, string]> = [
-  'useRoute',
-  'useRouter',
-  'defineLoader',
-  'onBeforeRouteUpdate',
-  'onBeforeRouteLeave',
-  // NOTE: the typing seems broken locally, so instead we export it directly from unplugin-vue-router/runtime
-  // 'definePage',
-]
 
 /**
  * Adds useful auto imports to the AutoImport config:
@@ -170,8 +155,15 @@ export const VueRouterExports: Array<string | [string, string]> = [
  */
 export const VueRouterAutoImports: Record<
   string,
-  Array<string | [string, string]>
+  Array<string | [importName: string, alias: string]>
 > = {
-  'vue-router/auto': VueRouterExports,
-  'unplugin-vue-router/runtime': [['_definePage', 'definePage']],
+  'vue-router/auto': [
+    'useRoute',
+    'useRouter',
+    'onBeforeRouteUpdate',
+    'onBeforeRouteLeave',
+    // NOTE: the typing seems broken locally, so instead we export it directly from unplugin-vue-router/runtime
+    // 'definePage',
+  ],
+  'unplugin-vue-router/runtime': ['definePage'],
 }

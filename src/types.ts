@@ -25,15 +25,44 @@ export type {
   RouteLocationNormalizedTypedList,
   RouteLocationNormalizedLoadedTyped,
   RouteLocationNormalizedLoadedTypedList,
-} from './typeExtensions/routeLocation'
-export type { NavigationGuard } from './typeExtensions/navigationGuards'
-export type { _RouterTyped } from './typeExtensions/router'
+
+  // Types that exist in Vue Router but are augmented to be typed if _TypesConfig is provided
+  // with the RouteNamedMap
+  _RouteLocationNormalized as RouteLocationNormalized,
+  _RouteRecordName as RouteRecordName,
+  _RouteLocationNormalizedLoaded as RouteLocationNormalizedLoaded,
+  _RouteLocation as RouteLocation,
+  _RouteLocationAsRelativePath as RouteLocationAsRelativePath,
+  _RouteLocationRaw as RouteLocationRaw,
+  _RouteLocationResolved as RouteLocationResolved,
+  _RouteParams as RouteParams,
+  _RouteParamsRaw as RouteParamsRaw,
+} from './type-extensions/routeLocation'
+export type {
+  NavigationGuardReturn,
+  NavigationGuard,
+  NavigationGuardWithThis,
+  // typed helpers
+  NavigationGuardTyped,
+  NavigationGuardWithThisTyped,
+  NavigationHookAfterTyped,
+} from './type-extensions/navigationGuards'
+export type {
+  // TODO: deprecate and remove
+  _RouterTyped,
+  _Router as Router,
+  _RouterOptions,
+} from './type-extensions/router'
 export type {
   RouterLinkTyped,
   UseLinkFnTyped,
   _UseLinkReturnTyped,
   RouterLinkPropsTyped,
-} from './typeExtensions/RouterLink'
+} from './type-extensions/RouterLink'
+export type {
+  _TypesConfig,
+  RouteNamedMap,
+} from './type-extensions/types-config'
 export type {
   ParamValue,
   ParamValueOneOrMore,
@@ -49,6 +78,14 @@ export type {
 
 // expose for generated type extensions
 export type {
-  DefineLoaderOptions as _DefineLoaderOptions,
-  DataLoader as _DataLoader,
+  DefineLoaderFn as _DefineLoaderFn,
+  UseDataLoader as _UseDataLoader,
+} from './data-fetching/createDataLoader'
+export type {
+  // ...
+  NavigationResult,
+} from './data-fetching/navigation-guard'
+export type {
+  DefineDataLoaderOptions as _DefineDataLoaderOptions,
+  DataLoaderContext as _DataLoaderContext,
 } from './data-fetching/defineLoader'

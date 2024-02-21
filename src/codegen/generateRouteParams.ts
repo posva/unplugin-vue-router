@@ -1,9 +1,10 @@
 import { TreeNode } from '../core/tree'
 
 export function generateRouteParams(node: TreeNode, isRaw: boolean): string {
+  // node.params is a getter so we compute it once
   const nodeParams = node.params
-  return node.params.length > 0
-    ? `{ ${node.params
+  return nodeParams.length > 0
+    ? `{ ${nodeParams
         .map(
           (param) =>
             `${param.paramName}${param.optional ? '?' : ''}: ` +
@@ -20,6 +21,8 @@ export function generateRouteParams(node: TreeNode, isRaw: boolean): string {
       'Record<never, never>'
 }
 
+// TODO: refactor to ParamValueRaw and ParamValue ?
+
 /**
  * Utility type for raw and non raw params like :id+
  *
@@ -33,10 +36,9 @@ export type ParamValueOneOrMore<isRaw extends boolean> = [
  * Utility type for raw and non raw params like :id*
  *
  */
-export type ParamValueZeroOrMore<isRaw extends boolean> =
-  | ParamValue<isRaw>[]
-  | undefined
-  | null
+export type ParamValueZeroOrMore<isRaw extends boolean> = true extends isRaw
+  ? ParamValue<isRaw>[] | undefined | null
+  : ParamValue<isRaw>[] | undefined
 
 /**
  * Utility type for raw and non raw params like :id?

@@ -1,7 +1,8 @@
 <script lang="ts">
+import { defineBasicLoader } from 'unplugin-vue-router/runtime'
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-export const useUserData = defineLoader(
+export const useUserData = defineBasicLoader(
   async (route) => {
     await delay(300)
     const user = {
@@ -19,12 +20,6 @@ export const useUserData = defineLoader(
 </script>
 
 <script setup lang="ts">
-import { HasDataLoaderMeta } from 'vue-router/auto'
-
-definePageMeta({
-  [HasDataLoaderMeta]: [() => import('/pages/users/[id].vue')],
-})
-
 const { data: user } = useUserData()
 </script>
 

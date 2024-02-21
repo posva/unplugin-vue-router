@@ -1,4 +1,4 @@
-// NOTE: this code needs to be generated because otherwise it doesn't go through transforms and `vue-router/auto/routes`
+// NOTE: this code needs to be generated because otherwise it doesn't go through transforms and `vue-router/auto-routes`
 
 import type { ResolvedOptions } from '../options'
 
@@ -13,11 +13,12 @@ import { createRouter as _createRouter } from 'vue-router'
 
 export * from 'vue-router'
 export {
-  _defineLoader as defineLoader,
-  _definePage as definePage,
-  _HasDataLoaderMeta as HasDataLoaderMeta,
-  _setupDataFetchingGuard as setupDataFetchingGuard,
-  _stopDataFetchingScope as stopDataFetchingScope,
+  definePage,
+  // new data fetching
+  DataLoaderPlugin,
+  defineBasicLoader,
+  defineColadaLoader,
+  NavigationResult,
 } from 'unplugin-vue-router/runtime'
 
 export function createRouter(options) {
@@ -30,5 +31,5 @@ export function createRouter(options) {
 
   return router
 }
-`
+`.trimStart()
 }

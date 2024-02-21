@@ -12,8 +12,17 @@
     "paths": {
       "@/*": [
         "./src/*"
-      ]
-    }
+      ],
+      "unplugin-vue-router/runtime": [
+        "../src/runtime"
+      ],
+      "unplugin-vue-router/types": [
+        "../src/types"
+      ],
+    },
+    "types": [
+      "unplugin-vue-router/client"
+    ],
   },
   "vueCompilerOptions": {
     "plugins": [
