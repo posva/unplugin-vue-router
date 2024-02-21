@@ -17,7 +17,7 @@ export let currentContext:
   | readonly [
       entry: DataLoaderEntryBase,
       router: _Router,
-      route: _RouteLocationNormalizedLoaded
+      route: _RouteLocationNormalizedLoaded,
     ]
   | undefined
   | null

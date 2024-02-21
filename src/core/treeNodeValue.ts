@@ -96,10 +96,10 @@ class _TreeNodeValueBase {
         nameA === nameB
           ? 0
           : // EDITS_OVERRIDE_NAME should always be last
-          nameA !== EDITS_OVERRIDE_NAME &&
-            (nameA < nameB || nameB === EDITS_OVERRIDE_NAME)
-          ? -1
-          : 1
+            nameA !== EDITS_OVERRIDE_NAME &&
+              (nameA < nameB || nameB === EDITS_OVERRIDE_NAME)
+            ? -1
+            : 1
       )
       .reduce((acc, [_path, routeBlock]) => {
         return mergeRouteRecordOverride(acc, routeBlock)
@@ -305,17 +305,18 @@ function parseFileSegment(
           ? '*'
           : '?'
         : currentTreeRouteParam.repeatable
-        ? '+'
-        : ''
+          ? '+'
+          : ''
       buffer = ''
       pathSegment += `:${currentTreeRouteParam.paramName}${
         currentTreeRouteParam.isSplat
           ? '(.*)'
           : // Only append () if necessary
-          pos < segment.length - 1 && IS_VARIABLE_CHAR_RE.test(segment[pos + 1])
-          ? '()'
-          : // allow routes like /[id]_suffix to make suffix static and not part of the param
-            ''
+            pos < segment.length - 1 &&
+              IS_VARIABLE_CHAR_RE.test(segment[pos + 1])
+            ? '()'
+            : // allow routes like /[id]_suffix to make suffix static and not part of the param
+              ''
       }${currentTreeRouteParam.modifier}`
       params.push(currentTreeRouteParam)
       subSegments.push(currentTreeRouteParam)

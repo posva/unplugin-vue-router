@@ -39,7 +39,7 @@ import type { _Router } from '../type-extensions/router'
 export function defineQueryLoader<
   Name extends _RouteRecordName,
   Data,
-  isLazy extends boolean
+  isLazy extends boolean,
 >(
   name: Name,
   loader: DefineLoaderFn<
@@ -350,7 +350,7 @@ export interface DefineQueryLoaderOptions<isLazy extends boolean, Data>
 
 export interface QueryLoaderEntry<
   isLazy extends boolean = boolean,
-  Data = unknown
+  Data = unknown,
 > extends DataLoaderEntryBase<isLazy, Data> {
   vq: UseQueryReturnType<Data, unknown>
 }

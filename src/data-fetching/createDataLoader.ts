@@ -12,7 +12,7 @@ import { _Router } from '../type-extensions/router'
  */
 export interface DataLoaderEntryBase<
   isLazy extends boolean = boolean,
-  Data = unknown
+  Data = unknown,
 > {
   /**
    * Data stored in the entry.
@@ -129,7 +129,7 @@ export function createDataLoader<Context extends DataLoaderContextBase>({
 }
 
 export interface CreateDataLoaderOptions<
-  Context extends DataLoaderContextBase
+  Context extends DataLoaderContextBase,
 > {
   // TODO: should return a different value than context to know if we should skip the data loader execution
   // TODO: rename to make more sense e.g. load, preload
@@ -195,7 +195,7 @@ export interface DefineDataLoader<Context extends DataLoaderContextBase> {
  */
 export interface UseDataLoader<
   isLazy extends boolean = boolean,
-  Data = unknown
+  Data = unknown,
 > {
   [IS_USE_DATA_LOADER_KEY]: true
 
@@ -241,7 +241,7 @@ export interface UseDataLoader<
  */
 export interface UseDataLoaderInternals<
   isLazy extends boolean = boolean,
-  Data = unknown
+  Data = unknown,
 > {
   /**
    * Loads the data from the cache if possible, otherwise loads it from the loader and awaits it.
@@ -283,7 +283,7 @@ export type _DataMaybeLazy<Data, isLazy extends boolean = boolean> =
  */
 export interface UseDataLoaderResult<
   isLazy extends boolean = boolean,
-  Data = unknown
+  Data = unknown,
 > {
   /**
    * Data returned by the loader. If the data loader is lazy, it will be undefined until the first load.
@@ -347,7 +347,7 @@ function _testing() {
 export interface DefineLoaderFn<
   Data,
   Context extends DataLoaderContextBase = DataLoaderContextBase,
-  Route = _RouteLocationNormalizedLoaded
+  Route = _RouteLocationNormalizedLoaded,
 > {
   (route: Route, context: Context): Promise<Data>
 }

@@ -20,7 +20,7 @@ export type _RouteRecordName = keyof RouteNamedMap
 
 export interface RouteLocationNormalizedTyped<
   RouteMap extends _RouteMapGeneric = _RouteMapGeneric,
-  Name extends keyof RouteMap = keyof RouteMap
+  Name extends keyof RouteMap = keyof RouteMap,
 > extends RouteLocationNormalized {
   name: Extract<Name, RouteRecordName>
   // we don't override path because it could contain params and in practice it's just not useful
@@ -28,12 +28,12 @@ export interface RouteLocationNormalizedTyped<
 }
 
 export type RouteLocationNormalizedTypedList<
-  RouteMap extends _RouteMapGeneric = _RouteMapGeneric
+  RouteMap extends _RouteMapGeneric = _RouteMapGeneric,
 > = { [N in keyof RouteMap]: RouteLocationNormalizedTyped<RouteMap, N> }
 
 export interface RouteLocationNormalizedLoadedTyped<
   RouteMap extends _RouteMapGeneric = _RouteMapGeneric,
-  Name extends keyof RouteMap = keyof RouteMap
+  Name extends keyof RouteMap = keyof RouteMap,
 > extends RouteLocationNormalizedLoaded {
   name: Extract<Name, RouteRecordName>
   // we don't override path because it could contain params and in practice it's just not useful
@@ -41,12 +41,12 @@ export interface RouteLocationNormalizedLoadedTyped<
 }
 
 export type RouteLocationNormalizedLoadedTypedList<
-  RouteMap extends _RouteMapGeneric = _RouteMapGeneric
+  RouteMap extends _RouteMapGeneric = _RouteMapGeneric,
 > = { [N in keyof RouteMap]: RouteLocationNormalizedLoadedTyped<RouteMap, N> }
 
 export interface RouteLocationAsRelativeTyped<
   RouteMap extends _RouteMapGeneric = _RouteMapGeneric,
-  Name extends keyof RouteMap = keyof RouteMap
+  Name extends keyof RouteMap = keyof RouteMap,
 > extends RouteQueryAndHash,
     RouteLocationOptions {
   name?: Name
@@ -54,46 +54,46 @@ export interface RouteLocationAsRelativeTyped<
 }
 
 export type RouteLocationAsRelativeTypedList<
-  RouteMap extends _RouteMapGeneric = _RouteMapGeneric
+  RouteMap extends _RouteMapGeneric = _RouteMapGeneric,
 > = { [N in keyof RouteMap]: RouteLocationAsRelativeTyped<RouteMap, N> }
 
 export interface RouteLocationAsPathTyped<
   RouteMap extends _RouteMapGeneric = _RouteMapGeneric,
-  Name extends keyof RouteMap = keyof RouteMap
+  Name extends keyof RouteMap = keyof RouteMap,
 > extends RouteQueryAndHash,
     RouteLocationOptions {
   path: LiteralStringUnion<RouteMap[Name]['path']>
 }
 
 export type RouteLocationAsPathTypedList<
-  RouteMap extends _RouteMapGeneric = _RouteMapGeneric
+  RouteMap extends _RouteMapGeneric = _RouteMapGeneric,
 > = { [N in keyof RouteMap]: RouteLocationAsPathTyped<RouteMap, N> }
 
 export type RouteLocationAsString<
-  RouteMap extends _RouteMapGeneric = _RouteMapGeneric
+  RouteMap extends _RouteMapGeneric = _RouteMapGeneric,
 > = LiteralStringUnion<RouteMap[keyof RouteMap]['path'], string>
 
 export interface RouteLocationTyped<
   RouteMap extends _RouteMapGeneric,
-  Name extends keyof RouteMap
+  Name extends keyof RouteMap,
 > extends RouteLocation {
   name: Extract<Name, RouteRecordName>
   params: RouteMap[Name]['params']
 }
 
 export type RouteLocationTypedList<
-  RouteMap extends _RouteMapGeneric = _RouteMapGeneric
+  RouteMap extends _RouteMapGeneric = _RouteMapGeneric,
 > = { [N in keyof RouteMap]: RouteLocationTyped<RouteMap, N> }
 
 export interface RouteLocationResolvedTyped<
   RouteMap extends _RouteMapGeneric,
-  Name extends keyof RouteMap
+  Name extends keyof RouteMap,
 > extends RouteLocationTyped<RouteMap, Name> {
   href: string
 }
 
 export type RouteLocationResolvedTypedList<
-  RouteMap extends _RouteMapGeneric = _RouteMapGeneric
+  RouteMap extends _RouteMapGeneric = _RouteMapGeneric,
 > = { [N in keyof RouteMap]: RouteLocationResolvedTyped<RouteMap, N> }
 
 /**
@@ -105,7 +105,7 @@ export type RouteLocationResolvedTypedList<
  * @see {@link RouteLocationNormalized}
  */
 export type _RouteLocationNormalized<
-  Name extends _RouteRecordName = _RouteRecordName
+  Name extends _RouteRecordName = _RouteRecordName,
 > = RouteLocationNormalizedTypedList<RouteNamedMap>[Name]
 
 /**
@@ -113,7 +113,7 @@ export type _RouteLocationNormalized<
  * @see {@link RouteLocationNormalizedLoaded}
  */
 export type _RouteLocationNormalizedLoaded<
-  Name extends _RouteRecordName = _RouteRecordName
+  Name extends _RouteRecordName = _RouteRecordName,
 > = RouteLocationNormalizedLoadedTypedList<RouteNamedMap>[Name]
 
 /**
@@ -121,7 +121,7 @@ export type _RouteLocationNormalizedLoaded<
  * @see {@link RouteLocationAsRelative}
  */
 export type _RouteLocationAsRelativePath<
-  Name extends _RouteRecordName = _RouteRecordName
+  Name extends _RouteRecordName = _RouteRecordName,
 > = RouteLocationAsRelativeTypedList<RouteNamedMap>[Name]
 
 /**
@@ -130,7 +130,7 @@ export type _RouteLocationAsRelativePath<
  * @see {@link Router['resolve']}
  */
 export type _RouteLocationResolved<
-  Name extends keyof RouteNamedMap = keyof RouteNamedMap
+  Name extends keyof RouteNamedMap = keyof RouteNamedMap,
 > = RouteLocationResolvedTypedList<RouteNamedMap>[Name]
 
 /**
@@ -138,7 +138,7 @@ export type _RouteLocationResolved<
  * @see {@link RouteLocation}
  */
 export type _RouteLocation<
-  Name extends keyof RouteNamedMap = keyof RouteNamedMap
+  Name extends keyof RouteNamedMap = keyof RouteNamedMap,
 > = RouteLocationTypedList<RouteNamedMap>[Name]
 
 /**
@@ -146,7 +146,7 @@ export type _RouteLocation<
  * @see {@link RouteLocationRaw}
  */
 export type _RouteLocationRaw<
-  Name extends keyof RouteNamedMap = keyof RouteNamedMap
+  Name extends keyof RouteNamedMap = keyof RouteNamedMap,
 > =
   | RouteLocationAsString<RouteNamedMap>
   | RouteLocationAsRelativeTypedList<RouteNamedMap>[Name]

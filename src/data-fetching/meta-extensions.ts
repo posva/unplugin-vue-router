@@ -18,7 +18,7 @@ export type _DefineLoaderEntryMap<
   DataLoaderEntry extends DataLoaderEntryBase<
     boolean,
     unknown
-  > = DataLoaderEntryBase<boolean, unknown>
+  > = DataLoaderEntryBase<boolean, unknown>,
 > = WeakMap<
   // Depending on the `defineLoader()` they might use a different thing as key
   // e.g. an function for basic defineLoader, a doc instance for VueFire

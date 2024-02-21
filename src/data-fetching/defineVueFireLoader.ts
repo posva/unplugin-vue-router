@@ -29,7 +29,7 @@ import { Ref, UnwrapRef, ref, shallowRef } from 'vue'
 
 export function defineVueFireLoader<
   Doc extends DocumentReference<unknown, DocumentData>,
-  isLazy extends boolean
+  isLazy extends boolean,
 >(
   loader: (route: RouteLocationNormalizedLoaded) => Doc,
   opts?: DefineVueFireDataLoaderOptions<isLazy>
@@ -277,9 +277,8 @@ export function defineVueFireLoader<
   return useDataLoader
 }
 
-type _ExtractDocumentType<Doc> = Doc extends DocumentReference<infer D, any>
-  ? D
-  : unknown
+type _ExtractDocumentType<Doc> =
+  Doc extends DocumentReference<infer D, any> ? D : unknown
 
 export interface DefineVueFireDataLoaderOptions<isLazy extends boolean>
   extends DefineDataLoaderOptionsBase<isLazy>,
@@ -292,7 +291,7 @@ export interface DefineVueFireDataLoaderOptions<isLazy extends boolean>
 
 export interface VueFireDataLoaderEntry<
   isLazy extends boolean = boolean,
-  Data = unknown
+  Data = unknown,
 > extends DataLoaderEntryBase<isLazy, Data> {
   children: Set<VueFireDataLoaderEntry>
 
@@ -312,7 +311,7 @@ const DEFAULT_DEFINE_LOADER_OPTIONS = {
 
 function createDefineVueFireLoaderEntry<
   isLazy extends boolean = boolean,
-  Data = unknown
+  Data = unknown,
 >(
   loader: (to: RouteLocationNormalizedLoaded) => _RefFirestore<Data>,
   options: Required<DefineVueFireDataLoaderOptions<isLazy>>,

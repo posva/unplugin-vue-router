@@ -31,8 +31,8 @@ export function createRoutesContext(options: ResolvedOptions) {
     preferDTS === false
       ? false
       : preferDTS === true
-      ? resolve(root, 'typed-router.d.ts')
-      : resolve(root, preferDTS)
+        ? resolve(root, 'typed-router.d.ts')
+        : resolve(root, preferDTS)
 
   const routeTree = new PrefixTree(options)
   const editableRoutes = new EditableTreeNode(routeTree)

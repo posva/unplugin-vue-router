@@ -55,7 +55,7 @@ import {
 export function defineColadaLoader<
   Name extends _RouteRecordName,
   Data,
-  isLazy extends boolean
+  isLazy extends boolean,
 >(
   name: Name,
   options: DefineDataLoaderOptions<isLazy, Name, Data>
@@ -452,7 +452,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
 export interface DefineDataLoaderOptions<
   isLazy extends boolean,
   Name extends _RouteRecordName,
-  Data
+  Data,
 > extends DefineDataLoaderOptionsBase<isLazy>,
     Omit<UseQueryOptions<unknown>, 'query' | 'key'> {
   /**

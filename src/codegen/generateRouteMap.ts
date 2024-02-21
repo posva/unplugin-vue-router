@@ -43,7 +43,7 @@ export interface RouteRecordInfo<
   // TODO: could probably be inferred from the Params
   ParamsRaw extends RouteParamsRaw = RouteParamsRaw,
   Params extends RouteParams = RouteParams,
-  Meta extends RouteMeta = RouteMeta
+  Meta extends RouteMeta = RouteMeta,
 > {
   name: Name
   path: Path

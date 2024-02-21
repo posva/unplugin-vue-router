@@ -31,7 +31,7 @@ import type {
  */
 export interface RouterLinkPropsTyped<
   RouteMap extends _RouteMapGeneric,
-  Name extends keyof RouteMap = keyof RouteMap
+  Name extends keyof RouteMap = keyof RouteMap,
 > extends Omit<_RouterLinkProps, 'to'> {
   to:
     | RouteLocationAsString<RouteMap>
@@ -62,7 +62,7 @@ export interface RouterLinkTyped<RouteMap extends _RouteMapGeneric> {
  */
 export interface _UseLinkReturnTyped<
   RouteMap extends _RouteMapGeneric,
-  Name extends keyof RouteMap = keyof RouteMap
+  Name extends keyof RouteMap = keyof RouteMap,
 > {
   route: ComputedRef<RouteLocationResolvedTypedList<RouteMap>[Name]>
   href: ComputedRef<string>

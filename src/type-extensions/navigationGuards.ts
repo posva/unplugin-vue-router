@@ -41,7 +41,7 @@ export type NavigationGuardReturn = NavigationGuardReturnTyped<RouteNamedMap>
  */
 export interface NavigationGuardWithThisTyped<
   T,
-  RouteMap extends _RouteMapGeneric
+  RouteMap extends _RouteMapGeneric,
 > {
   (
     this: T,

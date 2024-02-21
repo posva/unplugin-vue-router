@@ -40,7 +40,7 @@ import { NavigationResult } from './navigation-guard'
 export function defineBasicLoader<
   Name extends _RouteRecordName,
   Data,
-  isLazy extends boolean
+  isLazy extends boolean,
 >(
   name: Name,
   loader: DefineLoaderFn<

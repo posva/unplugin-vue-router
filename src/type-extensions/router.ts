@@ -20,7 +20,7 @@ import type {
 import type { RouteNamedMap, _TypesConfig } from './types-config'
 
 export interface _RouterTyped<
-  RouteMap extends _RouteMapGeneric = _RouteMapGeneric
+  RouteMap extends _RouteMapGeneric = _RouteMapGeneric,
 > extends Omit<
     Router,
     | 'resolve'
@@ -72,9 +72,10 @@ export interface _RouterTyped<
  * Type safe version of `Router`.
  * @see {@link Router}
  */
-export type _Router = _TypesConfig extends Record<'RouteNamedMap', any>
-  ? _RouterTyped<RouteNamedMap>
-  : Router
+export type _Router =
+  _TypesConfig extends Record<'RouteNamedMap', any>
+    ? _RouterTyped<RouteNamedMap>
+    : Router
 
 /**
  * unplugin-vue-router version of `RouterOptions`.

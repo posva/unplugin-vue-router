@@ -10,9 +10,7 @@ export interface _TypesConfig {}
 /**
  * Convenience type to get the typed RouteMap or a generic one if not provided.
  */
-export type RouteNamedMap = _TypesConfig extends Record<
-  'RouteNamedMap',
-  infer RouteNamedMap
->
-  ? RouteNamedMap
-  : Record<string, RouteRecordInfo>
+export type RouteNamedMap =
+  _TypesConfig extends Record<'RouteNamedMap', infer RouteNamedMap>
+    ? RouteNamedMap
+    : Record<string, RouteRecordInfo>
