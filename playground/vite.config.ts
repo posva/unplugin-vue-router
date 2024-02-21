@@ -27,7 +27,6 @@ export default defineConfig({
 
   plugins: [
     VueRouter({
-      dataFetching: true,
       extensions: ['.page.vue', '.vue', '.md'],
       extendRoute(route) {
         // console.log('extending route', route.meta)

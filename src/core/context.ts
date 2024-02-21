@@ -37,11 +37,15 @@ export function createRoutesContext(options: ResolvedOptions) {
   const routeTree = new PrefixTree(options)
   const editableRoutes = new EditableTreeNode(routeTree)
 
-  function log(...args: any[]) {
-    if (options.logs) {
-      console.log(...args)
-    }
-  }
+  const logger = new Proxy(console, {
+    get(target, prop) {
+      const res = Reflect.get(target, prop)
+      if (typeof res === 'function') {
+        return options.logs ? res : () => {}
+      }
+      return res
+    },
+  })
 
   // populated by the initial scan pages
   const watchers: RoutesFolderWatcher[] = []
@@ -111,7 +115,7 @@ export function createRoutesContext(options: ResolvedOptions) {
       getRouteBlock(filePath, options),
     ])
     // TODO: should warn if hasDefinePage and customRouteBlock
-    // if (routeBlock) log(routeBlock)
+    // if (routeBlock) logger.log(routeBlock)
     node.setCustomRouteBlock(filePath, {
       ...routeBlock,
       ...definedPageNameAndPath,
@@ -122,7 +126,7 @@ export function createRoutesContext(options: ResolvedOptions) {
     { filePath, routePath }: HandlerContext,
     triggerExtendRoute = false
   ) {
-    log(`added "${routePath}" for "${filePath}"`)
+    logger.log(`added "${routePath}" for "${filePath}"`)
     // TODO: handle top level named view HMR
     const node = routeTree.insert(routePath, filePath)
 
@@ -134,10 +138,10 @@ export function createRoutesContext(options: ResolvedOptions) {
   }
 
   async function updatePage({ filePath, routePath }: HandlerContext) {
-    log(`updated "${routePath}" for "${filePath}"`)
+    logger.log(`updated "${routePath}" for "${filePath}"`)
     const node = routeTree.getChild(filePath)
     if (!node) {
-      console.warn(`Cannot update "${filePath}": Not found.`)
+      logger.warn(`Cannot update "${filePath}": Not found.`)
       return
     }
     await writeRouteInfoToNode(node, filePath)
@@ -145,12 +149,12 @@ export function createRoutesContext(options: ResolvedOptions) {
   }
 
   function removePage({ filePath, routePath }: HandlerContext) {
-    log(`remove "${routePath}" for "${filePath}"`)
+    logger.log(`remove "${routePath}" for "${filePath}"`)
     routeTree.removeChild(filePath)
   }
 
   function setupWatcher(watcher: RoutesFolderWatcher) {
-    log(`🤖 Scanning files in ${watcher.src}`)
+    logger.log(`🤖 Scanning files in ${watcher.src}`)
 
     return watcher
       .on('change', async (ctx) => {
@@ -207,20 +211,19 @@ export function createRoutesContext(options: ResolvedOptions) {
   let lastDTS: string | undefined
   let lastTypesConfigDTS: string | undefined
   async function _writeConfigFiles() {
-    console.time('writeConfigFiles')
-    log('💾 writing...')
+    logger.time('writeConfigFiles')
 
     if (options.beforeWriteFiles) {
       await options.beforeWriteFiles(editableRoutes)
-      console.timeLog('writeConfigFiles', 'ran beforeWriteFiles')
+      logger.timeLog('writeConfigFiles', 'beforeWriteFiles()')
     }
 
-    logTree(routeTree, log)
+    logTree(routeTree, logger.log)
     if (dts) {
       const content = generateDTS()
       if (lastDTS !== content) {
         await fs.writeFile(dts, content, 'utf-8')
-        console.timeLog('writeConfigFiles', 'wrote dts')
+        logger.timeLog('writeConfigFiles', 'wrote dts file')
         lastDTS = content
 
         // update the files
@@ -229,7 +232,7 @@ export function createRoutesContext(options: ResolvedOptions) {
         server?.reload()
       }
     }
-    console.timeEnd('writeConfigFiles')
+    logger.timeEnd('writeConfigFiles')
   }
 
   // debounce of 100ms + throttle of 500ms
@@ -239,7 +242,7 @@ export function createRoutesContext(options: ResolvedOptions) {
 
   function stopWatcher() {
     if (watchers.length) {
-      log('🛑 stopping watcher')
+      logger.log('🛑 stopping watcher')
       watchers.forEach((watcher) => watcher.close())
     }
   }
