@@ -9,15 +9,15 @@
     "@vitejs/plugin-vue": "^5.0.4",
     "@vue/compiler-sfc": "^3.4.19",
     "@vue/tsconfig": "^0.5.1",
-    "json-server": "^0.17.3",
+    "json-server": "^0.17.4",
     "unplugin-vue-router": "workspace:*",
     "vite": "^5.1.4",
     "vite-plugin-inspect": "^0.8.3",
-    "vue": "^3.3.7"
+    "vue": "^3.4.19"
   },
   "dependencies": {
     "@tanstack/vue-query": "^5.22.2",
-    "mande": "^2.0.7",
+    "mande": "^2.0.8",
     "pinia": "^2.1.7",
     "vue": "^3.4.19"
   }
