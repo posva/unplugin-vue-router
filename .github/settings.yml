@@ -11,16 +11,16 @@ labels:
   - name: ⚡️ enhancement
     color: a2eeef
     description: improvement over an existing feature
-  - name: need repro
+  - name: ♦️ need repro
     color: c9581c
     description: the issue needs a reproduction for further investigation
   - name: has workaround
     color: 2139c4
     description: has a temporary fix to get around the problem
-  - name: contribution welcome
+  - name: 👍 contribution welcome
     color: 0e8a16
     description: others are welcome to implement/fix this
-  - name: typescript
+  - name: 🔹 typescript
     color: 3178c6
     description: issue related to types
   - name: 💬 discussion
@@ -29,12 +29,15 @@ labels:
   - name: 📚 docs
     color: 8be281
     description: related to documentation
-  - name: good first issue
+  - name: 1️⃣ good first issue
     color: 7057ff
     description: this should be manageable for new-comers
-  - name: help wanted
+  - name: 🙏 help wanted
     color: 008672
     description: help in this issue is welcome
   - name: wontfix
     color: ffffff
     description: this issue won't be fixed
+  - name: 🔄 data-loaders
+    color: baffc9
+    description: related to Data Loaders
