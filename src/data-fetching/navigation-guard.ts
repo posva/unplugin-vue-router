@@ -1,5 +1,5 @@
 import type { NavigationGuard } from 'vue-router'
-import { isNavigationFailure, NavigationFailure } from 'vue-router'
+import { isNavigationFailure } from 'vue-router'
 import { effectScope, type App, type EffectScope } from 'vue'
 import {
   ABORT_CONTROLLER_KEY,
@@ -58,11 +58,11 @@ export function setupLoaderGuard({
   // guard to add the loaders to the meta property
   const removeLoaderGuard = router.beforeEach((to) => {
     // Abort any pending navigation. For cancelled navigations, this will happen before the `router.afterEach()`
-    // if (router[PENDING_LOCATION_KEY]) {
-    //   router[PENDING_LOCATION_KEY].meta[ABORT_CONTROLLER_KEY]?.abort()
-    // }
-    // TODO: test out if worth adding here since the afterEach will also abort the signal and with a reason parameter
-    // NOTE: in tests, it does allow to have an aborted signal faster but not in all cases
+    if (router[PENDING_LOCATION_KEY]) {
+      // we could craft a navigation failure here but vue-router doesn't expose createRouterError() (yet?) and we don't
+      // seem to actually need a reason within loaders
+      router[PENDING_LOCATION_KEY].meta[ABORT_CONTROLLER_KEY]?.abort()
+    }
 
     // global pending location, used by nested loaders to know if they should load or not
     router[PENDING_LOCATION_KEY] = to

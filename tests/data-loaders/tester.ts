@@ -475,7 +475,10 @@ export function testDefineLoader<Context = void>(
         }
         return to.query.p
       })
-    const useNestedLoader = loaderFactory({ fn: nestedLoaderSpy, key: 'a' })
+    const useNestedLoader = loaderFactory({
+      fn: nestedLoaderSpy,
+      key: 'nested',
+    })
 
     let rootCalls = 0
     let resolveRootFirstCall!: (val?: unknown) => void
@@ -497,7 +500,7 @@ export function testDefineLoader<Context = void>(
       })
 
     const { wrapper, useData, router, app } = singleLoaderOneRoute(
-      loaderFactory({ fn: rootLoaderSpy, key: 'b' })
+      loaderFactory({ fn: rootLoaderSpy, key: 'root' })
     )
     const firstNavigation = router.push('/fetch?p=one')
     // we resolve the first root to give the nested loader a chance to run
@@ -530,7 +533,7 @@ export function testDefineLoader<Context = void>(
       '/fetch?p=two'
     )
 
-    // the nested gets called for the first time
+    // the nested gets resolved for the first time
     resolveNestedFirstCall()
     resolveNestedSecondCall()
     await vi.runAllTimersAsync()
@@ -545,6 +548,9 @@ export function testDefineLoader<Context = void>(
     // only the data from the second navigation should be preserved
     const { data } = useData()
     const { data: nestedData } = app.runWithContext(() => useNestedLoader())
+
+    expect(rootCalls).toEqual(2)
+    expect(nestedCalls).toEqual(2)
 
     expect(nestedData.value).toEqual('two')
     expect(data.value).toEqual('two,two')

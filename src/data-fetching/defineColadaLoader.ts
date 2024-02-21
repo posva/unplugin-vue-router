@@ -194,6 +194,9 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
     }
     // set the current context before loading so nested loaders can use it
     setCurrentContext([entry, router, to])
+    entry.staged = STAGED_NO_VALUE
+    // preserve error until data is committed
+    entry.stagedError = error.value
 
     const currentLoad = ext[reload ? 'refetch' : 'refresh']()
       .then((d) => {
@@ -205,8 +208,9 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
         //   }; data:\n${JSON.stringify(d)}\n${JSON.stringify(ext.data.value)}`
         // )
         if (entry.pendingLoad === currentLoad) {
+          const newError = ext.error.value
           // propagate the error
-          if (ext.error.value) {
+          if (newError) {
             // console.log(
             //   '‼️ rejected',
             //   to.fullPath,
@@ -214,27 +218,29 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
             //   e
             // )
             // in this case, commit will never be called so we should just drop the error
-            if (
-              options.lazy ||
-              options.commit !== 'after-load' ||
-              // if we are outside of a navigation guard, we should set the error
-              !router[PENDING_LOCATION_KEY]
-            ) {
-              entry.stagedError = ext.error.value
-            }
+            entry.stagedError = newError
             // propagate error if non lazy or during SSR
+            // NOTE: Cannot be handled at the guard level because of nested loaders
             if (!options.lazy || !IS_CLIENT) {
-              return Promise.reject(ext.error.value)
+              return Promise.reject(newError)
             }
           } else {
-            entry.staged = ext.data.value
+            // let the navigation guard collect the result
+            const newData = ext.data.value
+            if (newData instanceof NavigationResult) {
+              to.meta[NAVIGATION_RESULTS_KEY]!.push(newData)
+            } else {
+              entry.staged = newData
+              entry.stagedError = null
+            }
           }
-        } else {
-          // TODO: add test that checks we don't set the load was discarded
-          // console.log(`❌ Discarded old result for "${key}"`, d, ext.data.value)
-          ext.data.value = data.value
-          ext.error.value = error.value
         }
+        // else if (newError) {
+        // TODO: Figure out cases where this was needed and test it
+        // console.log(`❌ Discarded old result for "${key}"`, d, ext.data.value)
+        // ext.data.value = data.value
+        // ext.error.value = error.value
+        // }
       })
       .finally(() => {
         setCurrentContext(currentContext)
@@ -243,15 +249,20 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
         //   currentContext?.[2]?.fullPath
         // )
         if (entry.pendingLoad === currentLoad) {
+          isLoading.value = false
           // we must run commit here so nested loaders are ready before used by their parents
           if (
-            options.lazy ||
             options.commit === 'immediate' ||
             // outside of a navigation
             !router[PENDING_LOCATION_KEY]
           ) {
             entry.commit(to)
           }
+        } else {
+          // For debugging purposes and refactoring the code
+          // console.log(
+          //   to.meta[ABORT_CONTROLLER_KEY]!.signal.aborted ? '✅' : '❌'
+          // )
         }
       })
 
@@ -281,21 +292,18 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       }
       // if the entry is null, it means the loader never resolved, maybe there was an error
       if (this.staged !== STAGED_NO_VALUE) {
-        // collect navigation results instead of setting the data
-        if (this.staged instanceof NavigationResult) {
-          to.meta[NAVIGATION_RESULTS_KEY]!.push(this.staged)
-        } else {
-          this.data.value = this.staged
-          this.tracked.get(key.join('|'))!.ready = true
-        }
+        this.data.value = this.staged
+        this.tracked.get(key.join('|'))!.ready = true
       }
-      // The navigation was changed so avoid resetting the error
-      if (!(this.staged instanceof NavigationResult)) {
-        this.error.value = this.stagedError
-      }
+      // we always commit the error unless the navigation was cancelled
+      this.error.value = this.stagedError
+
+      // reset the staged values so they can't be commit
       this.staged = STAGED_NO_VALUE
-      this.stagedError = null
+      // preserve error until data is committed
+      this.stagedError = this.error.value
       this.pendingTo = null
+      // we intentionally keep pendingLoad so it can be reused until the navigation is finished
 
       // children entries cannot be committed from the navigation guard, so the parent must tell them
       for (const childEntry of this.children) {
@@ -304,8 +312,6 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
     } else {
       // console.log(` -> skipped`)
     }
-    // we reset loading in commit to ensure it's consistent with when the data is made available
-    this.isLoading.value = false
   }
 
   // @ts-expect-error: requires the internals and symbol that are added later
