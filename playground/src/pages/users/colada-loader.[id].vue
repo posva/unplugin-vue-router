@@ -90,6 +90,8 @@ const {
     <RouterLink :to="{ params: { id: Number(route.params.id) + 1 } }"
       >Next</RouterLink
     >
+    |
+    <RouterLink :to="{ query: { v: Math.random() } }">Random query</RouterLink>
 
     <h2>PC 🍍🍹</h2>
 
