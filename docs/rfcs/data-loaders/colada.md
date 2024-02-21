@@ -4,11 +4,24 @@ Loaders that use [@pinia/colada](https://github.com/posva/pinia-colada) under th
 
 The key used in these loaders are directly passed to `useQuery()` from `@pinia/colada` and are therefore invalidated by `useMutation()` calls.
 
+::: warning
+Pinia Colada is Experimental (like data loaders). Feedback is very welcome to shape the future of data loaders in Vue Router.
+:::
+
 ## Setup
 
-Follow the instructions in [@pinia/colada](https://github.com/posva/pinia-colada).
+Follow the installation instructions in [@pinia/colada](https://github.com/posva/pinia-colada).
 
 ## Example
+
+<!--
+TODO: example with twoslash when it works
+// ---cut-start---
+import 'unplugin-vue-router/client'
+import './typed-router.d'
+// ---cut-end---
+// @moduleResolution: bundler
+ -->
 
 ```vue
 <script lang="ts">
@@ -72,7 +85,7 @@ const {
 ```
 
 ::: tip
-Pass a route name to `defineColadaLoader` to get typed routes in the `query` function.
+If you are using unplugin-vue-router, you can pass a route name to `defineColadaLoader` to get typed routes in the `query` function.
 
 ```ts
 export const useUserData = defineColadaLoader('/users/[id]', {
@@ -88,4 +101,10 @@ To avoid unnecessary frequent refreshes, Pinia Colada refreshes the data when na
 
 ## Route tracking
 
-The `query` function tracks what is used in the `to` parameter and will only refresh the data if **tracked** properties change. This means that if you use `to.params.id` in the `query` function, it will only refetch the data if the `id` parameter changes but not if other properties like `to.query`, `to.hash` or even `to.params.other` change.
+The `query` function tracks what is used in the `to` parameter and will only refresh the data if **tracked** properties change. This means that if you use `to.params.id` in the `query` function, it will only refetch the data if the `id` parameter changes but not if other properties like `to.query`, `to.hash` or even `to.params.other` change. To make sure the data is updated, it will still refresh in these scenarios. Configure the `staleTime` option to control how often the data should be refreshed.
+
+## SSR
+
+## Nuxt
+
+## Unresolved questions

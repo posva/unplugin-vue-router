@@ -32,7 +32,7 @@ export const useUserData = defineColadaLoader('/users/colada-loader.[id]', {
     return user
   },
   key: (to) => {
-    console.log('[🍹] key', to.fullPath)
+    // console.log('[🍹] key', to.fullPath)
     return ['loader-users', to.params.id]
   },
   staleTime: 10000,
