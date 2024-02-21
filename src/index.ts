@@ -139,18 +139,8 @@ export { createRoutesContext }
 export { getFileBasedRouteName, getPascalCaseRouteName } from './core/utils'
 
 // Route Tree and edition
-// FIXME: deprecated, remove in next major
-export { createPrefixTree } from './core/tree'
 export { createTreeNodeValue } from './core/treeNodeValue'
 export { EditableTreeNode } from './core/extendRoutes'
-
-// FIXME: deprecated, remove in next major
-/**
- * @deprecated use `VueRouterAutoImports` instead
- */
-export const VueRouterExports: Array<
-  string | [importName: string, alias: string]
-> = ['useRoute', 'useRouter', 'onBeforeRouteUpdate', 'onBeforeRouteLeave']
 
 /**
  * Adds useful auto imports to the AutoImport config:

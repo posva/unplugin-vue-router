@@ -469,6 +469,8 @@ export interface DefineDataLoaderOptions<
     DataLoaderContext,
     _RouteLocationNormalizedLoaded<Name>
   >
+
+  // TODO: option to skip refresh if the used properties of the route haven't changed
 }
 
 export interface DataLoaderContext extends DataLoaderContextBase {}

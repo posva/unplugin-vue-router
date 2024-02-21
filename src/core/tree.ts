@@ -313,13 +313,6 @@ export class PrefixTree extends TreeNode {
 }
 
 /**
- * @deprecated Use `new PrefixTree()` instead.
- */
-export function createPrefixTree(options: ResolvedOptions) {
-  return new PrefixTree(options)
-}
-
-/**
  * Splits a path into by finding the first '/' and returns the tail and segment. If it has an extension, it removes it.
  * If it contains a named view, it returns the view name as well (otherwise it's default).
  *
