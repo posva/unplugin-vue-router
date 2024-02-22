@@ -1,6 +1,6 @@
 {
   "name": "unplugin-vue-router",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "packageManager": "pnpm@8.15.3",
   "description": "File based typed routing for Vue Router",
   "keywords": [
@@ -129,7 +129,7 @@
     "commit-msg": "node scripts/verifyCommit.mjs"
   },
   "lint-staged": {
-    "*.js": [
+    "*.{js,mjs,json,cjs,md}": [
       "prettier --write"
     ],
     "*.ts?(x)": [

@@ -1,3 +1,137 @@
+# [0.8.0](https://github.com/posva/unplugin-vue-router/compare/v0.7.0...v0.8.0) (2024-02-22)
+
+Based on the feedback of the RFC, the Data Loaders have been redesigned from the ground up and are now way more flexible and powerful. As a result, if you were using the experimental data loaders, make sure to check the list of breaking changes and the new RFC at https://uvr.esm.is/rfcs/data-loaders. We are looking for early testers and feedback!
+
+### Bug Fixes
+
+- allow errors outside of navigation ([ae37a8e](https://github.com/posva/unplugin-vue-router/commit/ae37a8ec218ba62f0bac20039d6e8942f63f0d96))
+- avoid uncatchable rejection ([fa0c794](https://github.com/posva/unplugin-vue-router/commit/fa0c794a066ace43cf87e252191943f4c856170d))
+- delay setting the error ([3d341ae](https://github.com/posva/unplugin-vue-router/commit/3d341ae5a63f6930e7a54a80af007132f3532f5a))
+- discard loads from canceled navigations ([aac66c1](https://github.com/posva/unplugin-vue-router/commit/aac66c16826f5a5f68da478663706385ac31d45d)), closes [posva/unplugin-vue-router#200](https://github.com/posva/unplugin-vue-router/issues/200)
+- router.push types ([98cb17b](https://github.com/posva/unplugin-vue-router/commit/98cb17bf9d837f5cbaa370cfa9c8d7f377818080))
+- run nested loaders once when used across places ([73a6cc5](https://github.com/posva/unplugin-vue-router/commit/73a6cc5c875b95c6921c1b1dba1207aa80c2a878))
+- **types:** correct types in navigation guards ([3f01155](https://github.com/posva/unplugin-vue-router/commit/3f01155e8cb609d1af07b115103907176d44aab8))
+- **types:** correctly extend client ([d226cf9](https://github.com/posva/unplugin-vue-router/commit/d226cf9266a36564bccc8ee9a0b1c5980d5c6000))
+- **types:** remove null from non raw star param ([0b71ad5](https://github.com/posva/unplugin-vue-router/commit/0b71ad5fd9e0f79b8a3508cc8849ef4c85e0f029))
+- **types:** restrict what can be imported from the package ([8748644](https://github.com/posva/unplugin-vue-router/commit/874864497414ad503b9a5c185f650c5d0c7a5746)), closes [#289](https://github.com/posva/unplugin-vue-router/issues/289)
+- **types:** use `vue-router/auto-routes` ([2dc0446](https://github.com/posva/unplugin-vue-router/commit/2dc0446ee956c01cdc97a912f3362d62f35906cd))
+- use single alias for reused components on different paths ([1544363](https://github.com/posva/unplugin-vue-router/commit/1544363383992a38339786178a836ad7e1bad712))
+
+### Code Refactoring
+
+- rename `pending` to `isLoading` ([9502751](https://github.com/posva/unplugin-vue-router/commit/950275193e43936481337f291ce79b4f60a27d76))
+- refactor!: remove deprecated APIs ([0415b9e](https://github.com/posva/unplugin-vue-router/commit/0415b9eb86a68f9fe687a0bae02405bd2123f2a9))
+- refactor(data-loaders)!: rewrite of data loaders ([f0b7b58](https://github.com/posva/unplugin-vue-router/commit/f0b7b58e0a588146f70b38d9037e4221204b25c7))
+- refactor!: remove `setupLoaderGuard` ([8094f62](https://github.com/posva/unplugin-vue-router/commit/8094f62f5871988611d82e857867064b2d959189))
+
+### Features
+
+- add pinia colada properties ([63a768f](https://github.com/posva/unplugin-vue-router/commit/63a768f8e8e7fce2a60fc8f76ce54bba303ce041))
+- commit option ([56b2a4d](https://github.com/posva/unplugin-vue-router/commit/56b2a4d6e35aa8ef5d45f4ee914ab86a7577f8e5)), closes [posva/unplugin-vue-router#201](https://github.com/posva/unplugin-vue-router/issues/201)
+- **data-fetching:** add server option ([d4d2f46](https://github.com/posva/unplugin-vue-router/commit/d4d2f46c156d8837ec5f403ff21ffe9a86065853))
+- **data-loaders:** abort the signal for old pending locations ([afabb47](https://github.com/posva/unplugin-vue-router/commit/afabb47c4ed2428b11388d14f676a1b95eb9dec1))
+- **data-loaders:** add abort signal to navigation ([a175fa7](https://github.com/posva/unplugin-vue-router/commit/a175fa7b9800f7abce454fa2a46c9e4163293494))
+- **data-loaders:** allow changing the navigation result ([7a7da74](https://github.com/posva/unplugin-vue-router/commit/7a7da74a3bddf3e0f836f70a2e0df4b89bb52a82))
+- **data-loaders:** pass the signal to the loader ([85d0494](https://github.com/posva/unplugin-vue-router/commit/85d049435e6edb8341b2430653a807fbf2906ef0))
+- handle thrown errors ([2e38544](https://github.com/posva/unplugin-vue-router/commit/2e385445546ee363167860c03c445ca081614eb3))
+- inject in nested loaders ([b0aa0b3](https://github.com/posva/unplugin-vue-router/commit/b0aa0b391da76ecc6493632ae1952ff773cebba8))
+- **loaders:** thrown navigation results take precedence ([2aaaf56](https://github.com/posva/unplugin-vue-router/commit/2aaaf567f99059c5b679e3d25b34bf6d2145f9d2))
+- return a promise of data only ([d2dda40](https://github.com/posva/unplugin-vue-router/commit/d2dda40cb68cb87dca701ed682dc1d9cf9349b05))
+- run loaders with access to global inject and provide ([9d95e27](https://github.com/posva/unplugin-vue-router/commit/9d95e27aef4e68f2d53a36cc18007ad407447a07))
+- track used params ([b2ae763](https://github.com/posva/unplugin-vue-router/commit/b2ae7633b34fd35dce00d0a7a25c9f1cf744bad3))
+
+### Performance Improvements
+
+- compute params once ([322f220](https://github.com/posva/unplugin-vue-router/commit/322f2203da10bd1b18288060d3cda91c95dfd28d))
+- use a shallowRef for data ([aae0c70](https://github.com/posva/unplugin-vue-router/commit/aae0c70a8051e9aa8f21c643d1b0a2d916b354a5))
+- use for of instead of forEach ([1635745](https://github.com/posva/unplugin-vue-router/commit/1635745cc58f5e312602ee2b4430b811cd63808b))
+
+### BREAKING CHANGES
+
+- Remove the deprecated APIs:
+
+- `createPrefixTree()` -> `new PrefixTree()`
+- `VueRouterExports` -> `VueRouterAutoImports`
+
+- Data Loaders have been redesigned to be more flexible
+  and account for other libraries. Notably, the caching behavior has been
+  moved out of the basic loader to an extended one [pinia-colada](https://uvr.esm.is/rfcs/data-loaders/colada.html) and the [basic loader](https://uvr.esm.is/rfcs/data-loaders/basic.html)
+  has no cache. All of the pending bugs have also been fixed.
+  I recommend you to give the RFC examples a new read to get
+  setup: https://uvr.esm.is/rfcs/data-loaders/. Most of the changes are
+  simplifying things by removing them.
+  Here is a list of the breaking changes to simplify
+  migration:
+
+  - The `dataFetching` option is no longer needed.
+  - Manual work needed to add loaders with `HasDataLoaderMeta` has been
+    removed. It is just no longer needed. Loaders are picked up from lazy
+    loaded components and must otherwise be directly added to a `meta.loaders`
+    array. See the example at https://uvr.esm.is/rfcs/data-loaders/#basic-example
+  - The function `setupDataFetchingGuard` has been replaced with a Vue
+    Plugin. See https://uvr.esm.is/rfcs/data-loaders/#data-loader-setup
+    for details.
+  - If you were relying on `cacheTime`, use the `staleTime` option in the
+    new [`defineColadaLoader()`](https://uvr.esm.is/rfcs/data-loaders/colada) based off [@pinia/colada](https://github.com/posva/pinia-colada)
+  - To reduce the dependency on file-based router, things have been
+    refactored and none of the defineLoader functions are automatically
+    imported anymore. You can add them yourself to the list of auto
+    imports, or import them from `vue-router/auto`. The good news is you
+    no longer need to use the plugin in order to benefit from the data
+    loaders; they can be directly imported from
+    `unplugin-vue-router/runtime` **even if you don't want file-based routing**.
+
+  If you find missing information or improvements, please open a Pull
+  Request to improve the `CHANGELOG.md`.
+
+  - The navigation guard is replaced in favor of a Vue
+    plugin:
+
+  Replace
+
+  ```ts
+  import { setupLoaderGuard } from 'vue-router/auto'
+
+  setupLoaderGuard({ router, app })
+  ```
+
+  with
+
+  ```ts
+  import { DataLoaderPlugin } from 'vue-router/auto'
+
+  app.use(DataLoaderPlugin, { router })
+  ```
+
+  - `vue-router/auto/routes` becomes `vue-router/auto-routes`. This change was necessary to improve compatibility with
+    TypeScript and other tools in the ecosystem. Most of the time you don't
+    need to use this path but if you were using it, replace it:
+
+  ```diff
+  - import { } from 'vue-router/auto/routes'
+  + import { } from 'vue-router/auto-routes'
+  ```
+
+  - Data Loaders now return an `isLoading` property instead
+    of `pending`. This aligns better with the wording of Data Loaders being
+    in a loading state rather than pending, which can have more meanings.
+  - You know need to add `unplugin-vue-router/client` to the `types` property of your tsconfig. See [setup](https://uvr.esm.is/introduction.html#setup) for an example.
+
+  - the existing `defineLoader` is being replaced by a
+    basic loader without cache. The version with cache will be implemented
+    by adding a library that properly handles the caching. This new strategy
+    will also enable other integrations like VueFire, Apollo, and custom
+    ones. Keep an eye (subscribe) to the RFC for news and to discus about
+    the future of Data Loaders: https://github.com/vuejs/rfcs/discussions/460
+  - since data loaders aren't meant to be awaited in script
+    setup (they are awaited at the navigation level), they now return a
+    promise of the raw data only, not of the UseDataLoaderReturn, to make it
+    clearer that this syntax is a bit special and should only be used within
+    nested loaders. This change also brings other benefits like allowing
+    lazy loaders to be awaited within loaders without changing their usage
+    outside, in components. Also, allowing different types of commit while
+    still allowing data to be awaited within loaders.
+
 # [0.7.0](https://github.com/posva/unplugin-vue-router/compare/v0.6.4...v0.7.0) (2023-09-22)
 
 ### Bug Fixes
