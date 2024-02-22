@@ -810,7 +810,7 @@ TBD: is this worth it? Are any other functions needed?
 
 ### Suspense
 
-Using `Suspense` is probably the first alternative that comes to mind and it has been considered as a solution for data fetching by implementing proofs of concepts. It however suffers from major drawbacks that are tied to its current design and is not a viable solution for data fetching.
+Using Suspense is probably the first alternative that comes to mind and it has been considered as a solution for data fetching by implementing proofs of concepts. It however suffers from major drawbacks that are tied to its current design and is not a viable solution for data fetching.
 
 One could imagine being able to write something like:
 
