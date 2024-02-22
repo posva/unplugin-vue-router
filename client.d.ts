@@ -45,17 +45,8 @@ declare module 'vue-router/auto' {
   import type {
     _RouterTyped,
     _RouterOptions,
-
-    // typed routes helpers
-    RouteLocationTypedList,
-    RouteLocationResolvedTypedList,
-    RouteLocationNormalizedTypedList,
     RouteLocationNormalizedLoadedTypedList,
-    RouteLocationAsString,
-    RouteLocationAsRelativeTypedList,
-    RouteLocationAsPathTypedList,
     NavigationGuardTyped,
-    NavigationGuardWithThisTyped,
     RouterLinkPropsTyped,
     RouterLinkTyped,
     UseLinkFnTyped,
@@ -83,9 +74,9 @@ declare module 'vue-router/auto' {
    * @deprecated use `Router` instead. This type will be a different one in the next major version.
    */
   export type RouterTyped = _RouterTyped<RouteNamedMap>
-  export function useRouter(): RouterTyped
+  export function useRouter(): _RouterTyped<RouteNamedMap>
   export function useRoute<
-    Name extends keyof RouteNamedMap = keyof RouteNamedMap
+    Name extends keyof RouteNamedMap = keyof RouteNamedMap,
   >(name?: Name): RouteLocationNormalizedLoadedTypedList<RouteNamedMap>[Name]
   export const useLink: UseLinkFnTyped<RouteNamedMap>
   export function onBeforeRouteLeave(
@@ -98,7 +89,7 @@ declare module 'vue-router/auto' {
   export const RouterLinkProps: RouterLinkPropsTyped<RouteNamedMap>
   export function createRouter(
     options: _RouterOptions
-  ): RouterTyped
+  ): _RouterTyped<RouteNamedMap>
 
   export {
     // Experimental Data Fetching
