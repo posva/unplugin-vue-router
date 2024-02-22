@@ -3,7 +3,7 @@
 import { defineQueryLoader } from 'unplugin-vue-router/runtime'
 
 import {
-  type _TypesConfig,
+  type TypesConfig,
   type RouteRecordName,
 } from 'unplugin-vue-router/types'
 const a: RouteRecordName = '/articles'

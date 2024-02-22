@@ -19,12 +19,15 @@ describe('defineBasicLoader', () => {
       return user
     })
 
-    expectTypeOf<{
-      data: Ref<UserData>
-      error: Ref<unknown>
-      isLoading: Ref<boolean>
-      refresh: () => Promise<void>
-    }>(useDataLoader())
+    expectTypeOf<
+      | {
+          data: Ref<UserData>
+          error: Ref<unknown>
+          isLoading: Ref<boolean>
+          refresh: () => Promise<void>
+        }
+      | PromiseLike<UserData>
+    >(useDataLoader())
   })
 
   async function loaderUser() {

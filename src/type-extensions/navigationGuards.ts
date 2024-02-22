@@ -14,7 +14,7 @@ import type {
   RouteLocationAsPathTypedList,
 } from './routeLocation'
 import type { _Router } from './router'
-import type { RouteNamedMap, _TypesConfig } from './types-config'
+import type { RouteNamedMap, TypesConfig } from './types-config'
 import type { _MaybePromise } from '../data-fetching/utils'
 
 /**
@@ -29,9 +29,9 @@ type NavigationGuardReturnTyped<RouteMap extends _RouteMapGeneric> =
   | RouteLocationAsPathTypedList<RouteMap>[keyof RouteMap]
 
 /**
- * Return types for a Navigation Guard. Based on `_TypesConfig`
+ * Return types for a Navigation Guard. Based on `TypesConfig`
  *
- * @see {@link _TypesConfig}
+ * @see {@link TypesConfig}
  * @see {@link NavigationGuardReturnTyped}
  */
 export type NavigationGuardReturn = NavigationGuardReturnTyped<RouteNamedMap>
@@ -53,8 +53,8 @@ export interface NavigationGuardWithThisTyped<
 }
 
 /**
- * Typed Navigation Guard with a type parameter for `this`. Based on `_TypesConfig`
- * @see {@link _TypesConfig}
+ * Typed Navigation Guard with a type parameter for `this`. Based on `TypesConfig`
+ * @see {@link TypesConfig}
  * @see {@link NavigationGuardWithThisTyped}
  */
 export interface NavigationGuardWithThis<T>
@@ -89,8 +89,8 @@ export interface NavigationGuardTyped<RouteMap extends _RouteMapGeneric> {
 }
 
 /**
- * Typed Navigation Guard. Based on `_TypesConfig`.
- * @see {@link _TypesConfig}
+ * Typed Navigation Guard. Based on `TypesConfig`.
+ * @see {@link TypesConfig}
  * @see {@link NavigationGuardWithThisTyped}
  */
 export interface NavigationGuard extends NavigationGuardTyped<RouteNamedMap> {}
@@ -107,8 +107,8 @@ export interface NavigationHookAfterTyped<RouteMap extends _RouteMapGeneric> {
 }
 
 /**
- * Typed Navigation Hook After. Based on `_TypesConfig`.
- * @see {@link _TypesConfig}
+ * Typed Navigation Hook After. Based on `TypesConfig`.
+ * @see {@link TypesConfig}
  * @see {@link NavigationHookAfterTyped}
  */
 export interface NavigationHookAfter

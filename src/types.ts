@@ -26,7 +26,7 @@ export type {
   RouteLocationNormalizedLoadedTyped,
   RouteLocationNormalizedLoadedTypedList,
 
-  // Types that exist in Vue Router but are augmented to be typed if _TypesConfig is provided
+  // Types that exist in Vue Router but are augmented to be typed if TypesConfig is provided
   // with the RouteNamedMap
   _RouteLocationNormalized as RouteLocationNormalized,
   _RouteRecordName as RouteRecordName,
@@ -59,10 +59,7 @@ export type {
   _UseLinkReturnTyped,
   RouterLinkPropsTyped,
 } from './type-extensions/RouterLink'
-export type {
-  _TypesConfig,
-  RouteNamedMap,
-} from './type-extensions/types-config'
+export type { TypesConfig, RouteNamedMap } from './type-extensions/types-config'
 export type {
   ParamValue,
   ParamValueOneOrMore,

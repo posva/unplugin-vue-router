@@ -13,14 +13,13 @@ declare module 'vue-router/auto-routes' {
 
 declare module 'unplugin-vue-router/types' {
   import type { RouteNamedMap } from 'vue-router/auto-routes'
-  export interface _TypesConfig {
+  export interface TypesConfig {
     RouteNamedMap: RouteNamedMap
   }
 }
 
 declare module 'vue-router' {
   import type {
-    _RouterOptions,
     NavigationGuardTyped,
     NavigationGuardWithThisTyped,
     RouteLocationNormalizedLoadedTypedList,
@@ -84,7 +83,7 @@ declare module 'vue-router/auto' {
    * @deprecated use `Router` instead. This type will be a different one in the next major version.
    */
   export type RouterTyped = _RouterTyped<RouteNamedMap>
-  export function useRouter(): _RouterTyped<RouteNamedMap>
+  export function useRouter(): RouterTyped
   export function useRoute<
     Name extends keyof RouteNamedMap = keyof RouteNamedMap
   >(name?: Name): RouteLocationNormalizedLoadedTypedList<RouteNamedMap>[Name]
@@ -99,7 +98,7 @@ declare module 'vue-router/auto' {
   export const RouterLinkProps: RouterLinkPropsTyped<RouteNamedMap>
   export function createRouter(
     options: _RouterOptions
-  ): _RouterTyped<RouteNamedMap>
+  ): RouterTyped
 
   export {
     // Experimental Data Fetching

@@ -2,7 +2,7 @@ import { describe, it, expectTypeOf } from 'vitest'
 import type {
   RouteLocationNormalized,
   RouteRecordName,
-  _TypesConfig,
+  TypesConfig,
   ParamValue,
   ParamValueZeroOrMore,
   RouteRecordInfo,
@@ -11,7 +11,7 @@ import type {
 // TODO: could we move this to an .d.ts file that is only loaded for tests?
 declare module '../types' {
   // Extend with some custom routes
-  interface _TypesConfig {
+  interface TypesConfig {
     RouteNamedMap: {
       home: RouteRecordInfo<
         '/',
