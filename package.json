@@ -152,7 +152,7 @@
     "yaml": "^2.3.4"
   },
   "peerDependencies": {
-    "vue-router": "^4.1.0"
+    "vue-router": "^4.3.0"
   },
   "peerDependenciesMeta": {
     "vue-router": {
