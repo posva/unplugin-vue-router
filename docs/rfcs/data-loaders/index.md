@@ -226,7 +226,7 @@ Data Loaders should be able to load data based **solely on the URL**. This ensur
 
 #### `defineLoader()` signature
 
-Data loaders must accept an optional first parameter to type the route:
+Data Loaders must accept an optional first parameter to type the route:
 
 ```ts twoslash
 import 'unplugin-vue-router/client'
@@ -1044,7 +1044,7 @@ Introduce this as part of [unplugin-vue-router][uvr] to test it first and make i
 - Should there by a `beforeLoad()` hook that is called and awaited before all data loaders
 - Same for `afterLoad()` that is always called after all data loaders
 - What else is needed besides the `route` inside loaders?
-- ~~Add option for placeholder data?~~ Data loaders should implement this themselves
+- ~~Add option for placeholder data?~~ Data Loaders should implement this themselves
 - What other operations might be necessary for users?
 
 <!--
