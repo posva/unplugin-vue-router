@@ -21,6 +21,8 @@
 
 Based on the feedback of the RFC, the Data Loaders have been redesigned from the ground up and are now way more flexible and powerful. As a result, if you were using the experimental data loaders, make sure to check the list of breaking changes and the new RFC at https://uvr.esm.is/rfcs/data-loaders. We are looking for early testers and feedback!
 
+For people using the file-based routing, you now need to add `unplugin-vue-router/client` to the `types` property of your tsconfig. See [setup](https://uvr.esm.is/introduction.html#setup) for an example.
+
 ### Bug Fixes
 
 - allow errors outside of navigation ([ae37a8e](https://github.com/posva/unplugin-vue-router/commit/ae37a8ec218ba62f0bac20039d6e8942f63f0d96))
