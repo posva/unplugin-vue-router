@@ -196,15 +196,7 @@ export interface Options
 export const DEFAULT_OPTIONS: ResolvedOptions = {
   extensions: ['.vue'],
   exclude: [],
-  routesFolder: [
-    {
-      src: 'src/pages',
-      exclude: (excluded) => excluded,
-      filePatterns: (filePatterns) => filePatterns,
-      extensions: (extensions) => extensions,
-      path: (filepath) => filepath,
-    },
-  ],
+  routesFolder: [{ src: 'src/pages' }],
   filePatterns: '**/*',
   routeBlockLang: 'json5',
   getRouteName: getFileBasedRouteName,
