@@ -5,7 +5,14 @@ export default defineConfig({
   clean: true,
   format: ['cjs', 'esm'],
   dts: true,
-  external: ['@vue/compiler-sfc', 'vue', 'vue-router'],
+  external: [
+    '@vue/compiler-sfc',
+    'vue',
+    'vue-router',
+    'vue-demi',
+    '@pinia/colada',
+    'pinia',
+  ],
   cjsInterop: true,
   splitting: true,
 })
