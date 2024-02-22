@@ -3,12 +3,6 @@ import type { RouteRecordOverride, TreeRouteParam } from './treeNodeValue'
 import { pascalCase } from 'scule'
 import { ResolvedOptions, RoutesFolderOption } from '../options'
 
-/**
- * Maybe a promise maybe not
- * @internal
- */
-export type _Awaitable<T> = T | PromiseLike<T>
-
 export type LiteralStringUnion<LiteralType, BaseType extends string = string> =
   | LiteralType
   | (BaseType & Record<never, never>)

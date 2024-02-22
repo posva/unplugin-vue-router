@@ -15,7 +15,7 @@ import type {
 } from './routeLocation'
 import type { _Router } from './router'
 import type { RouteNamedMap, TypesConfig } from './types-config'
-import type { _MaybePromise } from '../data-fetching/utils'
+import { type _Awaitable } from '../utils'
 
 /**
  * Return types for a Navigation Guard. Accepts a type param for the RouteMap.
@@ -49,7 +49,7 @@ export interface NavigationGuardWithThisTyped<
     from: RouteLocationNormalizedLoadedTypedList<RouteMap>[keyof RouteMap],
     // intentionally not typed to make people use the return
     next: NavigationGuardNext
-  ): _MaybePromise<NavigationGuardReturnTyped<RouteMap>>
+  ): _Awaitable<NavigationGuardReturnTyped<RouteMap>>
 }
 
 /**
@@ -73,7 +73,7 @@ export interface _NavigationGuardResolved {
     from: _RouteLocationNormalizedLoaded,
     // intentionally not typed to make people use the return
     next: NavigationGuardNext
-  ): _MaybePromise<NavigationGuardReturn>
+  ): _Awaitable<NavigationGuardReturn>
 }
 
 /**
@@ -85,7 +85,7 @@ export interface NavigationGuardTyped<RouteMap extends _RouteMapGeneric> {
     from: RouteLocationNormalizedLoadedTypedList<RouteMap>[keyof RouteMap],
     // intentionally not typed to make people use the return
     next: NavigationGuardNext
-  ): _MaybePromise<NavigationGuardReturnTyped<RouteMap>>
+  ): _Awaitable<NavigationGuardReturnTyped<RouteMap>>
 }
 
 /**

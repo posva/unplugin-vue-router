@@ -1,11 +1,10 @@
-import { TypeEqual, expectType } from 'ts-expect'
 import { type ShallowRef, effectScope, shallowRef } from 'vue'
 import { IS_USE_DATA_LOADER_KEY, STAGED_NO_VALUE } from './meta-extensions'
-import { _Awaitable } from '../core/utils'
-import { _PromiseMerged } from './utils'
-import { NavigationResult } from './navigation-guard'
-import { _RouteLocationNormalizedLoaded } from '../type-extensions/routeLocation'
-import { _Router } from '../type-extensions/router'
+import { type _PromiseMerged } from './utils'
+import { type NavigationResult } from './navigation-guard'
+import { type _RouteLocationNormalizedLoaded } from '../type-extensions/routeLocation'
+import { type _Router } from '../type-extensions/router'
+import { type _Awaitable } from '../utils'
 
 /**
  * Base type for a data loader entry. Each Data Loader has its own entry in the `loaderEntries` (accessible via `[LOADER_ENTRIES_KEY]`) map.
@@ -312,33 +311,6 @@ export interface UseDataLoaderResult<
    * @param route - route location to load the data for
    */
   reload(route: _RouteLocationNormalizedLoaded): Promise<void>
-}
-
-function _testing() {
-  const defineBasicLoader = createDataLoader<DataLoaderContextBase>({
-    before: (context) => {
-      // do nothing, always reexecute
-      return context
-    },
-    // no caching or anything
-    after: (data) => {},
-  })
-
-  const useUserData = defineBasicLoader(
-    async (context) => {
-      return {
-        user: {
-          name: 'Eduardo',
-        },
-      }
-    },
-    {
-      // lazy: true
-    }
-  )
-
-  const { data } = useUserData()
-  expectType<TypeEqual<{ user: { name: string } }, typeof data.value>>(true)
 }
 
 /**

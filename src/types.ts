@@ -72,17 +72,3 @@ export type {
   TreeNodeValueParam,
   TreeNodeValueStatic,
 } from './core/treeNodeValue'
-
-// expose for generated type extensions
-export type {
-  DefineLoaderFn as _DefineLoaderFn,
-  UseDataLoader as _UseDataLoader,
-} from './data-fetching/createDataLoader'
-export type {
-  // ...
-  NavigationResult,
-} from './data-fetching/navigation-guard'
-export type {
-  DefineDataLoaderOptions as _DefineDataLoaderOptions,
-  DataLoaderContext as _DataLoaderContext,
-} from './data-fetching/defineLoader'

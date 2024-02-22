@@ -55,11 +55,6 @@ export const IS_CLIENT = typeof window !== 'undefined'
 export const assign = Object.assign
 
 /**
- * @internal
- */
-export type _MaybePromise<T> = T | Promise<T>
-
-/**
  * Track the reads of a route and its properties
  * @internal
  * @param route - route to track

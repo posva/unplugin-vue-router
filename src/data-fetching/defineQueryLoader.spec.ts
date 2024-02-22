@@ -32,6 +32,7 @@ describe.skip('defineQueryLoader', () => {
 // dts testing
 function dts(_fn: () => unknown) {}
 
+// FIXME: move to a test-d.ts file
 dts(async () => {
   interface UserData {
     id: string

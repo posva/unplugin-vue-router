@@ -1,9 +1,10 @@
 import { isPackageExists as isPackageInstalled } from 'local-pkg'
-import { _Awaitable, getFileBasedRouteName, isArray, warn } from './core/utils'
+import { getFileBasedRouteName, isArray, warn } from './core/utils'
 import type { TreeNode } from './core/tree'
 import { resolve } from 'pathe'
 import { EditableTreeNode } from './core/extendRoutes'
 import { type ParseSegmentOptions } from './core/treeNodeValue'
+import { type _Awaitable } from './utils'
 
 /**
  * Options for a routes folder.

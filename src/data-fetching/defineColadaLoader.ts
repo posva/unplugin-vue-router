@@ -58,30 +58,34 @@ export function defineColadaLoader<
   isLazy extends boolean,
 >(
   name: Name,
-  options: DefineDataLoaderOptions<isLazy, Name, Data>
+  options: DefineDataColadaLoaderOptions<isLazy, Name, Data>
 ): UseDataLoaderColada<isLazy, Data>
 export function defineColadaLoader<Data, isLazy extends boolean>(
-  options: DefineDataLoaderOptions<isLazy, _RouteRecordName, Data>
+  options: DefineDataColadaLoaderOptions<isLazy, _RouteRecordName, Data>
 ): UseDataLoaderColada<isLazy, Data>
 
 export function defineColadaLoader<Data, isLazy extends boolean>(
   nameOrOptions:
     | _RouteRecordName
-    | DefineDataLoaderOptions<isLazy, _RouteRecordName, Data>,
-  _options?: DefineDataLoaderOptions<isLazy, _RouteRecordName, Data>
+    | DefineDataColadaLoaderOptions<isLazy, _RouteRecordName, Data>,
+  _options?: DefineDataColadaLoaderOptions<isLazy, _RouteRecordName, Data>
 ): UseDataLoaderColada<isLazy, Data> {
   // TODO: make it DEV only and remove the first argument in production mode
   // resolve option overrides
   _options =
     _options ||
-    (nameOrOptions as DefineDataLoaderOptions<isLazy, _RouteRecordName, Data>)
+    (nameOrOptions as DefineDataColadaLoaderOptions<
+      isLazy,
+      _RouteRecordName,
+      Data
+    >)
   const loader = _options.query
 
   const options = {
     ...DEFAULT_DEFINE_LOADER_OPTIONS,
     ..._options,
     commit: _options?.commit || 'after-load',
-  } as DefineDataLoaderOptions<isLazy, _RouteRecordName, Data>
+  } as DefineDataColadaLoaderOptions<isLazy, _RouteRecordName, Data>
 
   let isInitial = true
 
@@ -449,7 +453,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
   return useDataLoader
 }
 
-export interface DefineDataLoaderOptions<
+export interface DefineDataColadaLoaderOptions<
   isLazy extends boolean,
   Name extends _RouteRecordName,
   Data,
@@ -466,14 +470,17 @@ export interface DefineDataLoaderOptions<
    */
   query: DefineLoaderFn<
     Data,
-    DataLoaderContext,
+    DataColadaLoaderContext,
     _RouteLocationNormalizedLoaded<Name>
   >
 
   // TODO: option to skip refresh if the used properties of the route haven't changed
 }
 
-export interface DataLoaderContext extends DataLoaderContextBase {}
+/**
+ * @internal
+ */
+export interface DataColadaLoaderContext extends DataLoaderContextBase {}
 
 export interface UseDataLoaderColadaResult<isLazy extends boolean, Data>
   extends UseDataLoaderResult<isLazy, Data>,
@@ -559,7 +566,7 @@ const DEFAULT_DEFINE_LOADER_OPTIONS = {
   server: true,
   commit: 'after-load',
 } satisfies Omit<
-  DefineDataLoaderOptions<boolean, _RouteRecordName, unknown>,
+  DefineDataColadaLoaderOptions<boolean, _RouteRecordName, unknown>,
   'key' | 'query'
 >
 

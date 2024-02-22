@@ -10,9 +10,9 @@ import {
   PENDING_LOCATION_KEY,
 } from './meta-extensions'
 import { IS_CLIENT, assign, isDataLoader, setCurrentContext } from './utils'
-import type { _Awaitable } from '../core/utils'
 import type { _RouteLocationNormalizedLoaded } from '../type-extensions/routeLocation'
 import type { _Router } from '../type-extensions/router'
+import { type _Awaitable } from '../utils'
 
 /**
  * TODO: export functions that allow preloading outside of a navigation guard
