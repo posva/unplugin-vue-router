@@ -1,3 +1,9 @@
+## [0.8.3](https://github.com/posva/unplugin-vue-router/compare/v0.8.2...v0.8.3) (2024-02-22)
+
+### Bug Fixes
+
+- **dts:** fix default value for routesFolder ([1ed1eda](https://github.com/posva/unplugin-vue-router/commit/1ed1eda179138f4c3d8265349b826795e47d8499)), closes [#320](https://github.com/posva/unplugin-vue-router/issues/320)
+
 ## [0.8.2](https://github.com/posva/unplugin-vue-router/compare/v0.8.1...v0.8.2) (2024-02-22)
 
 ### Bug Fixes
