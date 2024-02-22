@@ -1,3 +1,9 @@
+## [0.8.1](https://github.com/posva/unplugin-vue-router/compare/v0.8.0...v0.8.1) (2024-02-22)
+
+### Bug Fixes
+
+- upgrade peer dep on vue-router to 4.3.0 ([746ad8f](https://github.com/posva/unplugin-vue-router/commit/746ad8fa9055853594dad09524657416402ef383))
+
 # [0.8.0](https://github.com/posva/unplugin-vue-router/compare/v0.7.0...v0.8.0) (2024-02-22)
 
 Based on the feedback of the RFC, the Data Loaders have been redesigned from the ground up and are now way more flexible and powerful. As a result, if you were using the experimental data loaders, make sure to check the list of breaking changes and the new RFC at https://uvr.esm.is/rfcs/data-loaders. We are looking for early testers and feedback!
