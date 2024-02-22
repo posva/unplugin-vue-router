@@ -489,7 +489,7 @@ export const useBookCollection = defineLoader(
 
 ##### Avoiding double fetch on the client
 
-One of the advantages of having an initial state is that we can avoid fetching on the client. Data loaders can implement a mechanism to skip fetching on the client if the initial state is provided ([Pinia Colada](./colada.md) implements this). This means nested loaders **aren't executed either**. Since data loaders shouldn't contain side effects besides data fetching, this shouldn't be a problem.
+One of the advantages of having an initial state is that we can avoid fetching on the client. Data Loaders can implement a mechanism to skip fetching on the client if the initial state is provided ([Pinia Colada](./colada.md) implements this). This means nested loaders **aren't executed either**. Since data loaders shouldn't contain side effects besides data fetching, this shouldn't be a problem.
 
 ### The Navigation Guard
 
@@ -779,7 +779,7 @@ Throughout this section, we will import from `vue-router/auto`. This is added by
 
 ### Interfaces
 
-Defining a minimal set of information and options for data loaders is what enables external libraries to implement their own data loaders. They are meant to extend these interfaces to add more features that are specific to them. You can see a practical example with the [Pinia Colada](colada.md) implementation.
+Defining a minimal set of information and options for Data Loaders is what enables external libraries to implement their own data loaders. They are meant to extend these interfaces to add more features that are specific to them. You can see a practical example with the [Pinia Colada](colada.md) implementation.
 
 ::: danger
 This section is still a work in progress, see the [implementations](#implementations) instead.
