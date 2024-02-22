@@ -187,7 +187,7 @@
     "tsup": "^8.0.2",
     "typescript": "^5.3.3",
     "unplugin-auto-import": "^0.17.5",
-    "unplugin-vue-markdown": "^0.26.0",
+    "unplugin-vue-markdown": "^0.25.0",
     "unplugin-vue-router": "workspace:*",
     "vite": "^5.1.4",
     "vitepress": "1.0.0-rc.44",
