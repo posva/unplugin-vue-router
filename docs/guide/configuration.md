@@ -8,11 +8,13 @@ const myOwnGenerateRouteName = (routeNode: TreeNode) => {
   return 'ok'
 }
 import { isPackageExists as isPackageInstalled } from 'local-pkg'
+function getFileBasedRouteName(routeNode: TreeNode) {
+  return 'ok'
+}
 // const process = { cwd: () => '' }
 // ---cut---
 // @moduleResolution: bundler
 import VueRouter from 'unplugin-vue-router/vite'
-import { getFileBasedRouteName } from 'unplugin-vue-router'
 
 VueRouter({
   // how and what folders to scan for files
