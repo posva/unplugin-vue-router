@@ -9,7 +9,7 @@ import type {
   RouteRecordName,
   Router,
 } from 'unplugin-vue-router/types'
-import {
+import type {
   DataLoaderContextBase,
   DataLoaderEntryBase,
   DefineDataLoaderOptionsBase,
@@ -30,7 +30,7 @@ import {
 } from './meta-extensions'
 import {
   IS_CLIENT,
-  _PromiseMerged,
+  type _PromiseMerged,
   assign,
   getCurrentContext,
   isSubsetOf,
@@ -40,9 +40,9 @@ import {
 import { type ShallowRef, shallowRef, watch } from 'vue'
 import { NavigationResult } from './navigation-guard'
 import {
-  UseQueryKey,
-  UseQueryOptions,
-  UseQueryReturn,
+  type UseQueryKey,
+  type UseQueryOptions,
+  type UseQueryReturn,
   useQuery,
 } from '@pinia/colada'
 

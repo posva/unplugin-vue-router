@@ -4,7 +4,7 @@ import type {
   RouteRecordName,
   Router,
 } from 'unplugin-vue-router/types'
-import {
+import type {
   DataLoaderContextBase,
   DataLoaderEntryBase,
   DefineDataLoaderOptionsBase,
@@ -49,7 +49,7 @@ export function defineBasicLoader<
     RouteLocationNormalizedLoaded<Name>
   >,
   options?: DefineDataLoaderOptions<isLazy>
-): UseDataLoader<isLazy, Data>
+): UseDataLoaderBasic<isLazy, Data>
 export function defineBasicLoader<Data, isLazy extends boolean>(
   loader: DefineLoaderFn<
     Data,
@@ -57,7 +57,7 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
     RouteLocationNormalizedLoaded
   >,
   options?: DefineDataLoaderOptions<isLazy>
-): UseDataLoader<isLazy, Data>
+): UseDataLoaderBasic<isLazy, Data>
 
 export function defineBasicLoader<Data, isLazy extends boolean>(
   nameOrLoader: RouteRecordName | DefineLoaderFn<Data, DataLoaderContext>,
@@ -65,7 +65,7 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
     | DefineDataLoaderOptions<isLazy>
     | DefineLoaderFn<Data, DataLoaderContext>,
   opts?: DefineDataLoaderOptions<isLazy>
-): UseDataLoader<isLazy, Data> {
+): UseDataLoaderBasic<isLazy, Data> {
   // TODO: make it DEV only and remove the first argument in production mode
   // resolve option overrides
   const loader =
@@ -268,7 +268,7 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
 
   // @ts-expect-error: requires the internals and symbol that are added later
   const useDataLoader: // for ts
-  UseDataLoader<isLazy, Data> = () => {
+  UseDataLoaderBasic<isLazy, Data> = () => {
     // work with nested data loaders
     const [parentEntry, _router, _route] = getCurrentContext()
     // fallback to the global router and routes for useDataLoaders used within components
@@ -378,7 +378,7 @@ export interface DataLoaderContext extends DataLoaderContextBase {}
 const DEFAULT_DEFINE_LOADER_OPTIONS = {
   lazy: false as boolean,
   server: true,
-  commit: 'immediate',
+  commit: 'after-load',
 } satisfies DefineDataLoaderOptions<boolean>
 
 /**
@@ -405,3 +405,6 @@ declare module 'vue-router' {
     [INITIAL_DATA_KEY]?: Record<string, unknown> | false
   }
 }
+
+export interface UseDataLoaderBasic<isLazy extends boolean, Data>
+  extends UseDataLoader<isLazy, Data> {}

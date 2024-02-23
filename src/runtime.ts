@@ -12,11 +12,6 @@ export type {
 } from './data-fetching/createDataLoader'
 
 // new data fetching
-export { defineBasicLoader } from './data-fetching/defineLoader'
-export type {
-  DataLoaderContext,
-  DefineDataLoaderOptions,
-} from './data-fetching/defineLoader'
 export {
   DataLoaderPlugin,
   NavigationResult,
@@ -26,15 +21,6 @@ export type {
   SetupLoaderGuardOptions,
   _DataLoaderRedirectResult,
 } from './data-fetching/navigation-guard'
-
-export type {
-  DataLoaderColadaEntry,
-  DataColadaLoaderContext,
-  DefineDataColadaLoaderOptions,
-  UseDataLoaderColada,
-  UseDataLoaderColadaResult,
-} from './data-fetching/defineColadaLoader'
-export { defineColadaLoader } from './data-fetching/defineColadaLoader'
 
 // NOTE: for tests only
 // export * from './data-fetching/defineQueryLoader'

@@ -10,7 +10,8 @@ import type {
   RouteRecordName,
 } from 'vue-router'
 import type { _RouteMapGeneric } from '../codegen/generateRouteMap'
-import type { LiteralStringUnion } from '../core/utils'
+import type { LiteralStringUnion } from '../utils'
+// inlining the type as it avoids code splitting issues
 import type { RouteNamedMap } from './types-config'
 
 export type _RouteRecordName = keyof RouteNamedMap

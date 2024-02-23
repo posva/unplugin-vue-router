@@ -1,13 +1,7 @@
 import { ResolvedOptions } from '../options'
 import { TreeNode, PrefixTree } from './tree'
 import { promises as fs } from 'fs'
-import {
-  appendExtensionListToPattern,
-  asRoutePath,
-  ImportsMap,
-  logTree,
-  throttle,
-} from './utils'
+import { asRoutePath, ImportsMap, logTree, throttle } from './utils'
 import { generateRouteNamedMap } from '../codegen/generateRouteMap'
 import { MODULE_ROUTES_PATH, MODULE_VUE_ROUTER } from './moduleConstants'
 import { generateRouteRecord } from '../codegen/generateRouteRecords'
@@ -209,7 +203,6 @@ export function createRoutesContext(options: ResolvedOptions) {
   }
 
   let lastDTS: string | undefined
-  let lastTypesConfigDTS: string | undefined
   async function _writeConfigFiles() {
     logger.time('writeConfigFiles')
 

@@ -16,8 +16,9 @@ export {
   definePage,
   // new data fetching
   DataLoaderPlugin,
-  defineBasicLoader,
-  defineColadaLoader,
+  // FIXME: automatically add?
+  // defineBasicLoader,
+  // defineColadaLoader,
   NavigationResult,
 } from 'unplugin-vue-router/runtime'
 

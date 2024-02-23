@@ -3,10 +3,6 @@ import type { RouteRecordOverride, TreeRouteParam } from './treeNodeValue'
 import { pascalCase } from 'scule'
 import { ResolvedOptions, RoutesFolderOption } from '../options'
 
-export type LiteralStringUnion<LiteralType, BaseType extends string = string> =
-  | LiteralType
-  | (BaseType & Record<never, never>)
-
 export function warn(
   msg: string,
   type: 'warn' | 'error' | 'debug' = 'warn'

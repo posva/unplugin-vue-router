@@ -20,6 +20,8 @@ export default defineConfig([
   {
     ...commonOptions,
     entry: [
+      './src/index.ts',
+      './src/options.ts',
       './src/esbuild.ts',
       './src/rollup.ts',
       './src/vite.ts',

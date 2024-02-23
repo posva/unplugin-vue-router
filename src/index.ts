@@ -18,7 +18,7 @@ export * from './types'
 
 export { DEFAULT_OPTIONS }
 
-export default createUnplugin<Options | undefined>((opt = {}, meta) => {
+export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
   const options = resolveOptions(opt)
   const ctx = createRoutesContext(options)
 
@@ -71,6 +71,7 @@ export default createUnplugin<Options | undefined>((opt = {}, meta) => {
       if (routeBlockQueryRE.test(id)) {
         return ROUTE_BLOCK_ID
       }
+      return undefined // ok TS...
     },
 
     buildStart() {
@@ -124,6 +125,8 @@ export default createUnplugin<Options | undefined>((opt = {}, meta) => {
       if (resolvedId === MODULE_VUE_ROUTER) {
         return ctx.generateVueRouterProxy()
       }
+
+      return undefined // ok TS...
     },
 
     // improves DX

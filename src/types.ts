@@ -3,8 +3,6 @@
  * https://github.com/posva/unplugin-vue-router/issues/136
  */
 
-export type { Options } from './options'
-
 export type {
   _RouteMapGeneric,
   RouteRecordInfo,
@@ -66,9 +64,3 @@ export type {
   ParamValueZeroOrMore,
   ParamValueZeroOrOne,
 } from './codegen/generateRouteParams'
-
-export type { TreeNode } from './core/tree'
-export type {
-  TreeNodeValueParam,
-  TreeNodeValueStatic,
-} from './core/treeNodeValue'

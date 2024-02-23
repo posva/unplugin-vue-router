@@ -92,6 +92,22 @@
       "require": "./dist/types.js",
       "import": "./dist/types.mjs"
     },
+    "./data-fetching/entries/basic": {
+      "types": {
+        "require": "./dist/data-fetching/entries/basic.d.ts",
+        "import": "./dist/data-fetching/entries/basic.d.mts"
+      },
+      "require": "./dist/data-fetching/entries/basic.js",
+      "import": "./dist/data-fetching/entries/basic.mjs"
+    },
+    "./data-fetching/entries/pinia-colada": {
+      "types": {
+        "require": "./dist/data-fetching/entries/pinia-colada.d.ts",
+        "import": "./dist/data-fetching/entries/pinia-colada.d.mts"
+      },
+      "require": "./dist/data-fetching/entries/pinia-colada.js",
+      "import": "./dist/data-fetching/entries/pinia-colada.mjs"
+    },
     "./client": {
       "types": "./client.d.ts"
     }

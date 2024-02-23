@@ -1,5 +1,5 @@
 import { type ShallowRef } from 'vue'
-import { IS_USE_DATA_LOADER_KEY, STAGED_NO_VALUE } from './meta-extensions'
+import type { IS_USE_DATA_LOADER_KEY, STAGED_NO_VALUE } from './meta-extensions'
 import { type _PromiseMerged } from './utils'
 import { type NavigationResult } from './navigation-guard'
 import type {

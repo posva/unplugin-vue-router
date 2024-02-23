@@ -6,6 +6,8 @@ import { EditableTreeNode } from './core/extendRoutes'
 import { type ParseSegmentOptions } from './core/treeNodeValue'
 import { type _Awaitable } from './utils'
 
+// TODO: remove from exports and move export to src/index?
+
 /**
  * Options for a routes folder.
  */
