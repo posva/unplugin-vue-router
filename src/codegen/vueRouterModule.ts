@@ -5,7 +5,8 @@ import type { ResolvedOptions } from '../options'
 // cannot be resolved.
 export function generateVueRouterProxy(
   routesModule: string,
-  options: ResolvedOptions
+  options: ResolvedOptions,
+  { addPiniaColada }: { addPiniaColada: boolean }
 ) {
   return `
 import { routes } from '${routesModule}'
@@ -16,11 +17,11 @@ export {
   definePage,
   // new data fetching
   DataLoaderPlugin,
-  // FIXME: automatically add?
-  // defineBasicLoader,
-  // defineColadaLoader,
   NavigationResult,
 } from 'unplugin-vue-router/runtime'
+
+export * from 'unplugin-vue-router/data-loaders/basic'
+${addPiniaColada ? "export * from 'unplugin-vue-router/data-loaders/pinia-colada'" : ''}
 
 export function createRouter(options) {
   const { extendRoutes } = options

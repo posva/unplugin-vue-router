@@ -95,8 +95,6 @@ declare module 'vue-router/auto' {
     // Experimental Data Fetching
     definePage,
     DataLoaderPlugin,
-    defineBasicLoader,
-    defineColadaLoader,
     NavigationResult,
   } from 'unplugin-vue-router/runtime'
 }

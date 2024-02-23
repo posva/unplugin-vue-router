@@ -18,6 +18,7 @@ import { generateDTS as _generateDTS } from '../codegen/generateDTS'
 import { generateVueRouterProxy as _generateVueRouterProxy } from '../codegen/vueRouterModule'
 import { definePageTransform, extractDefinePageNameAndPath } from './definePage'
 import { EditableTreeNode } from './extendRoutes'
+import { isPackageExists as isPackageInstalled } from 'local-pkg'
 
 export function createRoutesContext(options: ResolvedOptions) {
   const { dts: preferDTS, root, routesFolder } = options
@@ -198,8 +199,11 @@ export function createRoutesContext(options: ResolvedOptions) {
 
   // NOTE: this code needs to be generated because otherwise it doesn't go through transforms and `vue-router/auto-routes`
   // cannot be resolved.
+  const isPiniaColadaInstalled = isPackageInstalled('@pinia/colada')
   function generateVueRouterProxy() {
-    return _generateVueRouterProxy(MODULE_ROUTES_PATH, options)
+    return _generateVueRouterProxy(MODULE_ROUTES_PATH, options, {
+      addPiniaColada: isPiniaColadaInstalled,
+    })
   }
 
   let lastDTS: string | undefined

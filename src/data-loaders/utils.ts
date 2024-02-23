@@ -15,6 +15,9 @@ export function isDataLoader(loader: any): loader is UseDataLoader {
   return loader && loader[IS_USE_DATA_LOADER_KEY]
 }
 
+/**
+ * @internal: data loaders authoring only. Use `getCurrentContext` instead.
+ */
 export let currentContext:
   | readonly [
       entry: DataLoaderEntryBase,
@@ -51,8 +54,6 @@ export function withLoaderContext<P extends Promise<unknown>>(promise: P): P {
  */
 export type _PromiseMerged<PromiseType, RawType = PromiseType> = RawType &
   Promise<PromiseType>
-
-export const IS_CLIENT = typeof window !== 'undefined'
 
 export const assign = Object.assign
 

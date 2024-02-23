@@ -1,7 +1,7 @@
 import { describe, it, expectTypeOf } from 'vitest'
 import { defineBasicLoader } from './defineLoader'
-import { Ref, shallowRef } from 'vue'
-import { NavigationResult } from './navigation-guard'
+import { Ref } from 'vue'
+import { NavigationResult } from 'unplugin-vue-router/runtime'
 
 describe('defineBasicLoader', () => {
   interface UserData {
@@ -12,7 +12,7 @@ describe('defineBasicLoader', () => {
   it('uses typed routes', () => {
     const useDataLoader = defineBasicLoader('/[name]', async (route) => {
       const user = {
-        id: route.params.name,
+        id: route.params.name as string,
         name: 'Edu',
       }
 
@@ -24,7 +24,7 @@ describe('defineBasicLoader', () => {
           data: Ref<UserData>
           error: Ref<unknown>
           isLoading: Ref<boolean>
-          refresh: () => Promise<void>
+          reload: () => Promise<void>
         }
       | PromiseLike<UserData>
     >(useDataLoader())

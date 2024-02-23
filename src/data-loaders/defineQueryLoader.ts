@@ -16,12 +16,7 @@ import {
   NAVIGATION_RESULTS_KEY,
   STAGED_NO_VALUE,
 } from './meta-extensions'
-import {
-  IS_CLIENT,
-  assign,
-  getCurrentContext,
-  setCurrentContext,
-} from './utils'
+import { assign, getCurrentContext, setCurrentContext } from './utils'
 import { type Ref, ref, shallowRef } from 'vue'
 import { NavigationResult } from './navigation-guard'
 import {
@@ -181,7 +176,7 @@ export function defineQueryLoader<Data, isLazy extends boolean>(
         if (entry.pendingLoad === currentLoad) {
           error.value = e
           // propagate error if non lazy or during SSR
-          if (!options.lazy || !IS_CLIENT) {
+          if (!options.lazy || !isSSR) {
             return Promise.reject(e)
           }
         }

@@ -1,26 +1,7 @@
-import { type RouteRecordRaw } from 'vue-router'
-
-export type {
-  UseDataLoader,
-  UseDataLoaderInternals,
-  UseDataLoaderResult,
-  DataLoaderContextBase,
-  DataLoaderEntryBase,
-  DefineDataLoaderOptionsBase,
-  DefineLoaderFn,
-  _DataMaybeLazy,
-} from './data-loaders/createDataLoader'
+import type { RouteRecordRaw } from 'vue-router'
 
 // new data fetching
-export {
-  DataLoaderPlugin,
-  NavigationResult,
-} from './data-loaders/navigation-guard'
-export type {
-  DataLoaderPluginOptions,
-  SetupLoaderGuardOptions,
-  _DataLoaderRedirectResult,
-} from './data-loaders/navigation-guard'
+export * from './data-loaders'
 
 // NOTE: for tests only
 // export * from './data-loaders/defineQueryLoader'

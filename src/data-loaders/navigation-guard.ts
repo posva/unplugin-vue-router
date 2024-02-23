@@ -4,12 +4,13 @@ import { effectScope, type App, type EffectScope } from 'vue'
 import {
   ABORT_CONTROLLER_KEY,
   APP_KEY,
+  IS_SSR_KEY,
   LOADER_ENTRIES_KEY,
   LOADER_SET_KEY,
   NAVIGATION_RESULTS_KEY,
   PENDING_LOCATION_KEY,
 } from './meta-extensions'
-import { IS_CLIENT, assign, isDataLoader, setCurrentContext } from './utils'
+import { assign, isDataLoader, setCurrentContext } from './utils'
 import type {
   RouteLocationNormalizedLoaded,
   Router,
@@ -33,6 +34,7 @@ export function setupLoaderGuard({
   router,
   app,
   effect,
+  isSSR,
   selectNavigationResult = (results) => results[0]!.value,
 }: SetupLoaderGuardOptions) {
   // avoid creating the guards multiple times
@@ -57,6 +59,8 @@ export function setupLoaderGuard({
 
   // Access to `app.runWithContext()`
   router[APP_KEY] = app
+
+  router[IS_SSR_KEY] = !!isSSR
 
   // guard to add the loaders to the meta property
   const removeLoaderGuard = (router as UntypedRouter).beforeEach((to) => {
@@ -141,8 +145,7 @@ export function setupLoaderGuard({
         loaders.map((loader) => {
           const { server, lazy } = loader._.options
           // do not run on the server if specified
-          // TODO: IS_CLIENT should only be true on SSR but it's simpler to just check for the browser environment. Maybe pass as an argument to the navigation guard?
-          if (!server && !IS_CLIENT) {
+          if (!server && isSSR) {
             return
           }
           // keep track of loaders that should be committed after all loaders are done
@@ -156,7 +159,7 @@ export function setupLoaderGuard({
 
           // on client-side, lazy loaders are not awaited, but on server they are
           // we already checked for the `server` option above
-          return IS_CLIENT && lazy
+          return !isSSR && lazy
             ? undefined
             : // return the non-lazy loader to commit changes after all loaders are done
               ret
@@ -359,6 +362,8 @@ export interface DataLoaderPluginOptions {
    * The router instance. Adds the guards to it
    */
   router: Router | UntypedRouter
+
+  isSSR?: boolean
 
   /**
    * Called if any data loader returns a `NavigationResult` with an array of them. Should decide what is the outcome of

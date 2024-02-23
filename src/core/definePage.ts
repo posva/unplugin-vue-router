@@ -61,7 +61,7 @@ export function definePageTransform({
     throw new SyntaxError(`duplicate definePage() call`)
   }
 
-  const definePageNode = definePageNodes[0]
+  const definePageNode = definePageNodes[0]!
   const setupOffset = scriptSetup.loc.start.offset
 
   // we only want the page info
@@ -70,6 +70,12 @@ export function definePageTransform({
     // remove everything except the page info
 
     const routeRecord = definePageNode.arguments[0]
+
+    if (!routeRecord) {
+      throw new SyntaxError(
+        `[${id}]: definePage() expects an object expression as its only argument`
+      )
+    }
 
     const scriptBindings = setupAst?.body ? getIdentifiers(setupAst.body) : []
 
@@ -130,9 +136,15 @@ export function extractDefinePageNameAndPath(
     throw new SyntaxError(`duplicate definePage() call`)
   }
 
-  const definePageNode = definePageNodes[0]
+  const definePageNode = definePageNodes[0]!
 
   const routeRecord = definePageNode.arguments[0]
+  if (!routeRecord) {
+    throw new SyntaxError(
+      `[${id}]: definePage() expects an object expression as its only argument`
+    )
+  }
+
   if (routeRecord.type !== 'ObjectExpression') {
     throw new SyntaxError(
       `[${id}]: definePage() expects an object expression as its only argument`

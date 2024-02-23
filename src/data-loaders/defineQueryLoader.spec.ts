@@ -5,10 +5,12 @@ import { Ref, shallowRef } from 'vue'
 import { defineQueryLoader } from './defineQueryLoader'
 import { expectType } from 'ts-expect'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { NavigationResult } from './navigation-guard'
+import {
+  NavigationResult,
+  setCurrentContext,
+} from 'unplugin-vue-router/runtime'
 import { testDefineLoader } from '../../tests/data-loaders'
 import { enableAutoUnmount } from '@vue/test-utils'
-import { setCurrentContext } from './utils'
 
 describe.skip('defineQueryLoader', () => {
   enableAutoUnmount(afterEach)

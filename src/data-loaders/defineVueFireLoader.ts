@@ -12,19 +12,14 @@ import {
   DataLoaderEntryBase,
   _DataMaybeLazy,
   UseDataLoaderResult,
-} from './createDataLoader'
-import {
-  IS_CLIENT,
   assign,
   getCurrentContext,
   setCurrentContext,
-} from './utils'
-import {
   APP_KEY,
   IS_USE_DATA_LOADER_KEY,
   LOADER_ENTRIES_KEY,
   STAGED_NO_VALUE,
-} from './meta-extensions'
+} from 'unplugin-vue-router/runtime'
 import { Ref, UnwrapRef, ref, shallowRef } from 'vue'
 
 export function defineVueFireLoader<
@@ -125,7 +120,7 @@ export function defineVueFireLoader<
         if (entry.pendingLoad === currentLoad) {
           error.value = e
           // propagate error if non lazy or during SSR
-          if (!options.lazy || !IS_CLIENT) {
+          if (!options.lazy || isSSR) {
             return Promise.reject(e)
           }
         }

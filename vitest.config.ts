@@ -1,7 +1,17 @@
-import { defineConfig, configDefaults } from 'vitest/config'
+import { defineConfig } from 'vitest/config'
 import Vue from '@vitejs/plugin-vue'
+import { fileURLToPath, URL } from 'url'
 
+const __dirname = new URL('.', import.meta.url).pathname
 export default defineConfig({
+  resolve: {
+    alias: [
+      {
+        find: 'unplugin-vue-router/runtime',
+        replacement: fileURLToPath(new URL('src/runtime.ts', import.meta.url)),
+      },
+    ],
+  },
   plugins: [Vue()],
 
   test: {

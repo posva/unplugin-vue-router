@@ -16,10 +16,13 @@ import {
   beforeAll,
   afterAll,
 } from 'vitest'
-import { DataLoaderPlugin, DataLoaderPluginOptions } from './navigation-guard'
+import {
+  DataLoaderPlugin,
+  DataLoaderPluginOptions,
+  UseDataLoader,
+  setCurrentContext,
+} from 'unplugin-vue-router/runtime'
 import { testDefineLoader } from '../../tests/data-loaders'
-import { setCurrentContext } from './utils'
-import { UseDataLoader } from './createDataLoader'
 import { getRouter } from 'vue-router-mock'
 import { enableAutoUnmount, mount } from '@vue/test-utils'
 import RouterViewMock from '../../tests/data-loaders/RouterViewMock.vue'

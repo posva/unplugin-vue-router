@@ -15,6 +15,10 @@ export default defineConfig([
     entry: ['./src/data-loaders/entries/*'],
     // to work with node10 moduleResolution mode
     outDir: 'dist/data-loaders',
-    external: [...commonOptions.external, 'unplugin-vue-router/types'],
+    external: [
+      ...commonOptions.external,
+      'unplugin-vue-router/types',
+      'unplugin-vue-router/runtime',
+    ],
   },
 ])

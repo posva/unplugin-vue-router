@@ -12,7 +12,7 @@ import type {
   UseDataLoader,
   UseDataLoaderResult,
   _DataMaybeLazy,
-} from './createDataLoader'
+} from 'unplugin-vue-router/runtime'
 import {
   ABORT_CONTROLLER_KEY,
   APP_KEY,
@@ -21,10 +21,13 @@ import {
   NAVIGATION_RESULTS_KEY,
   PENDING_LOCATION_KEY,
   STAGED_NO_VALUE,
-} from './meta-extensions'
-import { IS_CLIENT, getCurrentContext, setCurrentContext } from './utils'
+  NavigationResult,
+  getCurrentContext,
+  setCurrentContext,
+  IS_SSR_KEY,
+} from 'unplugin-vue-router/runtime'
+
 import { shallowRef } from 'vue'
-import { NavigationResult } from './navigation-guard'
 
 /**
  * Creates a data loader composable that can be exported by pages to attach the data loading to a route. This returns a
@@ -87,6 +90,7 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
     parent?: DataLoaderEntryBase
   ): Promise<void> {
     const entries = router[LOADER_ENTRIES_KEY]!
+    const isSSR = router[IS_SSR_KEY]
     if (!entries.has(loader)) {
       entries.set(loader, {
         // force the type to match
@@ -191,7 +195,7 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
           entry.stagedError = e
           // propagate error if non lazy or during SSR
           // NOTE: Cannot be handled at the guard level because of nested loaders
-          if (!options.lazy || !IS_CLIENT) {
+          if (!options.lazy || isSSR) {
             throw e
           }
         }

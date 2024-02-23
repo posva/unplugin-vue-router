@@ -5,22 +5,20 @@ import { type App, defineComponent, inject, type Plugin } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { getRouter } from 'vue-router-mock'
-import { setCurrentContext } from '../../src/data-loaders/utils'
 import {
+  setCurrentContext,
   DataLoaderPlugin,
   NavigationResult,
   type DataLoaderPluginOptions,
-} from '../../src/data-loaders/navigation-guard'
-import type {
-  DataLoaderContextBase,
-  DefineDataLoaderOptionsBase,
-  UseDataLoader,
-} from '../../src/data-loaders/createDataLoader'
+  type DataLoaderContextBase,
+  type DefineDataLoaderOptionsBase,
+  type UseDataLoader,
+} from 'unplugin-vue-router/runtime'
 import { mockPromise } from '../utils'
 import RouterViewMock from '../data-loaders/RouterViewMock.vue'
 import ComponentWithNestedLoader from '../data-loaders/ComponentWithNestedLoader.vue'
 import { dataOneSpy, dataTwoSpy } from '../data-loaders/loaders'
-import type { _RouteLocationNormalizedLoaded } from '../../src/type-extensions/routeLocation'
+import type { RouteLocationNormalizedLoaded as _RouteLocationNormalizedLoaded } from 'unplugin-vue-router/types'
 import { mockWarn } from '../vitest-mock-warn'
 
 export function testDefineLoader<Context = void>(

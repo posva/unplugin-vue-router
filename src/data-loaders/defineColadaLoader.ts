@@ -17,7 +17,8 @@ import type {
   UseDataLoader,
   UseDataLoaderResult,
   _DataMaybeLazy,
-} from './createDataLoader'
+  _DefineLoaderEntryMap,
+} from 'unplugin-vue-router/runtime'
 import {
   ABORT_CONTROLLER_KEY,
   APP_KEY,
@@ -26,19 +27,17 @@ import {
   NAVIGATION_RESULTS_KEY,
   PENDING_LOCATION_KEY,
   STAGED_NO_VALUE,
-  _DefineLoaderEntryMap,
-} from './meta-extensions'
-import {
-  IS_CLIENT,
+  NavigationResult,
   type _PromiseMerged,
   assign,
   getCurrentContext,
   isSubsetOf,
   setCurrentContext,
   trackRoute,
-} from './utils'
+  IS_SSR_KEY,
+} from 'unplugin-vue-router/runtime'
+import {} from './utils'
 import { type ShallowRef, shallowRef, watch } from 'vue'
-import { NavigationResult } from './navigation-guard'
 import {
   type UseQueryKey,
   type UseQueryOptions,
@@ -105,6 +104,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
     ]! as unknown as _DefineLoaderEntryMap<
       DataLoaderColadaEntry<boolean, unknown>
     >
+    const isSSR = router[IS_SSR_KEY]
     const key = keyText(options.key(to))
     if (!entries.has(loader)) {
       const route = shallowRef<RouteLocationNormalizedLoaded>(to)
@@ -230,7 +230,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
             entry.stagedError = newError
             // propagate error if non lazy or during SSR
             // NOTE: Cannot be handled at the guard level because of nested loaders
-            if (!options.lazy || !IS_CLIENT) {
+            if (!options.lazy || isSSR) {
               throw newError
             }
           } else {

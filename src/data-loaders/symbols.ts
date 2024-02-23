@@ -46,3 +46,9 @@ export const ABORT_CONTROLLER_KEY = Symbol()
  * @internal
  */
 export const NAVIGATION_RESULTS_KEY = Symbol()
+
+/**
+ * Symbol used to save the initial data on the router.
+ * @internal
+ */
+export const IS_SSR_KEY = Symbol()

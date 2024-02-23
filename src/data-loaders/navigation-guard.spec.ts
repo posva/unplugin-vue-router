@@ -4,63 +4,53 @@
 import { App, createApp, defineComponent } from 'vue'
 import { defineBasicLoader } from './defineLoader'
 import {
-  Mock,
   afterAll,
   afterEach,
   beforeAll,
-  beforeEach,
   describe,
   expect,
   it,
   vi,
 } from 'vitest'
-import { setCurrentContext } from './utils'
 import { getRouter } from 'vue-router-mock'
-import { DataLoaderPlugin, NavigationResult } from './navigation-guard'
+import {
+  ABORT_CONTROLLER_KEY,
+  LOADER_SET_KEY,
+  setCurrentContext,
+  DataLoaderPlugin,
+  NavigationResult,
+} from 'unplugin-vue-router/runtime'
 import { mockedLoader } from '../../tests/utils'
-import { ABORT_CONTROLLER_KEY, LOADER_SET_KEY } from './meta-extensions'
 import {
   useDataOne,
   useDataTwo,
 } from '../../tests/data-loaders/ComponentWithLoader.vue'
-import * as _utils from './utils'
 import type { NavigationFailure } from 'vue-router'
 
-vi.mock(
-  './utils.ts',
-  async (importOriginal: () => Promise<typeof import('./utils')>) => {
-    const mod = await importOriginal()
-
-    // this allows the variable IS_CLIENT to be rewritten
-    return {
-      ...mod,
-    }
-  }
-)
-
 describe('navigation-guard', () => {
-  let app: App | undefined
-  let selectNavigationResult!: Mock
-  beforeEach(() => {
-    // @ts-expect-error: normally not allowed
-    _utils.IS_CLIENT = true
-    app = createApp({ render: () => null })
-    selectNavigationResult = vi
+  let globalApp: App | undefined
+
+  function setupApp(isSSR: boolean) {
+    const app = createApp({ render: () => null })
+    const selectNavigationResult = vi
       .fn()
       .mockImplementation((results) => results[0].value)
     app.use(DataLoaderPlugin, {
       router: getRouter(),
       selectNavigationResult,
+      isSSR,
     })
     // invalidate current context
     setCurrentContext(undefined)
-  })
+    globalApp = app
+    return { app, selectNavigationResult }
+  }
 
   afterEach(() => {
-    if (app) {
-      app.mount('body')
-      app.unmount()
-      app = undefined
+    if (globalApp) {
+      globalApp.mount('body')
+      globalApp.unmount()
+      globalApp = undefined
     }
   })
 
@@ -83,6 +73,7 @@ describe('navigation-guard', () => {
   const loader3 = defineBasicLoader(async () => {})
 
   it('creates a set of loaders during navigation', async () => {
+    setupApp(false)
     const router = getRouter()
     router.addRoute({
       name: '_test',
@@ -96,6 +87,7 @@ describe('navigation-guard', () => {
   })
 
   it('collects loaders from the matched route', async () => {
+    setupApp(false)
     const router = getRouter()
     router.addRoute({
       name: '_test',
@@ -122,6 +114,7 @@ describe('navigation-guard', () => {
   })
 
   it('collect loaders from nested routes', async () => {
+    setupApp(false)
     const router = getRouter()
     router.addRoute({
       name: '_test',
@@ -147,6 +140,7 @@ describe('navigation-guard', () => {
   })
 
   it('collects all loaders from lazy loaded pages', async () => {
+    setupApp(false)
     const router = getRouter()
     router.addRoute({
       name: '_test',
@@ -160,6 +154,7 @@ describe('navigation-guard', () => {
   })
 
   it('awaits for all loaders to be resolved', async () => {
+    setupApp(false)
     const router = getRouter()
     const l1 = mockedLoader()
     const l2 = mockedLoader()
@@ -183,6 +178,7 @@ describe('navigation-guard', () => {
   })
 
   it('does not await for lazy loaders on client-side navigation', async () => {
+    setupApp(false)
     const router = getRouter()
     const l1 = mockedLoader({ lazy: true })
     const l2 = mockedLoader({ lazy: false })
@@ -207,8 +203,7 @@ describe('navigation-guard', () => {
   })
 
   it('awaits for lazy loaders on server-side navigation', async () => {
-    // @ts-expect-error: normally not allowed
-    _utils.IS_CLIENT = false
+    setupApp(true)
     const router = getRouter()
     const l1 = mockedLoader({ lazy: true })
     const l2 = mockedLoader({ lazy: false })
@@ -229,12 +224,12 @@ describe('navigation-guard', () => {
     expect(router.currentRoute.value.path).not.toBe('/fetch')
     l1.resolve()
     await vi.runAllTimersAsync()
+    await p
     expect(router.currentRoute.value.path).toBe('/fetch')
   })
 
   it('does not run loaders on server side if server: false', async () => {
-    // @ts-expect-error: normally not allowed
-    _utils.IS_CLIENT = false
+    setupApp(true)
     const router = getRouter()
     const l1 = mockedLoader({ lazy: true, server: false })
     const l2 = mockedLoader({ lazy: false, server: false })
@@ -254,10 +249,9 @@ describe('navigation-guard', () => {
   })
 
   it.each([true, false] as const)(
-    'throws if a non lazy loader rejects, IS_CLIENT: %s',
-    async (isClient) => {
-      // @ts-expect-error: normally not allowed
-      _utils.IS_CLIENT = isClient
+    'throws if a non lazy loader rejects, isSSR: %s',
+    async (isSSR) => {
+      setupApp(isSSR)
       const router = getRouter()
       const l1 = mockedLoader({ lazy: false })
       router.addRoute({
@@ -278,6 +272,7 @@ describe('navigation-guard', () => {
   )
 
   it('does not throw if a lazy loader rejects', async () => {
+    setupApp(false)
     const router = getRouter()
     const l1 = mockedLoader({ lazy: true })
     router.addRoute({
@@ -297,8 +292,7 @@ describe('navigation-guard', () => {
   })
 
   it('throws if a lazy loader rejects on server-side', async () => {
-    // @ts-expect-error: normally not allowed
-    _utils.IS_CLIENT = false
+    setupApp(true)
     const router = getRouter()
     const l1 = mockedLoader({ lazy: true })
     router.addRoute({
@@ -323,6 +317,7 @@ describe('navigation-guard', () => {
 
   describe('signal', () => {
     it('aborts the signal if the navigation throws', async () => {
+      setupApp(false)
       const router = getRouter()
 
       router.setNextGuardReturn(new Error('canceled'))
@@ -340,6 +335,7 @@ describe('navigation-guard', () => {
     })
 
     it('aborts the signal if the navigation is canceled', async () => {
+      setupApp(false)
       const router = getRouter()
 
       router.setNextGuardReturn(false)
@@ -363,6 +359,7 @@ describe('navigation-guard', () => {
 
   describe('selectNavigationResult', () => {
     it('can change the navigation result within a loader', async () => {
+      const { selectNavigationResult } = setupApp(false)
       const router = getRouter()
       const l1 = mockedLoader()
       router.addRoute({
@@ -383,6 +380,7 @@ describe('navigation-guard', () => {
     })
 
     it('selectNavigationResult is called with an array of all the results returned by the loaders', async () => {
+      const { selectNavigationResult } = setupApp(false)
       const router = getRouter()
       const l1 = mockedLoader()
       const l2 = mockedLoader()
@@ -409,6 +407,7 @@ describe('navigation-guard', () => {
     })
 
     it('can change the navigation result returned by multiple loaders', async () => {
+      const { selectNavigationResult } = setupApp(false)
       const router = getRouter()
       const l1 = mockedLoader()
       const l2 = mockedLoader()
@@ -433,6 +432,7 @@ describe('navigation-guard', () => {
     })
 
     it('immediately stops if a NavigationResult is thrown instead of returned inside the loader', async () => {
+      const { selectNavigationResult } = setupApp(false)
       const router = getRouter()
       const l1 = mockedLoader()
       router.addRoute({

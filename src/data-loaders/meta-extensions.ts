@@ -7,6 +7,7 @@ import type {
   PENDING_LOCATION_KEY,
   ABORT_CONTROLLER_KEY,
   NAVIGATION_RESULTS_KEY,
+  IS_SSR_KEY,
 } from './symbols'
 import { type NavigationResult } from './navigation-guard'
 
@@ -44,6 +45,8 @@ declare module 'vue-router' {
     [PENDING_LOCATION_KEY]: RouteLocationNormalizedLoaded | null
 
     [APP_KEY]: App<unknown>
+
+    [IS_SSR_KEY]: boolean
   }
 
   export interface RouteMeta {

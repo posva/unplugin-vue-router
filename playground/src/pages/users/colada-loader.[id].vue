@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineColadaLoader } from 'unplugin-vue-router/runtime'
+import { defineColadaLoader } from 'unplugin-vue-router/data-loaders/pinia-colada'
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 

@@ -42,11 +42,14 @@
     "strictNullChecks": true,
     "resolveJsonModule": true,
     "paths": {
-      "^unplugin-vue-router$": [
+      "unplugin-vue-router": [
         "./src/index.ts"
       ],
-      "^unplugin-vue-router\/types$": [
+      "unplugin-vue-router/types": [
         "./src/types.ts"
+      ],
+      "unplugin-vue-router/runtime": [
+        "./src/runtime.ts"
       ]
     },
     "types": [
