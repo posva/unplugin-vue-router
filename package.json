@@ -116,7 +116,7 @@
     "build": "pnpm run build:core && pnpm run build:runtime",
     "build:core": "tsup",
     "build:runtime": "tsup --config tsup-runtime.config.ts",
-    "dev": "tsup --watch src",
+    "dev": "pnpm run test",
     "docs": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "lint": "prettier -c '{src,examples,playground}/**/*.{ts,vue}'",
