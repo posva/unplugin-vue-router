@@ -1,9 +1,9 @@
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute, useRouter, type Router as UntypedRouter } from 'vue-router'
 import type {
-  _RouteLocationNormalizedLoaded,
-  _RouteRecordName,
-} from '../type-extensions/routeLocation'
-import type { _Router } from '../type-extensions/router'
+  RouteLocationNormalizedLoaded,
+  RouteRecordName,
+  Router,
+} from 'unplugin-vue-router/types'
 import {
   DataLoaderContextBase,
   DataLoaderEntryBase,
@@ -38,7 +38,7 @@ import { NavigationResult } from './navigation-guard'
  * @param options - options to configure the data loader
  */
 export function defineBasicLoader<
-  Name extends _RouteRecordName,
+  Name extends RouteRecordName,
   Data,
   isLazy extends boolean,
 >(
@@ -46,7 +46,7 @@ export function defineBasicLoader<
   loader: DefineLoaderFn<
     Data,
     DataLoaderContext,
-    _RouteLocationNormalizedLoaded<Name>
+    RouteLocationNormalizedLoaded<Name>
   >,
   options?: DefineDataLoaderOptions<isLazy>
 ): UseDataLoader<isLazy, Data>
@@ -54,13 +54,13 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
   loader: DefineLoaderFn<
     Data,
     DataLoaderContext,
-    _RouteLocationNormalizedLoaded
+    RouteLocationNormalizedLoaded
   >,
   options?: DefineDataLoaderOptions<isLazy>
 ): UseDataLoader<isLazy, Data>
 
 export function defineBasicLoader<Data, isLazy extends boolean>(
-  nameOrLoader: _RouteRecordName | DefineLoaderFn<Data, DataLoaderContext>,
+  nameOrLoader: RouteRecordName | DefineLoaderFn<Data, DataLoaderContext>,
   _loaderOrOptions?:
     | DefineDataLoaderOptions<isLazy>
     | DefineLoaderFn<Data, DataLoaderContext>,
@@ -82,8 +82,8 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
   } as DefineDataLoaderOptions<isLazy>
 
   function load(
-    to: _RouteLocationNormalizedLoaded,
-    router: _Router,
+    to: RouteLocationNormalizedLoaded,
+    router: UntypedRouter,
     parent?: DataLoaderEntryBase
   ): Promise<void> {
     const entries = router[LOADER_ENTRIES_KEY]!
@@ -192,7 +192,7 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
           // propagate error if non lazy or during SSR
           // NOTE: Cannot be handled at the guard level because of nested loaders
           if (!options.lazy || !IS_CLIENT) {
-            return Promise.reject(e)
+            throw e
           }
         }
       })
@@ -233,7 +233,7 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
 
   function commit(
     this: DataLoaderEntryBase,
-    to: _RouteLocationNormalizedLoaded
+    to: RouteLocationNormalizedLoaded
   ) {
     if (this.pendingTo === to) {
       // console.log('👉 commit', this.staged)
@@ -272,8 +272,8 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
     // work with nested data loaders
     const [parentEntry, _router, _route] = getCurrentContext()
     // fallback to the global router and routes for useDataLoaders used within components
-    const router = _router || (useRouter() as _Router)
-    const route = _route || (useRoute() as _RouteLocationNormalizedLoaded)
+    const router = (_router as UntypedRouter) || useRouter()
+    const route = _route || (useRoute() as RouteLocationNormalizedLoaded)
 
     const entries = router[LOADER_ENTRIES_KEY]!
     let entry = entries.get(loader)
@@ -329,10 +329,7 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
       data,
       error,
       isLoading,
-      reload: (
-        // @ts-expect-error: needed for typed routes
-        to: _RouteLocationNormalizedLoaded = router.currentRoute.value
-      ) =>
+      reload: (to: RouteLocationNormalizedLoaded = router.currentRoute.value) =>
         router[APP_KEY].runWithContext(() => load(to, router)).then(() =>
           entry!.commit(to)
         ),

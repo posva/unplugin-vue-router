@@ -7,6 +7,9 @@
   ],
   "exclude": [
     "./src/**/*.test-d.ts",
+    // "./src/**/*.spec.ts",
+    // "./src/data-fetching/defineQueryLoader.ts",
+    // "./src/data-fetching/defineVueFireLoader.ts",
     "node_modules",
     "dist"
   ],
@@ -28,6 +31,11 @@
     "strict": true,
     "strictNullChecks": true,
     "resolveJsonModule": true,
+    "paths": {
+      "^unplugin-vue-router\/types$": [
+        "../src/types"
+      ]
+    },
     "types": [
       "node",
       "vite/client"

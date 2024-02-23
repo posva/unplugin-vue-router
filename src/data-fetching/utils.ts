@@ -1,7 +1,9 @@
 import type { DataLoaderEntryBase, UseDataLoader } from './createDataLoader'
 import { IS_USE_DATA_LOADER_KEY } from './meta-extensions'
-import { type _Router } from '../type-extensions/router'
-import { type _RouteLocationNormalizedLoaded } from '../type-extensions/routeLocation'
+import type {
+  Router,
+  RouteLocationNormalizedLoaded,
+} from 'unplugin-vue-router/types'
 import { type LocationQuery } from 'vue-router'
 
 /**
@@ -16,8 +18,8 @@ export function isDataLoader(loader: any): loader is UseDataLoader {
 export let currentContext:
   | readonly [
       entry: DataLoaderEntryBase,
-      router: _Router,
-      route: _RouteLocationNormalizedLoaded,
+      router: Router,
+      route: RouteLocationNormalizedLoaded,
     ]
   | undefined
   | null
@@ -59,7 +61,7 @@ export const assign = Object.assign
  * @internal
  * @param route - route to track
  */
-export function trackRoute(route: _RouteLocationNormalizedLoaded) {
+export function trackRoute(route: RouteLocationNormalizedLoaded) {
   const [params, paramReads] = trackObjectReads(route.params)
   const [query, queryReads] = trackObjectReads(route.query)
   let hash: { v: string | null } = { v: null }

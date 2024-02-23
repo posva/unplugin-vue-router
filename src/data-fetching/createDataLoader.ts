@@ -1,9 +1,11 @@
-import { type ShallowRef, effectScope, shallowRef } from 'vue'
+import { type ShallowRef } from 'vue'
 import { IS_USE_DATA_LOADER_KEY, STAGED_NO_VALUE } from './meta-extensions'
 import { type _PromiseMerged } from './utils'
 import { type NavigationResult } from './navigation-guard'
-import { type _RouteLocationNormalizedLoaded } from '../type-extensions/routeLocation'
-import { type _Router } from '../type-extensions/router'
+import type {
+  RouteLocationNormalizedLoaded,
+  Router,
+} from 'unplugin-vue-router/types'
 import { type _Awaitable } from '../utils'
 
 /**
@@ -43,7 +45,7 @@ export interface DataLoaderEntryBase<
   /**
    * The latest pending navigation's `to` route. Used to verify if the navigation is still valid when it resolves.
    */
-  pendingTo: _RouteLocationNormalizedLoaded | null
+  pendingTo: RouteLocationNormalizedLoaded | null
 
   /**
    * Data that was staged by a loader. This is used to avoid showing the old data while the new data is loading. Calling
@@ -69,62 +71,7 @@ export interface DataLoaderEntryBase<
    * finished loading. It should be implemented by the loader. It **must be called** from the entry itself:
    * `entry.commit(to)`.
    */
-  commit(to: _RouteLocationNormalizedLoaded): void
-}
-
-export function createDataLoader<Context extends DataLoaderContextBase>({
-  before,
-  after,
-}: CreateDataLoaderOptions<Context>): DefineDataLoader<Context> {
-  const defineLoader: DefineDataLoader<Context> = (dataLoader, options) => {
-    const { isLoading, error, data } = effectScope(true).run(() => ({
-      isLoading: shallowRef(false),
-      // TODO: allow generic for error type
-      error: shallowRef<unknown | null>(null),
-      data: shallowRef<unknown | undefined>(),
-    }))!
-
-    const useDataLoader: UseDataLoader<boolean, unknown> = (() => {
-      const promise = Promise.resolve(
-        before({
-          // FIXME: just to pass the TS while working on this
-          signal: new AbortController().signal,
-        })
-      )
-        .then((preloadResult) => {
-          // TODO: allow cancelling? 404 and stuff
-          return dataLoader(
-            // @ts-expect-error: FIXME: temporary to compile
-            {},
-            preloadResult
-          )
-        })
-        .catch((err: any) => {
-          error.value = err
-        })
-        .finally(() => {
-          isLoading.value = false
-        })
-
-      // TODO: merge promise
-
-      return {
-        data: data,
-        isLoading,
-        error,
-      }
-      // we need this cast because we add extra properties to the function object itself
-    }) as UseDataLoader<boolean, unknown>
-
-    useDataLoader[IS_USE_DATA_LOADER_KEY] = true
-
-    // useDataLoader._fn = dataLoader
-
-    // FIXME: TS bug? Says isLazy could be something that boolean is not assignable to but I don't see how...
-    return useDataLoader as any
-  }
-
-  return defineLoader
+  commit(to: RouteLocationNormalizedLoaded): void
 }
 
 export interface CreateDataLoaderOptions<
@@ -250,8 +197,8 @@ export interface UseDataLoaderInternals<
    * @param parent - parent data loader entry
    */
   load: (
-    route: _RouteLocationNormalizedLoaded,
-    router: _Router,
+    route: RouteLocationNormalizedLoaded,
+    router: Router,
     parent?: DataLoaderEntryBase
   ) => Promise<void>
 
@@ -266,7 +213,7 @@ export interface UseDataLoaderInternals<
    *
    * @param router - router instance
    */
-  getEntry(router: _Router): DataLoaderEntryBase<isLazy, Data>
+  getEntry(router: Router): DataLoaderEntryBase<isLazy, Data>
 }
 
 /**
@@ -310,7 +257,7 @@ export interface UseDataLoaderResult<
    *
    * @param route - route location to load the data for
    */
-  reload(route: _RouteLocationNormalizedLoaded): Promise<void>
+  reload(route: RouteLocationNormalizedLoaded): Promise<void>
 }
 
 /**
@@ -319,7 +266,7 @@ export interface UseDataLoaderResult<
 export interface DefineLoaderFn<
   Data,
   Context extends DataLoaderContextBase = DataLoaderContextBase,
-  Route = _RouteLocationNormalizedLoaded,
+  Route = RouteLocationNormalizedLoaded,
 > {
   (route: Route, context: Context): Promise<Data>
 }

@@ -1,5 +1,4 @@
 import { type RouteRecordRaw } from 'vue-router'
-import { type _Router } from './type-extensions/router'
 
 export type {
   UseDataLoader,

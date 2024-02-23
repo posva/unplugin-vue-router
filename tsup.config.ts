@@ -1,7 +1,6 @@
-import { defineConfig } from 'tsup'
+import { defineConfig, type Options } from 'tsup'
 
-export default defineConfig({
-  entry: ['src/*.ts'],
+const commonOptions = {
   clean: true,
   format: ['cjs', 'esm'],
   dts: true,
@@ -15,4 +14,22 @@ export default defineConfig({
   ],
   cjsInterop: true,
   splitting: true,
-})
+} satisfies Options
+
+export default defineConfig([
+  {
+    ...commonOptions,
+    entry: [
+      './src/esbuild.ts',
+      './src/rollup.ts',
+      './src/vite.ts',
+      './src/webpack.ts',
+      './src/types.ts',
+    ],
+  },
+  {
+    ...commonOptions,
+    entry: ['./src/runtime.ts'],
+    external: [...commonOptions.external, 'unplugin-vue-router/types'],
+  },
+])
