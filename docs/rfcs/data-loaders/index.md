@@ -8,7 +8,7 @@ outline: 'deep'
 - Target Major Version: Vue 3, Vue Router 4
 - Reference Issues: -
 - [Discussion](https://github.com/vuejs/rfcs/discussions/460)
-- [Implementation PR](https://github.com/posva/unplugin-vue-router/tree/main/src/data-fetching)
+- [Implementation PR](https://github.com/posva/unplugin-vue-router/tree/main/src/data-loaders)
 
 ## Todo List
 

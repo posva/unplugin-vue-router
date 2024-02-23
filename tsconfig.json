@@ -8,8 +8,8 @@
   "exclude": [
     "./src/**/*.test-d.ts",
     // "./src/**/*.spec.ts",
-    // "./src/data-fetching/defineQueryLoader.ts",
-    // "./src/data-fetching/defineVueFireLoader.ts",
+    // "./src/data-loaders/defineQueryLoader.ts",
+    // "./src/data-loaders/defineVueFireLoader.ts",
     "node_modules",
     "dist"
   ],

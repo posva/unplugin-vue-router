@@ -9,21 +9,21 @@ export type {
   DefineDataLoaderOptionsBase,
   DefineLoaderFn,
   _DataMaybeLazy,
-} from './data-fetching/createDataLoader'
+} from './data-loaders/createDataLoader'
 
 // new data fetching
 export {
   DataLoaderPlugin,
   NavigationResult,
-} from './data-fetching/navigation-guard'
+} from './data-loaders/navigation-guard'
 export type {
   DataLoaderPluginOptions,
   SetupLoaderGuardOptions,
   _DataLoaderRedirectResult,
-} from './data-fetching/navigation-guard'
+} from './data-loaders/navigation-guard'
 
 // NOTE: for tests only
-// export * from './data-fetching/defineQueryLoader'
+// export * from './data-loaders/defineQueryLoader'
 
 /**
  * Defines properties of the route for the current page component.

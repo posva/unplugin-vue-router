@@ -5,7 +5,7 @@ export type {
   DefineDataColadaLoaderOptions,
   UseDataLoaderColada,
   UseDataLoaderColadaResult,
-} from '../defineColadaLoader.ts'
+} from '../defineColadaLoader'
 export type {
   UseDataLoader,
   UseDataLoaderInternals,

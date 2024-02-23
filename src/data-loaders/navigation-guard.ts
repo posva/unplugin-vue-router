@@ -215,10 +215,9 @@ export function setupLoaderGuard({
             const entry = loader._.getEntry(router as Router)
             // lazy loaders do not block the navigation so the navigation guard
             // might call commit before the loader is ready
-            if (!lazy || !entry.isLoading.value) {
-              loader._.getEntry(router as Router).commit(
-                to as RouteLocationNormalizedLoaded
-              )
+            // on the server, entries might not even exist
+            if (entry && (!lazy || !entry.isLoading.value)) {
+              entry.commit(to as RouteLocationNormalizedLoaded)
             }
           }
         }
@@ -245,6 +244,8 @@ export function setupLoaderGuard({
   return () => {
     // @ts-expect-error: must be there in practice
     delete router[LOADER_ENTRIES_KEY]
+    // @ts-expect-error: must be there in practice
+    delete router[APP_KEY]
     removeLoaderGuard()
     removeDataLoaderGuard()
     removeAfterEach()

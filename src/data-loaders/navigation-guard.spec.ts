@@ -81,8 +81,6 @@ describe('navigation-guard', () => {
   const loader1 = defineBasicLoader(async () => {})
   const loader2 = defineBasicLoader(async () => {})
   const loader3 = defineBasicLoader(async () => {})
-  const loader4 = defineBasicLoader(async () => {})
-  const loader5 = defineBasicLoader(async () => {})
 
   it('creates a set of loaders during navigation', async () => {
     const router = getRouter()
@@ -249,8 +247,7 @@ describe('navigation-guard', () => {
       },
     })
 
-    const p = router.push('/fetch')
-    await vi.runAllTimersAsync()
+    await router.push('/fetch')
     expect(router.currentRoute.value.path).toBe('/fetch')
     expect(l1.spy).not.toHaveBeenCalled()
     expect(l2.spy).not.toHaveBeenCalled()

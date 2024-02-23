@@ -92,21 +92,21 @@
       "require": "./dist/types.js",
       "import": "./dist/types.mjs"
     },
-    "./data-fetching/entries/basic": {
+    "./data-loaders/basic": {
       "types": {
-        "require": "./dist/data-fetching/entries/basic.d.ts",
-        "import": "./dist/data-fetching/entries/basic.d.mts"
+        "require": "./dist/data-loaders/basic.d.ts",
+        "import": "./dist/data-loaders/basic.d.mts"
       },
-      "require": "./dist/data-fetching/entries/basic.js",
-      "import": "./dist/data-fetching/entries/basic.mjs"
+      "require": "./dist/data-loaders/basic.js",
+      "import": "./dist/data-loaders/basic.mjs"
     },
-    "./data-fetching/entries/pinia-colada": {
+    "./data-loaders/pinia-colada": {
       "types": {
-        "require": "./dist/data-fetching/entries/pinia-colada.d.ts",
-        "import": "./dist/data-fetching/entries/pinia-colada.d.mts"
+        "require": "./dist/data-loaders/pinia-colada.d.ts",
+        "import": "./dist/data-loaders/pinia-colada.d.mts"
       },
-      "require": "./dist/data-fetching/entries/pinia-colada.js",
-      "import": "./dist/data-fetching/entries/pinia-colada.mjs"
+      "require": "./dist/data-loaders/pinia-colada.js",
+      "import": "./dist/data-loaders/pinia-colada.mjs"
     },
     "./client": {
       "types": "./client.d.ts"

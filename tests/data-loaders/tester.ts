@@ -5,17 +5,17 @@ import { type App, defineComponent, inject, type Plugin } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { getRouter } from 'vue-router-mock'
-import { setCurrentContext } from '../../src/data-fetching/utils'
+import { setCurrentContext } from '../../src/data-loaders/utils'
 import {
   DataLoaderPlugin,
   NavigationResult,
   type DataLoaderPluginOptions,
-} from '../../src/data-fetching/navigation-guard'
+} from '../../src/data-loaders/navigation-guard'
 import type {
   DataLoaderContextBase,
   DefineDataLoaderOptionsBase,
   UseDataLoader,
-} from '../../src/data-fetching/createDataLoader'
+} from '../../src/data-loaders/createDataLoader'
 import { mockPromise } from '../utils'
 import RouterViewMock from '../data-loaders/RouterViewMock.vue'
 import ComponentWithNestedLoader from '../data-loaders/ComponentWithNestedLoader.vue'
