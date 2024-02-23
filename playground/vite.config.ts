@@ -122,7 +122,7 @@ export default defineConfig({
       imports: [
         VueRouterAutoImports,
         {
-          'unplugin-vue-router/runtime': ['defineBasicLoader'],
+          'unplugin-vue-router/data-loaders/basic': ['defineBasicLoader'],
         },
       ],
     }),

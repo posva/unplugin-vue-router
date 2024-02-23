@@ -21,6 +21,12 @@
       "unplugin-vue-router/types": [
         "../src/types"
       ],
+      "unplugin-vue-router/data-loaders/basic": [
+        "../src/data-loaders/basic"
+      ],
+      "unplugin-vue-router/data-loaders/pinia-colada": [
+        "../src/data-loaders/pinia-colada"
+      ],
     },
     "types": [
       "unplugin-vue-router/client"
