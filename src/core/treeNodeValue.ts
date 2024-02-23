@@ -9,7 +9,7 @@ export const enum TreeNodeType {
 
 export interface RouteRecordOverride
   extends Partial<Pick<RouteRecordRaw, 'meta' | 'props' | 'alias' | 'path'>> {
-  name?: string
+  name?: string | undefined
 }
 
 export type SubSegment = string | TreeRouteParam
@@ -166,7 +166,7 @@ class _TreeNodeValueBase {
 }
 
 export class TreeNodeValueStatic extends _TreeNodeValueBase {
-  _type: TreeNodeType.static = TreeNodeType.static
+  override _type: TreeNodeType.static = TreeNodeType.static
 
   constructor(
     rawSegment: string,
@@ -187,7 +187,7 @@ export interface TreeRouteParam {
 
 export class TreeNodeValueParam extends _TreeNodeValueBase {
   params: TreeRouteParam[]
-  _type: TreeNodeType.param = TreeNodeType.param
+  override _type: TreeNodeType.param = TreeNodeType.param
 
   constructor(
     rawSegment: string,
@@ -313,7 +313,7 @@ function parseFileSegment(
           ? '(.*)'
           : // Only append () if necessary
             pos < segment.length - 1 &&
-              IS_VARIABLE_CHAR_RE.test(segment[pos + 1])
+              IS_VARIABLE_CHAR_RE.test(segment[pos + 1]!)
             ? '()'
             : // allow routes like /[id]_suffix to make suffix static and not part of the param
               ''
@@ -326,7 +326,7 @@ function parseFileSegment(
   }
 
   for (pos = 0; pos < segment.length; pos++) {
-    c = segment[pos]
+    c = segment[pos]!
 
     if (state === ParseFileSegmentState.static) {
       if (c === '[') {
@@ -440,7 +440,7 @@ function parseRawPathSegment(
   }
 
   for (pos = 0; pos < segment.length; pos++) {
-    c = segment[pos]
+    c = segment[pos]!
 
     if (c === '\\') {
       // skip the next char

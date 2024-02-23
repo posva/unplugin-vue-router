@@ -33,14 +33,14 @@ export interface CustomRouteBlock
       'components' | 'component' | 'children' | 'beforeEnter' | 'name'
     >
   > {
-  name?: string
+  name?: string | undefined
 }
 
 function parseCustomBlock(
   block: SFCBlock,
   filePath: string,
   options: ResolvedOptions
-): CustomRouteBlock | undefined {
+): CustomRouteBlock | void {
   const lang = block.lang ?? options.routeBlockLang
 
   if (lang === 'json5') {

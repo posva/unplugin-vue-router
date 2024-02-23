@@ -9,10 +9,7 @@ import type {
   RouteQueryAndHash,
   RouteRecordName,
 } from 'vue-router'
-import type {
-  RouteRecordInfo,
-  _RouteMapGeneric,
-} from '../codegen/generateRouteMap'
+import type { _RouteMapGeneric } from '../codegen/generateRouteMap'
 import type { LiteralStringUnion } from '../core/utils'
 import type { RouteNamedMap } from './types-config'
 

@@ -337,7 +337,9 @@ export class ImportsMap {
       // only one import and it's the default one
       if (imports.size === 1) {
         // we extract the first and only entry
-        const [[importName, maybeDefault]] = [...imports.entries()]
+        const [[importName, maybeDefault]] = [...imports.entries()] as [
+          [string, string],
+        ]
         // we only care if this is the default import
         if (maybeDefault === 'default') {
           importStatements += `import ${importName} from '${path}'\n`

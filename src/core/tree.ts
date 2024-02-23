@@ -27,7 +27,7 @@ export class TreeNode {
   /**
    * Parent node.
    */
-  parent?: TreeNode
+  parent: TreeNode | undefined
 
   /**
    * Plugin options taken into account by the tree.
@@ -283,7 +283,7 @@ export class PrefixTree extends TreeNode {
     super(options, '')
   }
 
-  insert(path: string, filePath: string = path) {
+  override insert(path: string, filePath: string = path) {
     const node = super.insert(path, filePath)
     this.map.set(filePath, node)
 
