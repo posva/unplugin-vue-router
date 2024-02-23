@@ -26,11 +26,11 @@ That is the goal of this RFC, to standardize and improve data fetching with vue-
 
 - Integrate data fetching to the navigation cycle
   - Blocks navigation while fetching or _defer_ less important data (known as _lazy_ in Nuxt)
-- Deduplicate Requests
+- Deduplicate requests
 - Delay data updates until all data loaders are resolved
-  - Avoids displaying partially up-to-data data and inconsistent state
+  - Avoids displaying partially up-to-date data and inconsistent state
   - Configurable through a `commit` option
-- Optimal Data fetching
+- Optimal data fetching
   - Defaults to parallel fetching
   - Semantic sequential fetching if needed
 - Avoid `<Suspense>`
@@ -180,14 +180,14 @@ There are currently too many ways of handling data fetching with vue-router and 
 
 People are left with a low level API (navigation guards) to handle data fetching themselves. This is often a difficult problem to solve because it requires an extensive knowledge of the Router concepts and in reality, very few people know them. This leads to incomplete implementations that don't handle all the edge cases and don't provide a good user experience.
 
-Thus, the goal of this proposal is to provide a simple yet extendable way of defining data loading in your application that is easy to understand and use. It should also be compatible with SSR and not limited to simple _fetch calls_, but rather any async state. It should be adoptable by frameworks like Nuxt.js to provide an augmented data fetching layer that integrates well with Vue.js Concepts and the future of Web APIs like the [Navigation API](https://github.com/WICG/navigation-api/).
+Thus, the goal of this proposal is to provide a simple yet extendable way of defining data loading in your application that is easy to understand and use. It should also be compatible with SSR and not limited to simple _fetch calls_, but rather any async state. It should be adoptable by frameworks like Nuxt.js to provide an augmented data fetching layer that integrates well with Vue.js concepts and the future of Web APIs like the [Navigation API](https://github.com/WICG/navigation-api/).
 
 ## Detailed design
 
 The design of Data Loaders is split into two parts
 
 - [Implementations](#implementations)
-  - A bare-bones data loader
+  - A bare-bone data loader
   - A more advanced data loader with client side caching using [@pinia/colada][pinia-colada]
 - The set of [Interfaces (types)](#interfaces) that define a Data Loader (WIP)
 
@@ -382,7 +382,7 @@ You will notice here that we have two different usages for `useUserData()`:
 
 ##### Nested invalidation
 
-Since `useUserCommonFriends()` loader calls `useUserData()`, if `useUserData()`is somehow _invalidated_, it will also automatically invalidate `useUserCommonFriends()`. This depends on the implementation of the loader and is not a requirement of the API.
+Since `useUserCommonFriends()` loader calls `useUserData()`, if `useUserData()` is somehow _invalidated_, it will also automatically invalidate `useUserCommonFriends()`. This depends on the implementation of the loader and is not a requirement of the API.
 
 ::: warning
 Two loaders cannot use each other as that would create a _dead lock_.
