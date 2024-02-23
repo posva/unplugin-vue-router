@@ -113,7 +113,9 @@
     "route.schema.json"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "pnpm run build:core && pnpm run build:runtime",
+    "build:core": "tsup",
+    "build:runtime": "tsup --config tsup-runtime.config.ts",
     "dev": "tsup --watch src",
     "docs": "vitepress dev docs",
     "docs:build": "vitepress build docs",
