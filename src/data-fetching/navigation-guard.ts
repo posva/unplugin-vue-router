@@ -357,7 +357,7 @@ export interface DataLoaderPluginOptions {
   /**
    * The router instance. Adds the guards to it
    */
-  router: _Router
+  router: Router | UntypedRouter
 
   /**
    * Called if any data loader returns a `NavigationResult` with an array of them. Should decide what is the outcome of
