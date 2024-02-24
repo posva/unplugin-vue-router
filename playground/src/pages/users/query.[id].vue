@@ -1,6 +1,6 @@
 <script lang="ts">
 // FIXME: should be able to import from vue-router or auto import
-import { defineQueryLoader } from 'unplugin-vue-router/runtime'
+import { defineQueryLoader } from 'unplugin-vue-router/data-loaders/vue-query'
 
 import {
   type TypesConfig,

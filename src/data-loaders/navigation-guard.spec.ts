@@ -2,7 +2,7 @@
  * @vitest-environment happy-dom
  */
 import { App, createApp, defineComponent } from 'vue'
-import { defineBasicLoader } from './defineLoader'
+import { DefineDataLoaderOptions, defineBasicLoader } from './defineLoader'
 import {
   afterAll,
   afterEach,
@@ -20,12 +20,29 @@ import {
   DataLoaderPlugin,
   NavigationResult,
 } from 'unplugin-vue-router/runtime'
-import { mockedLoader } from '../../tests/utils'
+import { mockPromise } from '../../tests/utils'
 import {
   useDataOne,
   useDataTwo,
 } from '../../tests/data-loaders/ComponentWithLoader.vue'
 import type { NavigationFailure } from 'vue-router'
+
+function mockedLoader<T = string | NavigationResult>(
+  // boolean is easier to handle for router mock
+  options?: DefineDataLoaderOptions<boolean>
+) {
+  const [spy, resolve, reject] = mockPromise<T, unknown>(
+    // not correct as T could be something else
+    'ok' as T,
+    new Error('ko')
+  )
+  return {
+    spy,
+    resolve,
+    reject,
+    loader: defineBasicLoader(async () => await spy(), options),
+  }
+}
 
 describe('navigation-guard', () => {
   let globalApp: App | undefined

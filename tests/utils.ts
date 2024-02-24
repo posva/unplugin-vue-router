@@ -38,21 +38,3 @@ export function mockPromise<Resolved, Err>(resolved: Resolved, rejected?: Err) {
 
   return [spy, resolve, reject] as const
 }
-
-// FIXME: shouldn't be using defineBasicLoader
-export function mockedLoader<T = string | NavigationResult>(
-  // boolean is easier to handle for router mock
-  options?: DefineDataLoaderOptions<boolean>
-) {
-  const [spy, resolve, reject] = mockPromise<T, unknown>(
-    // not correct as T could be something else
-    'ok' as T,
-    new Error('ko')
-  )
-  return {
-    spy,
-    resolve,
-    reject,
-    loader: defineBasicLoader(async () => await spy(), options),
-  }
-}
