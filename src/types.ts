@@ -64,3 +64,11 @@ export type {
   ParamValueZeroOrMore,
   ParamValueZeroOrOne,
 } from './codegen/generateRouteParams'
+
+export type { Options } from './options'
+export type { TreeNode } from './core/tree'
+export type {
+  TreeNodeValueParam,
+  TreeNodeValueStatic,
+} from './core/treeNodeValue'
+export type { EditableTreeNode } from './core/extendRoutes'
