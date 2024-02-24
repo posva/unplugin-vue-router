@@ -1,3 +1,17 @@
+## [0.8.4](https://github.com/posva/unplugin-vue-router/compare/v0.8.3...v0.8.4) (2024-02-24)
+
+This patch contains the necessary fixes to allow importing the data loaders. However, they cannot be imported from `vue-router/auto` nor from `unplugin-vue-router/runtime`. Instead, they should be imported from `unplugin-vue-router/data-loaders/...`. This is needed as some of the loaders depends on extra packages that not all users have installed. At the moment, there are two data loaders
+
+- `unplugin-vue-router/data-loaders/basic`: https://uvr.esm.is/rfcs/data-loaders/basic.html
+- `unplugin-vue-router/data-loaders/pinia-colada`: https://uvr.esm.is/rfcs/data-loaders/colada.html
+
+### Bug Fixes
+
+- allow untyped router with data loaders ([51f7d55](https://github.com/posva/unplugin-vue-router/commit/51f7d557d402ba90037ea454c7c350d2e1cbdbcc))
+- **build:** externalize libs ([e55d735](https://github.com/posva/unplugin-vue-router/commit/e55d7357f25bf57ea944b71310381b40bea75c04))
+- remove the need to install @pinia/colada ([8d45669](https://github.com/posva/unplugin-vue-router/commit/8d45669c9119fc8a968493a0b26294f662df4ca7))
+- **types:** externalize uvr/types ([ee9a2a3](https://github.com/posva/unplugin-vue-router/commit/ee9a2a35c6ea62fae950c6abb3bd3cd85b28edc5)), closes [#322](https://github.com/posva/unplugin-vue-router/issues/322)
+
 ## [0.8.3](https://github.com/posva/unplugin-vue-router/compare/v0.8.2...v0.8.3) (2024-02-22)
 
 ### Bug Fixes
@@ -97,10 +111,9 @@ For people using the file-based routing, you now need to add `unplugin-vue-route
   - To reduce the dependency on file-based router, things have been
     refactored and none of the defineLoader functions are automatically
     imported anymore. You can add them yourself to the list of auto
-    imports, or import them from `vue-router/auto`. The good news is you
+    imports, or import them from `unplugin-vue-router/data-loaders/...`. The good news is you
     no longer need to use the plugin in order to benefit from the data
-    loaders; they can be directly imported from
-    `unplugin-vue-router/runtime` **even if you don't want file-based routing**.
+    loaders; they can be imported **even if you don't want file-based routing**.
 
   If you find missing information or improvements, please open a Pull
   Request to improve the `CHANGELOG.md`.
