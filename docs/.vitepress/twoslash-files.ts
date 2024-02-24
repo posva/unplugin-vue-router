@@ -58,7 +58,7 @@ export async function getFriends(id: string | number) {
 `
 export const usersLoaderFile = `
 ${apiIndexFile}
-import { defineBasicLoader } from 'unplugin-vue-router/runtime'
+import { defineBasicLoader } from 'unplugin-vue-router/data-loaders/basic'
 
 export const useUserData = defineBasicLoader((route) => getUserById(route.params.id as string))
 export const useUserList = defineBasicLoader(() => getUserList())

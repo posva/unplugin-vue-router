@@ -12,7 +12,7 @@ Data Loaders are experimental. Feedback is very welcome to shape the future of d
 
 ```vue
 <script lang="ts">
-import { defineBasicLoader } from 'unplugin-vue-router/runtime'
+import { defineBasicLoader } from 'unplugin-vue-router/data-loaders/basic'
 import { getUserById } from '../api'
 
 export const useUserData = defineBasicLoader(

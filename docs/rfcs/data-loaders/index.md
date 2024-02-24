@@ -14,8 +14,6 @@ outline: 'deep'
 
 List of things that haven't been added to the document yet:
 
-- [x] ~~Show how to use the data loader without `vue-router/auto`~~
-- [x] ~~Explain what `vue-router/auto` brings~~
 - [ ] Extendable API for data fetching libraries like vue-apollo, vuefire, vue-query, etc
 - [ ] Warn if a non lazy loader is used without data: meaning it was used in a component without it being exported by a page component. Either make it lazy or export it
 
@@ -68,7 +66,7 @@ Exported from a non-setup `<script>` in a page component:
 <script lang="ts">
 // ---cut-start---
 import { defineComponent } from 'vue'
-import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/runtime'
+import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/data-loaders/basic'
 // ---cut-end---
 // @moduleResolution: bundler
 import { getUserById } from '../api'
@@ -146,7 +144,7 @@ By default, **data loaders block the navigation**, meaning they _just work_ with
 The simplest of data loaders can be defined in just one line and types will be automatically inferred:
 
 ```ts twoslash
-import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/runtime'
+import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/data-loaders/basic'
 interface Book {
   title: string
   isbn: string
@@ -231,7 +229,7 @@ Data Loaders must accept an optional first parameter to type the route:
 ```ts twoslash
 import 'unplugin-vue-router/client'
 import './typed-router.d'
-import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/runtime'
+import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/data-loaders/basic'
 // ---cut---
 import { getUserById } from '../api'
 
@@ -282,7 +280,7 @@ const { data: user } = useUserData()
 - `lazy`: By default, loaders block the navigation. This means that the navigation is only allowed to continue once all loaders are resolved. Lazy loaders **do not block the navigation**. `data`, `error` and other properties might be updated after the navigation finishes. Setting this to `true` is useful for non-critical data fetching and will change the type of the returned `data` to `ShallowRef<T | undefined>`:
 
   ```ts twoslash
-  import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/runtime'
+  import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/data-loaders/basic'
   interface Book {
     title: string
     isbn: string
@@ -303,7 +301,7 @@ const { data: user } = useUserData()
   delay the update of the data until all loaders are resolved (default). The latter is useful to avoid displaying partially up-to-date data and inconsistent state.
 
   ```ts twoslash
-  import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/runtime'
+  import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/data-loaders/basic'
   interface Book {
     title: string
     isbn: string
@@ -323,7 +321,7 @@ const { data: user } = useUserData()
 - `server`: By default, loaders are executed on both, client, and server. Setting this to false will skip its execution on the server. Like `lazy: true`, this also changes the type of the returned `data` to `ShallowRef<T | undefined>`:
 
   ```ts twoslash
-  import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/runtime'
+  import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/data-loaders/basic'
   interface Book {
     title: string
     isbn: string
@@ -353,7 +351,7 @@ Call **and `await`** the loader inside the one that needs it, it will only be fe
 ```ts twoslash
 import 'unplugin-vue-router/client'
 import './typed-router.d'
-import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/runtime'
+import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/data-loaders/basic'
 // ---cut---
 // import the loader for user information
 import { useUserData } from './loaders/users'
@@ -393,7 +391,7 @@ This can get complex with multiple pages exposing the same loader and other page
 ```ts twoslash
 import 'unplugin-vue-router/client'
 import './typed-router.d'
-import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/runtime'
+import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/data-loaders/basic'
 // ---cut---
 import {
   getFriends,
@@ -671,7 +669,7 @@ Types are automatically generated for the routes by [unplugin-vue-router][uvr] a
 // ---cut-start---
 import 'unplugin-vue-router/client'
 import './typed-router.d'
-import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/runtime'
+import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/data-loaders/basic'
 // ---cut-end---
 import { getUserById } from '../api'
 
@@ -704,7 +702,7 @@ Also known as [lazy async data in Nuxt](https://v3.nuxtjs.org/api/composables/us
 // ---cut-start---
 import 'unplugin-vue-router/client'
 import './typed-router.d'
-import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/runtime'
+import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/data-loaders/basic'
 // ---cut-end---
 import { getUserById } from '../api'
 
@@ -752,7 +750,7 @@ Existing questions:
 The loader receives in a second argument access to an [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) that can be passed on to `fetch` and other Web APIs. If the navigation is cancelled because of errors or a new navigation, the signal aborts, causing any request using it to abort as well.
 
 ```ts twoslash
-import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/runtime'
+import { defineBasicLoader as defineLoader } from 'unplugin-vue-router/data-loaders/basic'
 interface Book {
   title: string
   isbn: string
@@ -773,8 +771,8 @@ This aligns with the future [Navigation API](https://github.com/WICG/navigation-
 
 ### Implementations
 
-::: tip
-Throughout this section, we will import from `vue-router/auto`. This is added by [unplugin-vue-router][uvr] but you can also import from `unplugin-vue-router/runtime` if you don't want to use file-based routing.
+::: info
+Ideally, we would import from `vue-router/auto`. This should be added by [unplugin-vue-router][uvr] but given the current state, we need to import from `unplugin-vue-router/data-loaders/...`.
 :::
 
 ### Interfaces

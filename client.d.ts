@@ -1,7 +1,3 @@
-import 'vue-router'
-import 'unplugin-vue-router/runtime'
-export {}
-
 declare module 'vue-router/auto-routes' {
   import type { RouteRecordRaw } from 'vue-router'
 
@@ -97,4 +93,10 @@ declare module 'vue-router/auto' {
     DataLoaderPlugin,
     NavigationResult,
   } from 'unplugin-vue-router/runtime'
+  // must be added to the virtual vue-router/auto
+  // FIXME: is there a way to achieve this without losing the types?
+  // export { defineBasicLoader } from 'unplugin-vue-router/data-loaders/basic'
+  // export { defineColadaLoader } from 'unplugin-vue-router/data-loaders/pinia-colada'
 }
+
+export {}

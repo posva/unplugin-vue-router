@@ -25,7 +25,7 @@ import './typed-router.d'
 
 ```vue
 <script lang="ts">
-import { defineColadaLoader } from 'unplugin-vue-router/runtime'
+import { defineColadaLoader } from 'unplugin-vue-router/data-loaders/pinia-colada'
 import { getUserById } from '../api'
 
 export const useUserData = defineColadaLoader({
