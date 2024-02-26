@@ -149,7 +149,7 @@ For people using the file-based routing, you now need to add `unplugin-vue-route
   - Data Loaders now return an `isLoading` property instead
     of `pending`. This aligns better with the wording of Data Loaders being
     in a loading state rather than pending, which can have more meanings.
-  - You know need to add `unplugin-vue-router/client` to the `types` property of your tsconfig. See [setup](https://uvr.esm.is/introduction.html#setup) for an example.
+  - You know need to add `unplugin-vue-router/client` to the `types` property of your tsconfig. See [setup](https://uvr.esm.is/introduction.html#setup) for an example. This file contains the augmentation of the `vue-router/auto` module that was previously in `typed-router.d.ts`. You also need to set the `modeResolution` to `Bundler` in your `tsconfig.json`.
 
   - the existing `defineLoader` is being replaced by a
     basic loader without cache. The version with cache will be implemented
