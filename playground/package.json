@@ -1,5 +1,6 @@
 {
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "nodemon -w '../src/**/*.ts' -e .ts -x vite",
     "json-server": "json-server --watch db.json --port 4000",
