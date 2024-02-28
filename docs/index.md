@@ -1,7 +1,7 @@
 ---
 layout: home
 
-title: Unplugin Vue Routuer
+title: Unplugin Vue Router
 titleTemplate: Next gen routing
 
 hero:
