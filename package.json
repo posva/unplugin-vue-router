@@ -213,7 +213,7 @@
     "vue": "^3.4.21",
     "vue-router": "4.3.0",
     "vue-router-mock": "^1.1.0",
-    "vue-tsc": "^1.8.27",
+    "vue-tsc": "^2.0.4",
     "vuefire": "^3.1.23",
     "webpack": "^5.90.3",
     "yorkie": "^2.0.0"
