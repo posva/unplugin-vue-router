@@ -126,7 +126,7 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
         return ctx.generateVueRouterProxy()
       }
 
-      return undefined // ok TS...
+      return // ok TS...
     },
 
     // improves DX

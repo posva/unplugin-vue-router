@@ -1,6 +1,6 @@
 <script lang="ts">
 // FIXME: should be able to import from vue-router or auto import
-import { defineQueryLoader } from 'unplugin-vue-router/data-loaders/vue-query'
+// import { defineQueryLoader } from 'unplugin-vue-router/data-loaders/vue-query'
 
 import {
   type TypesConfig,
@@ -57,33 +57,33 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 // FIXME: export once doable
 // NOTE: it's a bit different from the one in /[name].vue
-const useUserData = defineQueryLoader(
-  '/users/[id]',
-  async (route, { signal }) => {
-    console.log('useUserData', route.fullPath)
-    await delay(700)
-    const user = {
-      id: route.params.id,
-      // @ts-expect-error: no param "name"!
-      name: route.params.name || 'Edu',
-      when: new Date().toUTCString(),
-    }
-    return user
-  },
-  {
-    queryKey: ['user-id'],
-    // queryKey: (route) => ['users', route.params.id],
-    staleTime: 5000,
-    lazy: false,
-  }
-)
+// const useUserData = defineQueryLoader(
+//   '/users/[id]',
+//   async (route, { signal }) => {
+//     console.log('useUserData', route.fullPath)
+//     await delay(700)
+//     const user = {
+//       id: route.params.id,
+//       // @ts-expect-error: no param "name"!
+//       name: route.params.name || 'Edu',
+//       when: new Date().toUTCString(),
+//     }
+//     return user
+//   },
+//   {
+//     queryKey: ['user-id'],
+//     // queryKey: (route) => ['users', route.params.id],
+//     staleTime: 5000,
+//     lazy: false,
+//   }
+// )
 </script>
 
 <script lang="ts" setup>
 import { useQuery } from '@tanstack/vue-query'
 const route = useRoute('/users/[id]')
 
-const { data: user, isLoading, error } = useUserData()
+// const { data: user, isLoading, error } = useUserData()
 const {
   data: tqUser,
   error: tqError,
