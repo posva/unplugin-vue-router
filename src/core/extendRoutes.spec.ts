@@ -17,7 +17,7 @@ describe('EditableTreeNode', () => {
 
     tree.insert('foo', 'file.vue')
     expect(editable.children).toHaveLength(1)
-    expect(editable.children[0].path).toBe('/foo')
+    expect(editable.children[0]?.path).toBe('/foo')
   })
 
   it('reflects changes made on the editable tree', () => {
