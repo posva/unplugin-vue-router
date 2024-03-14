@@ -81,3 +81,4 @@ dist
 .idea
 tsconfig.vitest-temp.json
 docs/.vitepress/cache
+vite.config.ts.timestamp-*
