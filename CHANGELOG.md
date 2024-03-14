@@ -1,3 +1,9 @@
+## [0.8.5](https://github.com/posva/unplugin-vue-router/compare/v0.8.4...v0.8.5) (2024-03-14)
+
+### Bug Fixes
+
+- avoid invalid modules with definePage query ([25bbec3](https://github.com/posva/unplugin-vue-router/commit/25bbec33cc963dab2a596a4626e9077762e000db)), closes [#338](https://github.com/posva/unplugin-vue-router/issues/338)
+
 ## [0.8.4](https://github.com/posva/unplugin-vue-router/compare/v0.8.3...v0.8.4) (2024-02-24)
 
 This patch contains the necessary fixes to allow importing the data loaders. However, they cannot be imported from `vue-router/auto` nor from `unplugin-vue-router/runtime`. Instead, they should be imported from `unplugin-vue-router/data-loaders/...`. This is needed as some of the loaders depends on extra packages that not all users have installed. At the moment, there are two data loaders
