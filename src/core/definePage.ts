@@ -31,15 +31,17 @@ export function definePageTransform({
   code: string
   id: string
 }): Thenable<TransformResult> {
-  if (!code.includes(MACRO_DEFINE_PAGE)) return
+  // are we extracting only the definePage object
+  const isExtractingDefinePage = MACRO_DEFINE_PAGE_QUERY.test(id)
+
+  if (!code.includes(MACRO_DEFINE_PAGE)) {
+    return isExtractingDefinePage ? 'export default {}' : undefined
+  }
 
   // TODO: handle also non SFC
 
   const sfc = parseSFC(code, id)
   if (!sfc.scriptSetup) return
-
-  // are we extracting only the definePage object
-  const isExtractingDefinePage = MACRO_DEFINE_PAGE_QUERY.test(id)
 
   const { script, scriptSetup, getSetupAst } = sfc
   const setupAst = getSetupAst()
