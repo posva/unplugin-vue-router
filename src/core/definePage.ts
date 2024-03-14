@@ -35,6 +35,8 @@ export function definePageTransform({
   const isExtractingDefinePage = MACRO_DEFINE_PAGE_QUERY.test(id)
 
   if (!code.includes(MACRO_DEFINE_PAGE)) {
+    // avoid having an invalid module that is just empty
+    // https://github.com/posva/unplugin-vue-router/issues/338
     return isExtractingDefinePage ? 'export default {}' : undefined
   }
 
