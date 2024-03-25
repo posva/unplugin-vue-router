@@ -191,7 +191,7 @@
     "enquirer": "^2.4.1",
     "execa": "^8.0.1",
     "firebase": "^10.9.0",
-    "happy-dom": "^13.10.1",
+    "happy-dom": "^14.3.6",
     "lint-staged": "^15.2.2",
     "minimist": "^1.2.8",
     "nodemon": "^3.1.0",
