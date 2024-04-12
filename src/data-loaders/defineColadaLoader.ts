@@ -149,7 +149,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
         query: () => {
           const route = entry.route.value
           const [trackedRoute, params, query, hash] = trackRoute(route)
-          entry.tracked.set(options.key(trackedRoute).join('|'), {
+          entry.tracked.set(keyText(options.key(trackedRoute)).join('|'), {
             ready: false,
             params,
             query,
