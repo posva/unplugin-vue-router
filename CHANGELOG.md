@@ -1,3 +1,9 @@
+## [0.8.6](https://github.com/posva/unplugin-vue-router/compare/v0.8.5...v0.8.6) (2024-04-12)
+
+### Bug Fixes
+
+- **data-loaders:** tracked properties with an object in key ([58aa516](https://github.com/posva/unplugin-vue-router/commit/58aa516deebcd5db4c8b4593d9acb449839e2988))
+
 ## [0.8.5](https://github.com/posva/unplugin-vue-router/compare/v0.8.4...v0.8.5) (2024-03-14)
 
 ### Bug Fixes
