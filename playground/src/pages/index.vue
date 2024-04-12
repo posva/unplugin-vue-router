@@ -9,6 +9,7 @@ definePage({
 <template>
   <main>
     <h1>Home</h1>
+    <pre>{{ $route.meta }}</pre>
   </main>
 </template>
 

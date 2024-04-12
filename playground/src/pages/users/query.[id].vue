@@ -6,6 +6,7 @@ import {
   type TypesConfig,
   type RouteRecordName,
 } from 'unplugin-vue-router/types'
+import { computed } from 'vue'
 const a: RouteRecordName = '/articles'
 
 // import type { RouteLocationNormalized, _RouteLocationNormalized } from 'vue-router/auto'
@@ -80,7 +81,7 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 </script>
 
 <script lang="ts" setup>
-import { useQuery } from '@tanstack/vue-query'
+import { useMutation, useQuery } from '@tanstack/vue-query'
 const route = useRoute('/users/[id]')
 
 // const { data: user, isLoading, error } = useUserData()
@@ -89,10 +90,14 @@ const {
   error: tqError,
   status,
   fetchStatus,
+  refetch,
 } = useQuery({
   async queryFn() {
-    console.log('[TQ]useUserData', route.fullPath)
+    console.log('[TQ]useUserData', route.fullPath, route.params)
     await delay(500)
+    if (route.params.id === '0') {
+      throw new Error('no user')
+    }
     const user = {
       id: route.params.id,
       // @ts-expect-error: no param "name"!
@@ -102,9 +107,61 @@ const {
     return user
   },
   // FIXME: (to) => ['user-id', to.params.id]
-  queryKey: ['users', () => route.params.id],
+  queryKey: ['users', route.params.id],
   staleTime: 5000,
+  retry: 0,
 })
+
+const {
+  mutateAsync: mutate,
+  data,
+  context,
+  status: mutationStatus,
+  error,
+} = useMutation({
+  mutationFn: async (id: number) => {
+    console.log('mutate', id)
+    await delay(id)
+    // throw new Error('data ' + id)
+    return id
+  },
+  mutationKey: [
+    'mutate',
+    () => {
+      console.log('mutationKey')
+      return 205
+    },
+  ],
+  // mutationKey: () => {
+  //   console.log('mutationKey')
+  //   return ['mutate']
+  // },
+  onMutate: (id) => {
+    console.log('onMutate', id)
+    // throw new Error('hello')
+    return { id }
+  },
+  onSuccess: (newData, vars, context) => {
+    console.log('onSuccess', newData, data.value, vars, context)
+    // throw new Error('onSuccess')
+  },
+  onError: (err) => {
+    console.log('onError', err)
+    // throw new Error('onError')
+  },
+  async onSettled(data, error) {
+    await new Promise((r) => setTimeout(r, 100))
+    console.log('onSettled', data, error)
+    throw new Error('onSettled')
+  },
+  retry: false,
+})
+
+function multipleMutate() {
+  mutate(100).then((d) => console.log('DATA 100', d))
+  mutate(200).then((d) => console.log('DATA 200', d))
+  mutate(50).then((d) => console.log('DATA 50', d))
+}
 </script>
 
 <template>
@@ -119,22 +176,44 @@ const {
     <RouterLink :to="{ params: { id: Number(route.params.id) + 1 } }"
       >Next</RouterLink
     >
+    |
+    <button
+      @click="
+        refetch().then((d) => {
+          console.log('Got ', d)
+        })
+      "
+    >
+      Refresh
+    </button>
 
-    <h2>Data Loaders</h2>
+    <!-- <h2>Data Loaders</h2>
     <pre v-if="isLoading">Loading...</pre>
     <pre v-else-if="error">Error: {{ error }}</pre>
     <pre v-else>{{ user }}</pre>
 
     <hr />
 
-    <h2>TQ</h2>
+    -->
+
+    <h2>Query</h2>
 
     <p>
       <code>status: {{ status }}</code>
       <br />
       <code>fetchStatus: {{ fetchStatus }}</code>
     </p>
-    <pre v-if="tqError">Error: {{ tqError }}</pre>
-    <pre v-else>{{ tqUser == null ? String(tqUser) : tqUser }}</pre>
+    <pre>Error: {{ tqError }}</pre>
+    <pre>User: {{ tqUser == null ? String(tqUser) : tqUser }}</pre>
+
+    <hr />
+
+    <h2>Mutations</h2>
+
+    <pre>Context: {{ context }}</pre>
+    <pre>status: {{ mutationStatus }}</pre>
+    <pre>error: {{ error }}</pre>
+    <button @click="mutate(123)">Mutate</button>
+    <button @click="multipleMutate()">Multi Mutate</button>
   </main>
 </template>
