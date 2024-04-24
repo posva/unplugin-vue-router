@@ -179,4 +179,4 @@ VueRouter({
 })
 ```
 
-Note that the provided folders must be separate and one _route folder_ cannot contain another specified _route folder_. If you need further customization, give [definePage()](#definepage-in-script) a try.
+Note that the provided folders must be separate and one _route folder_ cannot contain another specified _route folder_. If you need further customization, give [definePage()](extending-routes#definepage) a try.
