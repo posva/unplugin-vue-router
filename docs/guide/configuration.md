@@ -74,3 +74,20 @@ VueRouter({
 ::: tip
 Highlight any of the options to see more details about it.
 :::
+
+## SSR
+
+It might be necessary to mark `vue-router` as `noExternal` in your `vite.config.js` in development mode:
+
+```ts{7}
+import { defineConfig } from 'vite'
+import Vue from '@vitejs/plugin-vue'
+import VueRouter from 'unplugin-vue-router/vite'
+
+export default defineConfig(({ mode }) => ({
+  ssr: {
+    noExternal: mode === 'development' ? ['vue-router'] : [],
+  },
+  plugins: [VueRouter(), Vue()],
+}))
+```
