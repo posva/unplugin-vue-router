@@ -5,12 +5,14 @@ labels:
   - name: 🐞 bug
     color: ee0701
     description: this isn't working as expected
+    oldname: bug
   - name: ✨ feature request
     color: fbca04
     description: a new feature request
   - name: ⚡️ enhancement
     color: a2eeef
     description: improvement over an existing feature
+    oldname: enhancement
   - name: ♦️ need repro
     color: c9581c
     description: the issue needs a reproduction for further investigation
@@ -29,6 +31,7 @@ labels:
   - name: 📚 docs
     color: 8be281
     description: related to documentation
+    oldname: documentation
   - name: 1️⃣ good first issue
     color: 7057ff
     description: this should be manageable for new-comers
@@ -38,6 +41,7 @@ labels:
   - name: wontfix
     color: ffffff
     description: this issue won't be fixed
+    oldname: wontfix
   - name: 🔄 data-loaders
     color: baffc9
     description: related to Data Loaders
