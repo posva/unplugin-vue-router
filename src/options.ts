@@ -182,10 +182,9 @@ export interface ResolvedOptions {
   /**
    * Whether to watch the files for changes.
    *
-   * Defaults to `true` unless any of the following conditions are met:
-   *
-   * - `CI` environment variable is set
-   * - `NODE_ENV` environment variable is set to `production` or `test`
+   * Defaults to `true` unless the `CI` environment variable is set.
+   * 
+   * @default `!process.env.CI`
    */
   watch: boolean
 }
@@ -220,10 +219,7 @@ export const DEFAULT_OPTIONS: ResolvedOptions = {
   pathParser: {
     dotNesting: true,
   },
-  watch:
-    !process.env.CI &&
-    process.env.NODE_ENV !== 'production' &&
-    process.env.NODE_ENV !== 'test',
+  watch: !process.env.CI,
 }
 
 export interface ServerContext {
