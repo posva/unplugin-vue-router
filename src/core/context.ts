@@ -1,4 +1,4 @@
-import { ResolvedOptions } from '../options'
+import { ResolvedOptions, RoutesFolderOption } from '../options'
 import { TreeNode, PrefixTree } from './tree'
 import { promises as fs } from 'fs'
 import { asRoutePath, ImportsMap, logTree, throttle } from './utils'

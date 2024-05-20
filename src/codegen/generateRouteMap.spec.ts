@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { generateRouteNamedMap } from './generateRouteMap'
 import { PrefixTree } from '../core/tree'
 import { resolveOptions } from '../options'
+import { resolve } from 'node:path'
 
 const DEFAULT_OPTIONS = resolveOptions({})
 
@@ -153,6 +154,31 @@ describe('generateRouteNamedMap', () => {
         '/[lang]/': RouteRecordInfo<'/[lang]/', '/:lang', { lang: ParamValue<true> }, { lang: ParamValue<false> }>,
         '/[lang]/[id]': RouteRecordInfo<'/[lang]/[id]', '/:lang/:id', { lang: ParamValue<true>, id: ParamValue<true> }, { lang: ParamValue<false>, id: ParamValue<false> }>,
         '/[lang]/a': RouteRecordInfo<'/[lang]/a', '/:lang/a', { lang: ParamValue<true> }, { lang: ParamValue<false> }>,
+      }"
+    `)
+  })
+
+  // https://github.com/posva/unplugin-vue-router/issues/274
+  it('removes routeFolders.extensions from the path', () => {
+    const tree = new PrefixTree(
+      resolveOptions({
+        extensions: ['.pagina.vue'],
+        routesFolder: [
+          { src: 'src/pages', extensions: ['.page.vue'] },
+          { src: 'src/paginas' },
+        ],
+      })
+    )
+
+    tree.insert('other.pagina.vue', resolve('src/paginas/other.pagina.vue'))
+    tree.insert('index.page.vue', resolve('src/pages/index.page.vue'))
+    tree.insert('about.page.vue', resolve('src/pages/about.page.vue'))
+
+    expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
+      "export interface RouteNamedMap {
+        '/': RouteRecordInfo<'/', '/', Record<never, never>, Record<never, never>>,
+        '/about': RouteRecordInfo<'/about', '/about', Record<never, never>, Record<never, never>>,
+        '/other': RouteRecordInfo<'/other', '/other', Record<never, never>, Record<never, never>>,
       }"
     `)
   })

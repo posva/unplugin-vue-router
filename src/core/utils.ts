@@ -1,7 +1,11 @@
 import { TreeNode } from './tree'
 import type { RouteRecordOverride, TreeRouteParam } from './treeNodeValue'
 import { pascalCase } from 'scule'
-import { ResolvedOptions, RoutesFolderOption } from '../options'
+import {
+  ResolvedOptions,
+  RoutesFolderOption,
+  _OverridableOption,
+} from '../options'
 
 export function warn(
   msg: string,
@@ -75,6 +79,22 @@ export function trimExtension(
 
   // no extension found, return the original path
   return path
+}
+
+/**
+ * Resolves an overridable option by calling the function with the existing value if it's a function, otherwise
+ * returning the passed `value`. If `value` is undefined, it returns the `defaultValue` instead.
+ *
+ * @param defaultValue default value for the option
+ * @param value and overridable option
+ */
+export function resolveOverridableOption<T>(
+  defaultValue: T,
+  value?: _OverridableOption<T>
+): T {
+  return typeof value === 'function'
+    ? (value as (existing: T) => T)(defaultValue)
+    : value ?? defaultValue
 }
 
 export function throttle(fn: () => void, wait: number, initialWait: number) {

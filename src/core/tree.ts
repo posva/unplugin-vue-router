@@ -1,11 +1,11 @@
-import type { ResolvedOptions } from '../options'
+import type { ResolvedOptions, RoutesFolderOption } from '../options'
 import {
   createTreeNodeValue,
   TreeNodeValueOptions,
   TreeRouteParam,
 } from './treeNodeValue'
 import type { TreeNodeValue } from './treeNodeValue'
-import { trimExtension } from './utils'
+import { resolveOverridableOption, trimExtension } from './utils'
 import { CustomRouteBlock } from './customBlock'
 import { RouteMeta } from 'vue-router'
 
@@ -69,9 +69,16 @@ export class TreeNode {
    * @param filePath - file path, defaults to path for convenience and testing
    */
   insert(path: string, filePath: string = path): TreeNode {
+    // find the `routesFolder` resolved option that matches the filepath
+    const folderOptions = findFolderOptions(this.options.routesFolder, filePath)
+
     const { tail, segment, viewName, isComponent } = splitFilePath(
       path,
-      this.options
+      // use the correct extensions for the folder
+      resolveOverridableOption(
+        this.options.extensions,
+        folderOptions?.extensions
+      )
     )
 
     if (!this.children.has(segment)) {
@@ -161,10 +168,14 @@ export class TreeNode {
    * @param path - path segment of the file
    */
   remove(path: string) {
+    const folderOptions = findFolderOptions(this.options.routesFolder, path)
     // TODO: rename remove to removeChild
     const { tail, segment, viewName, isComponent } = splitFilePath(
       path,
-      this.options
+      resolveOverridableOption(
+        this.options.extensions,
+        folderOptions?.extensions
+      )
     )
 
     const child = this.children.get(segment)
@@ -319,7 +330,7 @@ export class PrefixTree extends TreeNode {
  *
  * @param filePath - filePath to split
  */
-function splitFilePath(filePath: string, options: ResolvedOptions) {
+function splitFilePath(filePath: string, extensions: string[]) {
   const slashPos = filePath.indexOf('/')
   let head = slashPos < 0 ? filePath : filePath.slice(0, slashPos)
   const tail = slashPos < 0 ? '' : filePath.slice(slashPos + 1)
@@ -327,7 +338,7 @@ function splitFilePath(filePath: string, options: ResolvedOptions) {
   let segment = head
   // only the last segment can be a filename with an extension
   if (!tail) {
-    segment = trimExtension(head, options.extensions)
+    segment = trimExtension(head, extensions)
   }
   let viewName = 'default'
 
@@ -347,4 +358,18 @@ function splitFilePath(filePath: string, options: ResolvedOptions) {
     viewName,
     isComponent,
   }
+}
+
+/**
+ * Find the folder options that match the file path.
+ *
+ * @param folderOptions `options.routesFolder` option
+ * @param filePath resolved file path
+ * @returns
+ */
+function findFolderOptions(
+  folderOptions: RoutesFolderOption[],
+  filePath: string
+): RoutesFolderOption | undefined {
+  return folderOptions.find((folder) => filePath.includes(folder.src))
 }
