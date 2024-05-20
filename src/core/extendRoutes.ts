@@ -66,10 +66,18 @@ export class EditableTreeNode {
 
   /**
    * Return a Map of the files associated to the current route. The key of the map represents the name of the view (Vue
-   * Router feature) while the value is the file path. By default, the name of the view is `default`.
+   * Router feature) while the value is the **resolved** file path.
+   * By default, the name of the view is `default`.
    */
   get components() {
     return this.node.value.components
+  }
+
+  /**
+   * Alias for `route.components.get('default')`.
+   */
+  get component() {
+    return this.node.value.components.get('default')
   }
 
   /**
