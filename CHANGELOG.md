@@ -1,3 +1,15 @@
+## [0.8.7](https://github.com/posva/unplugin-vue-router/compare/v0.8.6...v0.8.7) (2024-05-20)
+
+### Bug Fixes
+
+- apply definePage in named pages ([bd7d5b1](https://github.com/posva/unplugin-vue-router/commit/bd7d5b1170795d9991eb459c75921a31155aed18)), closes [#383](https://github.com/posva/unplugin-vue-router/issues/383)
+- correctly trim extensions from routesFolder ([b8a9473](https://github.com/posva/unplugin-vue-router/commit/b8a9473f7a43a72d4daea16cec21662582ee70a2)), closes [#274](https://github.com/posva/unplugin-vue-router/issues/274)
+
+### Features
+
+- add an option to disable file watching ([#387](https://github.com/posva/unplugin-vue-router/issues/387)) ([13f93fc](https://github.com/posva/unplugin-vue-router/commit/13f93fc2babaa80c74112812856b74b993903068))
+- add component alias to EditableTreeNode ([fc8ae27](https://github.com/posva/unplugin-vue-router/commit/fc8ae276fa8674fb275a204060e9df80b8fcaad4))
+
 ## [0.8.6](https://github.com/posva/unplugin-vue-router/compare/v0.8.5...v0.8.6) (2024-04-12)
 
 ### Bug Fixes
