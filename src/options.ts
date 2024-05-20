@@ -183,7 +183,7 @@ export interface ResolvedOptions {
    * Whether to watch the files for changes.
    *
    * Defaults to `true` unless the `CI` environment variable is set.
-   * 
+   *
    * @default `!process.env.CI`
    */
   watch: boolean
