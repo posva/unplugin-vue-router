@@ -104,7 +104,7 @@ export function createRoutesContext(options: ResolvedOptions) {
   async function writeRouteInfoToNode(node: TreeNode, filePath: string) {
     const content = await fs.readFile(filePath, 'utf8')
     // TODO: cache the result of parsing the SFC so the transform can reuse the parsing
-    node.hasDefinePage = content.includes('definePage')
+    node.hasDefinePage ||= content.includes('definePage')
     const [definedPageNameAndPath, routeBlock] = await Promise.all([
       extractDefinePageNameAndPath(content, filePath),
       getRouteBlock(filePath, options),

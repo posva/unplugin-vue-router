@@ -34,6 +34,7 @@ export class TreeNode {
    */
   options: TreeNodeOptions
 
+  // FIXME: refactor this code. It currently helps to keep track if a page has at least one component with `definePage()` but it doesn't tell which. It should keep track of which one while still caching the result per file.
   /**
    * Should this page import the page info
    */
