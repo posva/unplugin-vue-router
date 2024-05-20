@@ -76,24 +76,20 @@ build({
 
 ## Setup
 
-After adding this plugin, **start the dev server** (usually `npm run dev`) **to generate the first version of the types** at `typed-router.d.ts` which should be added to your `tsconfig.json` along with `unplugin-vue-router/client` to `types` and `"moduleResolution": "Bundler"`. This is what it should look like:
+After adding this plugin, **start the dev server** (usually `npm run dev`) **to generate the first version of the types** at `typed-router.d.ts` which should be added to your `tsconfig.json` along with `"moduleResolution": "Bundler"`. This is what it should look like:
 
 ::: code-group
 
-```json{4,8,11} [tsconfig.json]
+```json{8} [tsconfig.json]
 {
   "include": [
     // other files...
-    "./typed-router.d.ts"
+    "./typed-router.d.ts" // [!code ++]
   ],
   "compilerOptions": {
     // ...
     "moduleResolution": "Bundler",
-    "types": [
-      // other types...
-      "unplugin-vue-router/client"
-    ]
-    // other options...
+    // ...
   }
 }
 ```
@@ -122,6 +118,34 @@ declare module 'vue-router/auto-routes' {
     '/': RouteRecordInfo<'/', '/', Record<never, never>, Record<never, never>>,
     '/about': RouteRecordInfo<'/about', '/about', Record<never, never>, Record<never, never>>,
     '/users/[id]': RouteRecordInfo<'/[id]', '/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
+  }
+}
+```
+
+:::
+
+Then, if you have an `env.d.ts` file like the one created by `npm vue create <my-project>`, add the `unplugin-vue-router/client` types to it:
+
+::: code-group
+
+```ts [env.d.ts]
+/// <reference types="vite/client" />
+/// <reference types="unplugin-vue-router/client" /> // [!code ++]
+```
+
+:::
+
+If you don't have an `env.d.ts` file, you can create one and add the unplugin-vue-router types to it _or_ you can add them to the `types` property in your `tsconfig.json`:
+
+::: code-group
+
+```json [tsconfig.json]
+{
+  "compilerOptions": {
+    // ...
+    "types": [
+      "unplugin-vue-router/client" // [!code ++]
+    ]
   }
 }
 ```
