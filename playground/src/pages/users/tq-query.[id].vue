@@ -4,15 +4,39 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
-import { useQuery } from '@tanstack/vue-query'
+import {
+  useQuery,
+  useQueries,
+  useIsMutating,
+  useIsFetching,
+  useMutationState,
+} from '@tanstack/vue-query'
 
 const route = useRoute('/users/[id]')
 
 const simulateError = ref(false)
 
+const enabled = ref(false)
+
+// const tt = useQueries({
+//   queries: [
+//     {
+//       queryKey: ['random'],
+//       queryFn: async () => Math.random(),
+//     },
+//     {
+//       queryKey: ['a'],
+//       queryFn: async () => 'a',
+//     },
+//   ],
+//   combine: (res) => [res[0].data?.toFixed(2), res[1].data?.toUpperCase()] as const,
+// })
 const {
   data: tqUser,
   status,
+  isLoading,
+  isFetching,
+  isPending,
   fetchStatus,
   error: tqError,
   refetch,
@@ -34,6 +58,8 @@ const {
   queryKey: ['user-id', computed(() => route.params.id)],
   staleTime: 5000,
   retry: false,
+  refetchOnMount: false,
+  enabled,
 })
 </script>
 
@@ -41,6 +67,11 @@ const {
   <main>
     <h1>defineQueryLoader()</h1>
     <pre>User: {{ route.params.id }}</pre>
+
+    <label>
+      <input type="checkbox" v-model="enabled" />
+      Enabled
+    </label>
 
     <fieldset>
       <legend>Controls</legend>
@@ -64,6 +95,12 @@ const {
 
     <p>
       <code>status: {{ status }}</code>
+      <br>
+      isLoading: {{ isLoading }}
+      <br />
+      isFetching: {{ isFetching }}
+      <br />
+      isPending: {{ isPending }}
       <br />
       <code>fetchStatus: {{ fetchStatus }}</code>
     </p>
