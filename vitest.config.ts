@@ -17,6 +17,10 @@ export default defineConfig({
   test: {
     setupFiles: ['./tests/router-mock.ts'],
     // open: false,
+    coverage: {
+      include: ['src/**/*.ts'],
+      exclude: ['src/**/*.d.ts', 'src/**/*.test-d.ts', 'src/**/*.spec.ts'],
+    },
     typecheck: {
       enabled: true,
       checker: 'vue-tsc',

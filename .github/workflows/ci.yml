@@ -43,8 +43,17 @@ jobs:
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
-      - run: pnpm run test
 
-      - uses: codecov/codecov-action@v4
+      - name: Tests with coverage
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.node == 'lts/*' }}
+        run: pnpm test -- --coverage
+
+      - name: Tests
+        if: ${{ matrix.os != 'ubuntu-latest' || matrix.node != 'lts/*' }}
+        run: pnpm test
+
+      - name: Upload coverage to Codecov
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.node == 'lts/*' }}
+        uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
