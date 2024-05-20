@@ -95,7 +95,7 @@ const {
 
     <p>
       <code>status: {{ status }}</code>
-      <br>
+      <br />
       isLoading: {{ isLoading }}
       <br />
       isFetching: {{ isFetching }}
