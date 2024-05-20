@@ -189,7 +189,7 @@
     "chalk": "^5.3.0",
     "conventional-changelog-cli": "^5.0.0",
     "enquirer": "^2.4.1",
-    "execa": "^8.0.1",
+    "execa": "^9.1.0",
     "firebase": "^10.11.1",
     "happy-dom": "^14.7.1",
     "lint-staged": "^15.2.2",
