@@ -75,8 +75,7 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
     },
 
     buildStart() {
-      // TODO: how do we properly check if we are in dev mode?
-      return ctx.scanPages(true)
+      return ctx.scanPages(options.watch)
     },
 
     buildEnd() {

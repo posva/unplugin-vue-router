@@ -178,6 +178,15 @@ export interface ResolvedOptions {
    * @inheritDoc ParseSegmentOptions
    */
   pathParser: ParseSegmentOptions
+
+  /**
+   * Whether to watch the files for changes.
+   *
+   * Defaults to `true` unless the `CI` environment variable is set.
+   * 
+   * @default `!process.env.CI`
+   */
+  watch: boolean
 }
 
 /**
@@ -210,6 +219,7 @@ export const DEFAULT_OPTIONS: ResolvedOptions = {
   pathParser: {
     dotNesting: true,
   },
+  watch: !process.env.CI,
 }
 
 export interface ServerContext {
