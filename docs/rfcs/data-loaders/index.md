@@ -621,6 +621,62 @@ When using vue router named views, each named view can have their own loaders bu
 
 :::
 
+### Advanced Error handling
+
+::: info
+
+This is still not implemented.
+
+:::
+
+Since throwing an error in a loader cancels the navigation, this doesn't allow to have an error property in _non lazy loaders_ to display the error in the UI. To solve this, we can specify expected errors when defining the loader:
+
+```ts{17-19}
+// custom error class
+class MyError extends Error {
+  name = 'MyError' // Displays in logs instead of 'Error'
+  constructor(message: string) {
+    super(message)
+  }
+}
+
+export const useUserData = defineLoader(
+  async (to) => {
+    // ...
+  },
+  {
+    errors: {
+      MyError, // uses `instanceof MyError`
+    },
+  }
+)
+```
+
+These can also be specified globally:
+
+```ts
+class MyError extends Error {
+  name = 'MyError'
+  constructor(message: string) {
+    super(message)
+  }
+}
+
+app.use(DataLoaderPlugin, {
+  router,
+  // all mande errors will let the navigation continue but appear in the error property
+  errors: {
+    MyError, // checks with `instanceof MyError`
+  },
+})
+```
+
+::: tip
+
+In a lazy loader, you can throw an error and since it doesn't block the navigation it will appear in the `error` property.
+
+:::
+
 ### Usage outside of page components
 
 Loaders can be attached to a page even if the page component doesn't use it (invoke the composable returned by `defineLoader()`). This is possible if a nested component uses the data. It can be used in any component by importing the _returned composable_, even outside of the scope of the page components, even by a parent.
