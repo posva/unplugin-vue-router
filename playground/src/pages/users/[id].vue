@@ -21,6 +21,9 @@ export const useUserData = defineBasicLoader(
   '/users/[id]',
   async (route) => {
     await delay(700)
+    if (route.params.id === '6') {
+      throw (new Error('Test Error for id 6'))
+    }
     const user = {
       id: route.params.id,
       // @ts-expect-error: no param "name"!
@@ -31,7 +34,7 @@ export const useUserData = defineBasicLoader(
   },
   {
     key: 'user-id',
-    lazy: false,
+    lazy: true,
   }
 )
 </script>
@@ -70,8 +73,8 @@ const MY_VAL = 'INSIDE SETUP TEST'
     >
 
     <pre v-if="isLoading">Loading...</pre>
-    <pre v-else-if="error">Error: {{ error }}</pre>
-    <pre v-else>{{ user }}</pre>
+    <pre>Error: {{ error || String(error) }}</pre>
+    <pre v-if="user">{{ user }}</pre>
   </main>
 </template>
 
