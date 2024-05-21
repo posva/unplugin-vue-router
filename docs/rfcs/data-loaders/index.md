@@ -631,7 +631,7 @@ This is still not implemented.
 
 Since throwing an error in a loader cancels the navigation, this doesn't allow to have an error property in _non lazy loaders_ to display the error in the UI. To solve this, we can specify expected errors when defining the loader:
 
-```ts{17-19}
+```ts{2-7,14-16}
 // custom error class
 class MyError extends Error {
   name = 'MyError' // Displays in logs instead of 'Error'
@@ -654,7 +654,7 @@ export const useUserData = defineLoader(
 
 These can also be specified globally:
 
-```ts
+```ts{11-13}
 class MyError extends Error {
   name = 'MyError'
   constructor(message: string) {
