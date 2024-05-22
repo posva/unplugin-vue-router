@@ -26,7 +26,7 @@ This will generate the following routes:
 
 ### Index Routes
 
-Any `index.vue` file will generate an empty path (similar to `index.html` files):
+Any `index.vue` (**must be all lowercase**) file will generate an empty path (similar to `index.html` files):
 
 - `src/pages/index.vue`: generates a `/` route
 - `src/pages/users/index.vue`: generates a `/users` route
