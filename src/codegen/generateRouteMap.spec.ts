@@ -101,6 +101,26 @@ describe('generateRouteNamedMap', () => {
     `)
   })
 
+  it('generates params from path option', () => {
+    const tree = new PrefixTree(
+      resolveOptions({
+        routesFolder: [{ src: 'src/pages', path: ':lang/' }],
+      })
+    )
+
+    tree.insert('[lang]/index.vue', 'src/pages/index.vue')
+    tree.insert('[lang]/a.vue', 'src/pages/a.vue')
+    tree.insert('[lang]/[id].vue', 'src/pages/[id].vue')
+
+    expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
+      "export interface RouteNamedMap {
+        '/[lang]/': RouteRecordInfo<'/[lang]/', '/:lang', { lang: ParamValue<true> }, { lang: ParamValue<false> }>,
+        '/[lang]/[id]': RouteRecordInfo<'/[lang]/[id]', '/:lang/:id', { lang: ParamValue<true>, id: ParamValue<true> }, { lang: ParamValue<false>, id: ParamValue<false> }>,
+        '/[lang]/a': RouteRecordInfo<'/[lang]/a', '/:lang/a', { lang: ParamValue<true> }, { lang: ParamValue<false> }>,
+      }"
+    `)
+  })
+
   it('nested children', () => {
     const tree = new PrefixTree(DEFAULT_OPTIONS)
     tree.insert('a/a.vue')
@@ -140,10 +160,11 @@ describe('generateRouteNamedMap', () => {
   })
 
   it('adds params from the path option', () => {
-    const tree = new PrefixTree({
-      ...DEFAULT_OPTIONS,
-      routesFolder: [{ src: 'src/pages', path: ':lang/' }],
-    })
+    const tree = new PrefixTree(
+      resolveOptions({
+        routesFolder: [{ src: 'src/pages', path: '[lang]/' }],
+      })
+    )
 
     tree.insert('[lang]/index.vue', 'src/pages/index.vue')
     tree.insert('[lang]/a.vue', 'src/pages/a.vue')
