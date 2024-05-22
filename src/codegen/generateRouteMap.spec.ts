@@ -165,14 +165,15 @@ describe('generateRouteNamedMap', () => {
         extensions: ['.pagina.vue'],
         routesFolder: [
           { src: 'src/pages', extensions: ['.page.vue'] },
-          { src: 'src/paginas' },
+          { src: 'src/paginas', extensions: ['.pagina.md'] },
         ],
       })
     )
 
-    tree.insert('other.pagina.vue', resolve('src/paginas/other.pagina.vue'))
+    tree.insert('other.pagina.md', resolve('src/paginas/other.pagina.md'))
     tree.insert('index.page.vue', resolve('src/pages/index.page.vue'))
     tree.insert('about.page.vue', resolve('src/pages/about.page.vue'))
+    tree.insert('ignored.pagina.vue', resolve('src/pages/ignored.pagine.vue'))
 
     expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
       "export interface RouteNamedMap {

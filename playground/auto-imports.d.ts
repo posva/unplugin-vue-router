@@ -6,7 +6,6 @@
 export {}
 declare global {
   const defineBasicLoader: typeof import('unplugin-vue-router/data-loaders/basic')['defineBasicLoader']
-  const defineLoader: (typeof import('unplugin-vue-router/runtime'))['_defineLoader']
   const definePage: typeof import('unplugin-vue-router/runtime')['definePage']
   const onBeforeRouteLeave: typeof import('vue-router/auto')['onBeforeRouteLeave']
   const onBeforeRouteUpdate: typeof import('vue-router/auto')['onBeforeRouteUpdate']
