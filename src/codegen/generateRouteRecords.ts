@@ -103,9 +103,9 @@ function generateRouteRecordComponent(
   importsMap: ImportsMap
 ): string {
   const files = Array.from(node.value.components)
-  const isDefaultExport = files.length === 1 && files[0][0] === 'default'
+  const isDefaultExport = files.length === 1 && files[0]![0] === 'default'
   return isDefaultExport
-    ? `component: ${generatePageImport(files[0][1], importMode, importsMap)},`
+    ? `component: ${generatePageImport(files[0]![1], importMode, importsMap)},`
     : // files has at least one entry
       `components: {
 ${files
