@@ -22,7 +22,7 @@ export const useUserData = defineBasicLoader(
   async (route) => {
     await delay(700)
     if (route.params.id === '6') {
-      throw (new Error('Test Error for id 6'))
+      throw new Error('Test Error for id 6')
     }
     const user = {
       id: route.params.id,
