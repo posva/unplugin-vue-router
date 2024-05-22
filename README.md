@@ -118,7 +118,7 @@ build({
 
 ## Setup
 
-After installing, **you should run your dev server** (usually `npm run dev`) **to generate the first version of the types**. Then you need to add the types to your `tsconfig.json`:
+After installing, **you should run your dev server** (usually `npm run dev`) **to generate the first version of the types**. Then you need to add the types to your `tsconfig.json`.
 
 ```json
 {
@@ -129,9 +129,27 @@ After installing, **you should run your dev server** (usually `npm run dev`) **t
   // ...
   "compilerOptions": {
     // ...
-    "moduleResolution": "Bundler",
+    "moduleResolution": "Bundler"
+    // ...
+  }
+}
+```
+
+Then, if you have an `env.d.ts` file like the one created by `npm vue create <my-project>`, add the `unplugin-vue-router/client` types to it:
+
+```ts
+// env.d.ts
+/// <reference types="vite/client" />
+/// <reference types="unplugin-vue-router/client" />
+```
+
+If you don't have an `env.d.ts` file, you can create one and add the unplugin-vue-router types to it _or_ you can add them to the `types` property in your `tsconfig.json`:
+
+```json
+{
+  "compilerOptions": {
+    // ...
     "types": [
-      // ...
       "unplugin-vue-router/client"
     ]
   }
