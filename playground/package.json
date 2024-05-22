@@ -14,7 +14,7 @@
     "unplugin-vue-router": "workspace:*",
     "vite": "^5.2.11",
     "vite-plugin-inspect": "^0.8.4",
-    "vue": "^3.4.26"
+    "vue": "^3.4.27"
   },
   "dependencies": {
     "@tanstack/vue-query": "^5.37.1",
