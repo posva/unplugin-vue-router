@@ -1,3 +1,9 @@
+## [0.8.8](https://github.com/posva/unplugin-vue-router/compare/v0.8.7...v0.8.8) (2024-05-22)
+
+### Bug Fixes
+
+- watch all extensions not just root ([74ac22b](https://github.com/posva/unplugin-vue-router/commit/74ac22b01336a6e0a99769c6e645a5bfe29233bb))
+
 ## [0.8.7](https://github.com/posva/unplugin-vue-router/compare/v0.8.6...v0.8.7) (2024-05-20)
 
 ### Bug Fixes
