@@ -27,7 +27,7 @@ export default defineConfig({
 
   plugins: [
     VueRouter({
-      extensions: ['.page.vue', '.vue', '.md'],
+      extensions: ['.page.vue', '.vue'],
       importMode: 'async',
       extendRoute(route) {
         // console.log('extending route', route.meta)

@@ -1,11 +1,15 @@
-import type { ResolvedOptions, RoutesFolderOption } from '../options'
+import {
+  resolveOverridableOption,
+  type ResolvedOptions,
+  type RoutesFolderOption,
+} from '../options'
 import {
   createTreeNodeValue,
   TreeNodeValueOptions,
   TreeRouteParam,
 } from './treeNodeValue'
 import type { TreeNodeValue } from './treeNodeValue'
-import { resolveOverridableOption, trimExtension } from './utils'
+import { trimExtension } from './utils'
 import { CustomRouteBlock } from './customBlock'
 import { RouteMeta } from 'vue-router'
 

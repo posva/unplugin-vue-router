@@ -9,10 +9,16 @@ import {
   ROUTE_BLOCK_ID,
 } from './core/moduleConstants'
 // TODO: export standalone createRoutesContext that resolves partial options
-import { Options, resolveOptions, DEFAULT_OPTIONS } from './options'
+import {
+  Options,
+  resolveOptions,
+  DEFAULT_OPTIONS,
+  mergeAllExtensions,
+} from './options'
 import { createViteContext } from './core/vite'
 import { createFilter } from '@rollup/pluginutils'
 import { join } from 'pathe'
+import { appendExtensionListToPattern } from './core/utils'
 
 export * from './types'
 
@@ -34,17 +40,17 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
   }
 
   // create the transform filter to detect `definePage()` inside page component
-  const pageFilePattern =
-    `**/*` +
-    (options.extensions.length === 1
-      ? options.extensions[0]
-      : `.{${options.extensions
-          .map((extension) => extension.replace('.', ''))
-          .join(',')}}`)
+  const pageFilePattern = appendExtensionListToPattern(
+    options.filePatterns,
+    mergeAllExtensions(options)
+  )
+
+  // this is a larger filter that includes a bit too many files
+  // the RouteFolderWatcher will filter it down to the actual files
   const filterPageComponents = createFilter(
     [
-      ...options.routesFolder.map((routeOption) =>
-        join(routeOption.src, pageFilePattern)
+      ...options.routesFolder.flatMap((routeOption) =>
+        pageFilePattern.map((pattern) => join(routeOption.src, pattern))
       ),
       // importing the definePage block
       /definePage\&vue$/,

@@ -81,22 +81,6 @@ export function trimExtension(
   return path
 }
 
-/**
- * Resolves an overridable option by calling the function with the existing value if it's a function, otherwise
- * returning the passed `value`. If `value` is undefined, it returns the `defaultValue` instead.
- *
- * @param defaultValue default value for the option
- * @param value and overridable option
- */
-export function resolveOverridableOption<T>(
-  defaultValue: T,
-  value?: _OverridableOption<T>
-): T {
-  return typeof value === 'function'
-    ? (value as (existing: T) => T)(defaultValue)
-    : value ?? defaultValue
-}
-
 export function throttle(fn: () => void, wait: number, initialWait: number) {
   let pendingExecutionTimeout: ReturnType<typeof setTimeout> | null = null
   let pendingExecution = false

@@ -50,7 +50,6 @@ declare module 'vue-router/auto-routes' {
     '/n-[[n]]/': RouteRecordInfo<'/n-[[n]]/', '/n-:n?', { n?: ParamValueZeroOrOne<true> }, { n?: ParamValueZeroOrOne<false> }>,
     '/n-[[n]]/[[more]]+/': RouteRecordInfo<'/n-[[n]]/[[more]]+/', '/n-:n?/:more*', { n?: ParamValueZeroOrOne<true>, more?: ParamValueZeroOrMore<true> }, { n?: ParamValueZeroOrOne<false>, more?: ParamValueZeroOrMore<false> }>,
     '/n-[[n]]/[[more]]+/[final]': RouteRecordInfo<'/n-[[n]]/[[more]]+/[final]', '/n-:n?/:more*/:final', { n?: ParamValueZeroOrOne<true>, more?: ParamValueZeroOrMore<true>, final: ParamValue<true> }, { n?: ParamValueZeroOrOne<false>, more?: ParamValueZeroOrMore<false>, final: ParamValue<false> }>,
-    '/not-used': RouteRecordInfo<'/not-used', '/not-used', Record<never, never>, Record<never, never>>,
     '/partial-[name]': RouteRecordInfo<'/partial-[name]', '/partial-:name', { name: ParamValue<true> }, { name: ParamValue<false> }>,
     '/custom-path': RouteRecordInfo<'/custom-path', '/surprise-:id(\d+)', Record<never, never>, Record<never, never>>,
     '/todos/': RouteRecordInfo<'/todos/', '/todos', Record<never, never>, Record<never, never>>,
