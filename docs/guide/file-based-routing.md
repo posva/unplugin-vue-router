@@ -150,7 +150,7 @@ VueRouter({
 
 You can also provide a path prefix for each of these folders, it will be used _as is_, and **cannot start with a `/`** but can contain any params you want or even **not finish with a `/`**:
 
-```js twoslash
+```ts twoslash
 import VueRouter from 'unplugin-vue-router/vite'
 // ---cut---
 // @moduleResolution: bundler
@@ -180,3 +180,27 @@ VueRouter({
 ```
 
 Note that the provided folders must be separate and one _route folder_ cannot contain another specified _route folder_. If you need further customization, give [definePage()](extending-routes#definepage) a try.
+
+## Custom extensions
+
+While most of the time you will be using `.vue` files, you can also specify custom extensions to be considered as pages. You can for example use _markdown_ files as pages:
+
+```ts twoslash
+import VueRouter from 'unplugin-vue-router/vite'
+// ---cut---
+// @moduleResolution: bundler
+VueRouter({
+  // globally set the extensions
+  extensions: ['.vue', '.md'],
+  routesFolder: [
+    'src/pages',
+    {
+      src: 'src/docs',
+      // override the global extensions to **only** accept markdown files
+      extensions: ['.md'],
+    },
+  ],
+})
+```
+
+In this scenario, files named `index.md` (**must be all lowercase**) will generate an empty path like `index.vue` files.
