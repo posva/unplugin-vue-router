@@ -1,6 +1,7 @@
 {
   "name": "unplugin-vue-router",
   "version": "0.8.8",
+  "type": "module",
   "packageManager": "pnpm@9.1.2",
   "description": "File based typed routing for Vue Router",
   "keywords": [
@@ -24,89 +25,89 @@
     "type": "git",
     "url": "git+https://github.com/posva/unplugin-vue-router.git"
   },
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "types": {
-        "require": "./dist/index.d.ts",
-        "import": "./dist/index.d.mts"
+        "require": "./dist/index.d.cts",
+        "import": "./dist/index.d.ts"
       },
-      "require": "./dist/index.js",
-      "import": "./dist/index.mjs"
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.js"
     },
     "./vite": {
       "types": {
-        "require": "./dist/vite.d.ts",
-        "import": "./dist/vite.d.mts"
+        "require": "./dist/vite.d.cts",
+        "import": "./dist/vite.d.ts"
       },
-      "require": "./dist/vite.js",
-      "import": "./dist/vite.mjs"
+      "require": "./dist/vite.cjs",
+      "import": "./dist/vite.js"
     },
     "./webpack": {
       "types": {
-        "require": "./dist/webpack.d.ts",
-        "import": "./dist/webpack.d.mts"
+        "require": "./dist/webpack.d.cts",
+        "import": "./dist/webpack.d.ts"
       },
-      "require": "./dist/webpack.js",
-      "import": "./dist/webpack.mjs"
+      "require": "./dist/webpack.cjs",
+      "import": "./dist/webpack.js"
     },
     "./rollup": {
       "types": {
-        "require": "./dist/rollup.d.ts",
-        "import": "./dist/rollup.d.mts"
+        "require": "./dist/rollup.d.cts",
+        "import": "./dist/rollup.d.ts"
       },
-      "require": "./dist/rollup.js",
-      "import": "./dist/rollup.mjs"
+      "require": "./dist/rollup.cjs",
+      "import": "./dist/rollup.js"
     },
     "./esbuild": {
       "types": {
-        "require": "./dist/esbuild.d.ts",
-        "import": "./dist/esbuild.d.mts"
+        "require": "./dist/esbuild.d.cts",
+        "import": "./dist/esbuild.d.ts"
       },
-      "require": "./dist/esbuild.js",
-      "import": "./dist/esbuild.mjs"
+      "require": "./dist/esbuild.cjs",
+      "import": "./dist/esbuild.js"
     },
     "./options": {
       "types": {
-        "require": "./dist/options.d.ts",
-        "import": "./dist/options.d.mts"
+        "require": "./dist/options.d.cts",
+        "import": "./dist/options.d.ts"
       },
-      "require": "./dist/options.js",
-      "import": "./dist/options.mjs"
+      "require": "./dist/options.cjs",
+      "import": "./dist/options.js"
     },
     "./runtime": {
       "types": {
-        "require": "./dist/runtime.d.ts",
-        "import": "./dist/runtime.d.mts"
+        "require": "./dist/runtime.d.cts",
+        "import": "./dist/runtime.d.ts"
       },
-      "require": "./dist/runtime.js",
-      "import": "./dist/runtime.mjs"
+      "require": "./dist/runtime.cjs",
+      "import": "./dist/runtime.js"
     },
     "./types": {
       "types": {
-        "require": "./dist/types.d.ts",
-        "import": "./dist/types.d.mts"
+        "require": "./dist/types.d.cts",
+        "import": "./dist/types.d.ts"
       },
-      "require": "./dist/types.js",
-      "import": "./dist/types.mjs"
+      "require": "./dist/types.cjs",
+      "import": "./dist/types.js"
     },
     "./data-loaders/basic": {
       "types": {
-        "require": "./dist/data-loaders/basic.d.ts",
-        "import": "./dist/data-loaders/basic.d.mts"
+        "require": "./dist/data-loaders/basic.d.cts",
+        "import": "./dist/data-loaders/basic.d.ts"
       },
-      "require": "./dist/data-loaders/basic.js",
-      "import": "./dist/data-loaders/basic.mjs"
+      "require": "./dist/data-loaders/basic.cjs",
+      "import": "./dist/data-loaders/basic.js"
     },
     "./data-loaders/pinia-colada": {
       "types": {
-        "require": "./dist/data-loaders/pinia-colada.d.ts",
-        "import": "./dist/data-loaders/pinia-colada.d.mts"
+        "require": "./dist/data-loaders/pinia-colada.d.cts",
+        "import": "./dist/data-loaders/pinia-colada.d.ts"
       },
-      "require": "./dist/data-loaders/pinia-colada.js",
-      "import": "./dist/data-loaders/pinia-colada.mjs"
+      "require": "./dist/data-loaders/pinia-colada.cjs",
+      "import": "./dist/data-loaders/pinia-colada.js"
     },
     "./client": {
       "types": "./client.d.ts"
