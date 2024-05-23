@@ -339,14 +339,6 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
     >
     let entry = entries.get(loader)
 
-    if (process.env.NODE_ENV === 'development') {
-      if (!parentEntry && !entry) {
-        console.error(
-          `Some "useDataLoader()" was called outside of a component's setup or a data loader.`
-        )
-      }
-    }
-
     if (
       // if the entry doesn't exist, create it with load and ensure it's loading
       !entry ||

@@ -294,14 +294,6 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
     // console.log('is same route', entry?.pendingTo === route)
     // console.log('-- END --')
 
-    if (process.env.NODE_ENV === 'development') {
-      if (!parentEntry && !entry) {
-        console.error(
-          `Some "useDataLoader()" was called outside of a component's setup or a data loader.`
-        )
-      }
-    }
-
     if (
       // if the entry doesn't exist, create it with load and ensure it's loading
       !entry ||
