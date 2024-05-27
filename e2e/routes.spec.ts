@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest'
 import { createRoutesContext } from '../src/core/context'
-import { DEFAULT_OPTIONS } from '../src/options'
+import { DEFAULT_OPTIONS, resolveOptions } from '../src/options'
 import { fileURLToPath, URL } from 'url'
 import { normalize, join } from 'pathe'
 
@@ -11,13 +11,14 @@ const __dirname = fileURLToPath(new URL('./', import.meta.url))
  */
 
 it('generates the routes', async () => {
-  const context = createRoutesContext({
-    ...DEFAULT_OPTIONS,
-    // dts: join(__dirname, './__types.d.ts'),
-    dts: false,
-    logs: false,
-    routesFolder: [{ src: join(__dirname, './fixtures/filenames/routes') }],
-  })
+  const context = createRoutesContext(
+    resolveOptions({
+      // dts: join(__dirname, './__types.d.ts'),
+      dts: false,
+      logs: false,
+      routesFolder: [{ src: join(__dirname, './fixtures/filenames/routes') }],
+    })
+  )
 
   await context.scanPages()
   expect(
