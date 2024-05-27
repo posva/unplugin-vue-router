@@ -83,7 +83,8 @@ export class EditableTreeNode {
   /**
    * Name of the route. Note that **all routes are named** but when the final `routes` array is generated, routes
    * without a `component` will not include their `name` property to avoid accidentally navigating to them and display
-   * nothing. {@see isPassThrough}
+   * nothing.
+   * @see {@link isPassThrough}
    */
   get name(): string {
     return this.node.name
@@ -113,7 +114,8 @@ export class EditableTreeNode {
 
   /**
    * Override the meta property of the route. This will discard any other meta property defined with `<route>` blocks or
-   * through other means.
+   * through other means. If you want to keep the existing meta properties, use `addToMeta`.
+   * @see {@link addToMeta}
    */
   set meta(meta: RouteMeta) {
     this.node.value.removeOverride('meta')
