@@ -10,6 +10,7 @@ import {
   useIsMutating,
   useIsFetching,
   useMutationState,
+  useMutation,
 } from '@tanstack/vue-query'
 
 const route = useRoute('/users/[id]')
@@ -61,6 +62,19 @@ const {
   refetchOnMount: false,
   enabled,
 })
+
+const {
+  data,
+  error,
+  mutate,
+  status: mutSate,
+} = useMutation({
+  mutationKey: ['hey'],
+  mutationFn: async (id: number) => {
+    await delay(500)
+    return 'hey'
+  },
+})
 </script>
 
 <template>
@@ -72,6 +86,15 @@ const {
       <input type="checkbox" v-model="enabled" />
       Enabled
     </label>
+
+    <pre>
+      Mutation
+      {{ data }}
+      {{ error }}
+      {{ mutSate }}
+    </pre>
+
+    <button @click="mutate(2)">Mutate</button>
 
     <fieldset>
       <legend>Controls</legend>
