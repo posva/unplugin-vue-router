@@ -149,16 +149,12 @@ export interface Options {
    * Allows to extend a route by modifying its node, adding children, or even deleting it. This will be invoked once for
    * each route.
    *
-   * @experimental See https://github.com/posva/unplugin-vue-router/issues/43
-   *
    * @param route - {@link EditableTreeNode} of the route to extend
    */
   extendRoute?: (route: EditableTreeNode) => _Awaitable<void>
 
   /**
    * Allows to do some changes before writing the files. This will be invoked **every time** the files need to be written.
-   *
-   * @experimental See https://github.com/posva/unplugin-vue-router/issues/43
    *
    * @param rootRoute - {@link EditableTreeNode} of the root route
    */

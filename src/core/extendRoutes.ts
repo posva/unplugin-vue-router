@@ -34,9 +34,9 @@ export class EditableTreeNode {
    * Inserts a new route as a child of this route. This route cannot use `definePage()`. If it was meant to be included,
    * add it to the `routesFolder` option.
    *
-   * @param path - path segment to insert. Note this is relative to the current route. It shouldn't start with `/` unless you want the route path to be absolute.
-   * added at the root of the tree.
+   * @param path - path segment to insert. Note this is relative to the current route. **It shouldn't start with `/`**. If it does, it will be added to the root of the tree.
    * @param filePath - file path
+   * @returns the new editable route node
    */
   insert(path: string, filePath: string) {
     // adapt paths as they should match a file system
