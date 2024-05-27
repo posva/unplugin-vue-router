@@ -7,7 +7,18 @@ You can extend the routes at build time with the `extendRoute` or the `beforeWri
 ```ts twoslash
 import VueRouter from 'unplugin-vue-router/vite'
 import path from 'node:path'
-const __dirname = '...'
+/**
+ * In ESM environments, you can use `import.meta.url` to get the current file path:
+ *
+ * ```ts
+ * import { dirname } from 'node:path'
+ * import { fileURLToPath } from 'node:url'
+ *
+ * const __filename = fileURLToPath(import.meta.url)
+ * const __dirname = dirname(__filename)
+ * ```
+ */
+const __dirname: string = '...'
 // ---cut---
 // @moduleResolution: bundler
 VueRouter({
