@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`generates the routes 1`] = `
+exports[`e2e routes > generates the routes 1`] = `
 "export const routes = [
   {
     path: '/',
@@ -116,6 +116,50 @@ exports[`generates the routes 1`] = `
     name: '/users.new',
     component: () => import('/routes/users.new.vue'),
     /* no children */
+  }
+]
+"
+`;
+
+exports[`e2e routes > works with mixed extensions 1`] = `
+"export const routes = [
+  {
+    path: '/',
+    name: '/',
+    component: () => import('/multi-extensions/index.vue'),
+    /* no children */
+  },
+  {
+    path: '/about',
+    name: '/about',
+    component: () => import('/multi-extensions/about.vue'),
+    /* no children */
+  },
+  {
+    path: '/docs',
+    /* internal name: '/docs' */
+    /* no component */
+    children: [
+      {
+        path: ':lang',
+        /* internal name: '/docs/[lang]' */
+        /* no component */
+        children: [
+          {
+            path: '',
+            name: '/docs/[lang]/',
+            component: () => import('/multi-extensions/docs/index.md'),
+            /* no children */
+          },
+          {
+            path: ':pathMatch(.*)',
+            name: '/docs/[lang]/[...pathMatch]',
+            component: () => import('/multi-extensions/docs/[...pathMatch].vue'),
+            /* no children */
+          }
+        ],
+      }
+    ],
   }
 ]
 "
