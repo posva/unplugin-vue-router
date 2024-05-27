@@ -123,6 +123,7 @@ export function createRoutesContext(options: ResolvedOptions) {
   ) {
     logger.log(`added "${routePath}" for "${filePath}"`)
     // TODO: handle top level named view HMR
+
     const node = routeTree.insert(routePath, filePath)
 
     await writeRouteInfoToNode(node, filePath)

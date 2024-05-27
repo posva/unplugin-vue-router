@@ -53,7 +53,14 @@ export class RoutesFolderWatcher {
 
       handler({
         filePath,
-        routePath: asRoutePath({ src: this.src, path: this.path }, filePath),
+        routePath: asRoutePath(
+          {
+            src: this.src,
+            path: this.path,
+            extensions: this.extensions,
+          },
+          filePath
+        ),
       })
     })
     return this

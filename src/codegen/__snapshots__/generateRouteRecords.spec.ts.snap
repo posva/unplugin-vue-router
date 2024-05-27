@@ -37,7 +37,7 @@ exports[`generateRouteRecord > adds children and name when folder and component 
 ]"
 `;
 
-exports[`generateRouteRecord > correctly names index.vue files 1`] = `
+exports[`generateRouteRecord > correctly names index files 1`] = `
 "[
   {
     path: '/',
@@ -483,14 +483,14 @@ exports[`generateRouteRecord > nested children 2`] = `
 exports[`generateRouteRecord > raw paths insertions > dedupes sync imports for the same component 1`] = `
 "[
   {
-    path: '/a/b.vue',
-    name: '/a/b.vue',
+    path: '/a/b',
+    name: '/a/b',
     component: _page_0,
     /* no children */
   },
   {
-    path: '/a/c.vue',
-    name: '/a/c.vue',
+    path: '/a/c',
+    name: '/a/c',
     component: _page_0,
     /* no children */
   }

@@ -1,15 +1,10 @@
-import {
-  resolveOverridableOption,
-  type ResolvedOptions,
-  type RoutesFolderOption,
-} from '../options'
+import { type ResolvedOptions } from '../options'
 import {
   createTreeNodeValue,
   TreeNodeValueOptions,
   TreeRouteParam,
 } from './treeNodeValue'
 import type { TreeNodeValue } from './treeNodeValue'
-import { trimExtension } from './utils'
 import { CustomRouteBlock } from './customBlock'
 import { RouteMeta } from 'vue-router'
 
@@ -68,33 +63,21 @@ export class TreeNode {
   /**
    * Adds a path to the tree. `path` cannot start with a `/`.
    *
-   * @param path - path segment to insert. **It must contain the file extension** this allows to
-   * differentiate between folders and files.
-   * @param filePath - file path, defaults to path for convenience and testing
+   * @param path - path segment to insert. **It shouldn't contain the file extension**
+   * @param filePath - file path, must be a file (not a folder)
    */
-  insert(path: string, filePath: string = path): TreeNode {
-    // find the `routesFolder` resolved option that matches the filepath
-    const folderOptions = findFolderOptions(this.options.routesFolder, filePath)
-
-    const { tail, segment, viewName, isComponent } = splitFilePath(
-      path,
-      // use the correct extensions for the folder
-      resolveOverridableOption(
-        this.options.extensions,
-        folderOptions?.extensions
-      )
-    )
+  insert(path: string, filePath: string): TreeNode {
+    const { tail, segment, viewName } = splitFilePath(path)
 
     if (!this.children.has(segment)) {
       this.children.set(segment, new TreeNode(this.options, segment, this))
     } // TODO: else error or still override?
     const child = this.children.get(segment)!
 
-    if (isComponent) {
+    // we reached the end of the filePath, therefore it's a component
+    if (!tail) {
       child.value.components.set(viewName, filePath)
-    }
-
-    if (tail) {
+    } else {
       return child.insert(tail, filePath)
     }
     return child
@@ -166,21 +149,14 @@ export class TreeNode {
   }
 
   /**
-   * Remove a route from the tree. The path shouldn't start with a `/` but it can be a nested one. e.g. `foo/bar.vue`.
+   * Remove a route from the tree. The path shouldn't start with a `/` but it can be a nested one. e.g. `foo/bar`.
    * The `path` should be relative to the page folder.
    *
    * @param path - path segment of the file
    */
   remove(path: string) {
-    const folderOptions = findFolderOptions(this.options.routesFolder, path)
     // TODO: rename remove to removeChild
-    const { tail, segment, viewName, isComponent } = splitFilePath(
-      path,
-      resolveOverridableOption(
-        this.options.extensions,
-        folderOptions?.extensions
-      )
-    )
+    const { tail, segment, viewName } = splitFilePath(path)
 
     const child = this.children.get(segment)
     if (!child) {
@@ -197,9 +173,7 @@ export class TreeNode {
       }
     } else {
       // it can only be component because we only listen for removed files, not folders
-      if (isComponent) {
-        child.value.components.delete(viewName)
-      }
+      child.value.components.delete(viewName)
       // this is the file we wanted to remove
       if (child.children.size === 0 && child.value.components.size === 0) {
         this.children.delete(segment)
@@ -299,7 +273,7 @@ export class PrefixTree extends TreeNode {
     super(options, '')
   }
 
-  override insert(path: string, filePath: string = path) {
+  override insert(path: string, filePath: string) {
     const node = super.insert(path, filePath)
     this.map.set(filePath, node)
 
@@ -334,16 +308,12 @@ export class PrefixTree extends TreeNode {
  *
  * @param filePath - filePath to split
  */
-function splitFilePath(filePath: string, extensions: string[]) {
+function splitFilePath(filePath: string) {
   const slashPos = filePath.indexOf('/')
   let head = slashPos < 0 ? filePath : filePath.slice(0, slashPos)
   const tail = slashPos < 0 ? '' : filePath.slice(slashPos + 1)
 
   let segment = head
-  // only the last segment can be a filename with an extension
-  if (!tail) {
-    segment = trimExtension(head, extensions)
-  }
   let viewName = 'default'
 
   const namedSeparatorPos = segment.indexOf('@')
@@ -353,27 +323,9 @@ function splitFilePath(filePath: string, extensions: string[]) {
     segment = segment.slice(0, namedSeparatorPos)
   }
 
-  // this means we effectively trimmed an extension
-  const isComponent = segment !== head
-
   return {
     segment,
     tail,
     viewName,
-    isComponent,
   }
-}
-
-/**
- * Find the folder options that match the file path.
- *
- * @param folderOptions `options.routesFolder` option
- * @param filePath resolved file path
- * @returns
- */
-function findFolderOptions(
-  folderOptions: RoutesFolderOption[],
-  filePath: string
-): RoutesFolderOption | undefined {
-  return folderOptions.find((folder) => filePath.includes(folder.src))
 }

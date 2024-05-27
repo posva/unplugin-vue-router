@@ -16,10 +16,10 @@ function formatExports(exports: string) {
 describe('generateRouteNamedMap', () => {
   it('works with some paths at root', () => {
     const tree = new PrefixTree(DEFAULT_OPTIONS)
-    tree.insert('index.vue')
-    tree.insert('a.vue')
-    tree.insert('b.vue')
-    tree.insert('c.vue')
+    tree.insert('index')
+    tree.insert('a')
+    tree.insert('b')
+    tree.insert('c')
     expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
       "export interface RouteNamedMap {
         '/': RouteRecordInfo<'/', '/', Record<never, never>, Record<never, never>>,
@@ -32,13 +32,13 @@ describe('generateRouteNamedMap', () => {
 
   it('adds params', () => {
     const tree = new PrefixTree(DEFAULT_OPTIONS)
-    tree.insert('[a].vue')
-    tree.insert('partial-[a].vue')
-    tree.insert('[[a]].vue') // optional
-    tree.insert('partial-[[a]].vue') // partial-optional
-    tree.insert('[a]+.vue') // repeated
-    tree.insert('[[a]]+.vue') // optional repeated
-    tree.insert('[...a].vue') // splat
+    tree.insert('[a]')
+    tree.insert('partial-[a]')
+    tree.insert('[[a]]') // optional
+    tree.insert('partial-[[a]]') // partial-optional
+    tree.insert('[a]+') // repeated
+    tree.insert('[[a]]+') // optional repeated
+    tree.insert('[...a]') // splat
     expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
       "export interface RouteNamedMap {
         '/[a]': RouteRecordInfo<'/[a]', '/:a', { a: ParamValue<true> }, { a: ParamValue<false> }>,
@@ -68,10 +68,10 @@ describe('generateRouteNamedMap', () => {
 
   it('handles nested params in folders', () => {
     const tree = new PrefixTree(DEFAULT_OPTIONS)
-    tree.insert('n/[a]/index.vue') // normal
-    tree.insert('n/[a]/other.vue')
-    tree.insert('n/[a]/[b].vue')
-    tree.insert('n/[a]/[c]/other-[d].vue')
+    tree.insert('n/[a]/index') // normal
+    tree.insert('n/[a]/other')
+    tree.insert('n/[a]/[b]')
+    tree.insert('n/[a]/[c]/other-[d]')
     expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
       "export interface RouteNamedMap {
         '/n/[a]/': RouteRecordInfo<'/n/[a]/', '/n/:a', { a: ParamValue<true> }, { a: ParamValue<false> }>,
@@ -84,12 +84,12 @@ describe('generateRouteNamedMap', () => {
 
   it('adds nested params', () => {
     const tree = new PrefixTree(DEFAULT_OPTIONS)
-    tree.insert('n/[a].vue') // normal
-    // tree.insert('n/partial-[a].vue') // partial
-    tree.insert('n/[[a]].vue') // optional
-    tree.insert('n/[a]+.vue') // repeated
-    tree.insert('n/[[a]]+.vue') // optional repeated
-    tree.insert('n/[...a].vue') // splat
+    tree.insert('n/[a]') // normal
+    // tree.insert('n/partial-[a]') // partial
+    tree.insert('n/[[a]]') // optional
+    tree.insert('n/[a]+') // repeated
+    tree.insert('n/[[a]]+') // optional repeated
+    tree.insert('n/[...a]') // splat
     expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
       "export interface RouteNamedMap {
         '/n/[a]': RouteRecordInfo<'/n/[a]', '/n/:a', { a: ParamValue<true> }, { a: ParamValue<false> }>,
@@ -108,9 +108,9 @@ describe('generateRouteNamedMap', () => {
       })
     )
 
-    tree.insert('[lang]/index.vue', 'src/pages/index.vue')
-    tree.insert('[lang]/a.vue', 'src/pages/a.vue')
-    tree.insert('[lang]/[id].vue', 'src/pages/[id].vue')
+    tree.insert('[lang]/index', 'src/pages/index.vue')
+    tree.insert('[lang]/a', 'src/pages/a.vue')
+    tree.insert('[lang]/[id]', 'src/pages/[id].vue')
 
     expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
       "export interface RouteNamedMap {
@@ -123,14 +123,14 @@ describe('generateRouteNamedMap', () => {
 
   it('nested children', () => {
     const tree = new PrefixTree(DEFAULT_OPTIONS)
-    tree.insert('a/a.vue')
-    tree.insert('a/b.vue')
-    tree.insert('a/c.vue')
-    tree.insert('b/b.vue')
-    tree.insert('b/c.vue')
-    tree.insert('b/d.vue')
-    tree.insert('c.vue')
-    tree.insert('d.vue')
+    tree.insert('a/a')
+    tree.insert('a/b')
+    tree.insert('a/c')
+    tree.insert('b/b')
+    tree.insert('b/c')
+    tree.insert('b/d')
+    tree.insert('c')
+    tree.insert('d')
     expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
       "export interface RouteNamedMap {
         '/a/a': RouteRecordInfo<'/a/a', '/a/a', Record<never, never>, Record<never, never>>,
@@ -147,9 +147,9 @@ describe('generateRouteNamedMap', () => {
 
   it('keeps parent path overrides', () => {
     const tree = new PrefixTree(DEFAULT_OPTIONS)
-    const parent = tree.insert('parent.vue')
-    const child = tree.insert('parent/child.vue')
-    parent.value.setOverride('parent.vue', { path: '/' })
+    const parent = tree.insert('parent')
+    const child = tree.insert('parent/child')
+    parent.value.setOverride('parent', { path: '/' })
     expect(child.fullPath).toBe('/child')
     expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
       "export interface RouteNamedMap {
@@ -166,41 +166,15 @@ describe('generateRouteNamedMap', () => {
       })
     )
 
-    tree.insert('[lang]/index.vue', 'src/pages/index.vue')
-    tree.insert('[lang]/a.vue', 'src/pages/a.vue')
-    tree.insert('[lang]/[id].vue', 'src/pages/[id].vue')
+    tree.insert('[lang]/index', 'src/pages/index.vue')
+    tree.insert('[lang]/a', 'src/pages/a.vue')
+    tree.insert('[lang]/[id]', 'src/pages/[id].vue')
 
     expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
       "export interface RouteNamedMap {
         '/[lang]/': RouteRecordInfo<'/[lang]/', '/:lang', { lang: ParamValue<true> }, { lang: ParamValue<false> }>,
         '/[lang]/[id]': RouteRecordInfo<'/[lang]/[id]', '/:lang/:id', { lang: ParamValue<true>, id: ParamValue<true> }, { lang: ParamValue<false>, id: ParamValue<false> }>,
         '/[lang]/a': RouteRecordInfo<'/[lang]/a', '/:lang/a', { lang: ParamValue<true> }, { lang: ParamValue<false> }>,
-      }"
-    `)
-  })
-
-  // https://github.com/posva/unplugin-vue-router/issues/274
-  it('removes routeFolders.extensions from the path', () => {
-    const tree = new PrefixTree(
-      resolveOptions({
-        extensions: ['.pagina.vue'],
-        routesFolder: [
-          { src: 'src/pages', extensions: ['.page.vue'] },
-          { src: 'src/paginas', extensions: ['.pagina.md'] },
-        ],
-      })
-    )
-
-    tree.insert('other.pagina.md', resolve('src/paginas/other.pagina.md'))
-    tree.insert('index.page.vue', resolve('src/pages/index.page.vue'))
-    tree.insert('about.page.vue', resolve('src/pages/about.page.vue'))
-    tree.insert('ignored.pagina.vue', resolve('src/pages/ignored.pagine.vue'))
-
-    expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
-      "export interface RouteNamedMap {
-        '/': RouteRecordInfo<'/', '/', Record<never, never>, Record<never, never>>,
-        '/about': RouteRecordInfo<'/about', '/about', Record<never, never>, Record<never, never>>,
-        '/other': RouteRecordInfo<'/other', '/other', Record<never, never>, Record<never, never>>,
       }"
     `)
   })

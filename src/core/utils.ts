@@ -3,7 +3,7 @@ import type { RouteRecordOverride, TreeRouteParam } from './treeNodeValue'
 import { pascalCase } from 'scule'
 import {
   ResolvedOptions,
-  RoutesFolderOption,
+  RoutesFolderOptionResolved,
   _OverridableOption,
 } from '../options'
 
@@ -232,22 +232,30 @@ function mergeDeep(...objects: Array<Record<any, any>>): Record<any, any> {
 }
 
 /**
- * Returns a route path to be used by the router with any defined prefix from an absolute path to a file.
+ * Returns a route path to be used by the router with any defined prefix from an absolute path to a file. Since it
+ * returns a route path, it will remove the extension from the file.
  *
  * @param options - RoutesFolderOption to apply
  * @param filePath - absolute path to file
  * @returns a route path to be used by the router with any defined prefix
  */
 export function asRoutePath(
-  { src, path = '' }: RoutesFolderOption,
+  {
+    src,
+    path = '',
+    extensions,
+  }: Pick<RoutesFolderOptionResolved, 'src' | 'path' | 'extensions'>,
   filePath: string
 ) {
-  return typeof path === 'string'
-    ? // add the path prefix if any
-      path +
-        // remove the absolute path to the pages folder
-        filePath.slice(src.length + 1)
-    : path(filePath)
+  return trimExtension(
+    typeof path === 'string'
+      ? // add the path prefix if any
+        path +
+          // remove the absolute path to the pages folder
+          filePath.slice(src.length + 1)
+      : path(filePath),
+    extensions
+  )
 }
 
 /**
