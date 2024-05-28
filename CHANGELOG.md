@@ -1,3 +1,50 @@
+# [0.9.0](https://github.com/posva/unplugin-vue-router/compare/v0.8.8...v0.9.0) (2024-05-28)
+
+### Bug Fixes
+
+- move extension handling outside of tree ([85d8472](https://github.com/posva/unplugin-vue-router/commit/85d8472a94fa8239d436e6a6fda0789363d085c3)), closes [#400](https://github.com/posva/unplugin-vue-router/issues/400)
+- remove wrong error log during HMR ([c511082](https://github.com/posva/unplugin-vue-router/commit/c51108294dd258e19266eba64eb11d7d5aec107a))
+- require explicit `routes` import to avoid cyclic imports ([63788f6](https://github.com/posva/unplugin-vue-router/commit/63788f67072cc8557df2f87f258c4d6c91f20895)), closes [#132](https://github.com/posva/unplugin-vue-router/issues/132)
+
+### Code Refactoring
+
+- **pkg:** migrate package to type=module ([f1e4ca5](https://github.com/posva/unplugin-vue-router/commit/f1e4ca54695e89a8afb006ad448fbe537210cbc9))
+
+### BREAKING CHANGES
+
+- `createRouter()` now requires the explicit `router`
+  property to be set and imported:
+
+```diff
+import { createRouter, createWebHistory } from 'vue-router/auto'
++import { routes } from 'vue-router/auto-routes'
+
+createRouter({
+  history: createWebHistory(),
++  routes
+})
+```
+
+This also means that runtime `extendRoutes()` option is not needed. It
+has been deprecated and will be removed in the next major release.
+
+- `Tree` and `PrefixTree` insert method expects a path without the file
+  extension. They also expect the fullpath of the file as a second
+  argument (it used to be optional). This aligns better with their responsibility as they shouldn't be trimming the extension like they used to.
+
+```ts
+// replace
+tree.insert('file.vue')
+// with
+tree.insert('file', resolve('file.vue'))
+```
+
+This shouldn't affect most users as the Tree implementation is used
+internally to represent the folder structure.
+
+- **pkg:** The package is now of `"type": "module"`. It shouldn't
+  break anything for users but this is just in case, we all know how fragile this js ecosystem is sometimes...
+
 ## [0.8.8](https://github.com/posva/unplugin-vue-router/compare/v0.8.7...v0.8.8) (2024-05-22)
 
 ### Bug Fixes
