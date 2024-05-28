@@ -170,6 +170,7 @@ export function createRoutesContext(options: ResolvedOptions) {
     // unlinkDir event
   }
 
+  let lastAutoRoutes: string | undefined
   function generateRoutes() {
     const importsMap = new ImportsMap()
 
@@ -181,14 +182,22 @@ export function createRoutesContext(options: ResolvedOptions) {
     // TODO: should we put some HMR code for routes here or should it be at the router creation level (that would be easier to replace the routes)
 
     // generate the list of imports
-    let imports = `${importsMap}`
+    let imports = importsMap.toString()
     // add an empty line for readability
     if (imports) {
       imports += '\n'
     }
 
+    const newAutoRoutes = `${imports}${routesExport}\n`
+
+    if (lastAutoRoutes !== newAutoRoutes) {
+      // cache hit, triigger HMR (not working yet)
+      server?.updateRoutes()
+      lastAutoRoutes = newAutoRoutes
+    }
+
     // prepend it to the code
-    return `${imports}${routesExport}\n`
+    return newAutoRoutes
   }
 
   function generateDTS(): string {
@@ -224,12 +233,6 @@ export function createRoutesContext(options: ResolvedOptions) {
         await fs.writeFile(dts, content, 'utf-8')
         logger.timeLog('writeConfigFiles', 'wrote dts file')
         lastDTS = content
-
-        // update the files
-        server && logger.log(`⚙️ Invalidating server "${MODULE_ROUTES_PATH}"`)
-        // server?.invalidate(MODULE_ROUTES_PATH)
-        server?.updateRoutes()
-        // server?.reload()
       }
     }
     logger.timeEnd('writeConfigFiles')
