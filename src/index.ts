@@ -7,6 +7,7 @@ import {
   asVirtualId as _asVirtualId,
   routeBlockQueryRE,
   ROUTE_BLOCK_ID,
+  ROUTES_LAST_LOAD_TIME,
 } from './core/moduleConstants'
 // TODO: export standalone createRoutesContext that resolves partial options
 import {
@@ -123,6 +124,7 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
 
       // vue-router/auto-routes
       if (resolvedId === MODULE_ROUTES_PATH) {
+        ROUTES_LAST_LOAD_TIME.update()
         return ctx.generateRoutes()
       }
 

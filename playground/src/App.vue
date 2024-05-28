@@ -7,6 +7,7 @@ import type {
   RouteLocation,
 } from 'vue-router/auto'
 import { ref } from 'vue'
+import { routes } from 'vue-router/auto-routes'
 
 function test(
   a: RouteLocationResolved<'/[name]'>,
@@ -18,6 +19,8 @@ const route = useRoute()
 if (route.name === '/deep/nesting/works/[[files]]+') {
   route.params.files
 }
+
+console.log(`We have ${routes.length} routes.`)
 
 const router = useRouter()
 

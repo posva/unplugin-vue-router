@@ -1,19 +1,10 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import {
-  createRouter,
-  createWebHistory,
-  DataLoaderPlugin,
-} from 'vue-router/auto'
-import { routes } from 'vue-router/auto-routes'
+import { DataLoaderPlugin } from 'vue-router/auto'
 import { MutationCache, QueryCache, VueQueryPlugin } from '@tanstack/vue-query'
 import { createPinia } from 'pinia'
 import { QueryPlugin } from '@pinia/colada'
-
-const router = createRouter({
-  history: createWebHistory(),
-  routes,
-})
+import { router } from './router'
 
 const app = createApp(App)
 

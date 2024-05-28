@@ -178,6 +178,7 @@ export function createRoutesContext(options: ResolvedOptions) {
       options,
       importsMap
     )}`
+    // TODO: should we put some HMR code for routes here or should it be at the router creation level (that would be easier to replace the routes)
 
     // generate the list of imports
     let imports = `${importsMap}`
@@ -225,9 +226,10 @@ export function createRoutesContext(options: ResolvedOptions) {
         lastDTS = content
 
         // update the files
-        server?.invalidate(MODULE_ROUTES_PATH)
-        server?.invalidate(MODULE_VUE_ROUTER)
-        server?.reload()
+        server && logger.log(`⚙️ Invalidating server "${MODULE_ROUTES_PATH}"`)
+        // server?.invalidate(MODULE_ROUTES_PATH)
+        server?.updateRoutes()
+        // server?.reload()
       }
     }
     logger.timeEnd('writeConfigFiles')
