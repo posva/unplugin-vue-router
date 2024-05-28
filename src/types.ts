@@ -49,6 +49,7 @@ export type {
   // TODO: deprecate and remove
   _RouterTyped,
   _Router as Router,
+  // FIXME: remove in the next major version
   _RouterOptions,
 } from './type-extensions/router'
 export type {

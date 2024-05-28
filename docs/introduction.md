@@ -179,6 +179,7 @@ Given the following route configuration:
 ```ts [src/router.ts]
 import { createRouter, createWebHistory } from 'vue-router' // [!code --]
 import { createRouter, createWebHistory } from 'vue-router/auto' // [!code ++]
+import { routes } from 'vue-router/auto-routes' // [!code ++]
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -196,6 +197,7 @@ export const router = createRouter({
       component: () => import('src/pages/About.vue'), // [!code --]
     }, // [!code --]
   ] // [!code --]
+  routes, // [!code ++]
 })
 ```
 
@@ -222,14 +224,15 @@ Check the [file-based routing](/guide/file-based-routing) guide for more informa
 
 ::: code-group
 
-```ts{2,5-8,11} [src/main.ts]
+```ts{2-3,6-9,12} [src/main.ts]
 import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router/auto'
+import { routes } from 'vue-router/auto-routes'
 import App from './App.vue'
 
 const router = createRouter({
   history: createWebHistory(),
-  // the routes property is handled by the plugin
+  routes,
 })
 
 createApp(App)
@@ -247,9 +250,9 @@ createApp(App)
 
 Check the [file-based routing](/guide/file-based-routing) guide for more information about the naming conventions.
 
-### Passing the routes manually
+### Manipulating the routes
 
-Alternatively, **you can also import the `routes` array** and create the router manually or pass it to some plugin. Here is an example with [Vitesse starter](https://github.com/antfu/vitesse/blob/main/src/main.ts):
+You can pass the `routes` to any plugin that needs to add changes to them but note that **these changes will not be reflected in types**. Use [build-time routes instead](./guide//extending-routes.md) if you want to have types support. Here is an example with [Vitesse starter](https://github.com/antfu/vitesse/blob/main/src/main.ts):
 
 ```ts
 import { ViteSSG } from 'vite-ssg'

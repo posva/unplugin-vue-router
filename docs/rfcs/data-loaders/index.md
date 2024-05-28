@@ -566,6 +566,7 @@ import { DataLoaderPlugin, createRouter, createWebHistory } from 'vue-router/aut
 const app = createApp({})
 const router = createRouter({
   history: createWebHistory(),
+  routes: [],
 })
 // ---cut---
 // @moduleResolution: bundler

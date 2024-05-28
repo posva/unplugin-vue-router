@@ -89,37 +89,38 @@ The `<route>` custom block is a way to extend existing routes. It can be used to
 
 Note you can specify the language to use with `<route lang="yaml">`. By default, the language is JSON5 (more flexible version of JSON) but yaml and JSON are also supported.
 
-## `extendRoutes()`
+## Extending routes at runtime
 
-As an escape-hatch, it's possible to extend the routes **at runtime** with the `extendRoutes` option in `createRouter()`. Since these changes are made at runtime, they are not reflected in the generated `typed-router.d.ts` file.
+As an escape-hatch, it's possible to extend the routes **at runtime** by simply changing the `routes` array before passing it to `createRouter()`. Since these changes are made at runtime, they are not reflected in the generated `typed-router.d.ts` file.
 
-```js{4-12}
+```js{4-9}
 import { createWebHistory, createRouter } from 'vue-router/auto'
+import { routes } from 'vue-router/auto-routes'
+
+for (const route of routes) {
+  if (route.name === '/admin') {
+    adminRoute.meta ??= {}
+    adminRoute.meta.requiresAuth = true
+  }
+}
 
 const router = createRouter({
-  extendRoutes: (routes) => {
-    const adminRoute = routes.find((r) => r.name === '/admin')
-    if (adminRoute) {
-      adminRoute.meta ??= {}
-      adminRoute.meta.requiresAuth = true
-    }
-    // the return is completely optional since we are modifying the routes in place
-    return routes
-  },
   history: createWebHistory(),
+  routes,
 })
 ```
 
-As this plugin evolves, this function should be used less and less and only become necessary in unique edge cases.
+As this plugin evolves, this should be used less and less and only become necessary in unique edge cases.
 
-One example of this is using [vite-plugin-vue-layouts](https://github.com/JohnCampionJr/vite-plugin-vue-layouts) which can only be used alongside `extendRoutes()`:
+One example of this is using [vite-plugin-vue-layouts](https://github.com/JohnCampionJr/vite-plugin-vue-layouts) which can only be used this way:
 
 ```ts
 import { createRouter } from 'vue-router/auto'
+import { routes } from 'vue-router/auto-routes'
 import { setupLayouts } from 'virtual:generated-layouts'
 
 const router = createRouter({
   // ...
-  extendRoutes: (routes) => setupLayouts(routes),
+  routes: setupLayouts(routes),
 })
 ```

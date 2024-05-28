@@ -5,16 +5,14 @@ import {
   createWebHistory,
   DataLoaderPlugin,
 } from 'vue-router/auto'
+import { routes } from 'vue-router/auto-routes'
 import { MutationCache, QueryCache, VueQueryPlugin } from '@tanstack/vue-query'
 import { createPinia } from 'pinia'
 import { QueryPlugin } from '@pinia/colada'
 
 const router = createRouter({
   history: createWebHistory(),
-  extendRoutes: (routes) => {
-    // routes.find((r) => r.name === '/')!.meta = {}
-    return routes
-  },
+  routes,
 })
 
 const app = createApp(App)

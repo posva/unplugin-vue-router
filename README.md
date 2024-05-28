@@ -149,9 +149,7 @@ If you don't have an `env.d.ts` file, you can create one and add the unplugin-vu
 {
   "compilerOptions": {
     // ...
-    "types": [
-      "unplugin-vue-router/client"
-    ]
+    "types": ["unplugin-vue-router/client"]
   }
 }
 ```
@@ -161,11 +159,12 @@ Finally, you should replace your imports from `vue-router` to `vue-router/auto`:
 ```diff
 -import { createRouter, createWebHistory } from 'vue-router'
 +import { createRouter, createWebHistory } from 'vue-router/auto'
++import { routes } from 'vue-router/auto-routes'
 
 createRouter({
   history: createWebHistory(),
-  // You don't need to pass the routes anymore,
-  // the plugin writes it for you 🤖
+  // pass the generated routes written by the plugin 🤖
++  routes,
 })
 ```
 

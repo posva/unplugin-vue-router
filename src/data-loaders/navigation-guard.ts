@@ -325,14 +325,8 @@ export class NavigationResult {
  *
  * @example
  * ```ts
- * import { createApp } from 'vue'
- * import {
- *   createRouter,
- *   DataLoaderPlugin,
- *   createWebHistory,
- * } from 'vue-router/auto'
- *
  * const router = createRouter({
+ *   routes,
  *   history: createWebHistory(),
  * })
  *
