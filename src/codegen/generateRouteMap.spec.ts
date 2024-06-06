@@ -16,10 +16,10 @@ function formatExports(exports: string) {
 describe('generateRouteNamedMap', () => {
   it('works with some paths at root', () => {
     const tree = new PrefixTree(DEFAULT_OPTIONS)
-    tree.insert('index')
-    tree.insert('a')
-    tree.insert('b')
-    tree.insert('c')
+    tree.insert('index', 'index.vue')
+    tree.insert('a', 'a.vue')
+    tree.insert('b', 'b.vue')
+    tree.insert('c', 'c.vue')
     expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
       "export interface RouteNamedMap {
         '/': RouteRecordInfo<'/', '/', Record<never, never>, Record<never, never>>,
@@ -32,13 +32,13 @@ describe('generateRouteNamedMap', () => {
 
   it('adds params', () => {
     const tree = new PrefixTree(DEFAULT_OPTIONS)
-    tree.insert('[a]')
-    tree.insert('partial-[a]')
-    tree.insert('[[a]]') // optional
-    tree.insert('partial-[[a]]') // partial-optional
-    tree.insert('[a]+') // repeated
-    tree.insert('[[a]]+') // optional repeated
-    tree.insert('[...a]') // splat
+    tree.insert('[a]', '[a].vue')
+    tree.insert('partial-[a]', 'partial-[a].vue')
+    tree.insert('[[a]]', '[[a]].vue') // optional
+    tree.insert('partial-[[a]]', 'partial-[[a]].vue') // partial-optional
+    tree.insert('[a]+', '[a]+.vue') // repeated
+    tree.insert('[[a]]+', '[[a]]+.vue') // optional repeated
+    tree.insert('[...a]', '[...a].vue') // splat
     expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
       "export interface RouteNamedMap {
         '/[a]': RouteRecordInfo<'/[a]', '/:a', { a: ParamValue<true> }, { a: ParamValue<false> }>,
@@ -68,10 +68,10 @@ describe('generateRouteNamedMap', () => {
 
   it('handles nested params in folders', () => {
     const tree = new PrefixTree(DEFAULT_OPTIONS)
-    tree.insert('n/[a]/index') // normal
-    tree.insert('n/[a]/other')
-    tree.insert('n/[a]/[b]')
-    tree.insert('n/[a]/[c]/other-[d]')
+    tree.insert('n/[a]/index', 'n/[a]/index.vue') // normal
+    tree.insert('n/[a]/other', 'n/[a]/other.vue')
+    tree.insert('n/[a]/[b]', 'n/[a]/[b].vue')
+    tree.insert('n/[a]/[c]/other-[d]', 'n/[a]/[c]/other-[d].vue')
     expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
       "export interface RouteNamedMap {
         '/n/[a]/': RouteRecordInfo<'/n/[a]/', '/n/:a', { a: ParamValue<true> }, { a: ParamValue<false> }>,
@@ -84,12 +84,12 @@ describe('generateRouteNamedMap', () => {
 
   it('adds nested params', () => {
     const tree = new PrefixTree(DEFAULT_OPTIONS)
-    tree.insert('n/[a]') // normal
-    // tree.insert('n/partial-[a]') // partial
-    tree.insert('n/[[a]]') // optional
-    tree.insert('n/[a]+') // repeated
-    tree.insert('n/[[a]]+') // optional repeated
-    tree.insert('n/[...a]') // splat
+    tree.insert('n/[a]', 'n/[a].vue') // normal
+    // tree.insert('n/partial-[a]', 'n/partial-[a].vue') // partial
+    tree.insert('n/[[a]]', 'n/[[a]].vue') // optional
+    tree.insert('n/[a]+', 'n/[a]+.vue') // repeated
+    tree.insert('n/[[a]]+', 'n/[[a]]+.vue') // optional repeated
+    tree.insert('n/[...a]', 'n/[...a].vue') // splat
     expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
       "export interface RouteNamedMap {
         '/n/[a]': RouteRecordInfo<'/n/[a]', '/n/:a', { a: ParamValue<true> }, { a: ParamValue<false> }>,
@@ -123,14 +123,14 @@ describe('generateRouteNamedMap', () => {
 
   it('nested children', () => {
     const tree = new PrefixTree(DEFAULT_OPTIONS)
-    tree.insert('a/a')
-    tree.insert('a/b')
-    tree.insert('a/c')
-    tree.insert('b/b')
-    tree.insert('b/c')
-    tree.insert('b/d')
-    tree.insert('c')
-    tree.insert('d')
+    tree.insert('a/a', 'a/a.vue')
+    tree.insert('a/b', 'a/b.vue')
+    tree.insert('a/c', 'a/c.vue')
+    tree.insert('b/b', 'b/b.vue')
+    tree.insert('b/c', 'b/c.vue')
+    tree.insert('b/d', 'b/d.vue')
+    tree.insert('c', 'c.vue')
+    tree.insert('d', 'd.vue')
     expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
       "export interface RouteNamedMap {
         '/a/a': RouteRecordInfo<'/a/a', '/a/a', Record<never, never>, Record<never, never>>,
@@ -147,8 +147,8 @@ describe('generateRouteNamedMap', () => {
 
   it('keeps parent path overrides', () => {
     const tree = new PrefixTree(DEFAULT_OPTIONS)
-    const parent = tree.insert('parent')
-    const child = tree.insert('parent/child')
+    const parent = tree.insert('parent', 'parent.vue')
+    const child = tree.insert('parent/child', 'parent/child.vue')
     parent.value.setOverride('parent', { path: '/' })
     expect(child.fullPath).toBe('/child')
     expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
