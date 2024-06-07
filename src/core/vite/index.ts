@@ -13,7 +13,7 @@ export function createViteContext(server: ViteDevServer): ServerContext {
   }
 
   function reload() {
-    server.hot.send({
+    server.ws.send({
       type: 'full-reload',
       path: '*',
     })
@@ -37,7 +37,7 @@ export function createViteContext(server: ViteDevServer): ServerContext {
     //   mod.lastInvalidationTimestamp,
     //   ROUTES_LAST_LOAD_TIME.value
     // )
-    server.hot.send({
+    server.ws.send({
       type: 'update',
       updates: [
         {
