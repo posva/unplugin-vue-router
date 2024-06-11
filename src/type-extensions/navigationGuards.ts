@@ -3,9 +3,6 @@
 import type { NavigationGuardNext, NavigationFailure } from 'vue-router'
 import type { _RouteMapGeneric } from '../codegen/generateRouteMap'
 import type {
-  _RouteRecordName,
-  _RouteLocationNormalized,
-  _RouteLocationRaw,
   _RouteLocationNormalizedLoaded,
   RouteLocationNormalizedTypedList,
   RouteLocationNormalizedLoadedTypedList,
@@ -13,7 +10,6 @@ import type {
   RouteLocationAsRelativeTypedList,
   RouteLocationAsPathTypedList,
 } from './routeLocation'
-import type { _Router } from './router'
 import type { RouteNamedMap, TypesConfig } from './types-config'
 import { type _Awaitable } from '../utils'
 
