@@ -16,7 +16,7 @@
     "vite-plugin-inspect": "^0.8.4"
   },
   "dependencies": {
-    "@tanstack/vue-query": "^5.41.0",
+    "@tanstack/vue-query": "^5.45.0",
     "mande": "^2.0.9",
     "pinia": "^2.1.7",
     "vue": "^3.4.27",
