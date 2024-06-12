@@ -1,9 +1,6 @@
 import type { DataLoaderEntryBase, UseDataLoader } from './createDataLoader'
 import { IS_USE_DATA_LOADER_KEY } from './meta-extensions'
-import type {
-  Router,
-  RouteLocationNormalizedLoaded,
-} from 'unplugin-vue-router/types'
+import type { Router, RouteLocationNormalizedLoaded } from 'vue-router'
 import { type LocationQuery } from 'vue-router'
 
 /**

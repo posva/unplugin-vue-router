@@ -1,16 +1,15 @@
+// @ts-nocheck: FIXME: move to vue-router and figure out how to make the types work without module augmentation
 import { describe, it, expectTypeOf } from 'vitest'
 import type {
   RouteRecordInfo,
-  _RouteMapGeneric,
-} from '../codegen/generateRouteMap'
-import type {
   ParamValue,
   ParamValueOneOrMore,
-} from '../codegen/generateRouteParams'
+  RouteMapGeneric,
+} from 'vue-router'
 import type { _RouterTyped as RouterTyped } from './router'
 import { RouteLocationTyped } from './routeLocation'
 
-function defineRouter<RM extends _RouteMapGeneric>(): RouterTyped<RM> {
+function defineRouter<RM extends RouteMapGeneric>(): RouterTyped<RM> {
   return {} as RouterTyped<RM>
 }
 

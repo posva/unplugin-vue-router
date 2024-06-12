@@ -158,7 +158,8 @@ describe(
             loaders: [l1, l2],
           },
         })
-        const wrapper = mount(RouterViewMock, {
+
+        mount(RouterViewMock, {
           global: {
             plugins: [
               [
@@ -184,7 +185,7 @@ describe(
         const spy = vi
           .fn<[to: RouteLocationNormalizedLoaded], Promise<string>>()
           .mockResolvedValue('initial')
-        const { wrapper, app, router, useData } = singleLoaderOneRoute(
+        const { router, useData } = singleLoaderOneRoute(
           defineBasicLoader(spy, { key: 'root' })
         )
         router[INITIAL_DATA_KEY] = { root: 'initial' }
@@ -199,7 +200,7 @@ describe(
         const spy = vi
           .fn<[to: RouteLocationNormalizedLoaded], Promise<string>>()
           .mockImplementation(async (to) => to.query.p as string)
-        const { wrapper, app, router, useData } = singleLoaderOneRoute(
+        const { router, useData } = singleLoaderOneRoute(
           defineBasicLoader(spy, { key: 'root' })
         )
 

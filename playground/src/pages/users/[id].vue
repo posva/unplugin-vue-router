@@ -1,5 +1,6 @@
 <script lang="ts">
 import { defineColadaLoader } from 'unplugin-vue-router/data-loaders/pinia-colada'
+import type { RouteLocationNormalized } from 'vue-router'
 export const myExport = 'OUTSIDE SETUP TEST'
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -47,8 +48,9 @@ const { data: user2 } = useOldData()
 
 definePage({
   beforeEnter(to) {
-    if (Number.isNaN(Number(to.params.id))) {
-      console.log('invalid param id', to.params.id)
+    const { id } = (to as RouteLocationNormalized<'/users/[id]'>).params
+    if (Number.isNaN(Number(id))) {
+      console.log('invalid param id', id)
       return false
     }
   },

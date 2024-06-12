@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest'
 import { generateRouteNamedMap } from './generateRouteMap'
 import { PrefixTree } from '../core/tree'
 import { resolveOptions } from '../options'
-import { resolve } from 'pathe'
 
 const DEFAULT_OPTIONS = resolveOptions({})
 

@@ -18,14 +18,14 @@ import { mockPromise } from '../utils'
 import RouterViewMock from '../data-loaders/RouterViewMock.vue'
 import ComponentWithNestedLoader from '../data-loaders/ComponentWithNestedLoader.vue'
 import { dataOneSpy, dataTwoSpy } from '../data-loaders/loaders'
-import type { RouteLocationNormalizedLoaded as _RouteLocationNormalizedLoaded } from 'unplugin-vue-router/types'
+import type { RouteLocationNormalizedLoaded } from 'vue-router'
 import { mockWarn } from '../vitest-mock-warn'
 
 export function testDefineLoader<Context = void>(
   loaderFactory: (
     context: {
       fn: (
-        to: _RouteLocationNormalizedLoaded,
+        to: RouteLocationNormalizedLoaded,
         context: DataLoaderContextBase
       ) => Promise<unknown>
     } & DefineDataLoaderOptionsBase<boolean> & { key?: string }
@@ -134,7 +134,7 @@ export function testDefineLoader<Context = void>(
           const spy = vi
             .fn<unknown[], Promise<unknown>>()
             .mockResolvedValueOnce(null)
-          const { wrapper, useData, router } = singleLoaderOneRoute(
+          const { useData, router } = singleLoaderOneRoute(
             loaderFactory({ lazy, commit, fn: spy })
           )
           await router.push('/fetch')
@@ -148,7 +148,7 @@ export function testDefineLoader<Context = void>(
             .fn<unknown[], Promise<unknown>>()
             .mockResolvedValue('ko')
 
-          const { wrapper, useData, router } = singleLoaderOneRoute(
+          const { useData, router } = singleLoaderOneRoute(
             loaderFactory({ lazy, commit, fn: spy })
           )
           // initial navigation
@@ -163,7 +163,7 @@ export function testDefineLoader<Context = void>(
 
         it('can return a NavigationResult without affecting initial data', async () => {
           let calls = 0
-          const spy = vi.fn(async (to: _RouteLocationNormalizedLoaded) => {
+          const spy = vi.fn(async (to: RouteLocationNormalizedLoaded) => {
             return calls++ === 0 ? new NavigationResult('/other') : to.query.p
           })
           const { useData, router } = singleLoaderOneRoute(
@@ -177,7 +177,7 @@ export function testDefineLoader<Context = void>(
 
         it('can return a NavigationResult without affecting loaded data', async () => {
           let calls = 0
-          const spy = vi.fn(async (to: _RouteLocationNormalizedLoaded) => {
+          const spy = vi.fn(async (to: RouteLocationNormalizedLoaded) => {
             return calls++ > 0 ? new NavigationResult('/other') : to.query.p
           })
           const { useData, router } = singleLoaderOneRoute(
@@ -198,7 +198,7 @@ export function testDefineLoader<Context = void>(
           'can return a NavigationResult without affecting the last error',
           async () => {
             let calls = 0
-            const spy = vi.fn(async (to: _RouteLocationNormalizedLoaded) => {
+            const spy = vi.fn(async (to: RouteLocationNormalizedLoaded) => {
               return calls++ > 0
                 ? new NavigationResult('/other')
                 : Promise.reject(new Error(to.query.p as string))
@@ -207,7 +207,7 @@ export function testDefineLoader<Context = void>(
               loaderFactory({ lazy, commit, fn: spy })
             )
             await router.push('/fetch?p=ok').catch(() => {})
-            const { error, data } = useData()
+            const { error } = useData()
             expect(spy).toHaveBeenCalled()
             expect(error.value).toEqual(new Error('ok'))
             await router.push('/fetch?p=ko').catch(() => {})
@@ -237,7 +237,7 @@ export function testDefineLoader<Context = void>(
           const spy = vi
             .fn<unknown[], Promise<string>>()
             .mockResolvedValueOnce('resolved 1')
-          const { wrapper, router, useData } = singleLoaderOneRoute(
+          const { router, useData } = singleLoaderOneRoute(
             loaderFactory({ lazy, commit, fn: spy })
           )
           await router.push('/fetch')
@@ -263,7 +263,7 @@ export function testDefineLoader<Context = void>(
               return 'ok'
             }
           })
-          const { useData, router, wrapper } = singleLoaderOneRoute(
+          const { useData, router } = singleLoaderOneRoute(
             loaderFactory({
               fn: spy,
               lazy,
@@ -310,7 +310,7 @@ export function testDefineLoader<Context = void>(
       })
 
       it(`should abort the navigation if a non lazy loader throws, commit: ${commit}`, async () => {
-        const { wrapper, router } = singleLoaderOneRoute(
+        const { router } = singleLoaderOneRoute(
           loaderFactory({
             fn: async () => {
               throw new Error('nope')
@@ -337,7 +337,7 @@ export function testDefineLoader<Context = void>(
           })
         )
         await router.push('/fetch')
-        const { data, error, isLoading } = useData()
+        const { data, isLoading } = useData()
         expect(wrapper.get('#error').text()).toBe('Error: nope')
         expect(isLoading.value).toBe(false)
         expect(data.value).toBe(undefined)
@@ -350,7 +350,7 @@ export function testDefineLoader<Context = void>(
           commit,
           lazy: false,
         })
-        const { wrapper, app, router, useData } = singleLoaderOneRoute(
+        const { router } = singleLoaderOneRoute(
           loaderFactory({
             fn: async (to) => {
               const data = await l1.loader()
@@ -371,20 +371,18 @@ export function testDefineLoader<Context = void>(
 
   it('passes a signal to the loader', async () => {
     const spy = vi.fn<
-      [to: _RouteLocationNormalizedLoaded, context: DataLoaderContextBase],
+      [to: RouteLocationNormalizedLoaded, context: DataLoaderContextBase],
       Promise<unknown>
     >()
     spy.mockResolvedValueOnce('ok')
-    const { wrapper, useData, router } = singleLoaderOneRoute(
-      loaderFactory({ fn: spy })
-    )
+    const { router } = singleLoaderOneRoute(loaderFactory({ fn: spy }))
     await router.push('/fetch?p=ok')
     expect(spy).toHaveBeenCalledTimes(1)
     expect(spy.mock.calls.at(0)?.[1]?.signal).toBeInstanceOf(AbortSignal)
   })
 
   it('blocks navigation by default (non lazy)', async () => {
-    const [spy, resolve, reject] = mockPromise('resolved')
+    const [spy, resolve] = mockPromise('resolved')
     const { useData, router } = singleLoaderOneRoute(loaderFactory({ fn: spy }))
     const p = router.push('/fetch')
     await vi.runAllTimersAsync()
@@ -398,7 +396,7 @@ export function testDefineLoader<Context = void>(
   })
 
   it('does not block navigation when lazy loaded', async () => {
-    const [spy, resolve, reject] = mockPromise('resolved')
+    const [spy, resolve] = mockPromise('resolved')
     const { wrapper, useData, router } = singleLoaderOneRoute(
       loaderFactory({
         fn: spy,
@@ -427,7 +425,7 @@ export function testDefineLoader<Context = void>(
     let resolveSecondCall!: (val?: unknown) => void
     const p1 = new Promise((r) => (resolveFirstCall = r))
     const p2 = new Promise((r) => (resolveSecondCall = r))
-    const { wrapper, useData, router } = singleLoaderOneRoute(
+    const { useData, router } = singleLoaderOneRoute(
       loaderFactory({
         fn: async (to) => {
           calls++
@@ -462,7 +460,7 @@ export function testDefineLoader<Context = void>(
     const nestedP1 = new Promise((r) => (resolveNestedFirstCall = r))
     const nestedP2 = new Promise((r) => (resolveNestedSecondCall = r))
     const nestedLoaderSpy = vi
-      .fn<[to: _RouteLocationNormalizedLoaded], Promise<unknown>>()
+      .fn<[to: RouteLocationNormalizedLoaded], Promise<unknown>>()
       .mockImplementation(async (to) => {
         nestedCalls++
         if (nestedCalls === 1) {
@@ -484,7 +482,7 @@ export function testDefineLoader<Context = void>(
     const rootP2 = new Promise((r) => (resolveRootSecondCall = r))
 
     const rootLoaderSpy = vi
-      .fn<[to: _RouteLocationNormalizedLoaded], Promise<unknown>>()
+      .fn<[to: RouteLocationNormalizedLoaded], Promise<unknown>>()
       .mockImplementation(async (to) => {
         rootCalls++
         const data = await useNestedLoader()
@@ -496,7 +494,7 @@ export function testDefineLoader<Context = void>(
         return `${data},${to.query.p}`
       })
 
-    const { wrapper, useData, router, app } = singleLoaderOneRoute(
+    const { useData, router, app } = singleLoaderOneRoute(
       loaderFactory({ fn: rootLoaderSpy, key: 'root' })
     )
     const firstNavigation = router.push('/fetch?p=one')
@@ -582,7 +580,7 @@ export function testDefineLoader<Context = void>(
     const rootP1 = new Promise((r) => (resolveRootFirstCall = r))
     const rootP2 = new Promise((r) => (resolveRootSecondCall = r))
 
-    const { wrapper, useData, router, app } = singleLoaderOneRoute(
+    const { useData, router, app } = singleLoaderOneRoute(
       loaderFactory({
         fn: async (to) => {
           rootCalls++
@@ -631,7 +629,7 @@ export function testDefineLoader<Context = void>(
     const p2 = new Promise((r) => (resolveCall2 = r))
     const p3 = new Promise((r) => (resolveCall3 = r))
     const spy = vi
-      .fn<[to: _RouteLocationNormalizedLoaded], Promise<string>>()
+      .fn<[to: RouteLocationNormalizedLoaded], Promise<string>>()
       .mockImplementation(async (to) => {
         calls++
         // the first one should be skipped
@@ -646,9 +644,7 @@ export function testDefineLoader<Context = void>(
         }
         return to.query.p as string
       })
-    const { wrapper, useData, router } = singleLoaderOneRoute(
-      loaderFactory({ fn: spy })
-    )
+    const { useData, router } = singleLoaderOneRoute(loaderFactory({ fn: spy }))
     // set the initial location
     await router.push('/fetch?p=ok')
 
@@ -682,9 +678,9 @@ export function testDefineLoader<Context = void>(
   })
 
   it('loader result can be awaited for the data to be ready', async () => {
-    const [spy, resolve, reject] = mockPromise('resolved')
+    const [spy, resolve] = mockPromise('resolved')
 
-    const { wrapper, app, useData, router } = singleLoaderOneRoute(
+    const { app, useData, router } = singleLoaderOneRoute(
       loaderFactory({ fn: async () => spy(), key: 'a' })
     )
     router.push('/fetch')
@@ -718,7 +714,7 @@ export function testDefineLoader<Context = void>(
       },
       key: 'two',
     })
-    const { wrapper, useData, router } = singleLoaderOneRoute(useLoaderTwo)
+    const { useData, router } = singleLoaderOneRoute(useLoaderTwo)
     await router.push('/fetch')
     const { data } = useData()
     expect(spyOne).toHaveBeenCalledTimes(1)
@@ -741,7 +737,6 @@ export function testDefineLoader<Context = void>(
         ],
       },
     })
-    const app: App = wrapper.vm.$.appContext.app
 
     expect(dataOneSpy).toHaveBeenCalledTimes(0)
     await router.push('/fetch')
@@ -782,7 +777,6 @@ export function testDefineLoader<Context = void>(
         ],
       },
     })
-    const app: App = wrapper.vm.$.appContext.app
 
     router.push('/fetch?p=one')
     await vi.runOnlyPendingTimersAsync()
@@ -932,7 +926,7 @@ export function testDefineLoader<Context = void>(
 
   it('awaits for a lazy loader if used as a nested loader', async () => {
     const l1 = mockedLoader({ lazy: true, key: 'nested' })
-    const { wrapper, app, router, useData } = singleLoaderOneRoute(
+    const { useData, router } = singleLoaderOneRoute(
       loaderFactory({
         fn: async (to) => {
           const data = await l1.loader()
@@ -942,7 +936,7 @@ export function testDefineLoader<Context = void>(
       })
     )
 
-    const p = router.push('/fetch?p=one')
+    router.push('/fetch?p=one')
     await vi.runOnlyPendingTimersAsync()
 
     const { data } = useData()
@@ -955,7 +949,7 @@ export function testDefineLoader<Context = void>(
 
   describe('app.runWithContext()', () => {
     it('can inject globals', async () => {
-      const { wrapper, router, useData, app } = singleLoaderOneRoute(
+      const { router, useData, app } = singleLoaderOneRoute(
         loaderFactory({
           async fn() {
             return inject('key', 'ko')
@@ -975,7 +969,7 @@ export function testDefineLoader<Context = void>(
         },
         key: 'nested',
       })
-      const { wrapper, router, useData, app } = singleLoaderOneRoute(
+      const { router, useData, app } = singleLoaderOneRoute(
         loaderFactory({
           async fn() {
             return await nestedLoader()
@@ -1002,7 +996,7 @@ export function testDefineLoader<Context = void>(
         },
         key: 'l2',
       })
-      const { wrapper, router, useData, app } = singleLoaderOneRoute(
+      const { router, useData, app } = singleLoaderOneRoute(
         loaderFactory({
           fn: async () => {
             const a = await l1()
@@ -1019,7 +1013,7 @@ export function testDefineLoader<Context = void>(
     })
 
     it('can inject globals when reloaded', async () => {
-      const { wrapper, router, useData, app } = singleLoaderOneRoute(
+      const { router, useData, app } = singleLoaderOneRoute(
         loaderFactory({
           fn: async () => {
             return inject('key', 'ko')
@@ -1048,7 +1042,7 @@ export function testDefineLoader<Context = void>(
         },
         key: 'l2',
       })
-      const { wrapper, router, useData, app } = singleLoaderOneRoute(
+      const { router, useData, app } = singleLoaderOneRoute(
         loaderFactory({
           fn: async () => {
             const a = await l1()

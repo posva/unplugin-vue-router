@@ -2,10 +2,7 @@ import { type ShallowRef } from 'vue'
 import type { IS_USE_DATA_LOADER_KEY, STAGED_NO_VALUE } from './meta-extensions'
 import { type _PromiseMerged } from './utils'
 import { type NavigationResult } from './navigation-guard'
-import type {
-  RouteLocationNormalizedLoaded,
-  Router,
-} from 'unplugin-vue-router/types'
+import type { RouteLocationNormalizedLoaded, Router } from 'vue-router'
 import { type _Awaitable } from '../utils'
 
 /**

@@ -45,7 +45,7 @@ export function definePageTransform({
   const sfc = parseSFC(code, id)
   if (!sfc.scriptSetup) return
 
-  const { script, scriptSetup, getSetupAst } = sfc
+  const { scriptSetup, getSetupAst } = sfc
   const setupAst = getSetupAst()
 
   const definePageNodes = (setupAst?.body || ([] as Node[]))
@@ -178,10 +178,11 @@ export function extractDefinePageNameAndPath(
   return routeInfo
 }
 
-function extractRouteAlias(
+// TODO: use
+export function extractRouteAlias(
   aliasValue: ObjectProperty['value'],
   id: string
-): string[] | undefined {
+): string[] | void {
   if (
     aliasValue.type !== 'StringLiteral' &&
     aliasValue.type !== 'ArrayExpression'

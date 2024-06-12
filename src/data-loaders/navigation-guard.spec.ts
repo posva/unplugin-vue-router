@@ -184,7 +184,7 @@ describe('navigation-guard', () => {
       },
     })
 
-    const p = router.push('/fetch')
+    router.push('/fetch')
     await vi.runAllTimersAsync()
     l1.resolve()
     await vi.runAllTimersAsync()
@@ -208,7 +208,7 @@ describe('navigation-guard', () => {
       },
     })
 
-    const p = router.push('/fetch')
+    router.push('/fetch')
     await vi.runAllTimersAsync()
     expect(router.currentRoute.value.path).not.toBe('/fetch')
     l2.resolve()

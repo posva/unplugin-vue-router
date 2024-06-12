@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { useLink, useRoute } from 'vue-router/auto'
-import type { RouteNamedMap } from 'vue-router/auto-routes'
+import { useLink, useRoute } from 'vue-router'
 import type {
   RouteLocationNormalizedLoaded,
   RouteLocationResolved,
   RouteLocation,
-} from 'vue-router/auto'
+} from 'vue-router'
 import { ref } from 'vue'
 import { routes } from 'vue-router/auto-routes'
 
@@ -90,7 +89,7 @@ const customRoute = useRoute('/deep/nesting/works/custom-path')
         <button @click="$router.push('/oeu')">Click</button>
         <RouterLink to="/named-route" v-slot="{ route }">
           :name param is:
-          {{ (route as RouteLocationNormalizedLoaded<'/[name]'>).params.name }}
+          {{ (route as RouteLocationResolved<'/[name]'>).params.name }}
         </RouterLink>
       </nav>
     </div>

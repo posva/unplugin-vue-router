@@ -7,86 +7,19 @@ declare module 'vue-router/auto-routes' {
   export const routes: RouteRecordRaw[]
 }
 
-declare module 'unplugin-vue-router/types' {
+declare module 'vue-router' {
   import type { RouteNamedMap } from 'vue-router/auto-routes'
+
   export interface TypesConfig {
     RouteNamedMap: RouteNamedMap
   }
 }
 
-declare module 'vue-router' {
-  import type {
-    NavigationGuardTyped,
-    NavigationGuardWithThisTyped,
-    RouteLocationNormalizedLoadedTypedList,
-    _RouterTyped,
-    RouterLinkTyped,
-  } from 'unplugin-vue-router/types'
-
-  import type { RouteNamedMap } from 'vue-router/auto-routes'
-  export interface TypesConfig {
-    beforeRouteEnter: NavigationGuardWithThisTyped<undefined, RouteNamedMap>
-    beforeRouteUpdate: NavigationGuardTyped<RouteNamedMap>
-    beforeRouteLeave: NavigationGuardTyped<RouteNamedMap>
-
-    $route: RouteLocationNormalizedLoadedTypedList<RouteNamedMap>[keyof RouteNamedMap]
-    $router: _RouterTyped<RouteNamedMap>
-
-    RouterLink: RouterLinkTyped<RouteNamedMap>
-  }
-}
-
 declare module 'vue-router/auto' {
-  import type { RouteNamedMap } from 'vue-router/auto-routes'
-  import type {
-    _RouterTyped,
-    _RouterOptions,
-    RouteLocationNormalizedLoadedTypedList,
-    NavigationGuardTyped,
-    RouterLinkPropsTyped,
-    RouterLinkTyped,
-    UseLinkFnTyped,
-  } from 'unplugin-vue-router/types'
-
   // reexport all types that are not augmented by unplugin-vue-router
   export * from 'vue-router'
-  // Augmented types to override the ones exported by vue-router
-  export type {
-    Router,
-    RouteLocationNormalized,
-    RouteRecordName,
-    RouteLocationNormalizedLoaded,
-    RouteLocation,
-    RouteLocationAsRelativePath,
-    RouteLocationRaw,
-    RouteLocationResolved,
-    RouteParams,
-    RouteParamsRaw,
-    NavigationGuard,
-    NavigationGuardWithThis,
-  } from 'unplugin-vue-router/types'
 
-  /**
-   * @deprecated use `Router` instead. This type will be a different one in the next major version.
-   */
-  export type RouterTyped = _RouterTyped<RouteNamedMap>
-  export function useRouter(): _RouterTyped<RouteNamedMap>
-  export function useRoute<
-    Name extends keyof RouteNamedMap = keyof RouteNamedMap,
-  >(name?: Name): RouteLocationNormalizedLoadedTypedList<RouteNamedMap>[Name]
-  export const useLink: UseLinkFnTyped<RouteNamedMap>
-  export function onBeforeRouteLeave(
-    guard: NavigationGuardTyped<RouteNamedMap>
-  ): void
-  export function onBeforeRouteUpdate(
-    guard: NavigationGuardTyped<RouteNamedMap>
-  ): void
-  export const RouterLink: RouterLinkTyped<RouteNamedMap>
-  export const RouterLinkProps: RouterLinkPropsTyped<RouteNamedMap>
-  export function createRouter(
-    options: _RouterOptions
-  ): _RouterTyped<RouteNamedMap>
-
+  // TODO: deprecate vue-router/auto
   export {
     // Experimental Data Fetching
     definePage,

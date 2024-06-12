@@ -1,9 +1,10 @@
-import { useRoute, useRouter, type Router as UntypedRouter } from 'vue-router'
-import type {
-  RouteLocationNormalizedLoaded,
-  RouteRecordName,
-  Router,
-} from 'unplugin-vue-router/types'
+import {
+  type RouteLocationNormalizedLoaded,
+  type RouteMap,
+  useRoute,
+  useRouter,
+  type Router,
+} from 'vue-router'
 import type {
   DataLoaderContextBase,
   DataLoaderEntryBase,
@@ -41,7 +42,7 @@ import { shallowRef } from 'vue'
  * @param options - options to configure the data loader
  */
 export function defineBasicLoader<
-  Name extends RouteRecordName,
+  Name extends keyof RouteMap,
   Data,
   isLazy extends boolean,
 >(
@@ -63,7 +64,7 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
 ): UseDataLoaderBasic<isLazy, Data>
 
 export function defineBasicLoader<Data, isLazy extends boolean>(
-  nameOrLoader: RouteRecordName | DefineLoaderFn<Data, DataLoaderContext>,
+  nameOrLoader: keyof RouteMap | DefineLoaderFn<Data, DataLoaderContext>,
   _loaderOrOptions?:
     | DefineDataLoaderOptions<isLazy>
     | DefineLoaderFn<Data, DataLoaderContext>,
@@ -86,7 +87,7 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
 
   function load(
     to: RouteLocationNormalizedLoaded,
-    router: UntypedRouter,
+    router: Router,
     parent?: DataLoaderEntryBase
   ): Promise<void> {
     const entries = router[LOADER_ENTRIES_KEY]!
@@ -276,7 +277,7 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
     // work with nested data loaders
     const [parentEntry, _router, _route] = getCurrentContext()
     // fallback to the global router and routes for useDataLoaders used within components
-    const router = (_router as UntypedRouter) || useRouter()
+    const router = _router || useRouter()
     const route = _route || (useRoute() as RouteLocationNormalizedLoaded)
 
     const entries = router[LOADER_ENTRIES_KEY]!

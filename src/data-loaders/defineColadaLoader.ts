@@ -1,14 +1,11 @@
 import {
+  RouteMap,
   useRoute,
   useRouter,
   type LocationQuery,
-  type Router as UntypedRouter,
+  type RouteLocationNormalizedLoaded,
+  type Router,
 } from 'vue-router'
-import type {
-  RouteLocationNormalizedLoaded,
-  RouteRecordName,
-  Router,
-} from 'unplugin-vue-router/types'
 import type {
   DataLoaderContextBase,
   DataLoaderEntryBase,
@@ -57,7 +54,7 @@ import {
  * @param options - options to configure the data loader
  */
 export function defineColadaLoader<
-  Name extends RouteRecordName,
+  Name extends keyof RouteMap,
   Data,
   isLazy extends boolean,
 >(
@@ -65,14 +62,14 @@ export function defineColadaLoader<
   options: DefineDataColadaLoaderOptions<isLazy, Name, Data>
 ): UseDataLoaderColada<isLazy, Data>
 export function defineColadaLoader<Data, isLazy extends boolean>(
-  options: DefineDataColadaLoaderOptions<isLazy, RouteRecordName, Data>
+  options: DefineDataColadaLoaderOptions<isLazy, keyof RouteMap, Data>
 ): UseDataLoaderColada<isLazy, Data>
 
 export function defineColadaLoader<Data, isLazy extends boolean>(
   nameOrOptions:
-    | RouteRecordName
-    | DefineDataColadaLoaderOptions<isLazy, RouteRecordName, Data>,
-  _options?: DefineDataColadaLoaderOptions<isLazy, RouteRecordName, Data>
+    | keyof RouteMap
+    | DefineDataColadaLoaderOptions<isLazy, keyof RouteMap, Data>,
+  _options?: DefineDataColadaLoaderOptions<isLazy, keyof RouteMap, Data>
 ): UseDataLoaderColada<isLazy, Data> {
   // TODO: make it DEV only and remove the first argument in production mode
   // resolve option overrides
@@ -80,7 +77,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
     _options ||
     (nameOrOptions as DefineDataColadaLoaderOptions<
       isLazy,
-      RouteRecordName,
+      keyof RouteMap,
       Data
     >)
   const loader = _options.query
@@ -89,13 +86,13 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
     ...DEFAULT_DEFINE_LOADER_OPTIONS,
     ..._options,
     commit: _options?.commit || 'after-load',
-  } as DefineDataColadaLoaderOptions<isLazy, RouteRecordName, Data>
+  } as DefineDataColadaLoaderOptions<isLazy, keyof RouteMap, Data>
 
   let isInitial = true
 
   function load(
     to: RouteLocationNormalizedLoaded,
-    router: UntypedRouter,
+    router: Router,
     parent?: DataLoaderEntryBase,
     reload?: boolean
   ): Promise<void> {
@@ -329,7 +326,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
     // work with nested data loaders
     const [parentEntry, _router, _route] = getCurrentContext()
     // fallback to the global router and routes for useDataLoaders used within components
-    const router = (_router as UntypedRouter) || useRouter()
+    const router = _router || useRouter()
     const route = _route || (useRoute() as RouteLocationNormalizedLoaded)
 
     const entries = router[
@@ -447,7 +444,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
 
 export interface DefineDataColadaLoaderOptions<
   isLazy extends boolean,
-  Name extends RouteRecordName,
+  Name extends keyof RouteMap,
   Data,
 > extends DefineDataLoaderOptionsBase<isLazy>,
     Omit<UseQueryOptions<unknown>, 'query' | 'key'> {
@@ -558,7 +555,7 @@ const DEFAULT_DEFINE_LOADER_OPTIONS = {
   server: true,
   commit: 'after-load',
 } satisfies Omit<
-  DefineDataColadaLoaderOptions<boolean, RouteRecordName, unknown>,
+  DefineDataColadaLoaderOptions<boolean, keyof RouteMap, unknown>,
   'key' | 'query'
 >
 

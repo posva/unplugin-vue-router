@@ -4,8 +4,8 @@ import type { ResolvedOptions } from '../options'
 
 // cannot be resolved.
 export function generateVueRouterProxy(
-  routesModule: string,
-  options: ResolvedOptions,
+  _routesModule: string,
+  _options: ResolvedOptions,
   { addPiniaColada }: { addPiniaColada: boolean }
 ) {
   return `

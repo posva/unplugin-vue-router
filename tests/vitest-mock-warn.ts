@@ -28,7 +28,13 @@ export function mockWarn() {
 
     toHaveBeenWarnedLast(received: string | RegExp) {
       asserted.set(received.toString(), received)
-      const lastCall = warn.mock.calls[warn.mock.calls.length - 1][0]
+      if (warn.mock.calls.length === 0) {
+        return {
+          pass: false,
+          message: () => 'expected console.warn to have been called.',
+        }
+      }
+      const lastCall = warn.mock.calls.at(-1)?.[0]
       const passed =
         typeof received === 'string'
           ? lastCall.indexOf(received) > -1
@@ -91,7 +97,7 @@ export function mockWarn() {
     const nonAssertedWarnings = warn.mock.calls
       .map((args) => args[0])
       .filter((received) => {
-        return !assertedArray.some(([key, assertedMsg]) => {
+        return !assertedArray.some(([_key, assertedMsg]) => {
           return typeof assertedMsg === 'string'
             ? received.indexOf(assertedMsg) > -1
             : assertedMsg.test(received)

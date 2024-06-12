@@ -25,7 +25,6 @@ export default defineConfig({
       enabled: true,
       checker: 'vue-tsc',
       // only: true,
-      ignoreSourceErrors: true,
       // by default it includes all specs too
       include: ['**/*.test-d.ts'],
       // tsconfig: './tsconfig.typecheck.json',

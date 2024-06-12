@@ -2,14 +2,13 @@ import { describe, it, expectTypeOf } from 'vitest'
 import type {
   RouteLocationNormalized,
   RouteRecordName,
-  TypesConfig,
   ParamValue,
   ParamValueZeroOrMore,
   RouteRecordInfo,
-} from '../types'
+} from 'vue-router'
 
 // TODO: could we move this to an .d.ts file that is only loaded for tests?
-declare module '../types' {
+declare module 'vue-router' {
   // Extend with some custom routes
   interface TypesConfig {
     RouteNamedMap: {

@@ -28,9 +28,6 @@
         "../src/data-loaders/pinia-colada"
       ],
     },
-    "types": [
-      "unplugin-vue-router/client"
-    ],
   },
   "vueCompilerOptions": {
     "plugins": [

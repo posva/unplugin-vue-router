@@ -144,7 +144,7 @@ describe(
     it('updates data loader data if internal data changes', async () => {
       const query = vi.fn().mockResolvedValue('data')
 
-      const { router, useData, app } = singleLoaderOneRoute(
+      const { router, useData } = singleLoaderOneRoute(
         defineColadaLoader({
           query,
           key: () => ['id'],

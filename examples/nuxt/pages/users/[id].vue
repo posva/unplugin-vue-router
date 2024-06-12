@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineBasicLoader } from 'unplugin-vue-router/runtime'
+import { defineBasicLoader } from 'unplugin-vue-router/data-loaders/basic'
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 export const useUserData = defineBasicLoader(

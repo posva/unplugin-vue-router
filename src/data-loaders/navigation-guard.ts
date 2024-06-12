@@ -1,4 +1,3 @@
-import type { NavigationGuard, Router as UntypedRouter } from 'vue-router'
 import { isNavigationFailure } from 'vue-router'
 import { effectScope, type App, type EffectScope } from 'vue'
 import {
@@ -12,9 +11,11 @@ import {
 } from './meta-extensions'
 import { assign, isDataLoader, setCurrentContext } from './utils'
 import type {
+  NavigationGuard,
+  NavigationGuardReturn,
   RouteLocationNormalizedLoaded,
   Router,
-} from 'unplugin-vue-router/types'
+} from 'vue-router'
 import { type _Awaitable } from '../utils'
 import { type UseDataLoader } from './createDataLoader'
 
@@ -63,7 +64,7 @@ export function setupLoaderGuard({
   router[IS_SSR_KEY] = !!isSSR
 
   // guard to add the loaders to the meta property
-  const removeLoaderGuard = (router as UntypedRouter).beforeEach((to) => {
+  const removeLoaderGuard = router.beforeEach((to) => {
     // Abort any pending navigation. For cancelled navigations, this will happen before the `router.afterEach()`
     if (router[PENDING_LOCATION_KEY]) {
       // we could craft a navigation failure here but vue-router doesn't expose createRouterError() (yet?) and we don't
@@ -129,112 +130,105 @@ export function setupLoaderGuard({
     })
   })
 
-  const removeDataLoaderGuard = (router as UntypedRouter).beforeResolve(
-    (to) => {
-      // if we reach this guard, all properties have been set
-      const loaders = Array.from(to.meta[LOADER_SET_KEY]!) as UseDataLoader[]
+  const removeDataLoaderGuard = router.beforeResolve((to) => {
+    // if we reach this guard, all properties have been set
+    const loaders = Array.from(to.meta[LOADER_SET_KEY]!) as UseDataLoader[]
 
-      // TODO: could we benefit anywhere here from verifying the signal is aborted and not call the loaders at all
-      // if (to.meta[ABORT_CONTROLLER_KEY]!.signal.aborted) {
-      //   return to.meta[ABORT_CONTROLLER_KEY]!.signal.reason ?? false
-      // }
+    // TODO: could we benefit anywhere here from verifying the signal is aborted and not call the loaders at all
+    // if (to.meta[ABORT_CONTROLLER_KEY]!.signal.aborted) {
+    //   return to.meta[ABORT_CONTROLLER_KEY]!.signal.reason ?? false
+    // }
 
-      // unset the context so all loaders are executed as root loaders
-      setCurrentContext([])
-      return Promise.all(
-        loaders.map((loader) => {
-          const { server, lazy } = loader._.options
-          // do not run on the server if specified
-          if (!server && isSSR) {
-            return
-          }
-          // keep track of loaders that should be committed after all loaders are done
-          const ret = effect.run(() =>
-            app
-              // allows inject and provide APIs
-              .runWithContext(() =>
-                loader._.load(to as RouteLocationNormalizedLoaded, router)
-              )
-          )!
+    // unset the context so all loaders are executed as root loaders
+    setCurrentContext([])
+    return Promise.all(
+      loaders.map((loader) => {
+        const { server, lazy } = loader._.options
+        // do not run on the server if specified
+        if (!server && isSSR) {
+          return
+        }
+        // keep track of loaders that should be committed after all loaders are done
+        const ret = effect.run(() =>
+          app
+            // allows inject and provide APIs
+            .runWithContext(() =>
+              loader._.load(to as RouteLocationNormalizedLoaded, router)
+            )
+        )!
 
-          // on client-side, lazy loaders are not awaited, but on server they are
-          // we already checked for the `server` option above
-          return !isSSR && lazy
-            ? undefined
-            : // return the non-lazy loader to commit changes after all loaders are done
-              ret
-        })
-      ) // let the navigation go through by returning true or void
-        .then(() => {
-          // console.log(
-          //   `✨ Navigation results "${to.fullPath}": [${to.meta[
-          //     NAVIGATION_RESULTS_KEY
-          //   ]!.map((r) => JSON.stringify(r.value)).join(', ')}]`
-          // )
-          if (to.meta[NAVIGATION_RESULTS_KEY]!.length) {
-            return selectNavigationResult(to.meta[NAVIGATION_RESULTS_KEY]!)
-          }
-        })
-        .catch((error) =>
-          error instanceof NavigationResult
-            ? error.value
-            : // let the error propagate to router.onError()
-              // we use never because the rejection means we never resolve a value and using anything else
-              // will not be valid from the navigation guard's perspective
-              Promise.reject<never>(error)
-        )
-    }
-  )
+        // on client-side, lazy loaders are not awaited, but on server they are
+        // we already checked for the `server` option above
+        return !isSSR && lazy
+          ? undefined
+          : // return the non-lazy loader to commit changes after all loaders are done
+            ret
+      })
+    ) // let the navigation go through by returning true or void
+      .then(() => {
+        // console.log(
+        //   `✨ Navigation results "${to.fullPath}": [${to.meta[
+        //     NAVIGATION_RESULTS_KEY
+        //   ]!.map((r) => JSON.stringify(r.value)).join(', ')}]`
+        // )
+        if (to.meta[NAVIGATION_RESULTS_KEY]!.length) {
+          return selectNavigationResult(to.meta[NAVIGATION_RESULTS_KEY]!)
+        }
+      })
+      .catch((error) =>
+        error instanceof NavigationResult
+          ? error.value
+          : // let the error propagate to router.onError()
+            // we use never because the rejection means we never resolve a value and using anything else
+            // will not be valid from the navigation guard's perspective
+            Promise.reject<never>(error)
+      )
+  })
 
   // listen to duplicated navigation failures to reset the pendingTo and pendingLoad
   // since they won't trigger the beforeEach or beforeResolve defined above
-  const removeAfterEach = (router as UntypedRouter).afterEach(
-    (to, _from, failure) => {
-      // console.log(
-      //   `🔚 afterEach "${_from.fullPath}" -> "${to.fullPath}": ${failure?.message}`
-      // )
-      if (failure) {
-        // abort the signal of a failed navigation
-        // we need to check if it exists because the navigation guard that creates
-        // the abort controller could not be triggered depending on the failure
-        to.meta[ABORT_CONTROLLER_KEY]?.abort(failure)
+  const removeAfterEach = router.afterEach((to, _from, failure) => {
+    // console.log(
+    //   `🔚 afterEach "${_from.fullPath}" -> "${to.fullPath}": ${failure?.message}`
+    // )
+    if (failure) {
+      // abort the signal of a failed navigation
+      // we need to check if it exists because the navigation guard that creates
+      // the abort controller could not be triggered depending on the failure
+      to.meta[ABORT_CONTROLLER_KEY]?.abort(failure)
 
-        if (
-          // NOTE: using a smaller version to cutoff some bytes
-          isNavigationFailure(
-            failure,
-            16 /* NavigationFailureType.duplicated */
-          )
-        ) {
-          for (const loader of to.meta[LOADER_SET_KEY]!) {
-            const entry = loader._.getEntry(router as Router)
-            entry.resetPending()
-          }
-        }
-      } else {
+      if (
+        // NOTE: using a smaller version to cutoff some bytes
+        isNavigationFailure(failure, 16 /* NavigationFailureType.duplicated */)
+      ) {
         for (const loader of to.meta[LOADER_SET_KEY]!) {
-          const { commit, lazy } = loader._.options
-          if (commit === 'after-load') {
-            const entry = loader._.getEntry(router as Router)
-            // lazy loaders do not block the navigation so the navigation guard
-            // might call commit before the loader is ready
-            // on the server, entries might not even exist
-            if (entry && (!lazy || !entry.isLoading.value)) {
-              entry.commit(to as RouteLocationNormalizedLoaded)
-            }
-          }
+          const entry = loader._.getEntry(router as Router)
+          entry.resetPending()
         }
       }
-
-      // avoid this navigation being considered valid by the loaders
-      if (router[PENDING_LOCATION_KEY] === to) {
-        router[PENDING_LOCATION_KEY] = null
+    } else {
+      for (const loader of to.meta[LOADER_SET_KEY]!) {
+        const { commit, lazy } = loader._.options
+        if (commit === 'after-load') {
+          const entry = loader._.getEntry(router as Router)
+          // lazy loaders do not block the navigation so the navigation guard
+          // might call commit before the loader is ready
+          // on the server, entries might not even exist
+          if (entry && (!lazy || !entry.isLoading.value)) {
+            entry.commit(to as RouteLocationNormalizedLoaded)
+          }
+        }
       }
     }
-  )
+
+    // avoid this navigation being considered valid by the loaders
+    if (router[PENDING_LOCATION_KEY] === to) {
+      router[PENDING_LOCATION_KEY] = null
+    }
+  })
 
   // abort the signal on thrown errors
-  const removeOnError = (router as UntypedRouter).onError((error, to) => {
+  const removeOnError = router.onError((error, to) => {
     // same as with afterEach, we check if it exists because the navigation guard
     // that creates the abort controller could not be triggered depending on the error
     to.meta[ABORT_CONTROLLER_KEY]?.abort(error)
@@ -355,7 +349,7 @@ export interface DataLoaderPluginOptions {
   /**
    * The router instance. Adds the guards to it
    */
-  router: Router | UntypedRouter
+  router: Router
 
   isSSR?: boolean
 
@@ -366,7 +360,5 @@ export interface DataLoaderPluginOptions {
    */
   selectNavigationResult?: (
     results: NavigationResult[]
-  ) => _Awaitable<
-    Exclude<ReturnType<NavigationGuard>, Function | Promise<unknown>>
-  >
+  ) => _Awaitable<Exclude<NavigationGuardReturn, Function | Promise<unknown>>>
 }
