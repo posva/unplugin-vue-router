@@ -12,6 +12,7 @@ import {
 import {
   apiIndexFile,
   typedRouterFile,
+  typedRouterFileAsModule,
   usersLoaderFile,
   vueShimFile,
 } from './twoslash-files'
@@ -22,6 +23,7 @@ export default defineConfig({
       transformerTwoslash({
         twoslashOptions: {
           extraFiles: {
+            'router.ts': typedRouterFileAsModule,
             'typed-router.d.ts': typedRouterFile,
             'api/index.ts': apiIndexFile,
             '../api/index.ts': apiIndexFile,

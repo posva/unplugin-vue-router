@@ -24,9 +24,8 @@ You can commit the newly added `.d.ts` files to your repository to make your lif
 import 'unplugin-vue-router/client'
 import './typed-router.d'
 // ---cut-end---
-// @errors: 2322 2339
 // @moduleResolution: bundler
-import { useRouter, useRoute } from 'vue-router/auto'
+import { useRouter, useRoute } from 'vue-router'
 const router = useRouter()
 router.push('')
 //           ^|
@@ -48,16 +47,15 @@ Extending types with dynamically added routes:
 
 ```ts
 export {} // needed in .d.ts files
+import type {
+  RouteRecordInfo,
+  ParamValue,
+  // these are other param helper types
+  ParamValueOneOrMore,
+  ParamValueZeroOrMore,
+  ParamValueZeroOrOne,
+} from 'vue-router'
 declare module 'vue-router/auto-routes' {
-  import type {
-    RouteRecordInfo,
-    ParamValue,
-    // these are other param helper types
-    ParamValueOneOrMore,
-    ParamValueZeroOrMore,
-    ParamValueZeroOrOne,
-  } from 'unplugin-vue-router/types'
-
   export interface RouteNamedMap {
     // the key is the name and should match the first generic of RouteRecordInfo
     'custom-dynamic-name': RouteRecordInfo<
@@ -77,7 +75,7 @@ declare module 'vue-router/auto-routes' {
 The `Router` type gives you access to the typed version of the router instance. It's also the _ReturnType_ of the `useRouter()` function.
 
 ```ts
-import type { Router } from 'vue-router/auto'
+import type { Router } from 'vue-router'
 ```
 
 ### `RouteLocationResolved`
@@ -98,7 +96,7 @@ You have the same equivalents for `RouteLocation`, `RouteLocationNormalized`, an
 // ---cut-start---
 import 'unplugin-vue-router/client'
 import './typed-router.d'
-import { useRoute, type RouteLocationNormalizedLoaded } from 'vue-router/auto'
+import { useRoute, type RouteLocationNormalizedLoaded } from 'vue-router'
 // ---cut-end---
 // @errors: 2322 2339
 // @moduleResolution: bundler

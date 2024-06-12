@@ -53,7 +53,7 @@ export {}
 // ---cut-end---
 // @errors: 2322 2339
 // @moduleResolution: bundler
-import { definePage } from 'vue-router/auto'
+import { definePage } from 'unplugin-vue-router/runtime'
 
 definePage({
   alias: ['/n/:name'],
@@ -94,7 +94,7 @@ Note you can specify the language to use with `<route lang="yaml">`. By default,
 As an escape-hatch, it's possible to extend the routes **at runtime** by simply changing the `routes` array before passing it to `createRouter()`. Since these changes are made at runtime, they are not reflected in the generated `typed-router.d.ts` file.
 
 ```js{4-9}
-import { createWebHistory, createRouter } from 'vue-router/auto'
+import { createWebHistory, createRouter } from 'vue-router'
 import { routes } from 'vue-router/auto-routes'
 
 for (const route of routes) {
@@ -115,7 +115,7 @@ As this plugin evolves, this should be used less and less and only become necess
 One example of this is using [vite-plugin-vue-layouts](https://github.com/JohnCampionJr/vite-plugin-vue-layouts) which can only be used this way:
 
 ```ts
-import { createRouter } from 'vue-router/auto'
+import { createRouter } from 'vue-router'
 import { routes } from 'vue-router/auto-routes'
 import { setupLayouts } from 'virtual:generated-layouts'
 

@@ -66,4 +66,3 @@ declare module 'vue-router/auto-routes' {
     '/with-extension': RouteRecordInfo<'/with-extension', '/with-extension', Record<never, never>, Record<never, never>>,
   }
 }
-

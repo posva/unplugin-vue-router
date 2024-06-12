@@ -202,7 +202,8 @@ You might only be interested in trying out Data Loaders. In that case, check out
 
 ```ts{2,9}
 import { createApp } from 'vue'
-import { DataLoaderPlugin, createRouter } from 'vue-router/auto'
+import { createRouter } from 'vue-router'
+import { DataLoaderPlugin } from 'vue-router/auto'
 
 const router = createRouter({
   // ...
@@ -562,7 +563,8 @@ Since navigation loaders can run in parallel, they can return different navigati
 ```ts{3-6} twoslash
 import 'unplugin-vue-router/client'
 import { createApp } from 'vue'
-import { DataLoaderPlugin, createRouter, createWebHistory } from 'vue-router/auto'
+import { createRouter, createWebHistory } from 'vue-router'
+import { DataLoaderPlugin } from 'vue-router/auto'
 const app = createApp({})
 const router = createRouter({
   history: createWebHistory(),

@@ -1,12 +1,13 @@
 export const typedRouterFile = `
+import type {
+  RouteRecordInfo,
+  ParamValue,
+  ParamValueOneOrMore,
+  ParamValueZeroOrMore,
+  ParamValueZeroOrOne,
+} from 'vue-router'
+
 declare module 'vue-router/auto-routes' {
-  import type {
-    RouteRecordInfo,
-    ParamValue,
-    ParamValueOneOrMore,
-    ParamValueZeroOrMore,
-    ParamValueZeroOrOne,
-  } from 'unplugin-vue-router/types'
   export interface RouteNamedMap {
     '/': RouteRecordInfo<'/', '/', Record<never, never>, Record<never, never>>
     '/users': RouteRecordInfo<
@@ -30,6 +31,7 @@ declare module 'vue-router/auto-routes' {
   }
 }
 `
+export const typedRouterFileAsModule = typedRouterFile + '\nexport {}\n'
 export const apiIndexFile = `
 export interface User {
   id: number

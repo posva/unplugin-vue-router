@@ -2,10 +2,7 @@
 // FIXME: should be able to import from vue-router or auto import
 // import { defineQueryLoader } from 'unplugin-vue-router/data-loaders/vue-query'
 
-import {
-  type TypesConfig,
-  type RouteRecordName,
-} from 'unplugin-vue-router/types'
+import { type RouteRecordName } from 'vue-router'
 import { computed } from 'vue'
 const a: RouteRecordName = '/articles'
 
