@@ -10,7 +10,7 @@ const a: RouteRecordName = '/articles'
 import type {
   RouteLocationNormalized,
   RouteLocationNormalized as _RouteLocationNormalized,
-} from 'vue-router/auto'
+} from 'vue-router'
 
 declare const b: RouteLocationNormalized<'/[name]'>
 declare const c: _RouteLocationNormalized<'/[name]'>
