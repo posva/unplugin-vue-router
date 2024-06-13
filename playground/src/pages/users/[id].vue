@@ -48,7 +48,9 @@ const { data: user2 } = useOldData()
 
 definePage({
   beforeEnter(to) {
-    const { id } = (to as RouteLocationNormalized<'/users/[id]'>).params
+    // const { id } = (to as RouteLocationNormalized<'/users/[id]'>).params
+    // TODO: cannot use ts syntax yet
+    const { id } = to.params
     if (Number.isNaN(Number(id))) {
       console.log('invalid param id', id)
       return false
