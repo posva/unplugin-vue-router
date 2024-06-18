@@ -105,10 +105,11 @@ export function createRoutesContext(options: ResolvedOptions) {
     const content = await fs.readFile(filePath, 'utf8')
     // TODO: cache the result of parsing the SFC so the transform can reuse the parsing
     node.hasDefinePage ||= content.includes('definePage')
-    const [definedPageNameAndPath, routeBlock] = await Promise.all([
-      extractDefinePageNameAndPath(content, filePath),
-      getRouteBlock(filePath, options),
-    ])
+    const definedPageNameAndPath = extractDefinePageNameAndPath(
+      content,
+      filePath
+    )
+    const routeBlock = getRouteBlock(filePath, content, options)
     // TODO: should warn if hasDefinePage and customRouteBlock
     // if (routeBlock) logger.log(routeBlock)
     node.setCustomRouteBlock(filePath, {
