@@ -3,7 +3,11 @@ import { TreeNode, PrefixTree } from './tree'
 import { promises as fs } from 'fs'
 import { asRoutePath, ImportsMap, logTree, throttle } from './utils'
 import { generateRouteNamedMap } from '../codegen/generateRouteMap'
-import { MODULE_ROUTES_PATH, MODULE_VUE_ROUTER_AUTO } from './moduleConstants'
+import {
+  MODULE_ROUTES_PATH,
+  MODULE_VUE_ROUTER_AUTO,
+  asVirtualId,
+} from './moduleConstants'
 import { generateRouteRecord } from '../codegen/generateRouteRecords'
 import fg from 'fast-glob'
 import { relative, resolve } from 'pathe'
@@ -116,6 +120,13 @@ export function createRoutesContext(options: ResolvedOptions) {
       ...routeBlock,
       ...definedPageNameAndPath,
     })
+
+    // TODO: if definePage changed
+    server?.invalidate(filePath + '?definePage&vue&lang.tsx')
+    server?.invalidate(asVirtualId(MODULE_ROUTES_PATH))
+
+    // TODO: only if needed
+    // server?.updateRoutes()
   }
 
   async function addPage(
@@ -162,8 +173,8 @@ export function createRoutesContext(options: ResolvedOptions) {
         await addPage(ctx, true)
         writeConfigFiles()
       })
-      .on('unlink', async (ctx) => {
-        await removePage(ctx)
+      .on('unlink', (ctx) => {
+        removePage(ctx)
         writeConfigFiles()
       })
 

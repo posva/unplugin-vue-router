@@ -106,7 +106,6 @@ definePage({
   meta: {
     [dummy_id]: 'id',
     fixed: dummy_number,
-    // hello: 'there',
     mySymbol: Symbol(),
     ['hello' + 'expr']: true,
     test: (to: RouteLocationNormalized) => {
@@ -144,13 +143,16 @@ definePage({
     <pre>{{ one }}</pre>
     <p>two</p>
     <pre>{{ two }}</pre>
+    <p>meta:</p>
+    <pre>{{ route.meta }}</pre>
   </main>
 </template>
 
 <route lang="json">
 {
   "meta": {
-    "hello": "there"
+    "hello": "there",
+    "n": 1
   }
 }
 </route>
