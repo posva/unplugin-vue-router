@@ -102,7 +102,8 @@ definePage({
   meta: {
     // hello: 'there',
     mySymbol: Symbol(),
-    // test: (to: RouteLocationNormalized) => console.log(to.name === '/[name]' ? to.params.name : 'nope'),
+    test: (to: RouteLocationNormalized) =>
+      console.log(to.name === '/[name]' ? to.params.name : 'nope'),
   },
 })
 

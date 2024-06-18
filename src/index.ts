@@ -54,7 +54,7 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
         pageFilePattern.map((pattern) => join(routeOption.src, pattern))
       ),
       // importing the definePage block
-      /definePage\&vue$/,
+      /\?.*\bdefinePage\&vue\b/,
     ],
     options.exclude
   )
@@ -97,6 +97,7 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
 
     transform(code, id) {
       // console.log('👋 ', id)
+      // remove the `definePage()` from the file or isolate it
       return ctx.definePageTransform(code, id)
     },
 

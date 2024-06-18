@@ -81,7 +81,11 @@ ${startIndent}}`
     for (const [name, filePath] of node.value.components) {
       const pageDataImport = `_definePage_${name}_${importsMap.size}`
       definePageDataList.push(pageDataImport)
-      importsMap.addDefault(`${filePath}?definePage&vue`, pageDataImport)
+      importsMap.addDefault(
+        // TODO: apply the language used in the sfc
+        `${filePath}?definePage&vue&lang.tsx`,
+        pageDataImport
+      )
     }
 
     if (definePageDataList.length) {
