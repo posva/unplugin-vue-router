@@ -181,5 +181,5 @@ export const VueRouterAutoImports: Record<
     // NOTE: the typing seems broken locally, so instead we export it directly from unplugin-vue-router/runtime
     // 'definePage',
   ],
-  'unplugin-vue-router/runtime': ['definePage'],
+  'unplugin-vue-router/runtime': [],
 }

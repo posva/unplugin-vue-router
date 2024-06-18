@@ -13,6 +13,7 @@ export * from './data-loaders'
  * @deprecated - use `definePage` instead
  */
 export const _definePage = (route: DefinePage) => route
+
 /**
  * Defines properties of the route for the current page component.
  *

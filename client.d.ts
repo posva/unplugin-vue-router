@@ -32,4 +32,9 @@ declare module 'vue-router/auto' {
   // export { defineColadaLoader } from 'unplugin-vue-router/data-loaders/pinia-colada'
 }
 
+// Make the macros globally available
+declare global {
+  const definePage: (typeof import('unplugin-vue-router/runtime'))['definePage']
+}
+
 export {}
