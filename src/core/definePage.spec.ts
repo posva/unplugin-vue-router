@@ -153,6 +153,24 @@ definePage({
     expect(result?.code).toMatchInlineSnapshot()
   })
 
+  it('throws if definePage uses a variable from the setup', async () => {
+    const code = `
+<script setup>
+const a = 1
+definePage({
+  name: a,
+})
+</script>
+`
+    // the function syntax works with sync and async errors
+    await expect(async () => {
+      await definePageTransform({
+        code,
+        id: 'src/pages/basic.vue&definePage&vue',
+      })
+    }).rejects.toThrowError()
+  })
+
   it('extracts name and path', async () => {
     expect(
       await extractDefinePageNameAndPath(sampleCode, 'src/pages/basic.vue')
