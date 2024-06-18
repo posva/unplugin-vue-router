@@ -3,7 +3,7 @@ import { TreeNode, PrefixTree } from './tree'
 import { promises as fs } from 'fs'
 import { asRoutePath, ImportsMap, logTree, throttle } from './utils'
 import { generateRouteNamedMap } from '../codegen/generateRouteMap'
-import { MODULE_ROUTES_PATH, MODULE_VUE_ROUTER } from './moduleConstants'
+import { MODULE_ROUTES_PATH, MODULE_VUE_ROUTER_AUTO } from './moduleConstants'
 import { generateRouteRecord } from '../codegen/generateRouteRecords'
 import fg from 'fast-glob'
 import { relative, resolve } from 'pathe'
@@ -202,7 +202,7 @@ export function createRoutesContext(options: ResolvedOptions) {
 
   function generateDTS(): string {
     return _generateDTS({
-      vueRouterModule: MODULE_VUE_ROUTER,
+      vueRouterModule: MODULE_VUE_ROUTER_AUTO,
       routesModule: MODULE_ROUTES_PATH,
       routeNamedMap: generateRouteNamedMap(routeTree),
     })

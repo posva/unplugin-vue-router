@@ -2,7 +2,7 @@ import { createUnplugin } from 'unplugin'
 import { createRoutesContext } from './core/context'
 import {
   MODULE_ROUTES_PATH,
-  MODULE_VUE_ROUTER,
+  MODULE_VUE_ROUTER_AUTO,
   getVirtualId as _getVirtualId,
   asVirtualId as _asVirtualId,
   routeBlockQueryRE,
@@ -64,13 +64,14 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
     enforce: 'pre',
 
     resolveId(id) {
-      if (id === MODULE_ROUTES_PATH) {
+      if (
+        // vue-router/auto-routes
+        id === MODULE_ROUTES_PATH ||
+        // NOTE: it wasn't possible to override or add new exports to vue-router
+        // so we need to override it with a different package name
+        id === MODULE_VUE_ROUTER_AUTO
+      ) {
         // virtual module
-        return asVirtualId(id)
-      }
-      // NOTE: it wasn't possible to override or add new exports to vue-router
-      // so we need to override it with a different package name
-      if (id === MODULE_VUE_ROUTER) {
         return asVirtualId(id)
       }
 
@@ -78,7 +79,9 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
       if (routeBlockQueryRE.test(id)) {
         return ROUTE_BLOCK_ID
       }
-      return undefined // ok TS...
+
+      // nothing to do, just for TS
+      return
     },
 
     buildStart() {
@@ -106,12 +109,14 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
       if (id === ROUTE_BLOCK_ID) return true
       const resolvedId = getVirtualId(id)
       return (
-        resolvedId === MODULE_ROUTES_PATH || resolvedId === MODULE_VUE_ROUTER
+        resolvedId === MODULE_ROUTES_PATH ||
+        resolvedId === MODULE_VUE_ROUTER_AUTO
       )
     },
 
     load(id) {
       // remove the <route> block as it's parsed by the plugin
+      // stub it with an empty module
       if (id === ROUTE_BLOCK_ID) {
         return {
           code: `export default {}`,
@@ -130,7 +135,7 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
       }
 
       // vue-router/auto
-      if (resolvedId === MODULE_VUE_ROUTER) {
+      if (resolvedId === MODULE_VUE_ROUTER_AUTO) {
         return ctx.generateVueRouterProxy()
       }
 
