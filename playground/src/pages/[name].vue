@@ -42,15 +42,17 @@ export default {}
 </script>
 
 <script lang="ts" setup>
-import { onBeforeRouteLeave, onBeforeRouteUpdate } from 'vue-router/auto'
-import type { RouterTyped, RouteRecordRaw } from 'vue-router/auto'
-import type { RouteLocationNormalized } from 'vue-router/auto'
+import {
+  onBeforeRouteLeave,
+  onBeforeRouteUpdate,
+  type RouteLocationNormalized,
+} from 'vue-router/auto'
 
 const thing = 'THING'
 
 // const $route = useRoute()
 
-const { data: user, isLoading, refresh } = useUserData()
+const { data: user, isLoading, reload } = useUserData()
 
 const { data: one } = useOne()
 const { data: two } = useTwo()
