@@ -5,7 +5,7 @@ import {
   MagicString,
   checkInvalidScopeReference,
 } from '@vue-macros/common'
-import { Thenable, TransformResult } from 'unplugin'
+import type { Thenable, TransformResult } from 'unplugin'
 import type {
   CallExpression,
   Node,
@@ -16,6 +16,7 @@ import type {
 import { walkAST } from 'ast-walker-scope'
 import { CustomRouteBlock } from './customBlock'
 import { warn } from './utils'
+import { ParsedStaticImport, findStaticImports, parseStaticImport } from 'mlly'
 
 const MACRO_DEFINE_PAGE = 'definePage'
 const MACRO_DEFINE_PAGE_QUERY = /[?&]definePage\b/
@@ -83,20 +84,71 @@ export function definePageTransform({
 
     const scriptBindings = setupAst?.body ? getIdentifiers(setupAst.body) : []
 
+    // this will throw if a property from the script setup is used in definePage
     checkInvalidScopeReference(routeRecord, MACRO_DEFINE_PAGE, scriptBindings)
-
-    // NOTE: this doesn't seem to be any faster than using MagicString
-    // return (
-    //   'export default ' +
-    //   code.slice(
-    //     setupOffset + routeRecord.start!,
-    //     setupOffset + routeRecord.end!
-    //   )
-    // )
 
     s.remove(setupOffset + routeRecord.end!, code.length)
     s.remove(0, setupOffset + routeRecord.start!)
     s.prepend(`export default `)
+
+    // find all static imports and filter out the ones that are not used
+    const staticImports = findStaticImports(code)
+
+    const usedIds = new Set<string>()
+    const localIds = new Set<string>()
+
+    walkAST(routeRecord, {
+      enter(node) {
+        // skip literal keys from object properties
+        if (
+          this.parent?.type === 'ObjectProperty' &&
+          this.parent.key === node &&
+          // still track computed keys [a + b]: 1
+          !this.parent.computed &&
+          node.type === 'Identifier'
+        ) {
+          this.skip()
+        } else if (
+          // filter out things like 'log' in console.log
+          this.parent?.type === 'MemberExpression' &&
+          this.parent.property === node &&
+          !this.parent.computed &&
+          node.type === 'Identifier'
+        ) {
+          this.skip()
+          // types are stripped off so we can skip them
+        } else if (node.type === 'TSTypeAnnotation') {
+          this.skip()
+          // track everything else
+        } else if (node.type === 'Identifier' && !localIds.has(node.name)) {
+          usedIds.add(node.name)
+          // track local ids that could shadow an import
+        } else if ('scopeIds' in node && node.scopeIds instanceof Set) {
+          // avoid adding them to the usedIds list
+          for (const id of node.scopeIds as Set<string>) {
+            localIds.add(id)
+          }
+        }
+      },
+      leave(node) {
+        if ('scopeIds' in node && node.scopeIds instanceof Set) {
+          // clear out local ids
+          for (const id of node.scopeIds as Set<string>) {
+            localIds.delete(id)
+          }
+        }
+      },
+    })
+
+    for (const imp of staticImports) {
+      const importCode = generateFilteredImportStatement(
+        parseStaticImport(imp),
+        usedIds
+      )
+      if (importCode) {
+        s.prepend(importCode + '\n')
+      }
+    }
 
     return generateTransform(s, id)
   } else {
@@ -218,4 +270,49 @@ const getIdentifiers = (stmts: Statement[]) => {
   )
 
   return ids
+}
+
+/**
+ * Generate a filtere import statement based on a set of identifiers that should be kept.
+ *
+ * @param parsedImports - parsed imports with mlly
+ * @param usedIds - set of used identifiers
+ * @returns `null` if no import statement should be generated, otherwise the import statement as a string without a newline
+ */
+function generateFilteredImportStatement(
+  parsedImports: ParsedStaticImport,
+  usedIds: Set<string>
+) {
+  if (!parsedImports || usedIds.size < 1) return null
+
+  const { namedImports, defaultImport, namespacedImport } = parsedImports
+
+  if (namespacedImport && usedIds.has(namespacedImport)) {
+    return `import * as ${namespacedImport} from '${parsedImports.specifier}'`
+  }
+
+  let importListCode = ''
+  if (defaultImport && usedIds.has(defaultImport)) {
+    importListCode += defaultImport
+  }
+
+  let namedImportListCode = ''
+  for (const importName in namedImports) {
+    if (usedIds.has(importName)) {
+      // add comma if we have more than one named import
+      namedImportListCode += namedImportListCode ? `, ` : ''
+
+      namedImportListCode +=
+        importName === namedImports[importName]
+          ? importName
+          : `${importName} as ${namedImports[importName]}`
+    }
+  }
+
+  importListCode += importListCode && namedImportListCode ? ', ' : ''
+  importListCode += namedImportListCode ? `{${namedImportListCode}}` : ''
+
+  if (!importListCode) return null
+
+  return `import ${importListCode} from '${parsedImports.specifier}'`
 }

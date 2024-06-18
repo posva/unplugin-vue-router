@@ -1,5 +1,50 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`definePage > imports > keeps used default imports 1`] = `
+"import my_var from './lib'
+export default {
+  meta: {
+    [my_var]: 'hello',
+  }
+  }"
+`;
+
+exports[`definePage > imports > keeps used named imports 1`] = `
+"import {my_var, my_func, my_num} from './lib'
+export default {
+  meta: {
+    [my_var]: 'hello',
+    other: my_func,
+    custom() {
+      return my_num
+    }
+  }
+}"
+`;
+
+exports[`definePage > imports > removes default import if not used 1`] = `"export default {name: 'ok'}"`;
+
+exports[`definePage > imports > removes star imports if not used 1`] = `"export default {name: 'ok'}"`;
+
+exports[`definePage > imports > works when combining named and default imports 1`] = `
+"import my_var, {my_func} from './lib'
+export default {
+  meta: {
+    [my_var]: 'hello',
+    other: my_func,
+  }
+}"
+`;
+
+exports[`definePage > imports > works with star imports 1`] = `
+"import * as lib from './my-lib'
+export default {
+  meta: {
+    [lib.my_var]: 'hello',
+  }
+  }"
+`;
+
 exports[`definePage > removes definePage 1`] = `
 "
 <script setup>

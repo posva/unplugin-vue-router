@@ -42,6 +42,8 @@ export default {}
 </script>
 
 <script lang="ts" setup>
+import { dummy, dummy_id, dummy_number } from '@/utils'
+import * as dummy_star from '@/utils'
 import {
   onBeforeRouteLeave,
   onBeforeRouteUpdate,
@@ -102,10 +104,22 @@ definePage({
   // name: 'my-name',
   alias: ['/n/:name'],
   meta: {
+    [dummy_id]: 'id',
+    fixed: dummy_number,
     // hello: 'there',
     mySymbol: Symbol(),
-    test: (to: RouteLocationNormalized) =>
-      console.log(to.name === '/[name]' ? to.params.name : 'nope'),
+    ['hello' + 'expr']: true,
+    test: (to: RouteLocationNormalized) => {
+      // this one should crash it
+      // anyRoute.params
+      const shadow = 'nope'
+      // dummy(shadow)
+      dummy_star
+      if (Math.random()) {
+        console.log(typeof dummy)
+      }
+      console.log(to.name === '/[name]' ? to.params.name : shadow)
+    },
   },
 })
 

@@ -34,3 +34,10 @@ export function useParamMatcher<Name extends keyof RouteNamedMap>(
 
   onUnmounted(removeGuard)
 }
+
+export function dummy(arg: unknown) {
+  return 'ok'
+}
+
+export const dummy_id = 'dummy_id'
+export const dummy_number = 42
