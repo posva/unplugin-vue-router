@@ -3,11 +3,7 @@ import { TreeNode, PrefixTree } from './tree'
 import { promises as fs } from 'fs'
 import { asRoutePath, ImportsMap, logTree, throttle } from './utils'
 import { generateRouteNamedMap } from '../codegen/generateRouteMap'
-import {
-  MODULE_ROUTES_PATH,
-  MODULE_VUE_ROUTER_AUTO,
-  asVirtualId,
-} from './moduleConstants'
+import { MODULE_ROUTES_PATH, MODULE_VUE_ROUTER_AUTO } from './moduleConstants'
 import { generateRouteRecord } from '../codegen/generateRouteRecords'
 import fg from 'fast-glob'
 import { relative, resolve } from 'pathe'
