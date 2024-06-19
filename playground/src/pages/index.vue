@@ -14,5 +14,10 @@ definePage({
 </template>
 
 <route lang="json">
-{ "name": "home" }
+{
+  "name": "home",
+  "meta": {
+    "n": 5
+  }
+}
 </route>

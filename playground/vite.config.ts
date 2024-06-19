@@ -77,8 +77,6 @@ export default defineConfig({
         // can add multiple routes folders
         {
           src: 'src/pages',
-          // can even add params
-          // path: '[lang]/',
         },
         {
           src: 'src/docs',

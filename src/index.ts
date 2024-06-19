@@ -20,6 +20,7 @@ import { createViteContext } from './core/vite'
 import { createFilter } from '@rollup/pluginutils'
 import { join } from 'pathe'
 import { appendExtensionListToPattern } from './core/utils'
+import { MACRO_DEFINE_PAGE_QUERY } from './core/definePage'
 
 export * from './types'
 
@@ -99,7 +100,7 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
     },
 
     transform(code, id) {
-      // console.log('👋 ', id)
+      // console.log('👋  Transforming', id)
       // remove the `definePage()` from the file or isolate it
       return ctx.definePageTransform(code, id)
     },
@@ -146,6 +147,39 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
     vite: {
       configureServer(server) {
         ctx.setServerContext(createViteContext(server))
+      },
+
+      handleHotUpdate: {
+        order: 'post',
+        handler({ server, file, modules }) {
+          // console.log(`🔥 HMR ${file}`)
+          const moduleList = server.moduleGraph.getModulesByFile(file)
+          const definePageModule = Array.from(moduleList || []).find((mod) => {
+            return mod?.id && MACRO_DEFINE_PAGE_QUERY.test(mod.id)
+          })
+
+          if (definePageModule) {
+            // console.log(`Updating ${definePageModule.file}`)
+            const routesModule = server.moduleGraph.getModuleById(
+              asVirtualId(MODULE_ROUTES_PATH)
+            )
+
+            if (!routesModule) {
+              console.error('🔥 HMR routes module not found')
+              return
+            }
+
+            return [
+              ...modules,
+              // TODO: only if the definePage changed
+              definePageModule,
+              // TODO: only if ether the definePage or the route block changed
+              routesModule,
+            ]
+          }
+
+          return // for ts
+        },
       },
     },
   }

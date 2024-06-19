@@ -19,7 +19,7 @@ import { warn } from './utils'
 import { ParsedStaticImport, findStaticImports, parseStaticImport } from 'mlly'
 
 const MACRO_DEFINE_PAGE = 'definePage'
-const MACRO_DEFINE_PAGE_QUERY = /[?&]definePage\b/
+export const MACRO_DEFINE_PAGE_QUERY = /[?&]definePage\b/
 
 function isStringLiteral(node: Node | null | undefined): node is StringLiteral {
   return node?.type === 'StringLiteral'

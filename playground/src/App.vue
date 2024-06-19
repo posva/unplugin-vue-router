@@ -8,32 +8,37 @@ import type {
 import { ref } from 'vue'
 import { routes } from 'vue-router/auto-routes'
 
-function test(
-  a: RouteLocationResolved<'/[name]'>,
-  b: RouteLocationNormalizedLoaded<'/[name]'>,
-  c: RouteLocation<'/[name]'>
-) {}
-
-const route = useRoute()
-if (route.name === '/deep/nesting/works/[[files]]+') {
-  route.params.files
-}
-
 console.log(`We have ${routes.length} routes.`)
 
 const router = useRouter()
+const route = useRoute()
 
-router.resolve('/:name')
-router.resolve({ name: '/[name]', params: { name: 'hello' } }).params.name
+const targetRoute = ref('')
 
-useLink({ to: '/articles/2' }).route.value.name
-useLink({ to: { path: '/articles/:id' } })
-useLink({ to: { name: '/[name]', params: { name: 2 } } }).route.value.params
-  .name
-// useLink({ name: '/[name]', params: { name: 2 } }).route.value.params.name
-useLink({ to: ref({ name: '/[name]', params: { name: 2 } }) }).route.value.name
+function _test() {
+  function test(
+    a: RouteLocationResolved<'/[name]'>,
+    b: RouteLocationNormalizedLoaded<'/[name]'>,
+    c: RouteLocation<'/[name]'>
+  ) {}
 
-const customRoute = useRoute('/deep/nesting/works/custom-path')
+  if (route.name === '/deep/nesting/works/[[files]]+') {
+    route.params.files
+  }
+
+  router.resolve('/:name')
+  router.resolve({ name: '/[name]', params: { name: 'hello' } }).params.name
+
+  useLink({ to: '/articles/2' }).route.value.name
+  useLink({ to: { path: '/articles/:id' } })
+  useLink({ to: { name: '/[name]', params: { name: 2 } } }).route.value.params
+    .name
+  // useLink({ name: '/[name]', params: { name: 2 } }).route.value.params.name
+  useLink({ to: ref({ name: '/[name]', params: { name: 2 } }) }).route.value
+    .name
+
+  const customRoute = useRoute('/deep/nesting/works/custom-path')
+}
 </script>
 
 <template>
@@ -93,7 +98,18 @@ const customRoute = useRoute('/deep/nesting/works/custom-path')
         </RouterLink>
       </nav>
     </div>
+    <div>
+      <form @submit.prevent="router.push(targetRoute)">
+        <label>
+          Navigate to:
+          <input type="text" v-model="targetRoute" />
+        </label>
+        <button>Go</button>
+      </form>
+    </div>
   </header>
+
+  <hr />
 
   <RouterView />
   <hr />

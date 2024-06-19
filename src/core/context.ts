@@ -107,12 +107,14 @@ export function createRoutesContext(options: ResolvedOptions) {
 
   async function writeRouteInfoToNode(node: TreeNode, filePath: string) {
     const content = await fs.readFile(filePath, 'utf8')
-    // TODO: cache the result of parsing the SFC so the transform can reuse the parsing
+    // TODO: cache the result of parsing the SFC (in the extractDefinePageAndName) so the transform can reuse the parsing
     node.hasDefinePage ||= content.includes('definePage')
+    // TODO: track if it changed and to not always trigger HMR
     const definedPageNameAndPath = extractDefinePageNameAndPath(
       content,
       filePath
     )
+    // TODO: track if it changed and if generateRoutes should be called again
     const routeBlock = getRouteBlock(filePath, content, options)
     // TODO: should warn if hasDefinePage and customRouteBlock
     // if (routeBlock) logger.log(routeBlock)
@@ -120,13 +122,6 @@ export function createRoutesContext(options: ResolvedOptions) {
       ...routeBlock,
       ...definedPageNameAndPath,
     })
-
-    // TODO: if definePage changed
-    server?.invalidate(filePath + '?definePage&vue&lang.tsx')
-    server?.invalidate(asVirtualId(MODULE_ROUTES_PATH))
-
-    // TODO: only if needed
-    // server?.updateRoutes()
   }
 
   async function addPage(
@@ -134,15 +129,15 @@ export function createRoutesContext(options: ResolvedOptions) {
     triggerExtendRoute = false
   ) {
     logger.log(`added "${routePath}" for "${filePath}"`)
-    // TODO: handle top level named view HMR
-
     const node = routeTree.insert(routePath, filePath)
-
     await writeRouteInfoToNode(node, filePath)
 
     if (triggerExtendRoute) {
       await options.extendRoute?.(new EditableTreeNode(node))
     }
+
+    // TODO: trigger HMR vue-router/auto
+    server?.updateRoutes()
   }
 
   async function updatePage({ filePath, routePath }: HandlerContext) {
@@ -154,11 +149,15 @@ export function createRoutesContext(options: ResolvedOptions) {
     }
     await writeRouteInfoToNode(node, filePath)
     await options.extendRoute?.(new EditableTreeNode(node))
+    // no need to manually trigger the update of vue-router/auto-routes because
+    // the change of the vue file will trigger HMR
   }
 
   function removePage({ filePath, routePath }: HandlerContext) {
     logger.log(`remove "${routePath}" for "${filePath}"`)
     routeTree.removeChild(filePath)
+    // TODO: HMR vue-router/auto
+    server?.updateRoutes()
   }
 
   function setupWatcher(watcher: RoutesFolderWatcher) {
@@ -182,16 +181,37 @@ export function createRoutesContext(options: ResolvedOptions) {
     // unlinkDir event
   }
 
-  let lastAutoRoutes: string | undefined
   function generateRoutes() {
     const importsMap = new ImportsMap()
 
-    const routesExport = `export const routes = ${generateRouteRecord(
+    const routeList = `export const routes = ${generateRouteRecord(
       routeTree,
       options,
       importsMap
-    )}`
-    // TODO: should we put some HMR code for routes here or should it be at the router creation level (that would be easier to replace the routes)
+    )}\n`
+
+    let hmr = `
+export function handleHotUpdate(_router) {
+  if (import.meta.hot) {
+    import.meta.hot.data.router = _router
+  }
+}
+
+if (import.meta.hot) {
+  import.meta.hot.accept((mod) => {
+    const router = import.meta.hot.data.router
+    if (!router) {
+      console.error('❌ router not found')
+      return
+    }
+    router.clearRoutes()
+    for (const route of mod.routes) {
+      router.addRoute(route)
+    }
+    router.replace('')
+  })
+}
+`
 
     // generate the list of imports
     let imports = importsMap.toString()
@@ -200,13 +220,7 @@ export function createRoutesContext(options: ResolvedOptions) {
       imports += '\n'
     }
 
-    const newAutoRoutes = `${imports}${routesExport}\n`
-
-    if (lastAutoRoutes !== newAutoRoutes) {
-      // cache hit, triigger HMR (not working yet)
-      server?.updateRoutes()
-      lastAutoRoutes = newAutoRoutes
-    }
+    const newAutoRoutes = `${imports}${routeList}${hmr}\n`
 
     // prepend it to the code
     return newAutoRoutes

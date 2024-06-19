@@ -16,7 +16,10 @@ export const ROUTES_LAST_LOAD_TIME = {
   },
 }
 
-export const VIRTUAL_PREFIX = 'virtual:'
+// using \0 like recommended in docs makes the module not be parsed by vite
+// and all of its imports are never refreshed
+// having /__ makes the file go through import analysis and adds timestamps to the imports
+export const VIRTUAL_PREFIX = '/__'
 
 // allows removing the route block from the code
 export const ROUTE_BLOCK_ID = `${VIRTUAL_PREFIX}/vue-router/auto/route-block`

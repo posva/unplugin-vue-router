@@ -7,7 +7,7 @@ export function createViteContext(server: ViteDevServer): ServerContext {
     const { moduleGraph } = server
     const foundModule = moduleGraph.getModuleById(path)
     if (foundModule) {
-      moduleGraph.invalidateModule(foundModule)
+      moduleGraph.invalidateModule(foundModule, undefined, undefined, true)
       // for (const mod of foundModule.importers) {
       //   console.log(`Invalidating ${mod.url}`)
       //   moduleGraph.invalidateModule(mod)
@@ -45,26 +45,17 @@ export function createViteContext(server: ViteDevServer): ServerContext {
 
   async function updateRoutes() {
     const modId = asVirtualId(MODULE_ROUTES_PATH)
-    server.moduleGraph.onFileChange(modId)
     const mod = server.moduleGraph.getModuleById(modId)
     if (!mod) {
       return
     }
-    // server.moduleGraph.invalidateModule(mod)
-    // await new Promise((r) => setTimeout(r, 10))
-    // console.log(
-    //   `${mod.url}\n${modId}\n`,
-    //   mod.lastInvalidationTimestamp,
-    //   ROUTES_LAST_LOAD_TIME.value
-    // )
+    server.moduleGraph.invalidateModule(mod)
     server.ws.send({
       type: 'update',
       updates: [
         {
           acceptedPath: mod.url,
           path: mod.url,
-          // NOTE: this was in the
-          // timestamp: ROUTES_LAST_LOAD_TIME.value,
           timestamp: Date.now(),
           type: 'js-update',
         },
