@@ -1,3 +1,25 @@
+# [0.10.0](https://github.com/posva/unplugin-vue-router/compare/v0.9.1...v0.10.0) (2024-06-21)
+
+### Bug Fixes
+
+- **types:** use native vue-router types ([5c1b6c3](https://github.com/posva/unplugin-vue-router/commit/5c1b6c3078984d9c83c5de1344b18beb891d0fbb))
+
+### Features
+
+- allow imported values in definePage ([a113a2d](https://github.com/posva/unplugin-vue-router/commit/a113a2d765aac884ca5a11adb4cba644d1515cc1)), closes [#317](https://github.com/posva/unplugin-vue-router/issues/317)
+- handle hmr for pages ([4925e7e](https://github.com/posva/unplugin-vue-router/commit/4925e7e8ba68cace344bbc008671c6667408b089)), closes [#292](https://github.com/posva/unplugin-vue-router/issues/292) [#404](https://github.com/posva/unplugin-vue-router/issues/404)
+- **hmr:** reload if cannot update ([6044b94](https://github.com/posva/unplugin-vue-router/commit/6044b940690d6285c0426f85162329ef2683c3f5))
+- make `definePage()` globally available ([7a57597](https://github.com/posva/unplugin-vue-router/commit/7a575974a78dfd597e5cea5d6917ff72befc567d))
+- support TS in definePage ([4fbff23](https://github.com/posva/unplugin-vue-router/commit/4fbff23666bb3fcf9ad7fcbc0d6ceda9d2c45d7f)), closes [#57](https://github.com/posva/unplugin-vue-router/issues/57) [#238](https://github.com/posva/unplugin-vue-router/issues/238)
+
+### Performance Improvements
+
+- avoid double file read ([07f2777](https://github.com/posva/unplugin-vue-router/commit/07f27770234b69291099fcc3563f70b3914ec91a)), closes [#292](https://github.com/posva/unplugin-vue-router/issues/292)
+
+### BREAKING CHANGES
+
+This version requires vue-router@4.4.0 or higher. The `unplugin-vue-router/types` no longer export all of the generic types from `vue-router`. Instead, import them directly from `vue-router`.
+
 ## [0.9.1](https://github.com/posva/unplugin-vue-router/compare/v0.9.0...v0.9.1) (2024-06-07)
 
 ### Bug Fixes
