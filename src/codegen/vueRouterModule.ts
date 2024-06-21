@@ -12,12 +12,11 @@ export function generateVueRouterProxy(
 import { createRouter as _createRouter } from 'vue-router'
 
 export * from 'vue-router'
+export { definePage } from 'unplugin-vue-router/runtime'
 export {
-  definePage,
-  // new data fetching
   DataLoaderPlugin,
   NavigationResult,
-} from 'unplugin-vue-router/runtime'
+} from 'unplugin-vue-router/data-loaders'
 
 export * from 'unplugin-vue-router/data-loaders/basic'
 ${addPiniaColada ? "export * from 'unplugin-vue-router/data-loaders/pinia-colada'" : ''}

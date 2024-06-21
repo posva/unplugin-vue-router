@@ -13,6 +13,7 @@ import {
   type DataLoaderContextBase,
   type DefineDataLoaderOptionsBase,
   type UseDataLoader,
+  // TODO: move to /data-loaders
 } from 'unplugin-vue-router/runtime'
 import { mockPromise } from '../utils'
 import RouterViewMock from '../data-loaders/RouterViewMock.vue'

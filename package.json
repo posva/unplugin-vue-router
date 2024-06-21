@@ -93,6 +93,14 @@
       "require": "./dist/types.cjs",
       "import": "./dist/types.js"
     },
+    "./data-loaders": {
+      "types": {
+        "require": "./dist/data-loaders/index.d.cts",
+        "import": "./dist/data-loaders/index.d.ts"
+      },
+      "require": "./dist/data-loaders/index.cjs",
+      "import": "./dist/data-loaders/index.js"
+    },
     "./data-loaders/basic": {
       "types": {
         "require": "./dist/data-loaders/basic.d.cts",

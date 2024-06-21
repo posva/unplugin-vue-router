@@ -42,9 +42,9 @@ It's possible to override the route configuration directly in the page component
 
 ### `definePage()`
 
-You can modify and extend any page component with the `definePage()` macro from `vue-router/auto`. This is useful for adding meta information, or modifying the route object. If you have configured auto imports, you won't need to import `definePage` from `vue-router/auto` as it is already available.
+You can modify and extend any page component with the `definePage()` macro. This is useful for adding meta information, or modifying the route object. It's globally available in Vue components but you can import it from `unplugin-vue-router/runtime` if needed.
 
-```vue{2,4-9} twoslash
+```vue{2-7} twoslash
 <script setup lang="ts">
 // ---cut-start---
 import 'unplugin-vue-router/client'
@@ -53,8 +53,6 @@ export {}
 // ---cut-end---
 // @errors: 2322 2339
 // @moduleResolution: bundler
-import { definePage } from 'unplugin-vue-router/runtime'
-
 definePage({
   alias: ['/n/:name'],
   meta: {

@@ -207,7 +207,7 @@ export const VueRouterAutoImports: Record<
   string,
   Array<string | [importName: string, alias: string]>
 > = {
-  'vue-router/auto': [
+  'vue-router': [
     'useRoute',
     'useRouter',
     'onBeforeRouteUpdate',

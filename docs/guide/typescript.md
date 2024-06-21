@@ -13,7 +13,7 @@ This plugin generates a `d.ts` file with all the typing overrides when the dev o
 }
 ```
 
-Then, you will be able to import from `vue-router/auto` (instead of `vue-router`) to get access to the typed APIs.
+The generated _Route Map_ is picked up by `unplugin-vue-router/client` types and configures the `vue-router` types to be aware of the routes in your application. Making everything type safe!
 
 ::: tip
 You can commit the newly added `.d.ts` files to your repository to make your life easier.
@@ -33,17 +33,13 @@ router.push('')
 
 ## Extra types
 
-You can always take a look at the generated `typed-router.d.ts` file to inspect what are the generated types. `unplugin-vue-router` improves upon many of the existing types in `vue-router` and adds a few ones as well:
-
-### `RouteNamedMap`
-
-The `RouteNamedMap` interface gives you access to all the metadata associated with a route. It can also be extended to enable types for **dynamic routes** that are added during runtime.
+You can always take a look at the generated `typed-router.d.ts` file to inspect what are the generated types. `unplugin-vue-router` creates a `RouteNamedMap` interface and exports it from `'vue-router/auto-routes'`.
 
 ```ts
 import type { RouteNamedMap } from 'vue-router/auto-routes'
 ```
 
-Extending types with dynamically added routes:
+This interface contains all the routes in your application along with their metadata. Augment it to add types for **dynamic routes** that are added during runtime:
 
 ```ts
 export {} // needed in .d.ts files
@@ -70,27 +66,7 @@ declare module 'vue-router/auto-routes' {
 }
 ```
 
-### `Router`
-
-The `Router` type gives you access to the typed version of the router instance. It's also the _ReturnType_ of the `useRouter()` function.
-
-```ts
-import type { Router } from 'vue-router'
-```
-
-### `RouteLocationResolved`
-
-The `RouteLocationResolved` type exposed by `vue-router/auto` allows passing a generic (which autocomplete) to type a route **whenever checking the name doesn't makes sense because you know the type**. This is useful for cases like `<RouterLink v-slot="{ route }">`:
-
-```vue
-<RouterLink v-slot="{ route }">
-  User {{ (route as RouteLocationResolved<'/users/[id]'>).params.id }}
-</RouterLink>
-```
-
-This type is also the return type of `router.resolve()`.
-
-You have the same equivalents for `RouteLocation`, `RouteLocationNormalized`, and `RouteLocationNormalizedLoaded`. All of them exist in `vue-router` but `vue-router/auto` override them to provide a type safe version of them. In addition to that, you can pass the name of the route as a generic:
+You can now pass a _type param_ to the generic route location types to narrow down the type of the route:
 
 ```ts twoslash
 // ---cut-start---

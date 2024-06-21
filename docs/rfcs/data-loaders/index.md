@@ -203,7 +203,7 @@ You might only be interested in trying out Data Loaders. In that case, check out
 ```ts{2,9}
 import { createApp } from 'vue'
 import { createRouter } from 'vue-router'
-import { DataLoaderPlugin } from 'vue-router/auto'
+import { DataLoaderPlugin } from 'unplugin-vue-router/data-loaders'
 
 const router = createRouter({
   // ...
@@ -564,7 +564,7 @@ Since navigation loaders can run in parallel, they can return different navigati
 import 'unplugin-vue-router/client'
 import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
-import { DataLoaderPlugin } from 'vue-router/auto'
+import { DataLoaderPlugin } from 'unplugin-vue-router/data-loaders'
 const app = createApp({})
 const router = createRouter({
   history: createWebHistory(),
@@ -598,7 +598,7 @@ By default, `selectNavigation` returns the first value of the array.
 If a loader wants to eagerly alter the navigation, it can `throw` the `NavigationResult` instead of returning it. This skips the `selectNavigationResult()` and take precedence without triggering `router.onError()`.
 
 ```ts{10-15}
-import { NavigationResult } from 'vue-router/auto'
+import { NavigationResult } from 'unplugin-vue-router/data-loaders'
 
 export const useUserData = defineLoader(
   async (to) => {
@@ -829,10 +829,6 @@ export const useBookCollection = defineLoader(async (_route, { signal }) => {
 This aligns with the future [Navigation API](https://github.com/WICG/navigation-api#navigation-monitoring-and-interception) and other web APIs that use the `AbortSignal` to cancel an ongoing invocation.
 
 ### Implementations
-
-::: info
-Ideally, we would import from `vue-router/auto`. This should be added by [unplugin-vue-router][uvr] but given the current state, we need to import from `unplugin-vue-router/data-loaders/...`.
-:::
 
 ### Interfaces
 

@@ -21,6 +21,9 @@
       "unplugin-vue-router/types": [
         "../src/types"
       ],
+      "unplugin-vue-router/data-loaders": [
+        "../src/data-loaders/index"
+      ],
       "unplugin-vue-router/data-loaders/basic": [
         "../src/data-loaders/basic"
       ],

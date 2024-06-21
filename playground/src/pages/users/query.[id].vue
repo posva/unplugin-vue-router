@@ -6,7 +6,7 @@ import { type RouteRecordName } from 'vue-router'
 import { computed } from 'vue'
 const a: RouteRecordName = '/articles'
 
-// import type { RouteLocationNormalized, _RouteLocationNormalized } from 'vue-router/auto'
+// import type { RouteLocationNormalized, _RouteLocationNormalized } from 'vue-router'
 import type {
   RouteLocationNormalized,
   RouteLocationNormalized as _RouteLocationNormalized,
