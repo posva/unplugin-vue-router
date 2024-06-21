@@ -48,7 +48,7 @@ import {
   onBeforeRouteLeave,
   onBeforeRouteUpdate,
   type RouteLocationNormalized,
-} from 'vue-router/auto'
+} from 'vue-router'
 
 const thing = 'THING'
 
