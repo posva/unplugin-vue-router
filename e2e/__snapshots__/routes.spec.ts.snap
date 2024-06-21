@@ -118,6 +118,28 @@ exports[`e2e routes > generates the routes 1`] = `
     /* no children */
   }
 ]
+
+export function handleHotUpdate(_router) {
+  if (import.meta.hot) {
+    import.meta.hot.data.router = _router
+  }
+}
+
+if (import.meta.hot) {
+  import.meta.hot.accept((mod) => {
+    const router = import.meta.hot.data.router
+    if (!router) {
+      import.meta.hot.invalidate('[unplugin-vue-router:HMR] Cannot replace the routes because there is no active router. Reloading.')
+      return
+    }
+    router.clearRoutes()
+    for (const route of mod.routes) {
+      router.addRoute(route)
+    }
+    router.replace('')
+  })
+}
+
 "
 `;
 

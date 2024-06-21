@@ -197,7 +197,7 @@ if (import.meta.hot) {
   import.meta.hot.accept((mod) => {
     const router = import.meta.hot.data.router
     if (!router) {
-      console.error('❌ router not found')
+      import.meta.hot.invalidate('[unplugin-vue-router:HMR] Cannot replace the routes because there is no active router. Reloading.')
       return
     }
     router.clearRoutes()
