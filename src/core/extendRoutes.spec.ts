@@ -261,7 +261,7 @@ describe('EditableTreeNode', () => {
     childNode.path = 'baz'
     node.path = 'baz'
     editable.path = 'baz'
-    expect(editable.path).toBe('');
+    expect(editable.path).toBe('')
     expect(node.path).toBe('/foo')
     expect(childNode.path).toBe('baz')
     childNode.path = '/baz'
@@ -270,7 +270,7 @@ describe('EditableTreeNode', () => {
     expect(node.path).toBe('/baz')
     editable.path = '/baz'
     node.path = 'baz'
-    expect(editable.path).toBe('/baz');
+    expect(editable.path).toBe('/baz')
     expect(node.path).toBe('baz')
   })
 })
