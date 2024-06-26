@@ -12,6 +12,7 @@ import {
 } from '../src'
 import Vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
+import VueDevtools from 'vite-plugin-vue-devtools'
 
 export default defineConfig({
   clearScreen: false,
@@ -125,6 +126,7 @@ export default defineConfig({
         },
       ],
     }),
+    VueDevtools(),
     Inspect(),
   ],
   resolve: {
