@@ -1,6 +1,6 @@
 # unplugin-vue-router
 
-[![NPM version](https://img.shields.io/npm/v/unplugin-vue-router?color=black&label=)](https://www.npmjs.com/package/unplugin-vue-router) [![ci status](https://github.com/posva/unplugin-vue-router/actions/workflows/ci.yml/badge.svg)](https://github.com/posva/unplugin-vue-router/actions/workflows/ci.yml)
+[![NPM version](https://img.shields.io/npm/v/unplugin-vue-router?color=black&label=)](https://www.npmjs.com/package/unplugin-vue-router) [![ci status](https://github.com/posva/unplugin-vue-router/actions/workflows/ci.yml/badge.svg)](https://github.com/posva/unplugin-vue-router/actions/workflows/ci.yml) [![codecov](https://codecov.io/gh/posva/unplugin-vue-router/graph/badge.svg?token=28IvHS7TAx)](https://codecov.io/gh/posva/unplugin-vue-router)
 
 > Automatic file based Routing in Vue with TS support ✨
 
