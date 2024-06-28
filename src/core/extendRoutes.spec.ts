@@ -255,16 +255,16 @@ describe('EditableTreeNode', () => {
   it('can override the path', () => {
     const tree = new PrefixTree(RESOLVED_OPTIONS)
     const editable = new EditableTreeNode(tree)
-    const parent = editable.insert('foo', 'file.vue')
-    const child = parent.insert('bar', 'file.vue')
+    const parent = editable.insert('parent', 'file.vue')
+    const child = parent.insert('child', 'file.vue')
 
-    child.path = 'baz'
-    parent.path = 'baz'
-    expect(parent.path).toBe('/foo')
-    expect(child.path).toBe('baz')
-    child.path = '/baz'
-    parent.path = '/baz'
-    expect(parent.path).toBe('/baz')
-    expect(parent.path).toBe('/baz')
+    child.path = 'relative'
+    parent.path = 'relative'
+    expect(parent.path).toBe('/parent')
+    expect(child.path).toBe('relative')
+    expect(child.fullPath).toBe('/parent/relative')
+    child.path = '/absolute'
+    expect(child.path).toBe('/absolute')
+    expect(child.fullPath).toBe('/absolute')
   })
 })
