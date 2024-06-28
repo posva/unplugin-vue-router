@@ -2,7 +2,6 @@ import type { TreeNode } from '../core/tree'
 import { generateRouteParams } from './generateRouteParams'
 
 export function generateRouteNamedMap(node: TreeNode): string {
-  // root
   if (node.isRoot()) {
     return `export interface RouteNamedMap {
 ${node.getSortedChildren().map(generateRouteNamedMap).join('')}}`
