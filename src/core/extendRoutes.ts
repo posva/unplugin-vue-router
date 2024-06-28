@@ -147,7 +147,7 @@ export class EditableTreeNode {
       !path.startsWith('/')
     ) {
       warn(
-        `Only absolute paths are supported at the root route. Make sure that "${path}" starts with a slash "/".`
+        `Only absolute paths are supported at the root of the route tree. Make sure that "${path}" starts with a slash "/".`
       )
       return
     }
