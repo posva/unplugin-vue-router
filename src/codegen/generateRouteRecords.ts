@@ -17,8 +17,7 @@ export function generateRouteRecord(
   importsMap: ImportsMap,
   indent = 0
 ): string {
-  // root
-  if (node.value.path === '/' && indent === 0) {
+  if (node.isRoot()) {
     return `[
 ${node
   .getSortedChildren()

@@ -246,7 +246,9 @@ export class TreeNode {
    * @returns true if the node is the root node
    */
   isRoot() {
-    return this.value.path === '/' && !this.value.components.size
+    return (
+      !this.parent && this.value.path === '/' && !this.value.components.size
+    )
   }
 
   toString(): string {
