@@ -181,7 +181,7 @@ export class EditableTreeNode {
    * Path of the route including parent paths.
    */
   get fullPath() {
-    return this.node.fullPath
+    return this.node.value.path;
   }
 
   /**

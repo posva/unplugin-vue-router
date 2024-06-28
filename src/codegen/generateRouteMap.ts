@@ -22,6 +22,6 @@ ${node.getSortedChildren().map(generateRouteNamedMap).join('')}}`
 
 export function generateRouteRecordInfo(node: TreeNode) {
   return `RouteRecordInfo<'${node.name}', '${
-    node.fullPath
+    node.value.path
   }', ${generateRouteParams(node, true)}, ${generateRouteParams(node, false)}>`
 }

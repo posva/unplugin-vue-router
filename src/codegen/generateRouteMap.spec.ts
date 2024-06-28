@@ -153,7 +153,7 @@ describe('generateRouteNamedMap', () => {
     const parent = tree.insert('parent', 'parent.vue')
     const child = tree.insert('parent/child', 'parent/child.vue')
     parent.value.setOverride('parent', { path: '/' })
-    expect(child.fullPath).toBe('/child')
+    expect(child.value.path).toBe('/child')
     expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
       "export interface RouteNamedMap {
         '/parent': RouteRecordInfo<'/parent', '/', Record<never, never>, Record<never, never>>,
