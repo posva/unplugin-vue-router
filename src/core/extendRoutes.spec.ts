@@ -257,14 +257,17 @@ describe('EditableTreeNode', () => {
     const editable = new EditableTreeNode(tree)
     const parent = editable.insert('parent', 'file.vue')
     const child = parent.insert('child', 'file.vue')
+    const grandChild = child.insert('grandchild', 'file.vue')
 
     child.path = 'relative'
     parent.path = 'relative'
     expect(parent.path).toBe('/parent')
     expect(child.path).toBe('relative')
     expect(child.fullPath).toBe('/parent/relative')
+    expect(grandChild.fullPath).toBe('/parent/relative/grandchild')
     child.path = '/absolute'
     expect(child.path).toBe('/absolute')
     expect(child.fullPath).toBe('/absolute')
+    expect(grandChild.fullPath).toBe('/absolute/grandchild')
   })
 })
