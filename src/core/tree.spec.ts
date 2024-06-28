@@ -413,7 +413,7 @@ describe('Tree', () => {
       path: '/custom-child',
     })
     expect(node.path).toBe('/custom-child')
-    expect(node.fullPath).toBe('/custom-child')
+    expect(node.fullPath).toBe('/auth/custom-child')
   })
 
   it('removes trailing slash from path but not from name', () => {
