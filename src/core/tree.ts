@@ -192,6 +192,13 @@ export class TreeNode {
   }
 
   /**
+     * Returns the route path of the node including parent paths.
+     */
+    get fullPath() {
+      return this.value.overrides.path?.startsWith('/') ? this.value.overrides.path : this.value.path
+    }
+
+  /**
    * Returns the route name of the node. If the name was overridden, it returns the override.
    */
   get name() {

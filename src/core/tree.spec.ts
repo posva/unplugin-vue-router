@@ -406,14 +406,14 @@ describe('Tree', () => {
       path: '/custom',
     })
     expect(node.path).toBe('/custom')
-    expect(node.value.path).toBe('/custom')
+    expect(node.fullPath).toBe('/custom')
 
     node = tree.insert('auth/login', 'auth/login.vue')
     node.value.setOverride('', {
       path: '/custom-child',
     })
     expect(node.path).toBe('/custom-child')
-    expect(node.value.path).toBe('/auth/custom-child')
+    expect(node.fullPath).toBe('/custom-child')
   })
 
   it('removes trailing slash from path but not from name', () => {
@@ -422,19 +422,19 @@ describe('Tree', () => {
     tree.insert('a/a', 'a/a.vue')
     let child = tree.children.get('a')!
     expect(child).toBeDefined()
-    expect(child.value.path).toBe('/a')
+    expect(child.fullPath).toBe('/a')
 
     child = tree.children.get('a')!.children.get('index')!
     expect(child).toBeDefined()
     expect(child.name).toBe('/a/')
-    expect(child.value.path).toBe('/a')
+    expect(child.fullPath).toBe('/a')
 
     // it stays the same with a parent component in the parent route record
     tree.insert('a', 'a.vue')
     child = tree.children.get('a')!.children.get('index')!
     expect(child).toBeDefined()
     expect(child.name).toBe('/a/')
-    expect(child.value.path).toBe('/a')
+    expect(child.fullPath).toBe('/a')
   })
 
   describe('dot nesting', () => {

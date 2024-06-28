@@ -37,7 +37,7 @@ describe('EditableTreeNode', () => {
     editable.insert('foo/bar', 'file.vue')
     expect(tree.children.size).toBe(1)
     expect(tree.children.get('foo/bar')?.children.size).toBe(0)
-    expect(tree.children.get('foo/bar')?.value.path).toBe('/foo/bar')
+    expect(tree.children.get('foo/bar')?.fullPath).toBe('/foo/bar')
     expect(tree.children.get('foo/bar')?.path).toBe('/foo/bar')
   })
 
@@ -62,7 +62,7 @@ describe('EditableTreeNode', () => {
     editable.insert(':id', 'file.vue')
     expect(tree.children.size).toBe(1)
     const child = tree.children.get(':id')!
-    expect(child.value.path).toBe('/:id')
+    expect(child.fullPath).toBe('/:id')
     expect(child.path).toBe('/:id')
     expect(child.params).toEqual([
       {
@@ -82,7 +82,7 @@ describe('EditableTreeNode', () => {
     editable.insert(':id+', 'file.vue')
     expect(tree.children.size).toBe(1)
     const child = tree.children.get(':id+')!
-    expect(child.value.path).toBe('/:id+')
+    expect(child.fullPath).toBe('/:id+')
     expect(child.path).toBe('/:id+')
     expect(child.params).toEqual([
       {
@@ -102,7 +102,7 @@ describe('EditableTreeNode', () => {
     editable.insert(':foo/:bar', 'file.vue')
     expect(tree.children.size).toBe(1)
     const node = tree.children.get(':foo/:bar')!
-    expect(node.value.path).toBe('/:foo/:bar')
+    expect(node.fullPath).toBe('/:foo/:bar')
     expect(node.path).toBe('/:foo/:bar')
     expect(node.params).toEqual([
       {
@@ -129,7 +129,7 @@ describe('EditableTreeNode', () => {
     editable.insert(':foo/:bar+_:o(\\d+)', 'file.vue')
     expect(tree.children.size).toBe(1)
     const node = tree.children.get(':foo/:bar+_:o(\\d+)')!
-    expect(node.value.path).toBe('/:foo/:bar+_:o(\\d+)')
+    expect(node.fullPath).toBe('/:foo/:bar+_:o(\\d+)')
     expect(node.path).toBe('/:foo/:bar+_:o(\\d+)')
     expect(node.params).toEqual([
       {
@@ -162,7 +162,7 @@ describe('EditableTreeNode', () => {
 
     editable.insert(':id(\\d+)', 'file.vue')
     const node = tree.children.get(':id(\\d+)')!
-    expect(node.value.path).toBe('/:id(\\d+)')
+    expect(node.fullPath).toBe('/:id(\\d+)')
     expect(node.path).toBe('/:id(\\d+)')
     expect(node.params).toEqual([
       {
@@ -181,7 +181,7 @@ describe('EditableTreeNode', () => {
 
     editable.insert(':id()', 'file.vue')
     const node = tree.children.get(':id()')!
-    expect(node.value.path).toBe('/:id()')
+    expect(node.fullPath).toBe('/:id()')
     expect(node.path).toBe('/:id()')
     expect(node.params).toEqual([
       {
@@ -200,7 +200,7 @@ describe('EditableTreeNode', () => {
 
     editable.insert(':id(\\d+)+', 'file.vue')
     const node = tree.children.get(':id(\\d+)+')!
-    expect(node.value.path).toBe('/:id(\\d+)+')
+    expect(node.fullPath).toBe('/:id(\\d+)+')
     expect(node.path).toBe('/:id(\\d+)+')
     expect(node.params).toEqual([
       {
@@ -219,7 +219,7 @@ describe('EditableTreeNode', () => {
 
     editable.insert(':id()+', 'file.vue')
     const node = tree.children.get(':id()+')!
-    expect(node.value.path).toBe('/:id()+')
+    expect(node.fullPath).toBe('/:id()+')
     expect(node.path).toBe('/:id()+')
     expect(node.params).toEqual([
       {
@@ -239,7 +239,7 @@ describe('EditableTreeNode', () => {
     editable.insert('/:path(.*)', 'file.vue')
     expect(tree.children.size).toBe(1)
     const child = tree.children.get(':path(.*)')!
-    expect(child.value.path).toBe('/:path(.*)')
+    expect(child.fullPath).toBe('/:path(.*)')
     expect(child.path).toBe('/:path(.*)')
     expect(child.params).toEqual([
       {
