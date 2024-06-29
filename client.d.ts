@@ -42,6 +42,7 @@ declare module 'vue-router/auto' {
     // Experimental Data Fetching
     definePage,
     DataLoaderPlugin,
+    preloadRoute,
     NavigationResult,
   } from 'unplugin-vue-router/runtime'
   // must be added to the virtual vue-router/auto

@@ -14,6 +14,7 @@ import type {
   NavigationGuard,
   NavigationGuardReturn,
   RouteLocationNormalizedLoaded,
+  RouteLocationRaw,
   Router,
 } from 'vue-router'
 import { type _Awaitable } from '../utils'
@@ -72,117 +73,22 @@ export function setupLoaderGuard({
       router[PENDING_LOCATION_KEY].meta[ABORT_CONTROLLER_KEY]?.abort()
     }
 
-    // global pending location, used by nested loaders to know if they should load or not
-    router[PENDING_LOCATION_KEY] = to
-    // Differently from records, this one is reset on each navigation
-    // so it must be built each time
-    to.meta[LOADER_SET_KEY] = new Set()
-    // adds an abort controller that can pass a signal to loaders
-    to.meta[ABORT_CONTROLLER_KEY] = new AbortController()
-    // allow loaders to add navigation results
-    to.meta[NAVIGATION_RESULTS_KEY] = []
-
-    // Collect all the lazy loaded components to await them in parallel
-    const lazyLoadingPromises: Promise<unknown>[] = []
-
-    for (const record of to.matched) {
-      // we only need to do this once per record as these changes are preserved
-      // by the router
-      if (!record.meta[LOADER_SET_KEY]) {
-        // setup an empty array to skip the check next time
-        record.meta[LOADER_SET_KEY] = new Set(record.meta.loaders || [])
-
-        // add all the loaders from the components to the set
-        for (const componentName in record.components) {
-          const component: unknown = record.components[componentName]
-
-          // we only add async modules because otherwise the component doesn't have any loaders and the user should add
-          // them with the `loaders` array
-          if (isAsyncModule(component)) {
-            const promise = component().then(
-              (viewModule: Record<string, unknown>) => {
-                for (const exportName in viewModule) {
-                  const exportValue = viewModule[exportName]
-
-                  if (isDataLoader(exportValue)) {
-                    record.meta[LOADER_SET_KEY]!.add(exportValue)
-                  }
-                }
-              }
-            )
-
-            lazyLoadingPromises.push(promise)
-          }
-        }
-      }
-    }
-
-    return Promise.all(lazyLoadingPromises).then(() => {
-      // group all the loaders in a single set
-      for (const record of to.matched) {
-        // merge the whole set of loaders
-        for (const loader of record.meta[LOADER_SET_KEY]!) {
-          to.meta[LOADER_SET_KEY]!.add(loader)
-        }
-      }
-      // we return nothing to remove the value to allow the navigation
-      // same as return true
-    })
+    return collectLoaders(router, to)
   })
 
   const removeDataLoaderGuard = router.beforeResolve((to) => {
     // if we reach this guard, all properties have been set
     const loaders = Array.from(to.meta[LOADER_SET_KEY]!) as UseDataLoader[]
 
-    // TODO: could we benefit anywhere here from verifying the signal is aborted and not call the loaders at all
-    // if (to.meta[ABORT_CONTROLLER_KEY]!.signal.aborted) {
-    //   return to.meta[ABORT_CONTROLLER_KEY]!.signal.reason ?? false
-    // }
-
-    // unset the context so all loaders are executed as root loaders
-    setCurrentContext([])
-    return Promise.all(
-      loaders.map((loader) => {
-        const { server, lazy } = loader._.options
-        // do not run on the server if specified
-        if (!server && isSSR) {
-          return
-        }
-        // keep track of loaders that should be committed after all loaders are done
-        const ret = effect.run(() =>
-          app
-            // allows inject and provide APIs
-            .runWithContext(() =>
-              loader._.load(to as RouteLocationNormalizedLoaded, router)
-            )
-        )!
-
-        // on client-side, lazy loaders are not awaited, but on server they are
-        // we already checked for the `server` option above
-        return !isSSR && lazy
-          ? undefined
-          : // return the non-lazy loader to commit changes after all loaders are done
-            ret
-      })
-    ) // let the navigation go through by returning true or void
-      .then(() => {
-        // console.log(
-        //   `✨ Navigation results "${to.fullPath}": [${to.meta[
-        //     NAVIGATION_RESULTS_KEY
-        //   ]!.map((r) => JSON.stringify(r.value)).join(', ')}]`
-        // )
-        if (to.meta[NAVIGATION_RESULTS_KEY]!.length) {
-          return selectNavigationResult(to.meta[NAVIGATION_RESULTS_KEY]!)
-        }
-      })
-      .catch((error) =>
-        error instanceof NavigationResult
-          ? error.value
-          : // let the error propagate to router.onError()
-            // we use never because the rejection means we never resolve a value and using anything else
-            // will not be valid from the navigation guard's perspective
-            Promise.reject<never>(error)
-      )
+    return executeLoaders({
+      app,
+      router,
+      loaders,
+      to,
+      effect,
+      isSSR,
+      selectNavigationResult,
+    })
   })
 
   // listen to duplicated navigation failures to reset the pendingTo and pendingLoad
@@ -267,6 +173,152 @@ export function isAsyncModule(
     !('emits' in asyncMod) &&
     !('__vccOpts' in asyncMod)
   )
+}
+
+export function collectLoaders(
+  router: Router,
+  to: RouteLocationNormalizedLoaded
+) {
+  console.log(to)
+  // global pending location, used by nested loaders to know if they should load or not
+  router[PENDING_LOCATION_KEY] = to
+  // Differently from records, this one is reset on each navigation
+  // so it must be built each time
+  to.meta[LOADER_SET_KEY] = new Set()
+  // adds an abort controller that can pass a signal to loaders
+  to.meta[ABORT_CONTROLLER_KEY] = new AbortController()
+  // allow loaders to add navigation results
+  to.meta[NAVIGATION_RESULTS_KEY] = []
+
+  // Collect all the lazy loaded components to await them in parallel
+  const lazyLoadingPromises: Promise<unknown>[] = []
+
+  for (const record of to.matched) {
+    // we only need to do this once per record as these changes are preserved
+    // by the router
+    if (!record.meta[LOADER_SET_KEY]) {
+      // setup an empty array to skip the check next time
+      record.meta[LOADER_SET_KEY] = new Set(record.meta.loaders || [])
+
+      // add all the loaders from the components to the set
+      for (const componentName in record.components) {
+        const component: unknown = record.components[componentName]
+
+        // we only add async modules because otherwise the component doesn't have any loaders and the user should add
+        // them with the `loaders` array
+        if (isAsyncModule(component)) {
+          const promise = component().then(
+            (viewModule: Record<string, unknown>) => {
+              for (const exportName in viewModule) {
+                const exportValue = viewModule[exportName]
+
+                if (isDataLoader(exportValue)) {
+                  record.meta[LOADER_SET_KEY]!.add(exportValue)
+                }
+              }
+            }
+          )
+
+          lazyLoadingPromises.push(promise)
+        }
+      }
+    }
+  }
+
+  return Promise.all(lazyLoadingPromises).then(() => {
+    // group all the loaders in a single set
+    for (const record of to.matched) {
+      // merge the whole set of loaders
+      for (const loader of record.meta[LOADER_SET_KEY]!) {
+        to.meta[LOADER_SET_KEY]!.add(loader)
+      }
+    }
+    // we return nothing to remove the value to allow the navigation
+    // same as return true
+  })
+}
+
+export function executeLoaders({
+  app,
+  loaders,
+  to,
+  router,
+  effect,
+  isSSR,
+  selectNavigationResult = (results) => results[0]!.value,
+}: {
+  app: App<unknown>
+  router: Router
+  loaders: UseDataLoader[]
+  to: RouteLocationNormalizedLoaded
+  effect: EffectScope
+  isSSR?: boolean
+  selectNavigationResult?: DataLoaderPluginOptions['selectNavigationResult']
+}) {
+  // TODO: could we benefit anywhere here from verifying the signal is aborted and not call the loaders at all
+  // if (to.meta[ABORT_CONTROLLER_KEY]!.signal.aborted) {
+  //   return to.meta[ABORT_CONTROLLER_KEY]!.signal.reason ?? false
+  // }
+
+  // unset the context so all loaders are executed as root loaders
+  setCurrentContext([])
+  return Promise.all(
+    loaders.map((loader) => {
+      const { server, lazy } = loader._.options
+      // do not run on the server if specified
+      if (!server && isSSR) {
+        return
+      }
+      // keep track of loaders that should be committed after all loaders are done
+      const ret = effect.run(() =>
+        app
+          // allows inject and provide APIs
+          .runWithContext(() =>
+            loader._.load(to as RouteLocationNormalizedLoaded, router)
+          )
+      )!
+
+      // on client-side, lazy loaders are not awaited, but on server they are
+      // we already checked for the `server` option above
+      return !isSSR && lazy
+        ? undefined
+        : // return the non-lazy loader to commit changes after all loaders are done
+          ret
+    })
+  ) // let the navigation go through by returning true or void
+    .then(() => {
+      // console.log(
+      //   `✨ Navigation results "${to.fullPath}": [${to.meta[
+      //     NAVIGATION_RESULTS_KEY
+      //   ]!.map((r) => JSON.stringify(r.value)).join(', ')}]`
+      // )
+      if (to.meta[NAVIGATION_RESULTS_KEY]!.length) {
+        return selectNavigationResult(to.meta[NAVIGATION_RESULTS_KEY]!)
+      }
+    })
+    .catch((error) =>
+      error instanceof NavigationResult
+        ? error.value
+        : // let the error propagate to router.onError()
+          // we use never because the rejection means we never resolve a value and using anything else
+          // will not be valid from the navigation guard's perspective
+          Promise.reject<never>(error)
+    )
+}
+
+export async function preloadRoute(router: Router, route: RouteLocationRaw) {
+  const _route = router.resolve(route)
+  await collectLoaders(router, _route)
+
+  const loaders = Array.from(_route.meta[LOADER_SET_KEY]!) as UseDataLoader[]
+
+  return executeLoaders({
+    to: _route,
+    router,
+    loaders,
+    app: router[APP_KEY],
+    effect: effectScope(),
+  })
 }
 
 /**
