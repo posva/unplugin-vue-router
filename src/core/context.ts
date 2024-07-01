@@ -1,7 +1,7 @@
 import { ResolvedOptions } from '../options'
 import { TreeNode, PrefixTree } from './tree'
 import { promises as fs } from 'fs'
-import { asRoutePath, ImportsMap, logTree, throttle } from './utils'
+import { asRoutePath, ImportsMap, joinPath, logTree, throttle } from './utils'
 import { generateRouteNamedMap } from '../codegen/generateRouteMap'
 import { MODULE_ROUTES_PATH, MODULE_VUE_ROUTER_AUTO } from './moduleConstants'
 import { generateRouteRecord } from '../codegen/generateRouteRecords'
@@ -114,10 +114,26 @@ export function createRoutesContext(options: ResolvedOptions) {
     const routeBlock = getRouteBlock(filePath, content, options)
     // TODO: should warn if hasDefinePage and customRouteBlock
     // if (routeBlock) logger.log(routeBlock)
-    node.setCustomRouteBlock(filePath, {
+
+    const routeOverrides = {
       ...routeBlock,
       ...definedPageNameAndPath,
-    })
+    }
+
+    if (routeOverrides.path && !routeOverrides.path.startsWith('/')) {
+      let parent = node.parent
+
+      while (parent && !parent.value.components.size) {
+        parent = parent.parent
+      }
+
+      routeOverrides.path = joinPath(
+        parent?.value.path || '',
+        routeOverrides.path
+      )
+    }
+
+    node.setCustomRouteBlock(filePath, routeOverrides)
   }
 
   async function addPage(
