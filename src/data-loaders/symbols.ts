@@ -36,6 +36,12 @@ export const STAGED_NO_VALUE = Symbol()
 export const APP_KEY = Symbol()
 
 /**
+ * Gives access to the effect scope used for the data loaders.
+ * @internal
+ */
+export const EFFECT_SCOPE_KEY = Symbol()
+
+/**
  * Gives access to an AbortController that aborts when the navigation is canceled.
  * @internal
  */

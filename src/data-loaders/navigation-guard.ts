@@ -1,8 +1,9 @@
-import { isNavigationFailure } from 'vue-router'
+import { isNavigationFailure, loadRouteLocation } from 'vue-router'
 import { effectScope, type App, type EffectScope } from 'vue'
 import {
   ABORT_CONTROLLER_KEY,
   APP_KEY,
+  EFFECT_SCOPE_KEY,
   IS_SSR_KEY,
   LOADER_ENTRIES_KEY,
   LOADER_SET_KEY,
@@ -61,6 +62,9 @@ export function setupLoaderGuard({
 
   // Access to `app.runWithContext()`
   router[APP_KEY] = app
+
+  // Access to shared effect scope
+  router[EFFECT_SCOPE_KEY] = effect
 
   router[IS_SSR_KEY] = !!isSSR
 
@@ -179,7 +183,6 @@ export function collectLoaders(
   router: Router,
   to: RouteLocationNormalizedLoaded
 ) {
-  console.log(to)
   // global pending location, used by nested loaders to know if they should load or not
   router[PENDING_LOCATION_KEY] = to
   // Differently from records, this one is reset on each navigation
@@ -245,7 +248,7 @@ export function executeLoaders({
   router,
   effect,
   isSSR,
-  selectNavigationResult = (results) => results[0]!.value,
+  selectNavigationResult,
 }: {
   app: App<unknown>
   router: Router
@@ -292,7 +295,7 @@ export function executeLoaders({
       //     NAVIGATION_RESULTS_KEY
       //   ]!.map((r) => JSON.stringify(r.value)).join(', ')}]`
       // )
-      if (to.meta[NAVIGATION_RESULTS_KEY]!.length) {
+      if (selectNavigationResult && to.meta[NAVIGATION_RESULTS_KEY]!.length) {
         return selectNavigationResult(to.meta[NAVIGATION_RESULTS_KEY]!)
       }
     })
@@ -307,17 +310,20 @@ export function executeLoaders({
 }
 
 export async function preloadRoute(router: Router, route: RouteLocationRaw) {
-  const _route = router.resolve(route)
-  await collectLoaders(router, _route)
+  const resolvedRoute = router.resolve(route)
+  const loadedRoute = await loadRouteLocation(resolvedRoute)
+  await collectLoaders(router, loadedRoute)
 
-  const loaders = Array.from(_route.meta[LOADER_SET_KEY]!) as UseDataLoader[]
+  const loaders = Array.from(
+    loadedRoute.meta[LOADER_SET_KEY]!
+  ) as UseDataLoader[]
 
   return executeLoaders({
-    to: _route,
+    to: loadedRoute,
     router,
     loaders,
     app: router[APP_KEY],
-    effect: effectScope(),
+    effect: router[EFFECT_SCOPE_KEY],
   })
 }
 

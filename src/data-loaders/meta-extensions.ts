@@ -1,7 +1,8 @@
-import { type App } from 'vue'
+import type { App, EffectScope } from 'vue'
 import type { DataLoaderEntryBase, UseDataLoader } from './createDataLoader'
 import type {
   APP_KEY,
+  EFFECT_SCOPE_KEY,
   LOADER_ENTRIES_KEY,
   LOADER_SET_KEY,
   PENDING_LOCATION_KEY,
@@ -45,6 +46,8 @@ declare module 'vue-router' {
     [PENDING_LOCATION_KEY]: RouteLocationNormalizedLoaded | null
 
     [APP_KEY]: App<unknown>
+
+    [EFFECT_SCOPE_KEY]: EffectScope
 
     [IS_SSR_KEY]: boolean
   }
