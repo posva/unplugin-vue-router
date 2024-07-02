@@ -7,6 +7,7 @@ import type {
 } from 'vue-router'
 import { ref } from 'vue'
 import { routes } from 'vue-router/auto-routes'
+import { preloadRoute } from 'unplugin-vue-router/runtime'
 
 console.log(`We have ${routes.length} routes.`)
 
@@ -105,6 +106,12 @@ function _test() {
           <input type="text" v-model="targetRoute" />
         </label>
         <button>Go</button>
+        <button
+          type="button"
+          @click.prevent="preloadRoute(router, targetRoute)"
+        >
+          Preload
+        </button>
       </form>
     </div>
   </header>

@@ -5,6 +5,7 @@ export const useUserData = defineBasicLoader(
   '/[name]',
   async (route) => {
     await delay(1000)
+    console.log('useUserData called for', route.params.name)
     if (route.name === '/[name]') {
       route.params
     }
