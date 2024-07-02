@@ -31,7 +31,7 @@ export function getCurrentContext() {
 
 // TODO: rename parentContext
 export function setCurrentContext(
-  context: typeof currentContext | readonly []
+  context?: typeof currentContext | readonly []
 ) {
   currentContext = context ? (context.length ? context : null) : null
 }

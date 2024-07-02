@@ -98,6 +98,7 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
         data: shallowRef<_DataMaybeLazy<Data, isLazy>>(),
         isLoading: shallowRef(false),
         error: shallowRef<any>(),
+        to,
 
         options,
         children: new Set(),
@@ -165,7 +166,7 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
 
     // Promise.resolve() allows loaders to also be sync
     const currentLoad = Promise.resolve(
-      loader(to, { signal: to.meta[ABORT_CONTROLLER_KEY]!.signal })
+      loader(to, { signal: to.meta[ABORT_CONTROLLER_KEY]?.signal })
     )
       .then((d) => {
         // console.log(
@@ -262,6 +263,7 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
       // preserve error until data is committed
       this.stagedError = this.error.value
       this.pendingTo = null
+      this.to = to
       // we intentionally keep pendingLoad so it can be reused until the navigation is finished
 
       // children entries cannot be committed from the navigation guard, so the parent must tell them
@@ -275,7 +277,8 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
   const useDataLoader: // for ts
   UseDataLoaderBasic<isLazy, Data> = () => {
     // work with nested data loaders
-    const [parentEntry, _router, _route] = getCurrentContext()
+    const currentContext = getCurrentContext()
+    const [parentEntry, _router, _route] = currentContext
     // fallback to the global router and routes for useDataLoaders used within components
     const router = _router || useRouter()
     const route = _route || (useRoute() as RouteLocationNormalizedLoaded)
@@ -300,6 +303,8 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
       !entry ||
       // the existing pending location isn't good, we need to load again
       (parentEntry && entry.pendingTo !== route)
+      // we could also check for: but that would break nested loaders since they need to be always called to be associated with the parent
+      // && entry.to !== route
     ) {
       // console.log(
       //   `🔁 loading from useData for "${options.key}": "${route.fullPath}"`
@@ -343,6 +348,7 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
       // otherwise this will end up in "Unhandled promise rejection"
       .catch((e) => (parentEntry ? Promise.reject(e) : null))
 
+    setCurrentContext(currentContext)
     return Object.assign(promise, useDataLoaderResult)
   }
 

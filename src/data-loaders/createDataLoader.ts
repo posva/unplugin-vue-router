@@ -23,6 +23,11 @@ export interface DataLoaderEntryBase<
   error: ShallowRef<any> // any is simply more convenient for errors
 
   /**
+   * Location the data was loaded for or `null` if the data is not loaded.
+   */
+  to: RouteLocationNormalizedLoaded | null
+
+  /**
    * Whether there is an ongoing request.
    */
   isLoading: ShallowRef<boolean>
@@ -119,7 +124,7 @@ export interface DataLoaderContextBase {
   /**
    * Signal associated with the current navigation. It is aborted when the navigation is canceled or an error occurs.
    */
-  signal: AbortSignal
+  signal: AbortSignal | undefined
 }
 
 export interface DefineDataLoader<Context extends DataLoaderContextBase> {

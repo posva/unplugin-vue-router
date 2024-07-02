@@ -3,7 +3,7 @@
  */
 import { type App, defineComponent, inject, type Plugin } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { getRouter } from 'vue-router-mock'
 import {
   setCurrentContext,
@@ -948,6 +948,76 @@ export function testDefineLoader<Context = void>(
     expect(data.value).toEqual('ok,one')
   })
 
+  it.todo(
+    `reuses a nested loader result even if it's called first from another loader`,
+    async () => {
+      const l1 = mockedLoader({ key: 'search-results', lazy: false })
+      const spy = vi.fn(async (to: RouteLocationNormalizedLoaded) => {
+        // get search results from the search loader
+        const data = await l1.loader()
+        // then fetch images in high res
+        return `${data},${to.query.p}`
+      })
+      const l2 = loaderFactory({
+        fn: spy,
+        key: 'images-from-search',
+
+        // to ensure this is not awaited
+        lazy: true,
+        server: false,
+      })
+
+      let useDataResult!: ReturnType<typeof l1.loader>
+
+      const component = defineComponent({
+        setup() {
+          // it shouldn't matter if l2 is used or not, what matters is the order
+          useDataResult = l1.loader()
+          l2()
+          return {}
+        },
+        template: `<p>a</p>`,
+      })
+      const router = getRouter()
+      router.addRoute({
+        name: '_test',
+        path: '/fetch',
+        meta: {
+          // the images should run first to simulate the issue
+          // in practice the user does not control the order of the loaders and it shouldn't matter
+          loaders: [l2, l1.loader],
+          // this scenario would work
+          // loaders: [l1.loader, l2],
+        },
+        component,
+      })
+
+      const wrapper = mount(RouterViewMock, {
+        global: {
+          plugins: [
+            [DataLoaderPlugin, { router }],
+            ...(plugins?.(customContext!) || []),
+          ],
+        },
+      })
+
+      router.push('/fetch?p=one')
+      await vi.runOnlyPendingTimersAsync()
+      l1.resolve('search')
+      await flushPromises()
+
+      const app: App = wrapper.vm.$.appContext.app
+      const l2Data = app.runWithContext(() => l2())
+
+      expect(useDataResult?.data.value).toEqual('search')
+      expect(l2Data.data.value).toEqual('search,one')
+      // FIXME: go from here: figure out why with colada it's called 2 times
+      // but only once with the basic loader
+      expect(l1.spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledTimes(1)
+    }
+  )
+
   describe('app.runWithContext()', () => {
     it('can inject globals', async () => {
       const { router, useData, app } = singleLoaderOneRoute(
@@ -1000,6 +1070,8 @@ export function testDefineLoader<Context = void>(
       const { router, useData, app } = singleLoaderOneRoute(
         loaderFactory({
           fn: async () => {
+            // this could be written like this, but we allow both for convenience
+            // const [a, b] = await Promise.all([l1(), l2()])
             const a = await l1()
             const b = await l2()
             return `${a},${b}`
@@ -1046,8 +1118,10 @@ export function testDefineLoader<Context = void>(
       const { router, useData, app } = singleLoaderOneRoute(
         loaderFactory({
           fn: async () => {
-            const a = await l1()
-            const b = await l2()
+            // hmm FIXME: stopped here,
+            const [a, b] = await Promise.all([l1(), l2()])
+            // const a = await l1()
+            // const b = await l2()
             return `${a},${b}`
           },
           key: 'root',

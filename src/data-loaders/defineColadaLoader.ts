@@ -110,6 +110,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
         data: shallowRef<_DataMaybeLazy<Data, isLazy>>(),
         isLoading: shallowRef(false),
         error: shallowRef<any>(),
+        to,
 
         options,
         children: new Set(),
@@ -138,6 +139,19 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       return entry.pendingLoad
     }
 
+    // save the current context to restore it later
+    const currentContext = getCurrentContext()
+
+    if (process.env.NODE_ENV === 'development') {
+      if (parent !== currentContext[0]) {
+        console.warn(
+          `❌👶 "${key}" has a different parent than the current context. This shouldn't be happening. Please report a bug with a reproduction to https://github.com/posva/unplugin-vue-router/`
+        )
+      }
+    }
+    // set the current context before loading so nested loaders can use it
+    setCurrentContext([entry, router, to])
+
     if (!entry.ext) {
       // console.log(`🚀 creating query for "${key}"`)
       entry.ext = useQuery({
@@ -154,7 +168,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
           })
 
           return loader(trackedRoute, {
-            signal: route.meta[ABORT_CONTROLLER_KEY]!.signal,
+            signal: route.meta[ABORT_CONTROLLER_KEY]?.signal,
           })
         },
         key: () => options.key(entry.route.value),
@@ -188,18 +202,6 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
     entry.route.value = entry.pendingTo = to
 
     isLoading.value = true
-    // save the current context to restore it later
-    const currentContext = getCurrentContext()
-
-    if (process.env.NODE_ENV === 'development') {
-      if (parent !== currentContext[0]) {
-        console.warn(
-          `❌👶 "${key}" has a different parent than the current context. This shouldn't be happening. Please report a bug with a reproduction to https://github.com/posva/unplugin-vue-router/`
-        )
-      }
-    }
-    // set the current context before loading so nested loaders can use it
-    setCurrentContext([entry, router, to])
     entry.staged = STAGED_NO_VALUE
     // preserve error until data is committed
     entry.stagedError = error.value
@@ -308,7 +310,9 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       this.staged = STAGED_NO_VALUE
       // preserve error until data is committed
       this.stagedError = this.error.value
+      this.to = to
       this.pendingTo = null
+      // FIXME: move pendingLoad to currentLoad or use `to` to check if the current version is valid
       // we intentionally keep pendingLoad so it can be reused until the navigation is finished
 
       // children entries cannot be committed from the navigation guard, so the parent must tell them
@@ -324,7 +328,8 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
   const useDataLoader: // for ts
   UseDataLoaderColada<isLazy, Data> = () => {
     // work with nested data loaders
-    const [parentEntry, _router, _route] = getCurrentContext()
+    const currentEntry = getCurrentContext()
+    const [parentEntry, _router, _route] = currentEntry
     // fallback to the global router and routes for useDataLoaders used within components
     const router = _router || useRouter()
     const route = _route || (useRoute() as RouteLocationNormalizedLoaded)
@@ -346,6 +351,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       //   `🔁 loading from useData for "${options.key}": "${route.fullPath}"`
       // )
       router[APP_KEY].runWithContext(() =>
+        // in this case we always need to run the functions for nested loaders consistency
         load(route, router, parentEntry, true)
       )
     }
@@ -354,17 +360,19 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
 
     // add ourselves to the parent entry children
     if (parentEntry) {
-      if (parentEntry === entry) {
-        console.warn(
-          `👶❌ "${options.key}" has itself as parent.  This shouldn't be happening. Please report a bug with a reproduction to https://github.com/posva/unplugin-vue-router/`
-        )
+      if (parentEntry !== entry) {
+        // console.log(`👶 "${options.key}" has parent ${parentEntry}`)
+        parentEntry.children.add(entry!)
+      } else {
+        // console.warn(
+        //   `👶❌ "${options.key}" has itself as parent.  This shouldn't be happening. Please report a bug with a reproduction to https://github.com/posva/unplugin-vue-router/`
+        // )
       }
-      // console.log(`👶 "${options.key}" has parent ${parentEntry}`)
-      parentEntry.children.add(entry!)
     }
 
     const { data, error, isLoading, ext } = entry
 
+    // TODO: add watchers only once
     // update the data when pinia colada updates it e.g. after visibility change
     watch(ext!.data, (newData) => {
       // only if we are not in the middle of a navigation
@@ -423,6 +431,8 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       // otherwise this will end up in "Unhandled promise rejection"
       .catch((e) => (parentEntry ? Promise.reject(e) : null))
 
+    // Restore the context: shouldn't be needed
+    // setCurrentContext(currentEntry)
     return assign(promise, useDataLoaderResult)
   }
 

@@ -71,7 +71,7 @@ const useTodos = defineQueryLoader(fetchTodoList, {
 To pass variables based on the route, a function could be allowed
 
 ```ts
-const useContact = defineQueryLoader(fetchContact, (to) =>{
+const useContact = defineQueryLoader(fetchContact, (to) => {
   id: to.params.id
 })
 ```
