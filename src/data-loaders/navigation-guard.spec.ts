@@ -16,6 +16,7 @@ import { getRouter } from 'vue-router-mock'
 import {
   ABORT_CONTROLLER_KEY,
   LOADER_SET_KEY,
+  preloadRoute,
   setCurrentContext,
   DataLoaderPlugin,
   NavigationResult,
@@ -468,6 +469,101 @@ describe('navigation-guard', () => {
       await router.getPendingNavigation().catch(() => {})
       expect(selectNavigationResult).not.toHaveBeenCalled()
       expect(router.currentRoute.value.fullPath).toBe('/#ok')
+    })
+  })
+
+  describe('preloadRoute', () => {
+    it('collects loaders from the matched route', async () => {
+      setupApp(false)
+      const router = getRouter()
+      router.addRoute({
+        name: '_test',
+        path: '/fetch',
+        component,
+        meta: {
+          loaders: [loader1, loader1], // duplicated on purpose
+        },
+      })
+      router.addRoute({
+        name: '_test2',
+        path: '/fetch2',
+        component,
+        meta: {
+          loaders: [loader2, loader3],
+        },
+      })
+      await preloadRoute(router, '/fetch')
+      let set = router.resolve('/fetch').meta[LOADER_SET_KEY]
+      expect([...set!]).toEqual([loader1])
+      await preloadRoute(router, '/fetch2')
+      set = router.resolve('/fetch2').meta[LOADER_SET_KEY]
+      expect([...set!]).toEqual([loader2, loader3])
+    })
+
+    it.todo('collects loaders from nested routes', async () => {
+      setupApp(false)
+      const router = getRouter()
+      router.addRoute({
+        name: '_test',
+        path: '/fetch',
+        component,
+        meta: {
+          loaders: [loader1],
+        },
+        children: [
+          {
+            name: '_test2',
+            path: 'nested',
+            component,
+            meta: {
+              loaders: [loader2, loader3],
+            },
+          },
+        ],
+      })
+      await preloadRoute(router, '/fetch/nested')
+      const set = router.resolve('/fetch/nested').meta[LOADER_SET_KEY]
+      // TODO: fix parent loader (loader1) not being collected
+      expect([...set!]).toEqual([loader1, loader2, loader3])
+    })
+
+    it.todo('collects all loaders from lazy loaded pages', async () => {
+      setupApp(false)
+      const router = getRouter()
+      router.addRoute({
+        name: '_test',
+        path: '/fetch',
+        component: () =>
+          import('../../tests/data-loaders/ComponentWithLoader.vue'),
+      })
+      await preloadRoute(router, '/fetch')
+      const set = router.resolve('/fetch').meta[LOADER_SET_KEY]
+      expect([...set!]).toEqual([useDataOne, useDataTwo])
+    })
+
+    it('resolves all loaders', async () => {
+      setupApp(false)
+      const router = getRouter()
+      const l1 = mockedLoader()
+      const l2 = mockedLoader()
+      router.addRoute({
+        name: '_test',
+        path: '/fetch',
+        component,
+        meta: {
+          loaders: [l1.loader, l2.loader],
+        },
+      })
+
+      let isPreloaded = false
+      preloadRoute(router, '/fetch').then(() => (isPreloaded = true))
+      await vi.runAllTimersAsync()
+      l1.resolve()
+      await vi.runAllTimersAsync()
+      expect(isPreloaded).toBeFalsy()
+      l2.resolve()
+      await vi.runAllTimersAsync()
+      expect(isPreloaded).toBeTruthy()
     })
   })
 })

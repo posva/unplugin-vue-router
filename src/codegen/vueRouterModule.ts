@@ -16,6 +16,7 @@ export { definePage } from 'unplugin-vue-router/runtime'
 export {
   DataLoaderPlugin,
   NavigationResult,
+  preloadRoute,
 } from 'unplugin-vue-router/data-loaders'
 
 export * from 'unplugin-vue-router/data-loaders/basic'

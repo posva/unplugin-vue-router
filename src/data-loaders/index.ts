@@ -10,7 +10,11 @@ export type {
 } from './createDataLoader'
 
 // new data fetching
-export { DataLoaderPlugin, NavigationResult } from './navigation-guard'
+export {
+  DataLoaderPlugin,
+  NavigationResult,
+  preloadRoute,
+} from './navigation-guard'
 export type {
   DataLoaderPluginOptions,
   SetupLoaderGuardOptions,
