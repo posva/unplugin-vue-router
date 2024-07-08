@@ -1,8 +1,6 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-// FIXME:
 import { DataLoaderPlugin } from 'unplugin-vue-router/data-loaders'
-// import { DataLoaderPlugin } from 'unplugin-vue-router/runtime'
 import { MutationCache, QueryCache, VueQueryPlugin } from '@tanstack/vue-query'
 import { createPinia } from 'pinia'
 import { QueryPlugin } from '@pinia/colada'
