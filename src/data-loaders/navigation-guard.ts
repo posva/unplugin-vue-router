@@ -36,6 +36,7 @@ export function setupLoaderGuard({
   app,
   effect,
   isSSR,
+  errors = [],
   selectNavigationResult = (results) => results[0]!.value,
 }: SetupLoaderGuardOptions) {
   // avoid creating the guards multiple times
@@ -162,7 +163,15 @@ export function setupLoaderGuard({
         return !isSSR && lazy
           ? undefined
           : // return the non-lazy loader to commit changes after all loaders are done
-            ret
+            ret.catch((reason) =>
+              // Check if the error is an expected error to discard it
+              loader._.options.errors?.some((Err) => reason instanceof Err) ||
+              (Array.isArray(errors)
+                ? errors.some((Err) => reason instanceof Err)
+                : errors(reason))
+                ? undefined
+                : Promise.reject(reason)
+            )
       })
     ) // let the navigation go through by returning true or void
       .then(() => {
@@ -361,4 +370,10 @@ export interface DataLoaderPluginOptions {
   selectNavigationResult?: (
     results: NavigationResult[]
   ) => _Awaitable<Exclude<NavigationGuardReturn, Function | Promise<unknown>>>
+
+  /**
+   * List of _expected_ errors that shouldn't abort the navigation (for non-lazy loaders). Provide a list of
+   * constructors that can be checked with `instanceof` or a custom function that returns `true` for expected errors.
+   */
+  errors?: Array<new (...args: any) => any> | ((reason?: unknown) => boolean)
 }

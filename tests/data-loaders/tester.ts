@@ -345,6 +345,94 @@ export function testDefineLoader<Context = void>(
         expect(router.currentRoute.value.path).toBe('/fetch')
       })
 
+      describe('custom errors', () => {
+        class CustomError extends Error {
+          override name = 'CustomError'
+        }
+        it('should complete the navigation if a non-lazy loader throws an expected error', async () => {
+          const { wrapper, useData, router } = singleLoaderOneRoute(
+            loaderFactory({
+              fn: async () => {
+                throw new CustomError()
+              },
+              lazy: false,
+              commit,
+              errors: [CustomError],
+            })
+          )
+          await router.push('/fetch')
+          const { data, error, isLoading } = useData()
+          expect(wrapper.get('#error').text()).toBe('CustomError')
+          expect(isLoading.value).toBe(false)
+          expect(data.value).toBe(undefined)
+          expect(error.value).toBeInstanceOf(CustomError)
+          expect(router.currentRoute.value.path).toBe('/fetch')
+        })
+
+        it('should complete the navigation if a non-lazy loader throws an expected global error', async () => {
+          const { wrapper, useData, router } = singleLoaderOneRoute(
+            loaderFactory({
+              fn: async () => {
+                throw new CustomError()
+              },
+              lazy: false,
+              commit,
+              // errors: [],
+            }),
+            { errors: [CustomError] }
+          )
+          await router.push('/fetch')
+          const { data, error, isLoading } = useData()
+          expect(wrapper.get('#error').text()).toBe('CustomError')
+          expect(isLoading.value).toBe(false)
+          expect(data.value).toBe(undefined)
+          expect(error.value).toBeInstanceOf(CustomError)
+          expect(router.currentRoute.value.path).toBe('/fetch')
+        })
+
+        it('accepts a function as a global setting instead of a constructor', async () => {
+          const { wrapper, useData, router } = singleLoaderOneRoute(
+            loaderFactory({
+              fn: async () => {
+                throw new CustomError()
+              },
+              lazy: false,
+              commit,
+              // errors: [],
+            }),
+            { errors: (reason) => reason instanceof CustomError }
+          )
+          await router.push('/fetch')
+          const { data, error, isLoading } = useData()
+          expect(wrapper.get('#error').text()).toBe('CustomError')
+          expect(isLoading.value).toBe(false)
+          expect(data.value).toBe(undefined)
+          expect(error.value).toBeInstanceOf(CustomError)
+          expect(router.currentRoute.value.path).toBe('/fetch')
+        })
+
+        it('local errors take priority over a global function that returns false', async () => {
+          const { wrapper, useData, router } = singleLoaderOneRoute(
+            loaderFactory({
+              fn: async () => {
+                throw new CustomError()
+              },
+              lazy: false,
+              commit,
+              errors: [CustomError],
+            }),
+            { errors: () => false }
+          )
+          await router.push('/fetch')
+          const { data, error, isLoading } = useData()
+          expect(wrapper.get('#error').text()).toBe('CustomError')
+          expect(isLoading.value).toBe(false)
+          expect(data.value).toBe(undefined)
+          expect(error.value).toBeInstanceOf(CustomError)
+          expect(router.currentRoute.value.path).toBe('/fetch')
+        })
+      })
+
       it('propagates errors from nested loaders', async () => {
         const l1 = mockedLoader({
           key: 'nested',

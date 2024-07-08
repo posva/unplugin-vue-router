@@ -110,6 +110,12 @@ export interface DefineDataLoaderOptionsBase<isLazy extends boolean> {
    * @defaultValue `'after-load'`
    */
   commit?: DefineDataLoaderCommit
+
+  /**
+   * List of _expected_ errors that shouldn't abort the navigation (for non-lazy loaders). Provide a list of
+   * constructors that can be checked with `instanceof`.
+   */
+  errors?: Array<new (...args: any) => any>
 }
 
 /**
