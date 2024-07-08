@@ -552,7 +552,7 @@ Some alternatives:
 
 ::: tip
 
-Throwing an error do not trigger the `selectNavigationResult()` method. Instead, it immediately cancels the navigation and triggers the `router.onError()` method, just like in a regular navigation guard.
+Throwing an error does not trigger the `selectNavigationResult()` method. Instead, it immediately cancels the navigation and triggers the `router.onError()` method, just like in a regular navigation guard.
 
 :::
 
@@ -674,7 +674,7 @@ app.use(DataLoaderPlugin, {
 
 ::: tip
 
-In a lazy loader, you can throw an error and since it doesn't block the navigation it will **always** appear in the `error` property. You don't need to define
+In a lazy loader, you can throw an error and since it doesn't block the navigation it will **always** appear in the `error` property. Defining an `errors` property won't change anything.
 
 :::
 
@@ -945,6 +945,8 @@ On top of this it's important to note that this RFC doesn't limit you: you can s
     }
   })
   ```
+
+  But this version overlaps with `lazy: true`. While semantically it would be more natural if it was defined with **one** loader, it limits the API to one loader per page and not being able to reuse the data, loading state, error, etc across pages and components, which also limits the extensibility.
 
   :::
 
