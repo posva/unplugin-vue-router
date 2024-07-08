@@ -637,7 +637,9 @@ Since throwing an error in a loader cancels the navigation, this doesn't allow t
 ```ts{2-7,14-16}
 // custom error class
 class MyError extends Error {
-  name = 'MyError' // Displays in logs instead of 'Error'
+  // override is only needed in TS
+  override name = 'MyError' // Displays in logs instead of 'Error'
+  // defining a constructor is optional
   constructor(message: string) {
     super(message)
   }
@@ -648,9 +650,7 @@ export const useUserData = defineLoader(
     // ...
   },
   {
-    errors: {
-      MyError, // uses `instanceof MyError`
-    },
+    errors: [MyError],
   }
 )
 ```
@@ -667,16 +667,14 @@ class MyError extends Error {
 
 app.use(DataLoaderPlugin, {
   router,
-  // all mande errors will let the navigation continue but appear in the error property
-  errors: {
-    MyError, // checks with `instanceof MyError`
-  },
+// checks with `instanceof MyError`
+  errors: [MyError],
 })
 ```
 
 ::: tip
 
-In a lazy loader, you can throw an error and since it doesn't block the navigation it will appear in the `error` property.
+In a lazy loader, you can throw an error and since it doesn't block the navigation it will **always** appear in the `error` property. You don't need to define
 
 :::
 
