@@ -41,6 +41,7 @@ import {
   type UseQueryReturn,
   useQuery,
 } from '@pinia/colada'
+import { toLazyValue } from './createDataLoader'
 
 /**
  * Creates a data loader composable that can be exported by pages to attach the data loading to a route. This returns a
@@ -93,6 +94,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
   function load(
     to: RouteLocationNormalizedLoaded,
     router: Router,
+    from?: RouteLocationNormalizedLoaded,
     parent?: DataLoaderEntryBase,
     reload?: boolean
   ): Promise<void> {
@@ -229,7 +231,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
             entry.stagedError = newError
             // propagate error if non lazy or during SSR
             // NOTE: Cannot be handled at the guard level because of nested loaders
-            if (!options.lazy || isSSR) {
+            if (!toLazyValue(options.lazy, to, from) || isSSR) {
               throw newError
             }
           } else {
@@ -352,7 +354,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       // )
       router[APP_KEY].runWithContext(() =>
         // in this case we always need to run the functions for nested loaders consistency
-        load(route, router, parentEntry, true)
+        load(route, router, undefined, parentEntry, true)
       )
     }
 
@@ -399,14 +401,14 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       isLoading,
       reload: (to: RouteLocationNormalizedLoaded = router.currentRoute.value) =>
         router[APP_KEY].runWithContext(() =>
-          load(to, router, undefined, true)
+          load(to, router, undefined, undefined, true)
         ).then(() => entry!.commit(to)),
       // pinia colada
       refetch: (
         to: RouteLocationNormalizedLoaded = router.currentRoute.value
       ) =>
         router[APP_KEY].runWithContext(() =>
-          load(to, router, undefined, true)
+          load(to, router, undefined, undefined, true)
         ).then(() => entry!.commit(to)),
       refresh: (
         to: RouteLocationNormalizedLoaded = router.currentRoute.value

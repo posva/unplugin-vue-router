@@ -17,7 +17,7 @@ import type {
   Router,
 } from 'vue-router'
 import { type _Awaitable } from '../utils'
-import { type UseDataLoader } from './createDataLoader'
+import { toLazyValue, type UseDataLoader } from './createDataLoader'
 
 /**
  * TODO: export functions that allow preloading outside of a navigation guard
@@ -131,7 +131,7 @@ export function setupLoaderGuard({
     })
   })
 
-  const removeDataLoaderGuard = router.beforeResolve((to) => {
+  const removeDataLoaderGuard = router.beforeResolve((to, from) => {
     // if we reach this guard, all properties have been set
     const loaders = Array.from(to.meta[LOADER_SET_KEY]!) as UseDataLoader[]
 
@@ -154,13 +154,13 @@ export function setupLoaderGuard({
           app
             // allows inject and provide APIs
             .runWithContext(() =>
-              loader._.load(to as RouteLocationNormalizedLoaded, router)
+              loader._.load(to as RouteLocationNormalizedLoaded, router, from)
             )
         )!
 
         // on client-side, lazy loaders are not awaited, but on server they are
         // we already checked for the `server` option above
-        return !isSSR && lazy
+        return !isSSR && toLazyValue(lazy, to, from)
           ? undefined
           : // return the non-lazy loader to commit changes after all loaders are done
             ret.catch((reason) =>
@@ -196,7 +196,7 @@ export function setupLoaderGuard({
 
   // listen to duplicated navigation failures to reset the pendingTo and pendingLoad
   // since they won't trigger the beforeEach or beforeResolve defined above
-  const removeAfterEach = router.afterEach((to, _from, failure) => {
+  const removeAfterEach = router.afterEach((to, from, failure) => {
     // console.log(
     //   `🔚 afterEach "${_from.fullPath}" -> "${to.fullPath}": ${failure?.message}`
     // )
@@ -223,7 +223,10 @@ export function setupLoaderGuard({
           // lazy loaders do not block the navigation so the navigation guard
           // might call commit before the loader is ready
           // on the server, entries might not even exist
-          if (entry && (!lazy || !entry.isLoading.value)) {
+          if (
+            entry &&
+            (!toLazyValue(lazy, to, from) || !entry.isLoading.value)
+          ) {
             entry.commit(to as RouteLocationNormalizedLoaded)
           }
         }

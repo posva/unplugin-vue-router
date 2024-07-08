@@ -29,6 +29,7 @@ import {
 } from 'unplugin-vue-router/runtime'
 
 import { shallowRef } from 'vue'
+import { toLazyValue } from './createDataLoader'
 
 /**
  * Creates a data loader composable that can be exported by pages to attach the data loading to a route. This returns a
@@ -88,6 +89,7 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
   function load(
     to: RouteLocationNormalizedLoaded,
     router: Router,
+    from?: RouteLocationNormalizedLoaded,
     parent?: DataLoaderEntryBase
   ): Promise<void> {
     const entries = router[LOADER_ENTRIES_KEY]!
@@ -197,7 +199,7 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
           entry.stagedError = e
           // propagate error if non lazy or during SSR
           // NOTE: Cannot be handled at the guard level because of nested loaders
-          if (!options.lazy || isSSR) {
+          if (!toLazyValue(options.lazy, to, from) || isSSR) {
             throw e
           }
         }
@@ -309,7 +311,9 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
       // console.log(
       //   `🔁 loading from useData for "${options.key}": "${route.fullPath}"`
       // )
-      router[APP_KEY].runWithContext(() => load(route, router, parentEntry))
+      router[APP_KEY].runWithContext(() =>
+        load(route, router, undefined, parentEntry)
+      )
     }
 
     entry = entries.get(loader)!

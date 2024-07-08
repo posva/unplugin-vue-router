@@ -93,7 +93,12 @@ export interface DefineDataLoaderOptionsBase<isLazy extends boolean> {
    *
    * @defaultValue `false`
    */
-  lazy?: isLazy
+  lazy?:
+    | isLazy
+    | ((
+        to: RouteLocationNormalizedLoaded,
+        from?: RouteLocationNormalizedLoaded
+      ) => boolean)
 
   /**
    * Whether this loader should be awaited on the server side or not. Combined with the `lazy` option, this gives full
@@ -117,6 +122,18 @@ export interface DefineDataLoaderOptionsBase<isLazy extends boolean> {
    */
   errors?: Array<new (...args: any) => any>
 }
+
+export const toLazyValue = (
+  lazy:
+    | boolean
+    | undefined
+    | ((
+        to: RouteLocationNormalizedLoaded,
+        from?: RouteLocationNormalizedLoaded
+      ) => boolean),
+  to: RouteLocationNormalizedLoaded,
+  from?: RouteLocationNormalizedLoaded
+) => (typeof lazy === 'function' ? lazy(to, from) : lazy)
 
 /**
  * When the data should be committed to the entry.
@@ -200,13 +217,15 @@ export interface UseDataLoaderInternals<
   /**
    * Loads the data from the cache if possible, otherwise loads it from the loader and awaits it.
    *
-   * @param route - route location to load the data for
+   * @param to - route location to load the data for
    * @param router - router instance
+   * @param from - route location we are coming from
    * @param parent - parent data loader entry
    */
   load: (
-    route: RouteLocationNormalizedLoaded,
+    to: RouteLocationNormalizedLoaded,
     router: Router,
+    from?: RouteLocationNormalizedLoaded,
     parent?: DataLoaderEntryBase
   ) => Promise<void>
 
