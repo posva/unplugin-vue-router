@@ -814,7 +814,7 @@ interface Book {
   description: string
 }
 function fetchBookCollection(options: {
-  signal: AbortSignal
+  signal?: AbortSignal
 }): Promise<Book[]> {
   return {} as any
 }
