@@ -139,6 +139,9 @@ function generatePageImport(
 ) {
   const mode =
     typeof importMode === 'function' ? importMode(filepath) : importMode
+  if(filepath.includes("\\")){
+    filepath = filepath.replace(/\\/g, "/")
+  }
   if (mode === 'async') {
     return `() => import('${filepath}')`
   }
