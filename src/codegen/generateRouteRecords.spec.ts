@@ -4,6 +4,7 @@ import { PrefixTree, TreeNode } from '../core/tree'
 import { resolveOptions } from '../options'
 import { generateRouteRecord } from './generateRouteRecords'
 import { ImportsMap } from '../core/utils'
+import { join } from 'path'
 
 const DEFAULT_OPTIONS = resolveOptions({})
 
@@ -338,6 +339,28 @@ describe('generateRouteRecord', () => {
 
       // what matters is that the import name is reused _page_0
       expect(generateRouteRecordSimple(tree)).toMatchSnapshot()
+    })
+    it('dedupes sync imports for the same component', () => {
+      const tree = new PrefixTree(
+        resolveOptions({
+          importMode: 'sync',
+        })
+      )
+
+      tree.insertParsedPath('a/b', 'a.vue')
+      tree.insertParsedPath('a/c', 'a.vue')
+
+      // what matters is that the import name is reused _page_0
+      expect(generateRouteRecordSimple(tree)).toMatchSnapshot()
+    })
+    it.runIf(process.platform === "win32")('path style should be normalized with Posix style', () => {
+      const tree = new PrefixTree(
+        resolveOptions({
+          importMode: 'async',
+        })
+      )
+      tree.insert('from-root', join(__dirname, './src/pages/index.vue'))
+      expect(generateRouteRecordSimple(tree)[0]).not.toContain("\\") 
     })
   })
 })
