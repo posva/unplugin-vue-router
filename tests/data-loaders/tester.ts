@@ -1,7 +1,7 @@
 /**
  * @vitest-environment happy-dom
  */
-import { type App, defineComponent, inject, type Plugin, toValue } from 'vue'
+import { type App, defineComponent, inject, type Plugin } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import { getRouter } from 'vue-router-mock'
