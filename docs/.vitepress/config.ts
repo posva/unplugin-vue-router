@@ -132,7 +132,7 @@ export default defineConfig({
         //
         sidebarGettingStarted(),
         sidebarGuide(),
-        sidebarRFC(),
+        sidebarDataLoaders(),
         sidebarNuxt(),
       ],
     },
@@ -187,6 +187,67 @@ function sidebarGuide(): SidebarGroup {
   }
 }
 
+function sidebarDataLoaders(): SidebarGroup {
+  return {
+    collapsed: false,
+    text: 'Data Loaders',
+    items: [
+      {
+        text: 'Introduction',
+        link: '/data-loaders/',
+      },
+      {
+        text: 'Defining Loader',
+        link: '/data-loaders/introduction',
+      },
+      {
+        text: 'Cancelling a load',
+        link: '/data-loaders/load-cancellation',
+      },
+      {
+        text: 'Reloading data',
+        link: '/data-loaders/reloading-data',
+      },
+      {
+        text: 'Navigation Aware',
+        link: '/data-loaders/navigation-aware',
+      },
+      {
+        text: 'Organizing Loaders',
+        link: '/data-loaders/organization',
+      },
+      {
+        text: 'Error Handling',
+        link: '/data-loaders/error-handling',
+      },
+      {
+        text: 'Nested Loaders',
+        link: '/data-loaders/nested-loaders',
+      },
+      {
+        text: 'SSR',
+        link: '/data-loaders/ssr',
+      },
+
+      // loaders
+      {
+        text: 'Basic Loader',
+        link: '/data-loaders/basic/',
+      },
+      {
+        text: 'Colada Loader',
+        link: '/data-loaders/colada/',
+      },
+
+      // last
+      {
+        text: 'RFC',
+        link: '/data-loaders/rfc',
+      },
+    ],
+  }
+}
+
 function sidebarNuxt(): SidebarGroup {
   return {
     collapsed: false,
@@ -195,27 +256,6 @@ function sidebarNuxt(): SidebarGroup {
       {
         text: 'Getting Started',
         link: '/nuxt/getting-started',
-      },
-    ],
-  }
-}
-
-function sidebarRFC(): SidebarGroup {
-  return {
-    collapsed: false,
-    text: 'RFC',
-    items: [
-      {
-        text: 'Data Loaders',
-        link: '/rfcs/data-loaders/',
-      },
-      {
-        text: 'Pinia Colada loader',
-        link: '/rfcs/data-loaders/colada',
-      },
-      {
-        text: 'Basic Loader',
-        link: '/rfcs/data-loaders/basic',
       },
     ],
   }

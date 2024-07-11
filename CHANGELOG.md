@@ -107,8 +107,8 @@ internally to represent the folder structure.
 
 This patch contains the necessary fixes to allow importing the data loaders. However, they cannot be imported from `vue-router/auto` nor from `unplugin-vue-router/runtime`. Instead, they should be imported from `unplugin-vue-router/data-loaders/...`. This is needed as some of the loaders depends on extra packages that not all users have installed. At the moment, there are two data loaders
 
-- `unplugin-vue-router/data-loaders/basic`: https://uvr.esm.is/rfcs/data-loaders/basic.html
-- `unplugin-vue-router/data-loaders/pinia-colada`: https://uvr.esm.is/rfcs/data-loaders/colada.html
+- `unplugin-vue-router/data-loaders/basic`: https://uvr.esm.is/data-loaders/basic/
+- `unplugin-vue-router/data-loaders/pinia-colada`: https://uvr.esm.is/data-loaders/colada/
 
 ### Bug Fixes
 
@@ -195,10 +195,10 @@ For people using the file-based routing, you now need to add `unplugin-vue-route
 
 - Data Loaders have been redesigned to be more flexible
   and account for other libraries. Notably, the caching behavior has been
-  moved out of the basic loader to an extended one [pinia-colada](https://uvr.esm.is/rfcs/data-loaders/colada.html) and the [basic loader](https://uvr.esm.is/rfcs/data-loaders/basic.html)
+  moved out of the basic loader to an extended one [pinia-colada](https://uvr.esm.is/data-loaders/colada/) and the [basic loader](https://uvr.esm.is/data-loaders/basic/)
   has no cache. All of the pending bugs have also been fixed.
   I recommend you to give the RFC examples a new read to get
-  setup: https://uvr.esm.is/rfcs/data-loaders/. Most of the changes are
+  setup: https://uvr.esm.is/data-loaders/rfc. Most of the changes are
   simplifying things by removing them.
   Here is a list of the breaking changes to simplify
   migration:
@@ -207,9 +207,9 @@ For people using the file-based routing, you now need to add `unplugin-vue-route
   - Manual work needed to add loaders with `HasDataLoaderMeta` has been
     removed. It is just no longer needed. Loaders are picked up from lazy
     loaded components and must otherwise be directly added to a `meta.loaders`
-    array. See the example at https://uvr.esm.is/rfcs/data-loaders/#basic-example
+    array. See the example at https://uvr.esm.is/data-loaders/rfc.html#basic-example
   - The function `setupDataFetchingGuard` has been replaced with a Vue
-    Plugin. See https://uvr.esm.is/rfcs/data-loaders/#data-loader-setup
+    Plugin. See https://uvr.esm.is/data-loaders/rfc.html#data-loader-setup
     for details.
   - If you were relying on `cacheTime`, use the `staleTime` option in the
     new [`defineColadaLoader()`](https://uvr.esm.is/rfcs/data-loaders/colada) based off [@pinia/colada](https://github.com/posva/pinia-colada)
