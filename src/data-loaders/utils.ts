@@ -30,6 +30,13 @@ export function getCurrentContext() {
 }
 
 // TODO: rename parentContext
+/**
+ * Sets the current context for data loaders. This allows for nested loaders to be aware of their parent context.
+ * INTERNAL ONLY.
+ *
+ * @param context - the context to set
+ * @internal
+ */
 export function setCurrentContext(
   context?: typeof currentContext | readonly []
 ) {
