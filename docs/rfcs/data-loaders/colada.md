@@ -84,6 +84,8 @@ const {
 </template>
 ```
 
+<!-- TODO: add autocompletion to show all pinia colada options -->
+
 ::: tip
 If you are using unplugin-vue-router, you can pass a route name to `defineColadaLoader` to get typed routes in the `query` function.
 
