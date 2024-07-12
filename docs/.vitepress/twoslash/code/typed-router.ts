@@ -1,4 +1,3 @@
-export const typedRouterFile = `
 declare module 'vue-router/auto-routes' {
   import type {
     RouteRecordInfo,
@@ -30,5 +29,3 @@ declare module 'vue-router/auto-routes' {
     >
   }
 }
-`
-export const typedRouterFileAsModule = typedRouterFile + '\nexport {}\n'

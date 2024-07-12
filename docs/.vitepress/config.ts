@@ -9,12 +9,7 @@ import {
   releases,
   discord,
 } from './meta'
-import {
-  apiIndexFile,
-  typedRouterFile,
-  typedRouterFileAsModule,
-  usersLoaderFile,
-} from './twoslash-files'
+import { typedRouterFile, typedRouterFileAsModule } from './twoslash-files'
 import { extraFiles } from './twoslash/files'
 
 export default defineConfig({
@@ -26,9 +21,6 @@ export default defineConfig({
             ...extraFiles,
             'router.ts': typedRouterFileAsModule,
             'typed-router.d.ts': typedRouterFile,
-            'api/index.ts': apiIndexFile,
-            '../api/index.ts': apiIndexFile,
-            'loaders/users.ts': usersLoaderFile,
           },
         },
       }),

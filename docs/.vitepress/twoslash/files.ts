@@ -4,6 +4,19 @@ import { fileURLToPath } from 'node:url'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
+const apiCode = fs.readFileSync(join(__dirname, './code/api.ts'), 'utf-8')
+
+export const usersLoaderCode = `
+import { defineBasicLoader } from 'unplugin-vue-router/data-loaders/basic'
+
+${apiCode}
+
+export const useUserData = defineBasicLoader((route) => getUserById(route.params.id as string))
+export const useUserList = defineBasicLoader(() => getUserList())
+
+export { User, getUserById, getUserList }
+`
+
 export const extraFiles = {
   '@/stores/index.ts': fs.readFileSync(
     join(__dirname, './code/stores.ts'),
@@ -16,4 +29,13 @@ declare module '*.vue' {
   export default defineComponent({})
 }
 `.trimStart(),
+
+  // 'router.ts': typedRouterFileAsModule,
+  'typed-router.d.ts': fs.readFileSync(
+    join(__dirname, './code/typed-router.ts'),
+    'utf-8'
+  ),
+  'api/index.ts': apiCode,
+  '../api/index.ts': apiCode,
+  'loaders/users.ts': usersLoaderCode,
 }
