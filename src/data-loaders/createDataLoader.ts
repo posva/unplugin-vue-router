@@ -109,7 +109,9 @@ export interface DefineDataLoaderOptionsBase<isLazy extends boolean> {
   server?: boolean
 
   /**
-   * When the data should be committed to the entry. This only applies to non-lazy loaders.
+   * When the data should be committed to the entry. In the case of lazy loaders, the loader will try to commit the data
+   * after all non-lazy loaders have finished loading, but it might not be able to if the lazy loader hasn't been
+   * resolved yet.
    *
    * @see {@link DefineDataLoaderCommit}
    * @defaultValue `'after-load'`

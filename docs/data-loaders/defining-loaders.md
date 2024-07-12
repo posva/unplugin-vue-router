@@ -12,8 +12,8 @@ import './typed-router.d'
 import { defineBasicLoader } from 'unplugin-vue-router/data-loaders/basic'
 import { getUserById } from '../api'
 
-export const useUserData = defineBasicLoader('/users/[id]', async (route) => {
-  return getUserById(route.params.id)
+export const useUserData = defineBasicLoader('/users/[id]', async (to) => {
+  return getUserById(to.params.id)
 })
 </script>
 
@@ -59,9 +59,9 @@ By using the route location to fetch data, we ensure a consistent relationship b
 
 It's important to avoid side effects in the loader function. Don't call `watch`, or create reactive effects like `ref`, `toRefs()`, `computed`, etc.
 
-## Accessing Global Properties
+### Global Properties
 
-In the loader function, you can access global properties like the router instance, a store, etc. This is because using `inject()` within the loader function **is possible**. Since loaders are asynchronous, make sure you are using the `inject` function **before any `await`**:
+In the loader function, you can access global properties like the router instance, a store, etc. This is because using `inject()` within the loader function **is possible**, just like within navigation guards. Since loaders are asynchronous, make sure you are using the `inject` function **before any `await`**:
 
 ```ts twoslash
 import 'unplugin-vue-router/client'
@@ -70,7 +70,7 @@ import { defineBasicLoader } from 'unplugin-vue-router/data-loaders/basic'
 import { getUserById } from '../api'
 // ---cut---
 import { inject } from 'vue'
-import { useSomeStore } from '@/stores'
+import { useSomeStore, useOtherStore } from '@/stores'
 
 export const useUserData = defineBasicLoader('/users/[id]', async (to) => {
   // ✅ This will work
@@ -79,8 +79,8 @@ export const useUserData = defineBasicLoader('/users/[id]', async (to) => {
 
   const user = await getUserById(to.params.id)
   // ❌ These won't work
-  const injectedValue2 = inject('key') // [!code error]
-  const store2 = useSomeStore() // [!code error]
+  const injectedValue2 = inject('key-2') // [!code error]
+  const store2 = useOtherStore() // [!code error]
   // ...
   return user
 })
@@ -91,10 +91,232 @@ Why doesn't this work?
   // @error: Custom error message
 -->
 
+### Navigation control
+
+Since loaders happen within the context of a navigation, you can control the navigation by returning a `NavigationResult` object. This is similar to returning a value in a navigation guard
+
+```ts{1,8,9}
+import { NavigationResult } from 'unplugin-vue-router/data-loaders'
+
+const useDashboardStats = defineBasicLoader('/admin', async (to) => {
+  try {
+    return await getDashboardStats()
+  } catch (err) {
+    if (err.code === 401) {
+      // same as returning '/login' in a navigation guard
+      return new NavigationResult('/login')
+    }
+    throw err // unexpected error
+  }
+})
+```
+
+::: tip
+
+Note that [lazy loaders](#lazy-loaders) cannot control the navigation since they do not block it.
+
+:::
+
+Read more in the [Navigation Aware](./navigation-aware.md) section.
+
+### Errors
+
+Any thrown Error will abort the navigation, just like in navigation guards. They will trigger the `router.onError` handler if defined.
+
+::: tip
+
+Note that [lazy loaders](#lazy-loaders) cannot control the navigation since they do not block it, any thrown error will appear in the `error` property and not abort the navigation nor appear in the `router.onError` handler.
+
+:::
+
+It's possible to define expected errors so they don't abort the navigation. You can read more about it in the [Error Handling](./error-handling.md) section.
+
 ## Options
 
-All
+Data loaders are designed to be flexible and allow for customization. Despite being navigation-centric, they can be used outside of a navigation and this flexibility is key to their design.
+
+### Non blocking loaders with `lazy`
+
+By default, loaders are _non-lazy_, meaning they will block the navigation until the data is fetched. But this behavior can be changed by setting the `lazy` option to `true`.
+
+```vue{10,16} twoslash
+<script lang="ts">
+// ---cut-start---
+import 'unplugin-vue-router/client'
+import './typed-router.d'
+import { defineBasicLoader } from 'unplugin-vue-router/data-loaders/basic'
+// ---cut-end---
+import { getUserById } from '../api'
+
+export const useUserData = defineBasicLoader(
+  '/users/[id]',
+  async (to) => {
+    const user = await getUserById(to.params.id)
+    return user
+  },
+  { lazy: true } // 👈  marked as lazy
+)
+</script>
+
+<script setup>
+// Differently from the example above, `user.value` can and will be initially `undefined`
+const { data: user, isLoading, error } = useUserData()
+//            ^?
+</script>
+
+<!-- ... -->
+```
+
+This patterns is useful to avoid blocking the navigation while _non critical data_ is being fetched. It will display the page earlier while lazy loaders are still loading and you are able to display loader indicators thanks to the `isLoading` property.
+
+Since lazy loaders do not block the navigation, any thrown error will not abort the navigation nor appear in the `router.onError` handler. Instead, the error will be available in the `error` property.
+
+Note this still allows for having different behavior during SSR and client side navigation, e.g.: if we want to wait for the loader during SSR but not during client side navigation:
+
+```ts{6-7}
+export const useUserData = defineBasicLoader(
+  async (to) => {
+    // ...
+  },
+  {
+    lazy: !import.env.SSR, // Vite specific
+  }
+)
+```
+
+You can even pass a function to `lazy` to determine if the loader should be lazy or not based on each load/navigation:
+
+```ts{6-7}
+export const useSearchResults = defineBasicLoader(
+  async (to) => {
+    // ...
+  },
+  {
+    // lazy if we are on staying on the same route
+    lazy: (to, from) => to.name === from.name,
+  }
+)
+```
+
+This is really useful when you can display the old data while fetching the new one and some of the parts of the page require the route to be updated like search results and pagination buttons. By using a lazy loader only when the route changes, the pagination can be updated immediately while the search results are being fetched, allowing the user to click multiple times on the pagination buttons without waiting for the search results to be fetched.
+
+### Delaying data updates with `commit`
+
+By default, the data is updated only once all loaders are resolved. This is useful to avoid displaying partially loaded data or worse, incoherent data aggregation.
+
+Sometimes you might want to immediately update the data as soon as it's available, even if other loaders are still pending. This can be achieved by changing the `commit` option:
+
+```ts twoslash
+import { defineBasicLoader } from 'unplugin-vue-router/data-loaders/basic'
+interface Book {
+  title: string
+  isbn: string
+  description: string
+}
+function fetchBookCollection(): Promise<Book[]> {
+  return {} as any
+}
+// ---cut---
+export const useBookCollection = defineBasicLoader(fetchBookCollection, {
+  commit: 'immediate',
+})
+```
+
+In the case of [lazy loaders](#lazy-loaders), they also default to `commit: 'after-load'`. They will commit after all other non-lazy loaders if they can but since they are not awaited, they might not be able to. In this case, the data will be available when finished loading, which can be much later than the navigation is completed.
+
+### Server optimization with `server`
+
+During SSR, it might be more performant to avoid loading data that isn't critical for the initial render. This can be achieved by setting the `server` option to `false`. That will completely skip the loader during SSR.
+
+```ts{3} twoslash
+import { defineBasicLoader } from 'unplugin-vue-router/data-loaders/basic'
+interface Book {
+  title: string
+  isbn: string
+  description: string
+}
+function fetchRelatedBooks(id: string | string[]): Promise<Book[]> {
+  return {} as any
+}
+// ---cut---
+export const useRelatedBooks = defineBasicLoader(
+  (to) => fetchRelatedBooks(to.params.id),
+  { server: false }
+)
+```
+
+You can read more about server side rendering in the [SSR](./ssr.md) section.
 
 ## Connecting a loader to a page
 
-## Why
+The router needs to know what loaders should be ran with which page. This is achieved in two ways:
+
+- **Automatically**: when a loader is exported from a page component that is lazy loaded, the loader will be automatically connected to the page
+
+  ::: code-group
+
+  ```ts{8} [router.ts]
+  import { createRouter, createWebHistory } from 'vue-router'
+
+  export const router = createRouter({
+    history: createWebHistory(),
+    routes: [
+      {
+        path: '/settings',
+        component: () => import('./settings.vue'),
+      },
+    ],
+  })
+  ```
+
+  ```vue{3-5} [settings.vue]
+  <script lang="ts">
+  import { getSettings } from './api'
+  export const useSettings = defineBasicLoader('/settings', async (to) =>
+    getSettings()
+  )
+  </script>
+
+  <script lang="ts" setup>
+  const { data: settings } = useSettings()
+  </script>
+  <!-- ...rest of the component -->
+  ```
+
+  :::
+
+- **Manually**: by passing the defined loader into the `meta.loaders` property:
+
+  ::: code-group
+
+  ```ts{2,10-12} [router.ts]
+  import { createRouter, createWebHistory } from 'vue-router'
+  import Settings, { useSettings } from './settings.vue'
+
+  export const router = createRouter({
+    history: createWebHistory(),
+    routes: [
+      {
+        path: '/settings',
+        component: Settings,
+        meta: {
+          loaders: [useSettings],
+        },
+      }
+    ],
+  })
+  ```
+
+  ```vue{3-5} [settings.vue]
+  <script lang="ts">
+  import { getSettings } from './api'
+  export const useSettings = defineBasicLoader('/settings', async (to) =>
+    getSettings()
+  )
+  </script>
+
+  <script lang="ts" setup>
+  const { data: settings } = useSettings()
+  </script>
+  <!-- ...rest of the component -->
+  ```
