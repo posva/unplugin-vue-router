@@ -197,8 +197,8 @@ function sidebarDataLoaders(): SidebarGroup {
         link: '/data-loaders/',
       },
       {
-        text: 'Defining Loader',
-        link: '/data-loaders/introduction',
+        text: 'Defining Data Loaders',
+        link: '/data-loaders/defining-loaders',
       },
       {
         text: 'Cancelling a load',
