@@ -14,8 +14,8 @@ import {
   typedRouterFile,
   typedRouterFileAsModule,
   usersLoaderFile,
-  vueShimFile,
 } from './twoslash-files'
+import { extraFiles } from './twoslash/files'
 
 export default defineConfig({
   markdown: {
@@ -23,12 +23,12 @@ export default defineConfig({
       transformerTwoslash({
         twoslashOptions: {
           extraFiles: {
+            ...extraFiles,
             'router.ts': typedRouterFileAsModule,
             'typed-router.d.ts': typedRouterFile,
             'api/index.ts': apiIndexFile,
             '../api/index.ts': apiIndexFile,
             'loaders/users.ts': usersLoaderFile,
-            'shims-vue.d.ts': vueShimFile,
           },
         },
       }),

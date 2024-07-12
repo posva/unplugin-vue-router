@@ -67,10 +67,3 @@ export const useUserList = defineBasicLoader(() => getUserList())
 
 export { User, getUserById, getUserList }
 `
-
-export const vueShimFile = `
-declare module '*.vue' {
-  import { defineComponent } from 'vue'
-  export default defineComponent({})
-}
-`
