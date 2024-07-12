@@ -219,7 +219,7 @@ It's important to add the `DataLoaderPlugin` before the router to ensure the nav
 
 ### Core Data Loader features
 
-These are the core features of the Data Loader API that every data loader should implement. Throughout the RFC, we will use a **non-existent**, **generic** `defineLoader()`. This is a placeholder for the actual name of the function, e.g. [`defineBasicLoader()`](./basic.md), [`defineColadaLoader()`](./colada.md), etc. In practice, one can globally alias the function to `defineLoader` with [unplugin-auto-import](https://github.com/unplugin/unplugin-auto-import).
+These are the core features of the Data Loader API that every data loader should implement. Throughout the RFC, we will use a **non-existent**, **generic** `defineLoader()`. This is a placeholder for the actual name of the function, e.g. [`defineBasicLoader()`](./basic/), [`defineColadaLoader()`](./colada/), etc. In practice, one can globally alias the function to `defineLoader` with [unplugin-auto-import](https://github.com/unplugin/unplugin-auto-import).
 
 Data Loaders should be able to load data based **solely on the URL**. This ensures that the page can be shared and that the rendering is consistent between the server and the client.
 
@@ -337,7 +337,7 @@ const { data: user } = useUserData()
   })
   ```
 
-Each custom implementation can augment the returned properties with more information. For example, [Pinia Colada](./colada.md) adds `refresh()`, `status` and other properties specific to its features.
+Each custom implementation can augment the returned properties with more information. For example, [Pinia Colada](./colada/) adds `refresh()`, `status` and other properties specific to its features.
 
 #### Parallel Fetching
 
@@ -446,7 +446,7 @@ This allows nested loaders to be aware of their _parent loader_. This could prob
 #### Cache <Badge type="warning" text=">=0.8.0" />
 
 ::: warning
-This part has been removed from the core features of the API. It's now part of custom implementations like [Pinia Colada](./colada.md).
+This part has been removed from the core features of the API. It's now part of custom implementations like [Pinia Colada](./colada/).
 :::
 
 #### Smart Refreshing
@@ -455,7 +455,7 @@ This is not a requirement of the API.
 
 When navigating, depending on the loader, the data is refreshed **automatically based on what params, query params, and hash** are used within the loader.
 
-e.g. using [Pinia Colada](./colada.md), given this loader in page `/users/:id`:
+e.g. using [Pinia Colada](./colada/), given this loader in page `/users/:id`:
 
 ```ts
 export const useUserData = defineColadaLoader(async (route) => {
@@ -488,7 +488,7 @@ export const useBookCollection = defineLoader(
 
 ##### Avoiding double fetch on the client
 
-One of the advantages of having an initial state is that we can avoid fetching on the client. Data Loaders can implement a mechanism to skip fetching on the client if the initial state is provided ([Pinia Colada](./colada.md) implements this). This means nested loaders **aren't executed either**. Since data loaders shouldn't contain side effects besides data fetching, this shouldn't be a problem.
+One of the advantages of having an initial state is that we can avoid fetching on the client. Data Loaders can implement a mechanism to skip fetching on the client if the initial state is provided ([Pinia Colada](./colada/) implements this). This means nested loaders **aren't executed either**. Since data loaders shouldn't contain side effects besides data fetching, this shouldn't be a problem.
 
 ### The Navigation Guard
 
@@ -830,7 +830,7 @@ This aligns with the future [Navigation API](https://github.com/WICG/navigation-
 
 ### Interfaces
 
-Defining a minimal set of information and options for Data Loaders is what enables external libraries to implement their own data loaders. They are meant to extend these interfaces to add more features that are specific to them. You can see a practical example with the [Pinia Colada](colada.md) implementation.
+Defining a minimal set of information and options for Data Loaders is what enables external libraries to implement their own data loaders. They are meant to extend these interfaces to add more features that are specific to them. You can see a practical example with the [Pinia Colada](./colada/) implementation.
 
 ::: danger
 This section is still a work in progress, see the [implementations](#implementations) instead.
