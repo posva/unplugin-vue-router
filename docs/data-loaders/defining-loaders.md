@@ -320,3 +320,7 @@ The router needs to know what loaders should be ran with which page. This is ach
   </script>
   <!-- ...rest of the component -->
   ```
+
+### _Disconnecting_ a loader from a page
+
+It is also possible **not to connect a loader to a page**. This allows you to delay the loading until the component is mounted. Usually you want to start loading the data as soon as possible but in some cases, it might be better to wait until the component is mounted. This can be achieved by not exporting the loader from the page component.
