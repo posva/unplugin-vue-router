@@ -63,13 +63,13 @@ const {
       <button @click="reload()">Refetch</button>
     </fieldset>
 
-    <RouterLink :to="{ params: { id: Number(route.params.id) || 0 - 1 } }"
-      >Previous</RouterLink
-    >
+    <RouterLink :to="{ params: { id: Number(route.params.id) || 0 - 1 } }">
+      Previous
+    </RouterLink>
     |
-    <RouterLink :to="{ params: { id: Number(route.params.id) || 0 + 1 } }"
-      >Next</RouterLink
-    >
+    <RouterLink :to="{ params: { id: Number(route.params.id) || 0 + 1 } }">
+      Next
+    </RouterLink>
 
     <h2>State</h2>
 
@@ -106,6 +106,10 @@ To avoid unnecessary frequent refreshes, Pinia Colada refreshes the data when na
 The `query` function tracks what is used in the `to` parameter and will only refresh the data if **tracked** properties change. This means that if you use `to.params.id` in the `query` function, it will only refetch the data if the `id` parameter changes but not if other properties like `to.query`, `to.hash` or even `to.params.other` change. To make sure the data is updated, it will still refresh in these scenarios. Configure the `staleTime` option to control how often the data should be refreshed.
 
 ## SSR
+
+<--!
+Hydration does not trigger extra load
+-->
 
 ## Nuxt
 
