@@ -626,15 +626,9 @@ When using vue router named views, each named view can have their own loaders bu
 
 ### Advanced Error handling
 
-::: info
-
-This is still not implemented.
-
-:::
-
 Since throwing an error in a loader cancels the navigation, this doesn't allow to have an error property in _non lazy loaders_ to display the error in the UI. To solve this, we can specify expected errors when defining the loader:
 
-```ts{2-7,14-16}
+```ts{2-9,16}
 // custom error class
 class MyError extends Error {
   // override is only needed in TS
