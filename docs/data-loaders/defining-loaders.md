@@ -18,7 +18,6 @@ export const useUserData = defineBasicLoader('/users/[id]', async (to) => {
 </script>
 
 <script setup lang="ts">
-// hello // [!code focus:7]
 const {
   data: user, // the data returned by the loader
   isLoading, // a boolean indicating if the loader is fetching data
