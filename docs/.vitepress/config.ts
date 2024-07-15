@@ -193,10 +193,6 @@ function sidebarDataLoaders(): SidebarGroup {
         link: '/data-loaders/defining-loaders',
       },
       {
-        text: 'Cancelling a load',
-        link: '/data-loaders/load-cancellation',
-      },
-      {
         text: 'Reloading data',
         link: '/data-loaders/reloading-data',
       },
@@ -205,16 +201,20 @@ function sidebarDataLoaders(): SidebarGroup {
         link: '/data-loaders/navigation-aware',
       },
       {
-        text: 'Organizing Loaders',
-        link: '/data-loaders/organization',
-      },
-      {
         text: 'Error Handling',
         link: '/data-loaders/error-handling',
       },
       {
+        text: 'Organizing Loaders',
+        link: '/data-loaders/organization',
+      },
+      {
         text: 'Nested Loaders',
         link: '/data-loaders/nested-loaders',
+      },
+      {
+        text: 'Cancelling a load',
+        link: '/data-loaders/load-cancellation',
       },
       {
         text: 'SSR',
