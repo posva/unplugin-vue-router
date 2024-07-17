@@ -97,7 +97,7 @@ export function resolveOverridableOption<T>(
 ): T {
   return typeof value === 'function'
     ? (value as (existing: T) => T)(defaultValue)
-    : value ?? defaultValue
+    : (value ?? defaultValue)
 }
 
 export type _RoutesFolder = string | RoutesFolderOption
