@@ -138,7 +138,7 @@ export function testDefineLoader<Context = void>(
         (lazy) => {
           it(`can resolve a "null" value`, async () => {
             const spy = vi
-              .fn<unknown[], Promise<unknown>>()
+              .fn<(...args: unknown[]) => Promise<unknown>>()
               .mockResolvedValueOnce(null)
             const { useData, router } = singleLoaderOneRoute(
               loaderFactory({ lazy, commit, fn: spy })
@@ -151,7 +151,7 @@ export function testDefineLoader<Context = void>(
 
           it('can reject outside of a navigation', async () => {
             const spy = vi
-              .fn<unknown[], Promise<unknown>>()
+              .fn<(...args: unknown[]) => Promise<unknown>>()
               .mockResolvedValue('ko')
 
             const { useData, router } = singleLoaderOneRoute(
@@ -217,7 +217,7 @@ export function testDefineLoader<Context = void>(
 
           it(`the resolved data is present after navigation`, async () => {
             const spy = vi
-              .fn<unknown[], Promise<string>>()
+              .fn<(...args: unknown[]) => Promise<string>>()
               .mockResolvedValueOnce('resolved')
             const { wrapper, useData, router } = singleLoaderOneRoute(
               // loaders are not require to allow sync return values
@@ -235,7 +235,7 @@ export function testDefineLoader<Context = void>(
 
           it(`can be forced reloaded`, async () => {
             const spy = vi
-              .fn<unknown[], Promise<string>>()
+              .fn<(...args: unknown[]) => Promise<string>>()
               .mockResolvedValueOnce('resolved 1')
             const { router, useData } = singleLoaderOneRoute(
               loaderFactory({ lazy, commit, fn: spy })
@@ -459,10 +459,13 @@ export function testDefineLoader<Context = void>(
   )
 
   it('passes a signal to the loader', async () => {
-    const spy = vi.fn<
-      [to: RouteLocationNormalizedLoaded, context: DataLoaderContextBase],
-      Promise<unknown>
-    >()
+    const spy =
+      vi.fn<
+        (
+          to: RouteLocationNormalizedLoaded,
+          context: DataLoaderContextBase
+        ) => Promise<unknown>
+      >()
     spy.mockResolvedValueOnce('ok')
     const { router } = singleLoaderOneRoute(loaderFactory({ fn: spy }))
     await router.push('/fetch?p=ok')
@@ -549,7 +552,7 @@ export function testDefineLoader<Context = void>(
     const nestedP1 = new Promise((r) => (resolveNestedFirstCall = r))
     const nestedP2 = new Promise((r) => (resolveNestedSecondCall = r))
     const nestedLoaderSpy = vi
-      .fn<[to: RouteLocationNormalizedLoaded], Promise<unknown>>()
+      .fn<(to: RouteLocationNormalizedLoaded) => Promise<unknown>>()
       .mockImplementation(async (to) => {
         nestedCalls++
         if (nestedCalls === 1) {
@@ -571,7 +574,7 @@ export function testDefineLoader<Context = void>(
     const rootP2 = new Promise((r) => (resolveRootSecondCall = r))
 
     const rootLoaderSpy = vi
-      .fn<[to: RouteLocationNormalizedLoaded], Promise<unknown>>()
+      .fn<(to: RouteLocationNormalizedLoaded) => Promise<unknown>>()
       .mockImplementation(async (to) => {
         rootCalls++
         const data = await useNestedLoader()
@@ -718,7 +721,7 @@ export function testDefineLoader<Context = void>(
     const p2 = new Promise((r) => (resolveCall2 = r))
     const p3 = new Promise((r) => (resolveCall3 = r))
     const spy = vi
-      .fn<[to: RouteLocationNormalizedLoaded], Promise<string>>()
+      .fn<(to: RouteLocationNormalizedLoaded) => Promise<unknown>>()
       .mockImplementation(async (to) => {
         calls++
         // the first one should be skipped
@@ -789,10 +792,10 @@ export function testDefineLoader<Context = void>(
 
   it('can nest loaders', async () => {
     const spyOne = vi
-      .fn<unknown[], Promise<string>>()
+      .fn<(...args: unknown[]) => Promise<string>>()
       .mockResolvedValueOnce('one')
     const spyTwo = vi
-      .fn<unknown[], Promise<string>>()
+      .fn<(...args: unknown[]) => Promise<string>>()
       .mockResolvedValueOnce('two')
     const useLoaderOne = loaderFactory({ fn: spyOne, key: 'one' })
     const useLoaderTwo = loaderFactory({
@@ -1100,7 +1103,7 @@ export function testDefineLoader<Context = void>(
       expect(useDataResult?.data.value).toEqual('search')
       expect(l2Data.data.value).toEqual('search,one')
       // FIXME: go from here: figure out why with colada it's called 2 times
-      // but only once with the basic loader. Probably need a currentload variable
+      // but only once with the basic loader. Probably need a currentLoad variable
       expect(l1.spy).toHaveBeenCalledTimes(1)
       expect(spy).toHaveBeenCalledTimes(1)
     }

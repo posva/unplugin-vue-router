@@ -183,7 +183,7 @@ describe(
 
       it('uses initialData if present', async () => {
         const spy = vi
-          .fn<[to: RouteLocationNormalizedLoaded], Promise<string>>()
+          .fn<(to: RouteLocationNormalizedLoaded) => Promise<string>>()
           .mockResolvedValue('initial')
         const { router, useData } = singleLoaderOneRoute(
           defineBasicLoader(spy, { key: 'root' })
@@ -198,7 +198,7 @@ describe(
 
       it('ignores initialData on subsequent navigations', async () => {
         const spy = vi
-          .fn<[to: RouteLocationNormalizedLoaded], Promise<string>>()
+          .fn<(to: RouteLocationNormalizedLoaded) => Promise<string>>()
           .mockImplementation(async (to) => to.query.p as string)
         const { router, useData } = singleLoaderOneRoute(
           defineBasicLoader(spy, { key: 'root' })
