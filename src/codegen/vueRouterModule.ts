@@ -25,7 +25,7 @@ export function createRouter(options) {
   const { extendRoutes, routes } = options
   // use Object.assign for better browser support
   if (extendRoutes) {
-    console.warn('"extendRoutes()" is deprecated, please modify the routes directly. See')
+    console.warn('"extendRoutes()" is deprecated, please modify the routes directly. See https://uvr.esm.is/guide/extending-routes.html#extending-routes-at-runtime for an alternative.')
   }
   const router = _createRouter(Object.assign(
     options,
