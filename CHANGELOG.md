@@ -1,3 +1,14 @@
+## [0.10.1](https://github.com/posva/unplugin-vue-router/compare/v0.10.0...v0.10.1) (2024-07-22)
+
+### Bug Fixes
+
+- **warn:** missing link ([4efd888](https://github.com/posva/unplugin-vue-router/commit/4efd88821993c832c35d349f9c8c11f1b50319e8)), closes [#450](https://github.com/posva/unplugin-vue-router/issues/450)
+
+### Features
+
+- **data-loaders:** expected errors ([a470a51](https://github.com/posva/unplugin-vue-router/commit/a470a513629428490763207f3b55a6a38e636707))
+- lazy fn option ([174bbd3](https://github.com/posva/unplugin-vue-router/commit/174bbd374e8276be3d9ff3cf25e52627a30cea2f))
+
 # [0.10.0](https://github.com/posva/unplugin-vue-router/compare/v0.9.1...v0.10.0) (2024-06-21)
 
 ### Bug Fixes
