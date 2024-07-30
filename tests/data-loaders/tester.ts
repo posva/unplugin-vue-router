@@ -793,9 +793,11 @@ export function testDefineLoader<Context = void>(
   it('can nest loaders', async () => {
     const spyOne = vi
       .fn<(...args: unknown[]) => Promise<string>>()
+      .mockResolvedValue('ko')
       .mockResolvedValueOnce('one')
     const spyTwo = vi
       .fn<(...args: unknown[]) => Promise<string>>()
+      .mockResolvedValue('ko')
       .mockResolvedValueOnce('two')
     const useLoaderOne = loaderFactory({ fn: spyOne, key: 'one' })
     const useLoaderTwo = loaderFactory({

@@ -23,7 +23,7 @@ import { getRouter } from 'vue-router-mock'
 import { enableAutoUnmount, mount } from '@vue/test-utils'
 import RouterViewMock from '../../tests/data-loaders/RouterViewMock.vue'
 import { setActivePinia, createPinia, getActivePinia } from 'pinia'
-import { QueryPlugin, useQuery } from '@pinia/colada'
+import { useQuery, PiniaColada } from '@pinia/colada'
 import { RouteLocationNormalizedLoaded } from 'vue-router'
 
 describe(
@@ -55,7 +55,7 @@ describe(
           setActivePinia(pinia)
           return { pinia }
         },
-        plugins: ({ pinia }) => [pinia, QueryPlugin],
+        plugins: ({ pinia }) => [pinia, PiniaColada],
       }
     )
 
@@ -95,7 +95,7 @@ describe(
           plugins: [
             [DataLoaderPlugin, { router, ...pluginOptions }],
             createPinia(),
-            QueryPlugin,
+            PiniaColada,
           ],
         },
       })
@@ -168,7 +168,7 @@ describe(
         }),
         {
           global: {
-            plugins: [getActivePinia()!, QueryPlugin],
+            plugins: [getActivePinia()!, PiniaColada],
           },
         }
       )

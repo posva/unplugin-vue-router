@@ -179,6 +179,11 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
         //   entries.delete(loader)
         // }
       })
+      // avoid double reload since calling `useQuery()` will trigger a refresh
+      // and we might also do it below for nested loaders
+      if (entry.ext.status.value === 'loading') {
+        reload = false
+      }
     }
 
     const { isLoading, data, error, ext } = entry
