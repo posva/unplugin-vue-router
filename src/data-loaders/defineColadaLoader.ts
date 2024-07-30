@@ -437,8 +437,8 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       // otherwise this will end up in "Unhandled promise rejection"
       .catch((e) => (parentEntry ? Promise.reject(e) : null))
 
-    // Restore the context: shouldn't be needed
-    // setCurrentContext(currentEntry)
+    // Restore the context to avoid sequential calls to be nested
+    setCurrentContext(currentEntry)
     return assign(promise, useDataLoaderResult)
   }
 
