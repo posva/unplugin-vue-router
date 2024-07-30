@@ -174,6 +174,10 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
           })
         },
         key: () => options.key(entry.route.value),
+        // TODO: cleanup if gc
+        // onDestroy() {
+        //   entries.delete(loader)
+        // }
       })
     }
 
