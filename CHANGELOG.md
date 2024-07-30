@@ -1,3 +1,10 @@
+## [0.10.2](https://github.com/posva/unplugin-vue-router/compare/v0.10.1...v0.10.2) (2024-07-30)
+
+### Bug Fixes
+
+- avoid nested loaders in setup ([3aea904](https://github.com/posva/unplugin-vue-router/commit/3aea904bd57206aba9b8405c515ec19893580670))
+- **loaders:** avoid double fetch on nested loaders ([f15bedc](https://github.com/posva/unplugin-vue-router/commit/f15bedc8d58678a80cd511c7b546c81d74f5c7f0))
+
 ## [0.10.1](https://github.com/posva/unplugin-vue-router/compare/v0.10.0...v0.10.1) (2024-07-22)
 
 ### Bug Fixes
