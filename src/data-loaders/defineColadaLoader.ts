@@ -36,7 +36,7 @@ import {
 import {} from './utils'
 import { type ShallowRef, shallowRef, watch } from 'vue'
 import {
-  type UseQueryKey,
+  type EntryKey,
   type UseQueryOptions,
   type UseQueryReturn,
   useQuery,
@@ -468,7 +468,7 @@ export interface DefineDataColadaLoaderOptions<
    * Key associated with the data and passed to pinia colada
    * @param to - Route to load the data
    */
-  key: (to: RouteLocationNormalizedLoaded<Name>) => UseQueryKey
+  key: (to: RouteLocationNormalizedLoaded<Name>) => EntryKey
 
   /**
    * Function that returns a promise with the data.
