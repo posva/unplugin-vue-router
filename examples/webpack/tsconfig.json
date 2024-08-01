@@ -1,0 +1,16 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "include": [
+    "./env.d.ts",
+    "shims-vue.d.ts",
+    "src/**/*",
+    "src/**/*.vue",
+    "shims-vue.d.ts",
+    "./typed-router.d.ts"
+  ],
+  "moduleFileExtensions": ["ts", "js", "vue", "json"],
+  "compilerOptions": {
+    "moduleResolution": "Bundler",
+    "baseUrl": "../../"
+  }
+}
