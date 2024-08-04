@@ -31,7 +31,12 @@ export default defineConfig({
       extensions: ['.page.vue', '.vue'],
       importMode: 'async',
       extendRoute(route) {
-        // console.log('extending route', route.meta)
+        route.params.forEach((param, i) => {
+          // transform kebab-case to camelCase
+          param.paramName = param.paramName.replace(/-([a-z])/g, (g) =>
+            g[1].toUpperCase()
+          )
+        })
 
         // example of deleting routes
         // if (route.name.startsWith('/users')) {
@@ -96,7 +101,7 @@ export default defineConfig({
             file = file
               .slice(file.lastIndexOf(prefix) + prefix.length + 1)
               .replace('/pages', '')
-            console.log('👉 FILE', file)
+            // console.log('👉 FILE', file)
             return file
           },
         },
