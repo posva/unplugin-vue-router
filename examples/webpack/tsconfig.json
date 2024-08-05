@@ -5,7 +5,6 @@
     "shims-vue.d.ts",
     "src/**/*",
     "src/**/*.vue",
-    "shims-vue.d.ts",
     "./typed-router.d.ts"
   ],
   "moduleFileExtensions": ["ts", "js", "vue", "json"],
