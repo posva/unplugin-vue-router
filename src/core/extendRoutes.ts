@@ -168,7 +168,8 @@ export class EditableTreeNode {
   }
 
   /**
-   * Array of the route params and all of its parent's params.
+   * Array of the route params and all of its parent's params. Note that changing the params will not update the path,
+   * you need to update both.
    */
   get params() {
     return this.node.params
