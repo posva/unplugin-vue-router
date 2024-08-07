@@ -267,7 +267,7 @@ Check the [file-based routing](/guide/file-based-routing) guide for more informa
 
 ### Manipulating the routes
 
-You can pass the `routes` to any plugin that needs to add changes to them but note that **these changes will not be reflected in types**. Use [build-time routes instead](./guide/extending-routes.md) if you want to have types support. Here is an example with [Vitesse starter](https://github.com/antfu/vitesse/blob/main/src/main.ts):
+You can pass the `routes` to any plugin that needs to add changes to them but note that **these changes will not be reflected in types**. Use [build-time routes instead](./guide/extending-routes.md) if you want to have types support. Here is an example with [Vitesse starter](https://github.com/antfu-collective/vitesse/blob/main/src/main.ts):
 
 ```ts
 import { ViteSSG } from 'vite-ssg'
