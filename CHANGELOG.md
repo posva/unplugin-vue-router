@@ -1,3 +1,9 @@
+## [0.10.3](https://github.com/posva/unplugin-vue-router/compare/v0.10.2...v0.10.3) (2024-08-12)
+
+### Features
+
+- upgrade to @pinia/colada 0.8.0 ([c372b14](https://github.com/posva/unplugin-vue-router/commit/c372b14b2c46d096b40347130d3e18b6f0f1cc4a))
+
 ## [0.10.2](https://github.com/posva/unplugin-vue-router/compare/v0.10.1...v0.10.2) (2024-07-30)
 
 ### Bug Fixes
