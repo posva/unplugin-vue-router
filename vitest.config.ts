@@ -19,7 +19,18 @@ export default defineConfig({
     // open: false,
     coverage: {
       include: ['src/**/*.ts'],
-      exclude: ['src/**/*.d.ts', 'src/**/*.test-d.ts', 'src/**/*.spec.ts'],
+      exclude: [
+        'src/**/*.d.ts',
+        'src/**/*.test-d.ts',
+        'src/**/*.spec.ts',
+        // entry points
+        'src/index.ts',
+        'src/esbuild.ts',
+        'src/rollup.ts',
+        'src/vite.ts',
+        'src/webpack.ts',
+        'src/types.ts',
+      ],
     },
     typecheck: {
       enabled: true,
