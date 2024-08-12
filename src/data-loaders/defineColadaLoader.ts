@@ -181,7 +181,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       })
       // avoid double reload since calling `useQuery()` will trigger a refresh
       // and we might also do it below for nested loaders
-      if (entry.ext.status.value === 'loading') {
+      if (entry.ext.asyncStatus.value === 'loading') {
         reload = false
       }
     }
@@ -392,7 +392,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       }
     })
 
-    watch(ext!.isFetching, (isFetching) => {
+    watch(ext!.isLoading, (isFetching) => {
       if (!router[PENDING_LOCATION_KEY]) {
         isLoading.value = isFetching
       }
@@ -418,12 +418,12 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       ) =>
         router[APP_KEY].runWithContext(() =>
           load(to, router, undefined, undefined, true)
-        ).then(() => entry!.commit(to)),
+        ).then(() => (entry!.commit(to), entry!.ext!.state.value)),
       refresh: (
         to: RouteLocationNormalizedLoaded = router.currentRoute.value
       ) =>
-        router[APP_KEY].runWithContext(() => load(to, router)).then(() =>
-          entry!.commit(to)
+        router[APP_KEY].runWithContext(() => load(to, router)).then(
+          () => (entry!.commit(to), entry.ext!.state.value)
         ),
       isPending: ext!.isPending,
       status: ext!.status,
