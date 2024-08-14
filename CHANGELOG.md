@@ -1,3 +1,9 @@
+## [0.10.4](https://github.com/posva/unplugin-vue-router/compare/v0.10.3...v0.10.4) (2024-08-14)
+
+### Features
+
+- experimental auto export of data loaders ([16af831](https://github.com/posva/unplugin-vue-router/commit/16af8317b61dbd56dde7b5f5308269f4a033ec6c))
+
 ## [0.10.3](https://github.com/posva/unplugin-vue-router/compare/v0.10.2...v0.10.3) (2024-08-12)
 
 ### Features
