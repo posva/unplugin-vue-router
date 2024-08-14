@@ -209,6 +209,17 @@ export interface Options {
    * @default `!process.env.CI`
    */
   watch?: boolean
+
+  /**
+   * Experimental options. **Warning**: these can change or be removed at any time, even it patch releases. Keep an eye
+   * on the Changelog.
+   */
+  experimental?: {
+    /**
+     * Automatically export data loaders in vue components. This allows you to not
+     */
+    autoExportsDataLoaders?: boolean
+  }
 }
 
 export const DEFAULT_OPTIONS = {
@@ -227,6 +238,9 @@ export const DEFAULT_OPTIONS = {
     dotNesting: true,
   },
   watch: !process.env.CI,
+  experimental: {
+    autoExportsDataLoaders: false,
+  },
 } satisfies Options
 
 export interface ServerContext {

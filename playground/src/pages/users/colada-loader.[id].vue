@@ -1,47 +1,5 @@
-<script lang="ts">
-import { defineColadaLoader } from 'unplugin-vue-router/data-loaders/pinia-colada'
-
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
-
-const simulateError = ref(false)
-
-// th
-
-export const useUserData = defineColadaLoader('/users/colada-loader.[id]', {
-  async query(to, { signal }) {
-    console.log('[🍹] coladaLoader', to.fullPath)
-    // signal.addEventListener('abort', () => {
-    //   console.log('[🍹❌] aborted', to.fullPath)
-    // })
-    // we need to read these before the delay
-    const id = to.params.id
-    // @ts-expect-error: no param "name"!
-    const name = to.params.name
-
-    await delay(500)
-    if (simulateError.value) {
-      throw new Error('Simulated Error')
-    }
-
-    const user = {
-      id,
-      name,
-      when: new Date().toUTCString(),
-    }
-
-    return user
-  },
-  key: (to) => {
-    // console.log('[🍹] key', to.fullPath)
-    return ['loader-users', to.params.id]
-  },
-  staleTime: 10000,
-  lazy: (to, from) => to.name && to.name === from.name,
-})
-</script>
-
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
+import { simulateError, useUserData } from '@/loaders/colada-loaders'
 import { serialize } from '@pinia/colada'
 import { getActivePinia } from 'pinia'
 

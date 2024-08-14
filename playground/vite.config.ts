@@ -30,6 +30,7 @@ export default defineConfig({
     VueRouter({
       extensions: ['.page.vue', '.vue'],
       importMode: 'async',
+      experimental: { autoExportsDataLoaders: true },
       extendRoute(route) {
         route.params.forEach((param, i) => {
           // transform kebab-case to camelCase

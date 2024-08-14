@@ -109,6 +109,13 @@ export function setupLoaderGuard({
                     record.meta[LOADER_SET_KEY]!.add(exportValue)
                   }
                 }
+                if (Array.isArray(viewModule.__loaders)) {
+                  for (const loader of viewModule.__loaders) {
+                    if (isDataLoader(loader)) {
+                      record.meta[LOADER_SET_KEY]!.add(loader)
+                    }
+                  }
+                }
               }
             )
 
