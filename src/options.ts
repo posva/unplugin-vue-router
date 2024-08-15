@@ -241,9 +241,7 @@ export const DEFAULT_OPTIONS = {
     dotNesting: true,
   },
   watch: !process.env.CI,
-  experimental: {
-    autoExportsDataLoaders: 'src/loaders/**/*',
-  },
+  experimental: {},
 } satisfies Options
 
 export interface ServerContext {
@@ -302,11 +300,13 @@ export function resolveOptions(options: Options) {
     src: resolve(root, routeOption.src),
   }))
 
-  if (options.experimental?.autoExportsDataLoaders) {
-    options.experimental.autoExportsDataLoaders = (
-      Array.isArray(options.experimental.autoExportsDataLoaders)
-        ? options.experimental.autoExportsDataLoaders
-        : [options.experimental.autoExportsDataLoaders]
+  const experimental = { ...options.experimental }
+
+  if (experimental.autoExportsDataLoaders) {
+    experimental.autoExportsDataLoaders = (
+      Array.isArray(experimental.autoExportsDataLoaders)
+        ? experimental.autoExportsDataLoaders
+        : [experimental.autoExportsDataLoaders]
     ).map((path) => resolve(root, path))
   }
 
@@ -341,6 +341,7 @@ export function resolveOptions(options: Options) {
   return {
     ...DEFAULT_OPTIONS,
     ...options,
+    experimental,
     routesFolder,
     filePatterns,
     exclude,

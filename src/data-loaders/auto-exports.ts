@@ -20,7 +20,6 @@ export function extractLoadersToExport(
         ? parsed.specifier.slice(1)
         : parsed.specifier
     )
-    console.log('🔍', specifier)
 
     // bail out faster for anything that is not a data loader
     if (!filterPaths(specifier)) return []
@@ -43,7 +42,6 @@ export function createAutoExportPlugin({
   loadersPathsGlobs: string | string[]
   root: string
 }): UnpluginOptions {
-  console.log('Creating auto-export plugin', loadersPathsGlobs)
   const filterPaths = createFilter(loadersPathsGlobs)
 
   return {
