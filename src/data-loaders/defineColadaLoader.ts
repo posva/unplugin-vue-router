@@ -47,6 +47,12 @@ import { toLazyValue } from './createDataLoader'
  * Creates a data loader composable that can be exported by pages to attach the data loading to a route. This returns a
  * composable that can be used in any component.
  *
+ * The returned composable exposes a mix of Data Loaders state and Pinia
+ * Colada state.
+ * - `data`, `isLoading`, `error` are navigation dependent and follow data loaders behavior.
+ * - `status`, `asyncStatus`, `state` are Pinia Colada state and will immediately change and reflect the state of the
+ *   query.
+ *
  * @experimental
  * Still under development and subject to change. See https://github.com/vuejs/rfcs/discussions/460
  *
@@ -383,7 +389,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
 
     const { data, error, isLoading, ext } = entry
 
-    // TODO: add watchers only once
+    // TODO: add watchers only once alongside the entry
     // update the data when pinia colada updates it e.g. after visibility change
     watch(ext!.data, (newData) => {
       // only if we are not in the middle of a navigation
@@ -425,8 +431,10 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
         router[APP_KEY].runWithContext(() => load(to, router)).then(
           () => (entry!.commit(to), entry.ext!.state.value)
         ),
-      isPending: ext!.isPending,
       status: ext!.status,
+      asyncStatus: ext!.asyncStatus,
+      state: ext!.state,
+      isPending: ext!.isPending,
     } satisfies UseDataLoaderColadaResult<boolean, unknown>
 
     // load ensures there is a pending load
@@ -496,7 +504,7 @@ export interface UseDataLoaderColadaResult<isLazy extends boolean, Data>
   extends UseDataLoaderResult<isLazy, Data>,
     Pick<
       UseQueryReturn<Data, any>,
-      'isPending' | 'refetch' | 'refresh' | 'status'
+      'isPending' | 'refetch' | 'refresh' | 'status' | 'asyncStatus' | 'state'
     > {}
 
 /**

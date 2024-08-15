@@ -26,6 +26,7 @@ const {
   status,
   error,
   isLoading,
+  asyncStatus,
   reload,
   refresh,
 } = useUserData()
@@ -62,6 +63,8 @@ const {
 
     <p>
       <code>status: {{ status }}</code>
+      |
+      <code>asyncStatus: {{ asyncStatus }}</code>
       <br />
       <code>isFetching: {{ isLoading }}</code>
     </p>
