@@ -1,3 +1,9 @@
+## [0.10.5](https://github.com/posva/unplugin-vue-router/compare/v0.10.4...v0.10.5) (2024-08-15)
+
+### Features
+
+- **loaders:** change experimental option to match only specific folders ([f01cddd](https://github.com/posva/unplugin-vue-router/commit/f01cddd2128a3e629d60ac4faee6738ccf2cd8d2))
+
 ## [0.10.4](https://github.com/posva/unplugin-vue-router/compare/v0.10.3...v0.10.4) (2024-08-14)
 
 ### Features
