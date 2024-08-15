@@ -26,6 +26,9 @@ export * from './types'
 
 export { DEFAULT_OPTIONS }
 
+export { AutoExportLoaders } from './data-loaders/auto-exports'
+export type { AutoExportLoadersOptions } from './data-loaders/auto-exports'
+
 export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
   const options = resolveOptions(opt)
   const ctx = createRoutesContext(options)

@@ -1,4 +1,5 @@
 import { createFilter } from '@rollup/pluginutils'
+import type { Plugin } from 'vite'
 import MagicString from 'magic-string'
 import { findStaticImports, parseStaticImport } from 'mlly'
 import { resolve } from 'pathe'
@@ -33,50 +34,81 @@ export function extractLoadersToExport(
   return importNames
 }
 
-export function createAutoExportPlugin({
-  filterPageComponents,
-  loadersPathsGlobs,
-  root,
-}: {
-  filterPageComponents: (id: string) => boolean
+const PLUGIN_NAME = 'unplugin-vue-router:data-loaders-auto-export'
+
+/**
+ * {@link AutoExportLoaders} options.
+ */
+export interface AutoExportLoadersOptions {
+  /**
+   * Filter page components to apply the auto-export (defined with `createFilter()` from `@rollup/pluginutils`) or array
+   * of globs.
+   */
+  filterPageComponents: ((id: string) => boolean) | string[]
+
+  /**
+   * Globs to match the paths of the loaders.
+   */
   loadersPathsGlobs: string | string[]
-  root: string
-}): UnpluginOptions {
+
+  /**
+   * Root of the project. All paths are resolved relatively to this one.
+   * @default `process.cwd()`
+   */
+  root?: string
+}
+
+/**
+ * Vite Plugin to automatically export loaders from page components.
+ *
+ * @param options Options
+ * @experimental - This API is experimental and can be changed in the future. It's used internally by `experimental.autoExportsDataLoaders`
+
+ */
+export function AutoExportLoaders({
+  filterPageComponents: filterPagesOrGlobs,
+  loadersPathsGlobs,
+  root = process.cwd(),
+}: AutoExportLoadersOptions) {
   const filterPaths = createFilter(loadersPathsGlobs)
+  const filterPageComponents =
+    typeof filterPagesOrGlobs === 'function'
+      ? filterPagesOrGlobs
+      : createFilter(filterPagesOrGlobs)
 
   return {
-    name: 'unplugin-vue-router:data-loaders-auto-export',
-    enforce: 'post',
-    vite: {
-      transform: {
-        order: 'post',
-        handler(code, id) {
-          // strip query to also match .vue?vue&lang=ts etc
-          const queryIndex = id.indexOf('?')
-          const idWithoutQuery = queryIndex >= 0 ? id.slice(0, queryIndex) : id
-          if (!filterPageComponents(idWithoutQuery)) {
-            return
-          }
+    name: PLUGIN_NAME,
+    transform: {
+      order: 'post',
+      handler(code, id) {
+        // strip query to also match .vue?vue&lang=ts etc
+        const queryIndex = id.indexOf('?')
+        const idWithoutQuery = queryIndex >= 0 ? id.slice(0, queryIndex) : id
+        if (!filterPageComponents(idWithoutQuery)) {
+          return
+        }
 
-          const loadersToExports = extractLoadersToExport(
-            code,
-            filterPaths,
-            root
-          )
+        const loadersToExports = extractLoadersToExport(code, filterPaths, root)
 
-          if (loadersToExports.length <= 0) return
+        if (loadersToExports.length <= 0) return
 
-          const s = new MagicString(code)
-          s.append(
-            `\nexport const __loaders = [\n${loadersToExports.join(',\n')}\n];\n`
-          )
+        const s = new MagicString(code)
+        s.append(
+          `\nexport const __loaders = [\n${loadersToExports.join(',\n')}\n];\n`
+        )
 
-          return {
-            code: s.toString(),
-            map: s.generateMap(),
-          }
-        },
+        return {
+          code: s.toString(),
+          map: s.generateMap(),
+        }
       },
     },
-  }
+  } satisfies Plugin
+}
+
+export function createAutoExportPlugin(options: AutoExportLoadersOptions) {
+  return {
+    name: PLUGIN_NAME,
+    vite: AutoExportLoaders(options),
+  } satisfies UnpluginOptions
 }

@@ -3,6 +3,12 @@ import { simulateError, useUserData } from '@/loaders/colada-loaders'
 import { serialize } from '@pinia/colada'
 import { getActivePinia } from 'pinia'
 
+definePage({
+  meta: {
+    title: 'Colada Loader',
+  },
+})
+
 const route = useRoute('/users/colada-loader.[id]')
 
 const pinia = getActivePinia()!
