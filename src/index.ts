@@ -188,8 +188,15 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
     },
   ]
 
+  // Experimental options
   if (options.experimental.autoExportsDataLoaders) {
-    plugins.push(createAutoExportPlugin())
+    plugins.push(
+      createAutoExportPlugin({
+        filterPageComponents,
+        loadersPathsGlobs: options.experimental.autoExportsDataLoaders,
+        root: options.root,
+      })
+    )
   }
 
   return plugins

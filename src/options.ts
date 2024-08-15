@@ -216,9 +216,12 @@ export interface Options {
    */
   experimental?: {
     /**
-     * Automatically export data loaders in vue components. This allows you to not
+     * (Vite only). File paths or globs where loaders are exported. This will be used to filter out imported loaders and
+     * automatically re export them in page components. You can for example set this to `'src/loaders/**\/*'` (without
+     * the backslash) to automatically re export any imported variable from files in the `src/loaders` folder within a
+     * page component.
      */
-    autoExportsDataLoaders?: boolean
+    autoExportsDataLoaders?: string | string[]
   }
 }
 
@@ -239,7 +242,7 @@ export const DEFAULT_OPTIONS = {
   },
   watch: !process.env.CI,
   experimental: {
-    autoExportsDataLoaders: false,
+    autoExportsDataLoaders: 'src/loaders/**/*',
   },
 } satisfies Options
 
@@ -298,6 +301,14 @@ export function resolveOptions(options: Options) {
     ...routeOption,
     src: resolve(root, routeOption.src),
   }))
+
+  if (options.experimental?.autoExportsDataLoaders) {
+    options.experimental.autoExportsDataLoaders = (
+      Array.isArray(options.experimental.autoExportsDataLoaders)
+        ? options.experimental.autoExportsDataLoaders
+        : [options.experimental.autoExportsDataLoaders]
+    ).map((path) => resolve(root, path))
+  }
 
   if (options.extensions) {
     options.extensions = options.extensions

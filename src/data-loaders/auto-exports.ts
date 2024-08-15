@@ -1,22 +1,29 @@
 import { createFilter } from '@rollup/pluginutils'
 import MagicString from 'magic-string'
 import { findStaticImports, parseStaticImport } from 'mlly'
+import { join, resolve } from 'pathe'
 import { type UnpluginOptions } from 'unplugin'
 
-const ignoredSpecifiers = ['vue', 'vue-router', 'pinia']
-
-export function extractLoadersToExport(code: string): string[] {
+export function extractLoadersToExport(
+  code: string,
+  filterPaths: (id: string) => boolean,
+  root: string
+): string[] {
   const imports = findStaticImports(code)
   const importNames = imports.flatMap((i) => {
     const parsed = parseStaticImport(i)
 
-    // bail out faster for anything that is not a data loader
-    if (
-      // NOTE: move out to a regexp if the option is exposed
-      parsed.specifier.startsWith('@vueuse/') &&
-      ignoredSpecifiers.includes(parsed.specifier)
+    // since we run post-post, vite will add a leading slash to the specifier
+    const specifier = resolve(
+      root,
+      parsed.specifier.startsWith('/')
+        ? parsed.specifier.slice(1)
+        : parsed.specifier
     )
-      return []
+    console.log('🔍', specifier)
+
+    // bail out faster for anything that is not a data loader
+    if (!filterPaths(specifier)) return []
 
     return [
       parsed.defaultImport,
@@ -27,11 +34,17 @@ export function extractLoadersToExport(code: string): string[] {
   return importNames
 }
 
-export function createAutoExportPlugin(): UnpluginOptions {
-  const filterVueComponents = createFilter(
-    [/\.vue$/, /\.vue\?vue/, /\.vue\?v=/]
-    // [/[\\/]node_modules[\\/]/, /[\\/]\.git[\\/]/, /[\\/]\.nuxt[\\/]/]
-  )
+export function createAutoExportPlugin({
+  filterPageComponents,
+  loadersPathsGlobs,
+  root,
+}: {
+  filterPageComponents: (id: string) => boolean
+  loadersPathsGlobs: string | string[]
+  root: string
+}): UnpluginOptions {
+  console.log('Creating auto-export plugin', loadersPathsGlobs)
+  const filterPaths = createFilter(loadersPathsGlobs)
 
   return {
     name: 'unplugin-vue-router:data-loaders-auto-export',
@@ -40,11 +53,18 @@ export function createAutoExportPlugin(): UnpluginOptions {
       transform: {
         order: 'post',
         handler(code, id) {
-          if (!filterVueComponents(id)) {
+          // strip query to also match .vue?vue&lang=ts etc
+          const queryIndex = id.indexOf('?')
+          const idWithoutQuery = queryIndex >= 0 ? id.slice(0, queryIndex) : id
+          if (!filterPageComponents(idWithoutQuery)) {
             return
           }
 
-          const loadersToExports = extractLoadersToExport(code)
+          const loadersToExports = extractLoadersToExport(
+            code,
+            filterPaths,
+            root
+          )
 
           if (loadersToExports.length <= 0) return
 
