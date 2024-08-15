@@ -1,7 +1,7 @@
 import { createFilter } from '@rollup/pluginutils'
 import MagicString from 'magic-string'
 import { findStaticImports, parseStaticImport } from 'mlly'
-import { join, resolve } from 'pathe'
+import { resolve } from 'pathe'
 import { type UnpluginOptions } from 'unplugin'
 
 export function extractLoadersToExport(
