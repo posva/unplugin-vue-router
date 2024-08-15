@@ -1,3 +1,14 @@
+## [0.10.6](https://github.com/posva/unplugin-vue-router/compare/v0.10.5...v0.10.6) (2024-08-15)
+
+### Bug Fixes
+
+- **loaders:** remove default value for experimental ([8773c96](https://github.com/posva/unplugin-vue-router/commit/8773c9658cfbe827ea554895cf7c04572471e424))
+
+### Features
+
+- expose experimental vite plugin ([0903d61](https://github.com/posva/unplugin-vue-router/commit/0903d6195f43d21ed22586fa2f0fa3efe5625cee))
+- **loaders:** add more state to pinia colada ([0163811](https://github.com/posva/unplugin-vue-router/commit/0163811f3996966f47d61c4d2690cfec5576efab))
+
 ## [0.10.5](https://github.com/posva/unplugin-vue-router/compare/v0.10.4...v0.10.5) (2024-08-15)
 
 ### Features
