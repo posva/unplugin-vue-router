@@ -212,6 +212,58 @@ describe(
       expect(loaderData.value).toBe('1')
     })
 
+    it('hydrates without calling the query on the initial navigation', async () => {
+      // setups the loader
+      const query = vi.fn().mockResolvedValue('data')
+      const useData = defineColadaLoader({
+        query,
+        key: () => ['id'],
+      })
+
+      // sets up the page
+      let useDataResult: ReturnType<typeof useData> | undefined
+      const component = defineComponent({
+        setup() {
+          useDataResult = useData()
+
+          const { data, error, isLoading } = useDataResult
+          return { data, error, isLoading }
+        },
+        template: `<p/>`,
+      })
+
+      // add the page to the router
+      const router = getRouter()
+      router.addRoute({
+        name: '_test',
+        path: '/fetch',
+        meta: {
+          loaders: [useData],
+        },
+        component,
+      })
+
+      // sets up the cache
+      const pinia = createPinia()
+      const treeMap = reviveTreeMap([
+        // entry with successful data for id
+        ['id', ['data', null, Date.now()], undefined],
+      ])
+      pinia.state.value[useQueryCache.$id] = { caches: markRaw(treeMap) }
+
+      mount(RouterViewMock, {
+        global: {
+          plugins: [[DataLoaderPlugin, { router }], pinia, PiniaColada],
+        },
+      })
+
+      await router.push('/fetch')
+      expect(query).toHaveBeenCalledTimes(0)
+
+      await expect(async () => useDataResult!.reload()).not.toThrow()
+      expect(query).toHaveBeenCalledTimes(1)
+    })
+
     // NOTE: this test should fail if the `setCurrentContext(currentContext)` is not called in the `if (isInitial)` branch
     it.todo('restores the context after using a loader', async () => {
       const query = vi.fn().mockResolvedValue('data')
@@ -250,7 +302,7 @@ describe(
       ])
       pinia.state.value[useQueryCache.$id] = { caches: markRaw(treeMap) }
 
-      const wrapper = mount(RouterViewMock, {
+      mount(RouterViewMock, {
         global: {
           plugins: [[DataLoaderPlugin, { router }], pinia, PiniaColada],
         },
