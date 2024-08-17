@@ -1,7 +1,7 @@
 /**
  * @vitest-environment happy-dom
  */
-import { App, defineComponent } from 'vue'
+import { App, defineComponent, markRaw } from 'vue'
 import { defineColadaLoader } from './defineColadaLoader'
 import {
   describe,
@@ -15,6 +15,7 @@ import {
 import {
   DataLoaderPlugin,
   DataLoaderPluginOptions,
+  getCurrentContext,
   setCurrentContext,
   UseDataLoader,
 } from 'unplugin-vue-router/runtime'
@@ -23,7 +24,12 @@ import { getRouter } from 'vue-router-mock'
 import { enableAutoUnmount, mount } from '@vue/test-utils'
 import RouterViewMock from '../../tests/data-loaders/RouterViewMock.vue'
 import { setActivePinia, createPinia, getActivePinia } from 'pinia'
-import { useQuery, PiniaColada } from '@pinia/colada'
+import {
+  useQuery,
+  PiniaColada,
+  useQueryCache,
+  reviveTreeMap,
+} from '@pinia/colada'
 import { RouteLocationNormalizedLoaded } from 'vue-router'
 
 describe(
@@ -204,6 +210,57 @@ describe(
       // we ensure that it was called
       expect(query).toHaveBeenCalledTimes(2)
       expect(loaderData.value).toBe('1')
+    })
+
+    // NOTE: this test should fail if the `setCurrentContext(currentContext)` is not called in the `if (isInitial)` branch
+    it.todo('restores the context after using a loader', async () => {
+      const query = vi.fn().mockResolvedValue('data')
+
+      const useData = defineColadaLoader({
+        query,
+        key: () => ['id'],
+      })
+
+      let useDataResult: ReturnType<typeof useData> | undefined
+      const component = defineComponent({
+        setup() {
+          useDataResult = useData()
+          expect(getCurrentContext()).toEqual([])
+
+          const { data, error, isLoading } = useDataResult
+          return { data, error, isLoading }
+        },
+        template: `<p/>`,
+      })
+
+      const router = getRouter()
+      router.addRoute({
+        name: '_test',
+        path: '/fetch',
+        meta: {
+          loaders: [useData],
+        },
+        component,
+      })
+
+      const pinia = createPinia()
+
+      const treeMap = reviveTreeMap([
+        ['id', ['data', null, Date.now()], undefined],
+      ])
+      pinia.state.value[useQueryCache.$id] = { caches: markRaw(treeMap) }
+
+      const wrapper = mount(RouterViewMock, {
+        global: {
+          plugins: [[DataLoaderPlugin, { router }], pinia, PiniaColada],
+        },
+      })
+
+      await router.push('/fetch')
+
+      expect(useDataResult?.data.value).toBe('data')
+
+      expect(getCurrentContext()).toEqual([])
     })
   }
 )
