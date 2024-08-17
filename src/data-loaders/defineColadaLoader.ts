@@ -168,7 +168,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
         query: () => {
           const route = entry.route.value
           const [trackedRoute, params, query, hash] = trackRoute(route)
-          entry.tracked.set(keyText(options.key(trackedRoute)).join('|'), {
+          entry.tracked.set(joinKeys(keyText(options.key(trackedRoute))), {
             ready: false,
             params,
             query,
@@ -215,7 +215,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
     // )
     if (entry.route.value !== to) {
       // ensure we call refetch instead of refresh
-      const tracked = entry.tracked.get(key.join('|'))
+      const tracked = entry.tracked.get(joinKeys(key))
       reload = !tracked || hasRouteChanged(to, tracked)
     }
 
@@ -322,7 +322,15 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       // if the entry is null, it means the loader never resolved, maybe there was an error
       if (this.staged !== STAGED_NO_VALUE) {
         this.data.value = this.staged
-        this.tracked.get(key.join('|'))!.ready = true
+        if (
+          process.env.NODE_ENV === 'development' &&
+          !this.tracked.has(joinKeys(key))
+        ) {
+          console.warn(
+            `A query was defined with the same key as the loader "[${key.join(', ')}]" but with different "query" function.\nSee https://pinia-colada.esm.dev/#TODO`
+          )
+        }
+        this.tracked.get(joinKeys(key))!.ready = true
       }
       // we always commit the error unless the navigation was cancelled
       this.error.value = this.stagedError
@@ -474,6 +482,8 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
 
   return useDataLoader
 }
+
+export const joinKeys = (keys: string[]): string => keys.join('|')
 
 export interface DefineDataColadaLoaderOptions<
   isLazy extends boolean,
