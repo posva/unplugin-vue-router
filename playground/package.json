@@ -18,7 +18,7 @@
   "dependencies": {
     "@tanstack/vue-query": "^5.51.21",
     "mande": "^2.0.9",
-    "pinia": "^2.2.1",
+    "pinia": "^2.2.2",
     "vue": "^3.4.37",
     "vue-router": "^4.4.3"
   }

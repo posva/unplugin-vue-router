@@ -201,6 +201,10 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       isInitial = false
       if (ext.data.value !== undefined) {
         data.value = ext.data.value
+        // restore the context like in the finally branch
+        // otherwise we might end up with entry === parentEntry
+        // TODO: add test that checks the currentContext is reset
+        setCurrentContext(currentContext)
         // pendingLoad is set for guards to work
         return (entry.pendingLoad = Promise.resolve())
       }
