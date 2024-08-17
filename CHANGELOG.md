@@ -1,3 +1,9 @@
+## [0.10.7](https://github.com/posva/unplugin-vue-router/compare/v0.10.6...v0.10.7) (2024-08-17)
+
+### Bug Fixes
+
+- **loaders:** reset context in ssr scenarios ([4ea4b8c](https://github.com/posva/unplugin-vue-router/commit/4ea4b8c918ce81a495d663a5c8f6fe6ddbd27548))
+
 ## [0.10.6](https://github.com/posva/unplugin-vue-router/compare/v0.10.5...v0.10.6) (2024-08-15)
 
 ### Bug Fixes
