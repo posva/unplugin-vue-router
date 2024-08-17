@@ -1041,75 +1041,72 @@ export function testDefineLoader<Context = void>(
     expect(data.value).toEqual('ok,one')
   })
 
-  it.todo(
-    `reuses a nested loader result even if it's called first from another loader`,
-    async () => {
-      const l1 = mockedLoader({ key: 'search-results', lazy: false })
-      const spy = vi.fn(async (to: RouteLocationNormalizedLoaded) => {
-        // get search results from the search loader
-        const data = await l1.loader()
-        // then fetch images in high res
-        return `${data},${to.query.p}`
-      })
-      const l2 = loaderFactory({
-        fn: spy,
-        key: 'images-from-search',
+  it(`reuses a nested loader result even if it's called first from another loader`, async () => {
+    const l1 = mockedLoader({ key: 'search-results', lazy: false })
+    const spy = vi.fn(async (to: RouteLocationNormalizedLoaded) => {
+      // get search results from the search loader
+      const data = await l1.loader()
+      // then fetch images in high res
+      return `${data},${to.query.p}`
+    })
+    const l2 = loaderFactory({
+      fn: spy,
+      key: 'images-from-search',
 
-        // to ensure this is not awaited
-        lazy: true,
-        server: false,
-      })
+      // to ensure this is not awaited
+      lazy: true,
+      server: false,
+    })
 
-      let useDataResult!: ReturnType<typeof l1.loader>
+    let useDataResult!: ReturnType<typeof l1.loader>
 
-      const component = defineComponent({
-        setup() {
-          // it shouldn't matter if l2 is used or not, what matters is the order
-          useDataResult = l1.loader()
-          l2()
-          return {}
-        },
-        template: `<p>a</p>`,
-      })
-      const router = getRouter()
-      router.addRoute({
-        name: '_test',
-        path: '/fetch',
-        meta: {
-          // the images should run first to simulate the issue
-          // in practice the user does not control the order of the loaders and it shouldn't matter
-          loaders: [l2, l1.loader],
-          // this scenario would work
-          // loaders: [l1.loader, l2],
-        },
-        component,
-      })
+    const component = defineComponent({
+      setup() {
+        // it shouldn't matter if l2 is used or not, what matters is the order
+        useDataResult = l1.loader()
+        l2()
+        return {}
+      },
+      template: `<p>a</p>`,
+    })
+    const router = getRouter()
+    router.addRoute({
+      name: '_test',
+      path: '/fetch',
+      meta: {
+        // the images should run first to simulate the issue
+        // in practice the user does not control the order of the loaders and it shouldn't matter
+        loaders: [l2, l1.loader],
+        // this scenario would work
+        // loaders: [l1.loader, l2],
+      },
+      component,
+    })
 
-      const wrapper = mount(RouterViewMock, {
-        global: {
-          plugins: [
-            [DataLoaderPlugin, { router }],
-            ...(plugins?.(customContext!) || []),
-          ],
-        },
-      })
+    const wrapper = mount(RouterViewMock, {
+      global: {
+        plugins: [
+          [DataLoaderPlugin, { router }],
+          ...(plugins?.(customContext!) || []),
+        ],
+      },
+    })
 
-      router.push('/fetch?p=one')
-      await vi.runOnlyPendingTimersAsync()
-      l1.resolve('search')
-      await flushPromises()
+    router.push('/fetch?p=one')
+    await vi.runOnlyPendingTimersAsync()
+    l1.resolve('search')
+    await flushPromises()
 
-      const app: App = wrapper.vm.$.appContext.app
-      const l2Data = app.runWithContext(() => l2())
+    const app: App = wrapper.vm.$.appContext.app
+    const l2Data = app.runWithContext(() => l2())
 
-      expect(useDataResult?.data.value).toEqual('search')
-      expect(l2Data.data.value).toEqual('search,one')
-      // FIXME: go from here: figure out why with colada it's called 2 times
-      // but only once with the basic loader. Probably need a currentLoad variable
-      expect(l1.spy).toHaveBeenCalledTimes(1)
-      expect(spy).toHaveBeenCalledTimes(1)
-    }
-  )
+    expect(useDataResult?.data.value).toEqual('search')
+    expect(l2Data.data.value).toEqual('search,one')
+    // FIXME: go from here: figure out why with colada it's called 2 times
+    // but only once with the basic loader. Probably need a currentLoad variable
+    expect(l1.spy).toHaveBeenCalledTimes(1)
+    expect(spy).toHaveBeenCalledTimes(1)
+  })
 
   it.todo('passes to and from to the function version of lazy', async () => {})
   it.todo('can be first non-lazy then lazy', async () => {})
