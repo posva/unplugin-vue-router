@@ -108,7 +108,7 @@ const router = createRouter({
 })
 ```
 
-As this plugin evolves, this should be used less and less and only become necessary in unique edge cases.
+As this plugin evolves, this should be used less and less and only become necessary in specific scenarios.
 
 One example of this is using [vite-plugin-vue-layouts](https://github.com/JohnCampionJr/vite-plugin-vue-layouts) which can only be used this way:
 
@@ -122,3 +122,21 @@ const router = createRouter({
   routes: setupLayouts(routes),
 })
 ```
+
+Another one is adding _redirect_ records to the router:
+
+```ts
+import { routes } from 'vue-router/auto-routes'
+
+routes.push({
+  path: '/path-to-redirect',
+  redirect: '/redirected-path',
+})
+
+routes.push({
+  path: '/path-to-redirect/:id',
+  redirect: (to) => `/redirected-path/${to.params.id}`,
+})
+```
+
+One benefit of adding redirects at runtime only is that they are not reflected in the generated `typed-router.d.ts` and won't appear in autocompletion but will still work as expected when the user enters the URL or clicks on a link.
