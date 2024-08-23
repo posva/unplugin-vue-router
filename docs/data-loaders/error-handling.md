@@ -2,7 +2,7 @@
 
 By default, all errors thrown in a loader are considered _unexpected errors_: they will abort the navigation, just like in a navigation guard. Because they abort the navigation, they will not appear in the `error` property of the loader. Instead, they will be intercepted by Vue Router's error handling with `router.onError()`.
 
-However, if the loader is **not navigation-aware**, the error doesn't cannot be intercepted by Vue Router and will be kept in the `error` property of the loader. This is the case for _lazy loaders_ and [_reloading data_](./reloading-data.md).
+However, if the loader is **not navigation-aware**, the error cannot be intercepted by Vue Router and will be kept in the `error` property of the loader. This is the case for _lazy loaders_ and [_reloading data_](./reloading-data.md).
 
 To be able to intercept errors in blocking loaders, we can specify a list of error classes that are considered _expected errors_. This allows blocking loader to **not abort the navigation** and instead keep the error in the `error` property of the loader and let the page locally display the error state.
 
