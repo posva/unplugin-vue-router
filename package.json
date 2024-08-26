@@ -2,7 +2,7 @@
   "name": "unplugin-vue-router",
   "version": "0.10.7",
   "type": "module",
-  "packageManager": "pnpm@9.7.1",
+  "packageManager": "pnpm@9.8.0",
   "description": "File based typed routing for Vue Router",
   "keywords": [
     "vue-router",
@@ -164,7 +164,7 @@
     ]
   },
   "dependencies": {
-    "@babel/types": "^7.25.2",
+    "@babel/types": "^7.25.4",
     "@rollup/pluginutils": "^5.1.0",
     "@vue-macros/common": "^1.12.2",
     "ast-walker-scope": "^0.6.2",
@@ -188,9 +188,9 @@
     }
   },
   "devDependencies": {
-    "@pinia/colada": "^0.8.1",
+    "@pinia/colada": "^0.8.2",
     "@shikijs/vitepress-twoslash": "1.14.1",
-    "@tanstack/vue-query": "^5.51.21",
+    "@tanstack/vue-query": "^5.52.0",
     "@types/node": "^20.16.1",
     "@vitest/coverage-v8": "^2.0.5",
     "@vitest/ui": "^2.0.5",
@@ -217,16 +217,16 @@
     "unplugin-auto-import": "^0.18.2",
     "unplugin-vue-markdown": "^0.26.2",
     "unplugin-vue-router": "workspace:*",
-    "vite": "^5.4.1",
-    "vite-plugin-vue-devtools": "^7.3.8",
-    "vitepress": "1.3.3",
+    "vite": "^5.4.2",
+    "vite-plugin-vue-devtools": "^7.3.9",
+    "vitepress": "1.3.4",
     "vitest": "^2.0.5",
     "vue": "^3.4.38",
     "vue-router": "^4.4.3",
     "vue-router-mock": "^1.1.0",
     "vue-tsc": "^2.0.29",
     "vuefire": "^3.2.0",
-    "webpack": "^5.93.0",
+    "webpack": "^5.94.0",
     "yorkie": "^2.0.0"
   }
 }
