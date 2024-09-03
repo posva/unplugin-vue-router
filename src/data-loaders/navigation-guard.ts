@@ -50,7 +50,7 @@ export function setupLoaderGuard({
   }
 
   // explicit dev to avoid warnings in tests
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV === 'development' && !isSSR) {
     console.warn(
       '[vue-router]: Data Loader is experimental and subject to breaking changes in the future.'
     )
