@@ -1,5 +1,5 @@
 import { type ViteDevServer } from 'vite'
-import { ServerContext } from '../../options'
+import { type ServerContext } from '../../options'
 import { MODULE_ROUTES_PATH, asVirtualId } from '../moduleConstants'
 
 export function createViteContext(server: ViteDevServer): ServerContext {
@@ -39,28 +39,12 @@ export function createViteContext(server: ViteDevServer): ServerContext {
     })
   }
 
-  // NOTE: still not working
-  // based on https://github.com/vuejs/vitepress/blob/1188951785fd2a72f9242d46dc55abb1effd212a/src/node/plugins/localSearchPlugin.ts#L90
-  // https://github.com/unocss/unocss/blob/f375524d9bca3f2f8b445b322ec0fc3eb124ec3c/packages/vite/src/modes/global/dev.ts#L47-L66
-
-  async function updateRoutes() {
+  function updateRoutes() {
     const modId = asVirtualId(MODULE_ROUTES_PATH)
     const mod = server.moduleGraph.getModuleById(modId)
-    if (!mod) {
-      return
+    if (mod) {
+      server.reloadModule(mod)  
     }
-    server.moduleGraph.invalidateModule(mod)
-    server.ws.send({
-      type: 'update',
-      updates: [
-        {
-          acceptedPath: mod.url,
-          path: mod.url,
-          timestamp: Date.now(),
-          type: 'js-update',
-        },
-      ],
-    })
   }
 
   return {
