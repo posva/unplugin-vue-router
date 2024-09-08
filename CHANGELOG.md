@@ -1,3 +1,12 @@
+## [0.10.8](https://github.com/posva/unplugin-vue-router/compare/v0.10.7...v0.10.8) (2024-09-08)
+
+### Features
+
+- **loaders:** allow errors as a function ([df80b28](https://github.com/posva/unplugin-vue-router/commit/df80b28a3a32532120afc558cb6e7d2e95382da6))
+- **loaders:** allow plain value in colada loader key ([646e5bf](https://github.com/posva/unplugin-vue-router/commit/646e5bfccf676ca6112d8ec5cf9655438964215d))
+- **loaders:** avoid warning during ssr ([99d7b0b](https://github.com/posva/unplugin-vue-router/commit/99d7b0b8cbe7938e5dd5c43282b22c0475526ff9))
+- **loaders:** warn incorrect query usage ([e43c5f5](https://github.com/posva/unplugin-vue-router/commit/e43c5f57e1fb46df310d35acb78c9be4da3db2d2))
+
 ## [0.10.7](https://github.com/posva/unplugin-vue-router/compare/v0.10.6...v0.10.7) (2024-08-17)
 
 ### Bug Fixes
