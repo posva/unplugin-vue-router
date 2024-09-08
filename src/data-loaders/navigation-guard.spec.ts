@@ -471,4 +471,78 @@ describe('navigation-guard', () => {
       expect(router.currentRoute.value.fullPath).toBe('/#ok')
     })
   })
+
+  describe('errors', () => {
+    class CustomError extends Error {}
+
+    it('lets the navigation continue if the error is expected', async () => {
+      setupApp({ isSSR: false })
+      const router = getRouter()
+      const l1 = mockedLoader({ errors: [CustomError] })
+      router.addRoute({
+        name: '_test',
+        path: '/fetch',
+        component,
+        meta: {
+          loaders: [l1.loader],
+        },
+      })
+
+      router.push('/fetch')
+      await vi.runOnlyPendingTimersAsync()
+      l1.reject(new CustomError('expected'))
+      await router.getPendingNavigation()
+      expect(router.currentRoute.value.fullPath).toBe('/fetch')
+    })
+
+    it('fails the navigation if the error is not expected', async () => {
+      setupApp({ isSSR: false })
+      const router = getRouter()
+      const l1 = mockedLoader({ errors: [CustomError] })
+      router.addRoute({
+        name: '_test',
+        path: '/fetch',
+        component,
+        meta: {
+          loaders: [l1.loader],
+        },
+      })
+
+      router.push('/fetch')
+      await vi.runOnlyPendingTimersAsync()
+      l1.reject(new Error('unexpected'))
+      await expect(router.getPendingNavigation()).rejects.toThrow('unexpected')
+      expect(router.currentRoute.value.fullPath).not.toBe('/fetch')
+    })
+
+    it('works with a function check', async () => {
+      setupApp({ isSSR: false })
+      const router = getRouter()
+      const l1 = mockedLoader({
+        errors: (e) => e instanceof Error && e.message === 'expected',
+      })
+      router.addRoute({
+        name: '_test',
+        path: '/fetch',
+        component,
+        meta: {
+          loaders: [l1.loader],
+        },
+      })
+
+      router.push('/fetch')
+      await vi.runOnlyPendingTimersAsync()
+      l1.reject(new Error('expected'))
+      await router.getPendingNavigation()
+      expect(router.currentRoute.value.fullPath).toBe('/fetch')
+
+      // use an unexpected error
+      await router.push('/')
+      router.push('/fetch')
+      await vi.runOnlyPendingTimersAsync()
+      l1.reject(new Error('unexpected'))
+      await router.getPendingNavigation()
+      expect(router.currentRoute.value.fullPath).not.toBe('/fetch')
+    })
+  })
 })

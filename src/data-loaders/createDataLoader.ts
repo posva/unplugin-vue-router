@@ -120,9 +120,9 @@ export interface DefineDataLoaderOptionsBase<isLazy extends boolean> {
 
   /**
    * List of _expected_ errors that shouldn't abort the navigation (for non-lazy loaders). Provide a list of
-   * constructors that can be checked with `instanceof`.
+   * constructors that can be checked with `instanceof` or a custom function that returns `true` for expected errors.
    */
-  errors?: Array<new (...args: any) => any>
+  errors?: Array<new (...args: any) => any> | ((reason?: unknown) => boolean)
 }
 
 export const toLazyValue = (

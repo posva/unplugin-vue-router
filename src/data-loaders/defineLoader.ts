@@ -94,6 +94,8 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
   ): Promise<void> {
     const entries = router[LOADER_ENTRIES_KEY]!
     const isSSR = router[IS_SSR_KEY]
+
+    // ensure the entry exists
     if (!entries.has(loader)) {
       entries.set(loader, {
         // force the type to match

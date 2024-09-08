@@ -36,7 +36,7 @@ export function setupLoaderGuard({
   app,
   effect,
   isSSR,
-  errors = [],
+  errors: globalErrors = [],
   selectNavigationResult = (results) => results[0]!.value,
 }: SetupLoaderGuardOptions) {
   // avoid creating the guards multiple times
@@ -151,7 +151,7 @@ export function setupLoaderGuard({
     setCurrentContext([])
     return Promise.all(
       loaders.map((loader) => {
-        const { server, lazy } = loader._.options
+        const { server, lazy, errors } = loader._.options
         // do not run on the server if specified
         if (!server && isSSR) {
           return
@@ -170,15 +170,26 @@ export function setupLoaderGuard({
         return !isSSR && toLazyValue(lazy, to, from)
           ? undefined
           : // return the non-lazy loader to commit changes after all loaders are done
-            ret.catch((reason) =>
-              // Check if the error is an expected error to discard it
-              loader._.options.errors?.some((Err) => reason instanceof Err) ||
-              (Array.isArray(errors)
-                ? errors.some((Err) => reason instanceof Err)
-                : errors(reason))
+            ret.catch((reason) => {
+              // use local error option if it exists first and then the global one
+              if (
+                errors &&
+                (Array.isArray(errors)
+                  ? errors.some((Err) => reason instanceof Err)
+                  : errors(reason))
+              ) {
+                return // avoid any navigation failure
+              }
+
+              // is the error a globally expected error
+              return (
+                Array.isArray(globalErrors)
+                  ? globalErrors.some((Err) => reason instanceof Err)
+                  : globalErrors(reason)
+              )
                 ? undefined
                 : Promise.reject(reason)
-            )
+            })
       })
     ) // let the navigation go through by returning true or void
       .then(() => {
