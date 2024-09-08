@@ -110,7 +110,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       DataLoaderColadaEntry<boolean, unknown>
     >
     const isSSR = router[IS_SSR_KEY]
-    const key = keyText(options.key(to))
+    const key = serializeQueryKey(options.key, to)
     if (!entries.has(loader)) {
       const route = shallowRef<RouteLocationNormalizedLoaded>(to)
       entries.set(loader, {
@@ -168,18 +168,21 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
         query: () => {
           const route = entry.route.value
           const [trackedRoute, params, query, hash] = trackRoute(route)
-          entry.tracked.set(joinKeys(keyText(options.key(trackedRoute))), {
-            ready: false,
-            params,
-            query,
-            hash,
-          })
+          entry.tracked.set(
+            joinKeys(serializeQueryKey(options.key, trackedRoute)),
+            {
+              ready: false,
+              params,
+              query,
+              hash,
+            }
+          )
 
           return loader(trackedRoute, {
             signal: route.meta[ABORT_CONTROLLER_KEY]?.signal,
           })
         },
-        key: () => options.key(entry.route.value),
+        key: () => toValueWithParameters(options.key, entry.route.value),
         // TODO: cleanup if gc
         // onDestroy() {
         //   entries.delete(loader)
@@ -308,7 +311,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
     this: DataLoaderColadaEntry<isLazy, Data>,
     to: RouteLocationNormalizedLoaded
   ) {
-    const key = keyText(options.key(to))
+    const key = serializeQueryKey(options.key, to)
     // console.log(`👉 commit "${key}"`)
     if (this.pendingTo === to) {
       // console.log(' ->', this.staged)
@@ -495,7 +498,7 @@ export interface DefineDataColadaLoaderOptions<
    * Key associated with the data and passed to pinia colada
    * @param to - Route to load the data
    */
-  key: (to: RouteLocationNormalizedLoaded<Name>) => EntryKey
+  key: EntryKey | ((to: RouteLocationNormalizedLoaded<Name>) => EntryKey)
 
   /**
    * Function that returns a promise with the data.
@@ -602,8 +605,27 @@ const DEFAULT_DEFINE_LOADER_OPTIONS = {
   'key' | 'query'
 >
 
-// DEBUG ONLY
-const keyText = (key: UseQueryOptions['key']): string[] => {
+const toValueWithParameters = <T, Arg>(
+  optionValue: T | ((arg: Arg) => T),
+  arg: Arg
+): T => {
+  return typeof optionValue === 'function'
+    ? // This should work in TS without a cast
+      (optionValue as (arg: Arg) => T)(arg)
+    : optionValue
+}
+
+/**
+ * Transform the key to a string array so it can be used as a key in caches.
+ *
+ * @param key - key to transform
+ * @param to - route to use
+ */
+function serializeQueryKey(
+  keyOption: DefineDataColadaLoaderOptions<boolean, string, unknown>['key'],
+  to: RouteLocationNormalizedLoaded
+): string[] {
+  const key = toValueWithParameters(keyOption, to)
   const keys = Array.isArray(key) ? key : [key]
   return keys.map(stringifyFlatObject)
 }
