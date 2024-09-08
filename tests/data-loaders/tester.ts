@@ -29,7 +29,7 @@ export function testDefineLoader<Context = void>(
         to: RouteLocationNormalizedLoaded,
         context: DataLoaderContextBase
       ) => Promise<unknown>
-    } & DefineDataLoaderOptionsBase<boolean> & { key?: string }
+    } & DefineDataLoaderOptionsBase & { key?: string }
   ) => UseDataLoader,
   {
     plugins,
@@ -45,7 +45,7 @@ export function testDefineLoader<Context = void>(
 
   function mockedLoader<T = string | NavigationResult>(
     // boolean is easier to handle for router mock
-    options?: DefineDataLoaderOptionsBase<boolean> & { key?: string }
+    options?: DefineDataLoaderOptionsBase & { key?: string }
   ) {
     const [spy, resolve, reject] = mockPromise<T, unknown>(
       // not correct as T could be something else

@@ -13,7 +13,6 @@ import type {
   DefineLoaderFn,
   UseDataLoader,
   UseDataLoaderResult,
-  _DataMaybeLazy,
   _DefineLoaderEntryMap,
 } from 'unplugin-vue-router/runtime'
 import {
@@ -60,40 +59,32 @@ import { toLazyValue } from './createDataLoader'
  * @param loader - function that returns a promise with the data
  * @param options - options to configure the data loader
  */
-export function defineColadaLoader<
-  Name extends keyof RouteMap,
-  Data,
-  isLazy extends boolean,
->(
+export function defineColadaLoader<Name extends keyof RouteMap, Data>(
   name: Name,
-  options: DefineDataColadaLoaderOptions<isLazy, Name, Data>
-): UseDataLoaderColada<isLazy, Data>
-export function defineColadaLoader<Data, isLazy extends boolean>(
-  options: DefineDataColadaLoaderOptions<isLazy, keyof RouteMap, Data>
-): UseDataLoaderColada<isLazy, Data>
+  options: DefineDataColadaLoaderOptions<Name, Data>
+): UseDataLoaderColada<Data>
+export function defineColadaLoader<Data>(
+  options: DefineDataColadaLoaderOptions<keyof RouteMap, Data>
+): UseDataLoaderColada<Data>
 
-export function defineColadaLoader<Data, isLazy extends boolean>(
+export function defineColadaLoader<Data>(
   nameOrOptions:
     | keyof RouteMap
-    | DefineDataColadaLoaderOptions<isLazy, keyof RouteMap, Data>,
-  _options?: DefineDataColadaLoaderOptions<isLazy, keyof RouteMap, Data>
-): UseDataLoaderColada<isLazy, Data> {
+    | DefineDataColadaLoaderOptions<keyof RouteMap, Data>,
+  _options?: DefineDataColadaLoaderOptions<keyof RouteMap, Data>
+): UseDataLoaderColada<Data> {
   // TODO: make it DEV only and remove the first argument in production mode
   // resolve option overrides
   _options =
     _options ||
-    (nameOrOptions as DefineDataColadaLoaderOptions<
-      isLazy,
-      keyof RouteMap,
-      Data
-    >)
+    (nameOrOptions as DefineDataColadaLoaderOptions<keyof RouteMap, Data>)
   const loader = _options.query
 
   const options = {
     ...DEFAULT_DEFINE_LOADER_OPTIONS,
     ..._options,
     commit: _options?.commit || 'after-load',
-  } as DefineDataColadaLoaderOptions<isLazy, keyof RouteMap, Data>
+  } as DefineDataColadaLoaderOptions<keyof RouteMap, Data>
 
   let isInitial = true
 
@@ -104,10 +95,8 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
     parent?: DataLoaderEntryBase,
     reload?: boolean
   ): Promise<void> {
-    const entries = router[
-      LOADER_ENTRIES_KEY
-    ]! as unknown as _DefineLoaderEntryMap<
-      DataLoaderColadaEntry<boolean, unknown>
+    const entries = router[LOADER_ENTRIES_KEY]! as _DefineLoaderEntryMap<
+      DataLoaderColadaEntry<unknown>
     >
     const isSSR = router[IS_SSR_KEY]
     const key = serializeQueryKey(options.key, to)
@@ -115,7 +104,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       const route = shallowRef<RouteLocationNormalizedLoaded>(to)
       entries.set(loader, {
         // force the type to match
-        data: shallowRef<_DataMaybeLazy<Data, isLazy>>(),
+        data: shallowRef<Data | undefined>(),
         isLoading: shallowRef(false),
         error: shallowRef<any>(),
         to,
@@ -308,7 +297,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
   }
 
   function commit(
-    this: DataLoaderColadaEntry<isLazy, Data>,
+    this: DataLoaderColadaEntry<Data>,
     to: RouteLocationNormalizedLoaded
   ) {
     const key = serializeQueryKey(options.key, to)
@@ -358,7 +347,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
 
   // @ts-expect-error: requires the internals and symbol that are added later
   const useDataLoader: // for ts
-  UseDataLoaderColada<isLazy, Data> = () => {
+  UseDataLoaderColada<Data> = () => {
     // work with nested data loaders
     const currentEntry = getCurrentContext()
     const [parentEntry, _router, _route] = currentEntry
@@ -368,10 +357,8 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
 
     const entries = router[
       LOADER_ENTRIES_KEY
-    ]! as unknown as _DefineLoaderEntryMap<
-      DataLoaderColadaEntry<boolean, unknown>
-    >
-    let entry = entries.get(loader)
+    ]! as unknown as _DefineLoaderEntryMap<DataLoaderColadaEntry<unknown>>
+    let entry = entries.get(loader) as DataLoaderColadaEntry<Data> | undefined
 
     if (
       // if the entry doesn't exist, create it with load and ensure it's loading
@@ -388,7 +375,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       )
     }
 
-    entry = entries.get(loader)!
+    entry = entries.get(loader)! as DataLoaderColadaEntry<Data>
 
     // add ourselves to the parent entry children
     if (parentEntry) {
@@ -450,7 +437,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       asyncStatus: ext!.asyncStatus,
       state: ext!.state,
       isPending: ext!.isPending,
-    } satisfies UseDataLoaderColadaResult<boolean, unknown>
+    } satisfies UseDataLoaderColadaResult<Data>
 
     // load ensures there is a pending load
     const promise = entry
@@ -489,11 +476,10 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
 export const joinKeys = (keys: string[]): string => keys.join('|')
 
 export interface DefineDataColadaLoaderOptions<
-  isLazy extends boolean,
   Name extends keyof RouteMap,
   Data,
-> extends DefineDataLoaderOptionsBase<isLazy>,
-    Omit<UseQueryOptions<unknown>, 'query' | 'key'> {
+> extends DefineDataLoaderOptionsBase,
+    Omit<UseQueryOptions<Data>, 'query' | 'key'> {
   /**
    * Key associated with the data and passed to pinia colada
    * @param to - Route to load the data
@@ -517,8 +503,8 @@ export interface DefineDataColadaLoaderOptions<
  */
 export interface DataColadaLoaderContext extends DataLoaderContextBase {}
 
-export interface UseDataLoaderColadaResult<isLazy extends boolean, Data>
-  extends UseDataLoaderResult<isLazy, Data>,
+export interface UseDataLoaderColadaResult<Data>
+  extends UseDataLoaderResult<Data>,
     Pick<
       UseQueryReturn<Data, any>,
       'isPending' | 'refetch' | 'refresh' | 'status' | 'asyncStatus' | 'state'
@@ -527,8 +513,7 @@ export interface UseDataLoaderColadaResult<isLazy extends boolean, Data>
 /**
  * Data Loader composable returned by `defineColadaLoader()`.
  */
-export interface UseDataLoaderColada<isLazy extends boolean, Data>
-  extends UseDataLoader<isLazy, Data> {
+export interface UseDataLoaderColada<Data> extends UseDataLoader<Data> {
   /**
    * Data Loader composable returned by `defineColadaLoader()`.
    *
@@ -555,12 +540,11 @@ export interface UseDataLoaderColada<isLazy extends boolean, Data>
     // `return new NavigationResult()` in the loader
     Exclude<Data, NavigationResult>,
     // or use it as a composable
-    UseDataLoaderColadaResult<isLazy, Exclude<Data, NavigationResult>>
+    UseDataLoaderColadaResult<Exclude<Data, NavigationResult>>
   >
 }
 
-export interface DataLoaderColadaEntry<isLazy extends boolean, Data>
-  extends DataLoaderEntryBase<isLazy, Data> {
+export interface DataLoaderColadaEntry<Data> extends DataLoaderEntryBase<Data> {
   /**
    * Reactive route passed to pinia colada so it automatically refetch
    */
@@ -601,7 +585,7 @@ const DEFAULT_DEFINE_LOADER_OPTIONS = {
   server: true,
   commit: 'after-load',
 } satisfies Omit<
-  DefineDataColadaLoaderOptions<boolean, keyof RouteMap, unknown>,
+  DefineDataColadaLoaderOptions<keyof RouteMap, unknown>,
   'key' | 'query'
 >
 
@@ -622,7 +606,7 @@ const toValueWithParameters = <T, Arg>(
  * @param to - route to use
  */
 function serializeQueryKey(
-  keyOption: DefineDataColadaLoaderOptions<boolean, string, unknown>['key'],
+  keyOption: DefineDataColadaLoaderOptions<string, unknown>['key'],
   to: RouteLocationNormalizedLoaded
 ): string[] {
   const key = toValueWithParameters(keyOption, to)

@@ -6,7 +6,6 @@ export type {
   DataLoaderEntryBase,
   DefineDataLoaderOptionsBase,
   DefineLoaderFn,
-  _DataMaybeLazy,
 } from './createDataLoader'
 
 // new data fetching
