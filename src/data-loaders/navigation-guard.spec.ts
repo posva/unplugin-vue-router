@@ -48,7 +48,7 @@ function mockedLoader<T = string | NavigationResult>(
 describe('navigation-guard', () => {
   let globalApp: App | undefined
 
-  function setupApp({ isSSR }: Omit<DataLoaderPluginOptions, 'router'>) {
+  function setupApp(options: Omit<DataLoaderPluginOptions, 'router'>) {
     const app = createApp({ render: () => null })
     const selectNavigationResult = vi
       .fn()
@@ -56,7 +56,7 @@ describe('navigation-guard', () => {
     app.use(DataLoaderPlugin, {
       router: getRouter(),
       selectNavigationResult,
-      isSSR,
+      ...options,
     })
     // invalidate current context
     setCurrentContext(undefined)
@@ -543,6 +543,69 @@ describe('navigation-guard', () => {
       l1.reject(new Error('unexpected'))
       await router.getPendingNavigation()
       expect(router.currentRoute.value.fullPath).not.toBe('/fetch')
+    })
+
+    it('local errors take precedence over global errors', async () => {
+      setupApp({
+        isSSR: false,
+        // global only accepts CustomError
+        errors: (e) => e instanceof CustomError,
+      })
+      const router = getRouter()
+      const l1 = mockedLoader({
+        // but local accepts Error with message 'expected'
+        errors: (e) => e instanceof Error && e.message === 'expected',
+      })
+      router.addRoute({
+        name: '_test',
+        path: '/fetch',
+        component,
+        meta: {
+          loaders: [l1.loader],
+        },
+      })
+
+      // not covered by any
+      router.push('/fetch')
+      await vi.runOnlyPendingTimersAsync()
+      l1.reject(new Error('unexpected'))
+      await router.getPendingNavigation().catch(() => {})
+      expect(router.currentRoute.value.fullPath).not.toBe('/fetch')
+
+      // covered locally only
+      router.push('/fetch')
+      await vi.runOnlyPendingTimersAsync()
+      l1.reject(new Error('expected'))
+      await router.getPendingNavigation().catch(() => {})
+      expect(router.currentRoute.value.fullPath).toBe('/fetch')
+    })
+
+    it('handle global expected errors even when rejected by local errors', async () => {
+      setupApp({
+        isSSR: false,
+        // global only accepts CustomError
+        errors: [CustomError],
+      })
+      const router = getRouter()
+      const l1 = mockedLoader({
+        // but local accepts Error with message 'expected'
+        errors: (e) => e instanceof Error && e.message === 'expected',
+      })
+      router.addRoute({
+        name: '_test',
+        path: '/fetch',
+        component,
+        meta: {
+          loaders: [l1.loader],
+        },
+      })
+      //
+      // covered locally only
+      router.push('/fetch')
+      await vi.runOnlyPendingTimersAsync()
+      l1.reject(new CustomError())
+      await router.getPendingNavigation().catch(() => {})
+      expect(router.currentRoute.value.fullPath).toBe('/fetch')
     })
   })
 })
