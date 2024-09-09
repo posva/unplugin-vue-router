@@ -7,7 +7,7 @@
     "preview": "nuxt preview"
   },
   "devDependencies": {
-    "nuxt": "^3.12.4",
+    "nuxt": "^3.13.1",
     "unplugin-vue-router": "workspace:*"
   }
 }
