@@ -23,13 +23,13 @@ import {
   NavigationResult,
   UseDataLoader,
   setCurrentContext,
-} from 'unplugin-vue-router/runtime'
+} from 'unplugin-vue-router/data-loaders'
 import { testDefineLoader } from '../../tests/data-loaders'
 import { getRouter } from 'vue-router-mock'
 import { enableAutoUnmount, mount } from '@vue/test-utils'
 import RouterViewMock from '../../tests/data-loaders/RouterViewMock.vue'
 import { mockPromise } from '../../tests/utils'
-import { RouteLocationNormalizedLoaded } from 'vue-router'
+import { type RouteLocationNormalizedLoaded } from 'vue-router'
 
 function mockedLoader<T = string | NavigationResult>(
   // boolean is easier to handle for router mock

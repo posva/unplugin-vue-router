@@ -51,9 +51,9 @@
       "unplugin-vue-router/runtime": [
         "./src/runtime.ts"
       ],
-      // "unplugin-vue-router/data-loaders": [
-      //   "./src/data-loaders/entries/index.ts"
-      // ]
+      "unplugin-vue-router/data-loaders": [
+        "./src/data-loaders/entries/index.ts"
+      ]
     },
     "types": [
       "node",

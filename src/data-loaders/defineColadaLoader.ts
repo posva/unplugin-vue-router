@@ -6,17 +6,15 @@ import {
   type RouteLocationNormalizedLoaded,
   type Router,
 } from 'vue-router'
-import type {
-  DataLoaderContextBase,
-  DataLoaderEntryBase,
-  DefineDataLoaderOptionsBase,
-  DefineLoaderFn,
-  UseDataLoader,
-  UseDataLoaderResult,
-  _DefineLoaderEntryMap,
-  _PromiseMerged,
-} from 'unplugin-vue-router/runtime'
 import {
+  type DataLoaderContextBase,
+  type DataLoaderEntryBase,
+  type DefineDataLoaderOptionsBase,
+  type DefineLoaderFn,
+  type UseDataLoader,
+  type UseDataLoaderResult,
+  type _DefineLoaderEntryMap,
+  type _PromiseMerged,
   ABORT_CONTROLLER_KEY,
   APP_KEY,
   IS_USE_DATA_LOADER_KEY,
@@ -31,7 +29,7 @@ import {
   setCurrentContext,
   trackRoute,
   IS_SSR_KEY,
-} from 'unplugin-vue-router/runtime'
+} from 'unplugin-vue-router/data-loaders'
 import {} from './utils'
 import { type ShallowRef, shallowRef, watch } from 'vue'
 import {

@@ -4,7 +4,9 @@ export default defineNuxtConfig({
     shim: false,
   },
 
-  build: { transpile: [/unplugin-vue-router\/runtime/] },
+  build: {
+    transpile: [/unplugin-vue-router\/runtime/],
+  },
 
   app: {
     pageTransition: false,

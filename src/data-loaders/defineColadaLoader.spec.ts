@@ -18,7 +18,7 @@ import {
   getCurrentContext,
   setCurrentContext,
   UseDataLoader,
-} from 'unplugin-vue-router/runtime'
+} from 'unplugin-vue-router/data-loaders'
 import { testDefineLoader } from '../../tests/data-loaders'
 import { getRouter } from 'vue-router-mock'
 import { enableAutoUnmount, mount } from '@vue/test-utils'

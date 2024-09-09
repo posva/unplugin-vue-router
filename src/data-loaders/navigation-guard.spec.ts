@@ -20,7 +20,7 @@ import {
   DataLoaderPlugin,
   NavigationResult,
   DataLoaderPluginOptions,
-} from 'unplugin-vue-router/runtime'
+} from 'unplugin-vue-router/data-loaders'
 import { mockPromise } from '../../tests/utils'
 import {
   useDataOne,

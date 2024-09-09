@@ -8,7 +8,15 @@ export default defineConfig({
     alias: [
       {
         find: 'unplugin-vue-router/runtime',
-        replacement: fileURLToPath(new URL('src/runtime.ts', import.meta.url)),
+        replacement: fileURLToPath(
+          new URL('./src/runtime.ts', import.meta.url)
+        ),
+      },
+      {
+        find: 'unplugin-vue-router/data-loaders',
+        replacement: fileURLToPath(
+          new URL('./src/data-loaders/entries/index.ts', import.meta.url)
+        ),
       },
     ],
   },

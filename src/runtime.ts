@@ -1,7 +1,7 @@
 import type { RouteRecordRaw } from 'vue-router'
 
 // new data fetching
-export * from './data-loaders'
+export * from './data-loaders/entries/index'
 
 // NOTE: for tests only
 // export * from './data-loaders/defineQueryLoader'

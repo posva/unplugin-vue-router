@@ -42,8 +42,16 @@ declare module 'vue-router' {
      */
     [PENDING_LOCATION_KEY]: RouteLocationNormalizedLoaded | null
 
+    /**
+     * The app instance that is used by the router.
+     * @internal
+     */
     [APP_KEY]: App<unknown>
 
+    /**
+     * Whether the router is running in server-side rendering mode.
+     * @internal
+     */
     [IS_SSR_KEY]: boolean
   }
 

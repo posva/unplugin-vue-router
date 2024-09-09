@@ -1,4 +1,4 @@
-import { DataLoaderPlugin } from 'unplugin-vue-router/runtime'
+import { DataLoaderPlugin } from 'unplugin-vue-router/data-loaders'
 
 export default defineNuxtPlugin((nuxtApp) => {
   // TODO:

@@ -5,15 +5,13 @@ import {
   useRouter,
   type Router,
 } from 'vue-router'
-import type {
-  DataLoaderContextBase,
-  DataLoaderEntryBase,
-  DefineDataLoaderOptionsBase,
-  DefineLoaderFn,
-  UseDataLoader,
-  UseDataLoaderResult,
-} from 'unplugin-vue-router/runtime'
 import {
+  type DataLoaderContextBase,
+  type DataLoaderEntryBase,
+  type DefineDataLoaderOptionsBase,
+  type DefineLoaderFn,
+  type UseDataLoader,
+  type UseDataLoaderResult,
   ABORT_CONTROLLER_KEY,
   APP_KEY,
   IS_USE_DATA_LOADER_KEY,
@@ -25,7 +23,7 @@ import {
   getCurrentContext,
   setCurrentContext,
   IS_SSR_KEY,
-} from 'unplugin-vue-router/runtime'
+} from 'unplugin-vue-router/data-loaders'
 
 import { shallowRef } from 'vue'
 import { toLazyValue } from './createDataLoader'
