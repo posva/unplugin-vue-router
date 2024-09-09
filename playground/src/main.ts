@@ -1,10 +1,10 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import { DataLoaderPlugin } from 'unplugin-vue-router/data-loaders'
 import { MutationCache, QueryCache, VueQueryPlugin } from '@tanstack/vue-query'
 import { createPinia } from 'pinia'
 import { PiniaColada } from '@pinia/colada'
 import { router } from './router'
+import { DataLoaderPlugin } from 'unplugin-vue-router/data-loaders'
 
 const app = createApp(App)
 

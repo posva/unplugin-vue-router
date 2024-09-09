@@ -3,7 +3,7 @@
  */
 import { App, defineComponent } from 'vue'
 import {
-  DefineDataLoaderOptions,
+  type DefineDataLoaderOptions,
   INITIAL_DATA_KEY,
   SERVER_INITIAL_DATA_KEY,
   defineBasicLoader,

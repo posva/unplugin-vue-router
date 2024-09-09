@@ -89,7 +89,7 @@ Note you can specify the language to use with `<route lang="yaml">`. By default,
 
 ## Extending routes at runtime
 
-As an escape-hatch, it's possible to extend the routes **at runtime** by simply changing the `routes` array before passing it to `createRouter()`. Since these changes are made at runtime, they are not reflected in the generated `typed-router.d.ts` file.
+As an escape-hatch, it's possible to extend the routes **at runtime** by simply changing or cloning the `routes` array before passing it to `createRouter()`. Since these changes are made at runtime, they are not reflected in the generated `typed-router.d.ts` file.
 
 ```js{4-9}
 import { createWebHistory, createRouter } from 'vue-router'

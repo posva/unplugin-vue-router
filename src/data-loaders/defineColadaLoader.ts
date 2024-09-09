@@ -14,6 +14,7 @@ import type {
   UseDataLoader,
   UseDataLoaderResult,
   _DefineLoaderEntryMap,
+  _PromiseMerged,
 } from 'unplugin-vue-router/runtime'
 import {
   ABORT_CONTROLLER_KEY,
@@ -24,7 +25,6 @@ import {
   PENDING_LOCATION_KEY,
   STAGED_NO_VALUE,
   NavigationResult,
-  type _PromiseMerged,
   assign,
   getCurrentContext,
   isSubsetOf,

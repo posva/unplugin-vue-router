@@ -42,12 +42,8 @@ describe('defineBasicLoader', () => {
     expectTypeOf<Ref<UserData | undefined>>(
       defineBasicLoader(loaderUser, { lazy: true })().data
     )
-  })
-
-  it('removes undefined from non lazy loaders', () => {
-    expectTypeOf<Ref<UserData>>(defineBasicLoader(loaderUser, {})().data)
-    expectTypeOf<Ref<UserData>>(
-      defineBasicLoader(loaderUser, { lazy: false })().data
+    expectTypeOf<Ref<UserData | undefined>>(
+      defineBasicLoader(loaderUser, { lazy: () => false })().data
     )
   })
 
@@ -58,12 +54,12 @@ describe('defineBasicLoader', () => {
     expectTypeOf<Promise<UserData>>(defineBasicLoader(loaderUser, {})())
   })
 
-  expectTypeOf<{ data: Ref<UserData> }>(
+  expectTypeOf<{ data: Ref<UserData | undefined> }>(
     defineBasicLoader(loaderUser, { lazy: false })()
   )
 
   it('allows returning a Navigation Result without a type error', () => {
-    expectTypeOf<{ data: Ref<UserData> }>(
+    expectTypeOf<{ data: Ref<UserData | undefined> }>(
       defineBasicLoader(
         async () => {
           if (Math.random()) {

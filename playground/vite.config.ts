@@ -16,6 +16,27 @@ import VueDevtools from 'vite-plugin-vue-devtools'
 
 export default defineConfig({
   clearScreen: false,
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '~': fileURLToPath(new URL('./src', import.meta.url)),
+      'unplugin-vue-router/runtime': fileURLToPath(
+        new URL('../src/runtime.ts', import.meta.url)
+      ),
+      'unplugin-vue-router/types': fileURLToPath(
+        new URL('../src/types.ts', import.meta.url)
+      ),
+      'unplugin-vue-router/data-loaders/basic': fileURLToPath(
+        new URL('../src/data-loaders/entries/basic.ts', import.meta.url)
+      ),
+      'unplugin-vue-router/data-loaders/pinia-colada': fileURLToPath(
+        new URL('../src/data-loaders/entries/pinia-colada.ts', import.meta.url)
+      ),
+      'unplugin-vue-router/data-loaders': fileURLToPath(
+        new URL('../src/data-loaders/entries/index.ts', import.meta.url)
+      ),
+    },
+  },
   build: {
     sourcemap: true,
   },
@@ -130,23 +151,18 @@ export default defineConfig({
       imports: [
         VueRouterAutoImports,
         {
-          'unplugin-vue-router/data-loaders/basic': ['defineBasicLoader'],
+          // NOTE: we need to match the resolved paths to local files for development
+          // instead of just 'unplugin-vue-router/data-loaders/basic': ['defineBasicLoader'],
+          [fileURLToPath(
+            new URL('../src/data-loaders/entries/basic.ts', import.meta.url)
+          )]: ['defineBasicLoader'],
+          // [fileURLToPath(
+          //   new URL('../src/data-loaders/entries/pinia-colada.ts', import.meta.url)
+          // )]: ['defineColadaLoader'],
         },
       ],
     }),
     VueDevtools(),
     Inspect(),
   ],
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
-      '~': fileURLToPath(new URL('./src', import.meta.url)),
-      'unplugin-vue-router/runtime': fileURLToPath(
-        new URL('../src/runtime.ts', import.meta.url)
-      ),
-      'unplugin-vue-router/types': fileURLToPath(
-        new URL('../src/types.ts', import.meta.url)
-      ),
-    },
-  },
 })

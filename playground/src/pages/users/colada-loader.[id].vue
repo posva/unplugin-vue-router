@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { simulateError, useUserData } from '@/loaders/colada-loaders'
-import { serialize } from '@pinia/colada'
+import { serializeTreeMap } from '@pinia/colada'
 import { getActivePinia } from 'pinia'
 
 definePage({
@@ -15,7 +15,7 @@ const pinia = getActivePinia()!
 function copy() {
   console.log(
     JSON.parse(
-      JSON.stringify(serialize(pinia.state.value._pc_query.entryRegistry))
+      JSON.stringify(serializeTreeMap(pinia.state.value._pc_query.entryRegistry))
     )
   )
 }
