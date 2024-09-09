@@ -15,7 +15,9 @@ const pinia = getActivePinia()!
 function copy() {
   console.log(
     JSON.parse(
-      JSON.stringify(serializeTreeMap(pinia.state.value._pc_query.entryRegistry))
+      JSON.stringify(
+        serializeTreeMap(pinia.state.value._pc_query.entryRegistry)
+      )
     )
   )
 }
