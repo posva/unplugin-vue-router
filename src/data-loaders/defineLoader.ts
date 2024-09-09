@@ -12,7 +12,6 @@ import type {
   DefineLoaderFn,
   UseDataLoader,
   UseDataLoaderResult,
-  _DataMaybeLazy,
 } from 'unplugin-vue-router/runtime'
 import {
   ABORT_CONTROLLER_KEY,
@@ -42,35 +41,31 @@ import { toLazyValue } from './createDataLoader'
  * @param loader - function that returns a promise with the data
  * @param options - options to configure the data loader
  */
-export function defineBasicLoader<
-  Name extends keyof RouteMap,
-  Data,
-  isLazy extends boolean,
->(
+export function defineBasicLoader<Name extends keyof RouteMap, Data>(
   name: Name,
   loader: DefineLoaderFn<
     Data,
     DataLoaderContext,
     RouteLocationNormalizedLoaded<Name>
   >,
-  options?: DefineDataLoaderOptions<isLazy>
-): UseDataLoaderBasic<isLazy, Data>
-export function defineBasicLoader<Data, isLazy extends boolean>(
+  options?: DefineDataLoaderOptions
+): UseDataLoaderBasic<Data>
+export function defineBasicLoader<Data>(
   loader: DefineLoaderFn<
     Data,
     DataLoaderContext,
     RouteLocationNormalizedLoaded
   >,
-  options?: DefineDataLoaderOptions<isLazy>
-): UseDataLoaderBasic<isLazy, Data>
+  options?: DefineDataLoaderOptions
+): UseDataLoaderBasic<Data>
 
-export function defineBasicLoader<Data, isLazy extends boolean>(
+export function defineBasicLoader<Data>(
   nameOrLoader: keyof RouteMap | DefineLoaderFn<Data, DataLoaderContext>,
   _loaderOrOptions?:
-    | DefineDataLoaderOptions<isLazy>
+    | DefineDataLoaderOptions
     | DefineLoaderFn<Data, DataLoaderContext>,
-  opts?: DefineDataLoaderOptions<isLazy>
-): UseDataLoaderBasic<isLazy, Data> {
+  opts?: DefineDataLoaderOptions
+): UseDataLoaderBasic<Data> {
   // TODO: make it DEV only and remove the first argument in production mode
   // resolve option overrides
   const loader =
@@ -78,13 +73,13 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
       ? nameOrLoader
       : (_loaderOrOptions! as DefineLoaderFn<Data, DataLoaderContext>)
   opts = typeof _loaderOrOptions === 'object' ? _loaderOrOptions : opts
-  // {} as DefineDataLoaderOptions<isLazy>,
+
   const options = {
     ...DEFAULT_DEFINE_LOADER_OPTIONS,
     ...opts,
     // avoid opts overriding with `undefined`
     commit: opts?.commit || DEFAULT_DEFINE_LOADER_OPTIONS.commit,
-  } as DefineDataLoaderOptions<isLazy>
+  } as DefineDataLoaderOptions
 
   function load(
     to: RouteLocationNormalizedLoaded,
@@ -99,7 +94,7 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
     if (!entries.has(loader)) {
       entries.set(loader, {
         // force the type to match
-        data: shallowRef<_DataMaybeLazy<Data, isLazy>>(),
+        data: shallowRef<Data | undefined>(),
         isLoading: shallowRef(false),
         error: shallowRef<any>(),
         to,
@@ -277,9 +272,9 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
     }
   }
 
-  // @ts-expect-error: requires the internals and symbol that are added later
-  const useDataLoader: // for ts
-  UseDataLoaderBasic<isLazy, Data> = () => {
+  // @ts-expect-error: return type has the generics
+  const useDataLoader // for ts
+  : UseDataLoaderBasic<Data> = () => {
     // work with nested data loaders
     const currentContext = getCurrentContext()
     const [parentEntry, _router, _route] = currentContext
@@ -352,7 +347,7 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
       })
       // we only want the error if we are nesting the loader
       // otherwise this will end up in "Unhandled promise rejection"
-      .catch((e) => (parentEntry ? Promise.reject(e) : null))
+      .catch((e: unknown) => (parentEntry ? Promise.reject(e) : null))
 
     setCurrentContext(currentContext)
     return Object.assign(promise, useDataLoaderResult)
@@ -374,8 +369,7 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
   return useDataLoader
 }
 
-export interface DefineDataLoaderOptions<isLazy extends boolean>
-  extends DefineDataLoaderOptionsBase<isLazy> {
+export interface DefineDataLoaderOptions extends DefineDataLoaderOptionsBase {
   /**
    * Key to use for SSR state. This will be used to read the initial data from `initialData`'s object.
    */
@@ -388,7 +382,7 @@ const DEFAULT_DEFINE_LOADER_OPTIONS = {
   lazy: false as boolean,
   server: true,
   commit: 'after-load',
-} satisfies DefineDataLoaderOptions<boolean>
+} satisfies DefineDataLoaderOptions
 
 /**
  * Symbol used to store the data in the router so it can be retrieved after the initial navigation.
@@ -415,5 +409,4 @@ declare module 'vue-router' {
   }
 }
 
-export interface UseDataLoaderBasic<isLazy extends boolean, Data>
-  extends UseDataLoader<isLazy, Data> {}
+export interface UseDataLoaderBasic<Data> extends UseDataLoader<Data> {}

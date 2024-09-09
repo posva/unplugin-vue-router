@@ -8,14 +8,11 @@ import { type _Awaitable } from '../utils'
 /**
  * Base type for a data loader entry. Each Data Loader has its own entry in the `loaderEntries` (accessible via `[LOADER_ENTRIES_KEY]`) map.
  */
-export interface DataLoaderEntryBase<
-  isLazy extends boolean = boolean,
-  Data = unknown,
-> {
+export interface DataLoaderEntryBase<Data = unknown> {
   /**
    * Data stored in the entry.
    */
-  data: ShallowRef<_DataMaybeLazy<Data, isLazy>>
+  data: ShallowRef<Data | undefined>
 
   /**
    * Error if there was an error.
@@ -32,7 +29,7 @@ export interface DataLoaderEntryBase<
    */
   isLoading: ShallowRef<boolean>
 
-  options: DefineDataLoaderOptionsBase<isLazy>
+  options: DefineDataLoaderOptionsBase
 
   /**
    * Called by the navigation guard when the navigation is duplicated. Should be used to reset pendingTo and pendingLoad and any other property that should be reset.
@@ -86,7 +83,7 @@ export interface CreateDataLoaderOptions<
   after: <Data = unknown>(data: Data, context: Context) => unknown
 }
 
-export interface DefineDataLoaderOptionsBase<isLazy extends boolean> {
+export interface DefineDataLoaderOptionsBase {
   /**
    * Whether the data should be lazy loaded without blocking the client side navigation or not. When set to true, the loader will no longer block the navigation and the returned composable can be called even
    * without having the data ready.
@@ -94,7 +91,7 @@ export interface DefineDataLoaderOptionsBase<isLazy extends boolean> {
    * @defaultValue `false`
    */
   lazy?:
-    | isLazy
+    | boolean
     | ((
         to: RouteLocationNormalizedLoaded,
         from?: RouteLocationNormalizedLoaded
@@ -143,7 +140,6 @@ export const toLazyValue = (
  * - `after-load`: the data is committed after all non-lazy loaders have finished loading.
  */
 export type DefineDataLoaderCommit = 'immediate' | 'after-load'
-// TODO: is after-load fine or is it better to have an after-navigation instead
 
 export interface DataLoaderContextBase {
   /**
@@ -153,11 +149,11 @@ export interface DataLoaderContextBase {
 }
 
 export interface DefineDataLoader<Context extends DataLoaderContextBase> {
-  <isLazy extends boolean, Data>(
+  <Data>(
     fn: DefineLoaderFn<Data, Context>,
-    options?: DefineDataLoaderOptionsBase<isLazy>
+    options?: DefineDataLoaderOptionsBase
     // TODO: or a generic that allows a more complex UseDataLoader
-  ): UseDataLoader<isLazy, Data>
+  ): UseDataLoader<Data>
 }
 
 // TODO: should be in each data loader. Refactor the base type to accept the needed generics
@@ -166,10 +162,7 @@ export interface DefineDataLoader<Context extends DataLoaderContextBase> {
  * Data Loader composable returned by `defineLoader()`.
  * @see {@link DefineDataLoader}
  */
-export interface UseDataLoader<
-  isLazy extends boolean = boolean,
-  Data = unknown,
-> {
+export interface UseDataLoader<Data = unknown> {
   [IS_USE_DATA_LOADER_KEY]: true
 
   /**
@@ -198,24 +191,21 @@ export interface UseDataLoader<
     // `return new NavigationResult()` in the loader
     Exclude<Data, NavigationResult>,
     // or use it as a composable
-    UseDataLoaderResult<isLazy, Exclude<Data, NavigationResult>>
+    UseDataLoaderResult<Exclude<Data, NavigationResult>>
   >
 
   /**
    * Internals of the data loader.
    * @internal
    */
-  _: UseDataLoaderInternals<isLazy, Exclude<Data, NavigationResult>>
+  _: UseDataLoaderInternals<Exclude<Data, NavigationResult>>
 }
 
 /**
  * Internal properties of a data loader composable. Used by the internal implementation of `defineLoader()`. **Should
  * not be used in application code.**
  */
-export interface UseDataLoaderInternals<
-  isLazy extends boolean = boolean,
-  Data = unknown,
-> {
+export interface UseDataLoaderInternals<Data = unknown> {
   /**
    * Loads the data from the cache if possible, otherwise loads it from the loader and awaits it.
    *
@@ -234,7 +224,7 @@ export interface UseDataLoaderInternals<
   /**
    * Resolved options for the loader.
    */
-  options: DefineDataLoaderOptionsBase<isLazy>
+  options: DefineDataLoaderOptionsBase
 
   /**
    * Gets the entry associated with the router instance. Assumes the data loader has been loaded and that the entry
@@ -242,28 +232,17 @@ export interface UseDataLoaderInternals<
    *
    * @param router - router instance
    */
-  getEntry(router: Router): DataLoaderEntryBase<isLazy, Data>
+  getEntry(router: Router): DataLoaderEntryBase<Data>
 }
-
-/**
- * Generates the type for a `Ref` of a data loader based on the value of `lazy`.
- * @internal
- */
-export type _DataMaybeLazy<Data, isLazy extends boolean = boolean> =
-  // no lazy provided, default value is false
-  boolean extends isLazy ? Data : true extends isLazy ? Data | undefined : Data
 
 /**
  * Return value of a loader composable defined with `defineLoader()`.
  */
-export interface UseDataLoaderResult<
-  isLazy extends boolean = boolean,
-  Data = unknown,
-> {
+export interface UseDataLoaderResult<Data = unknown> {
   /**
    * Data returned by the loader. If the data loader is lazy, it will be undefined until the first load.
    */
-  data: ShallowRef<_DataMaybeLazy<Data, isLazy>>
+  data: ShallowRef<Data | undefined>
 
   /**
    * Whether there is an ongoing request.
