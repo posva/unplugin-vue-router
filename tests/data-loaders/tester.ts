@@ -1101,8 +1101,6 @@ export function testDefineLoader<Context = void>(
 
     expect(useDataResult?.data.value).toEqual('search')
     expect(l2Data.data.value).toEqual('search,one')
-    // FIXME: go from here: figure out why with colada it's called 2 times
-    // but only once with the basic loader. Probably need a currentLoad variable
     expect(l1.spy).toHaveBeenCalledTimes(1)
     expect(spy).toHaveBeenCalledTimes(1)
   })
