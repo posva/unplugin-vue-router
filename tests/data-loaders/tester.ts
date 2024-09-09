@@ -1,7 +1,15 @@
 /**
  * @vitest-environment happy-dom
  */
-import { type App, defineComponent, inject, type Plugin } from 'vue'
+import {
+  type App,
+  defineComponent,
+  h,
+  inject,
+  nextTick,
+  type Plugin,
+  ref,
+} from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import { getRouter } from 'vue-router-mock'
@@ -1108,6 +1116,58 @@ export function testDefineLoader<Context = void>(
   it.todo('passes to and from to the function version of lazy', async () => {})
   it.todo('can be first non-lazy then lazy', async () => {})
   it.todo('can be first non-lazy then lazy', async () => {})
+
+  // https://github.com/posva/unplugin-vue-router/issues/495
+  // in the issue above we have one page with a loader
+  // this page is conditionally rendered based on an error state
+  // when resetting the error state, there is also a duplicated navigation
+  // that invalidates any pendingLoad and renders the page again
+  // since there is no navigation, loaders are not called again and
+  // there is no pendingLoad
+  it('gracefully handles a loader without a pendingLoad', async () => {
+    const l1 = mockedLoader({ lazy: false, key: 'l1' })
+    const router = getRouter()
+    router.addRoute({
+      name: 'a',
+      path: '/a',
+      component: defineComponent({
+        setup() {
+          const { data } = l1.loader()
+          return { data }
+        },
+        template: `<p>{{ data }}</p>`,
+      }),
+      meta: {
+        loaders: [l1.loader],
+      },
+    })
+    l1.spy.mockResolvedValue('ok')
+
+    const isVisible = ref(true)
+
+
+    const wrapper = mount(
+      () => (isVisible.value ? h(RouterViewMock) : h('p', ['hidden'])),
+      {
+        global: {
+          plugins: [
+            [DataLoaderPlugin, { router }],
+            ...(plugins?.(customContext!) || []),
+          ],
+        },
+      }
+    )
+
+    await router.push('/a')
+    expect(wrapper.text()).toBe('ok')
+    isVisible.value = false
+    await nextTick()
+    expect(wrapper.text()).toBe('hidden')
+    await router.push('/a') // failed duplicated navigation
+    isVisible.value = true
+    await nextTick()
+    expect(wrapper.text()).toBe('ok')
+  })
 
   describe('app.runWithContext()', () => {
     it('can inject globals', async () => {

@@ -302,6 +302,9 @@ export function defineBasicLoader<Data>(
       (parentEntry && entry.pendingTo !== route)
       // we could also check for: but that would break nested loaders since they need to be always called to be associated with the parent
       // && entry.to !== route
+      // the user managed to render the router view after a valid navigation + a failed navigation
+      // https://github.com/posva/unplugin-vue-router/issues/495
+      || !entry.pendingLoad
     ) {
       // console.log(
       //   `🔁 loading from useData for "${options.key}": "${route.fullPath}"`

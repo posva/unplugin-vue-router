@@ -363,6 +363,8 @@ export function defineColadaLoader<Data>(
       !entry ||
       // we are nested and the parent is loading a different route than us
       (parentEntry && entry.pendingTo !== route)
+      // The user somehow rendered the page without a navigation
+      || !entry.pendingLoad
     ) {
       // console.log(
       //   `🔁 loading from useData for "${options.key}": "${route.fullPath}"`
