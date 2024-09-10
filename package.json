@@ -176,7 +176,7 @@
     "mlly": "^1.7.1",
     "pathe": "^1.1.2",
     "scule": "^1.3.0",
-    "unplugin": "^1.13.1",
+    "unplugin": "^1.14.0",
     "yaml": "^2.5.1"
   },
   "peerDependencies": {
@@ -189,7 +189,7 @@
   },
   "devDependencies": {
     "@pinia/colada": "^0.8.2",
-    "@shikijs/vitepress-twoslash": "1.16.2",
+    "@shikijs/vitepress-twoslash": "1.16.3",
     "@tanstack/vue-query": "^5.55.4",
     "@types/node": "^20.16.1",
     "@vitest/coverage-v8": "^2.0.5",
