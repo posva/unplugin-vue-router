@@ -99,28 +99,35 @@ export function setupLoaderGuard({
 
           // we only add async modules because otherwise the component doesn't have any loaders and the user should add
           // them with the `loaders` array
-          if (isAsyncModule(component)) {
-            const promise = component().then(
-              (viewModule: Record<string, unknown>) => {
-                for (const exportName in viewModule) {
-                  const exportValue = viewModule[exportName]
+          const promise = (
+            isAsyncModule(component)
+              ? component()
+              : // we also support __loaders exported as an option to get around some temporary limitations
+                Promise.resolve(
+                  component as Record<string, unknown> | (() => unknown)
+                )
+          ).then((viewModule) => {
+            // avoid checking functional components
+            if (typeof viewModule === 'function') return
 
-                  if (isDataLoader(exportValue)) {
-                    record.meta[LOADER_SET_KEY]!.add(exportValue)
-                  }
-                }
-                if (Array.isArray(viewModule.__loaders)) {
-                  for (const loader of viewModule.__loaders) {
-                    if (isDataLoader(loader)) {
-                      record.meta[LOADER_SET_KEY]!.add(loader)
-                    }
-                  }
+            for (const exportName in viewModule) {
+              const exportValue = viewModule[exportName]
+
+              if (isDataLoader(exportValue)) {
+                record.meta[LOADER_SET_KEY]!.add(exportValue)
+              }
+            }
+            // TODO: remove once nuxt doesn't wrap with `e => e.default` async pages
+            if (Array.isArray(viewModule.__loaders)) {
+              for (const loader of viewModule.__loaders) {
+                if (isDataLoader(loader)) {
+                  record.meta[LOADER_SET_KEY]!.add(loader)
                 }
               }
-            )
+            }
+          })
 
-            lazyLoadingPromises.push(promise)
-          }
+          lazyLoadingPromises.push(promise)
         }
       }
     }
