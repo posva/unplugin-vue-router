@@ -52,8 +52,8 @@ importers:
         version: 2.5.1
     devDependencies:
       '@pinia/colada':
-        specifier: ^0.8.2
-        version: 0.8.2
+        specifier: ^0.9.0
+        version: 0.9.0
       '@shikijs/vitepress-twoslash':
         specifier: 1.16.3
         version: 1.16.3(@nuxt/kit@3.13.1(magicast@0.3.5)(rollup@4.21.2)(webpack-sources@3.2.3))(typescript@5.6.2)
@@ -1332,8 +1332,8 @@ packages:
     resolution: {integrity: sha512-HNjmfLQEVRZmHRET336f20H/8kOozUGwk7yajvsonjNxbj2wBTK1WsQuHkD5yYh9RxFGL2EyDHryOihOwUoKDA==}
     engines: {node: '>= 10.0.0'}
 
-  '@pinia/colada@0.8.2':
-    resolution: {integrity: sha512-ZsAhKP15jOp3INSXLo+m2Mp+M9w99nDx2VHV4wA8QdFRMLkpNyCl9w7jeG7KS8eGR3ieI/GAu6HeBd+hcC57qA==}
+  '@pinia/colada@0.9.0':
+    resolution: {integrity: sha512-U6Pp3Vuo84+LB6BAwr8Q0pbzgoWmQriLdvVImLdt2YqbBG+E+9gg+sXQmP38XjaNRIPbaKESME6ir7f0ji/RLA==}
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -6807,7 +6807,7 @@ snapshots:
       '@parcel/watcher-win32-ia32': 2.4.1
       '@parcel/watcher-win32-x64': 2.4.1
 
-  '@pinia/colada@0.8.2': {}
+  '@pinia/colada@0.9.0': {}
 
   '@pkgjs/parseargs@0.11.0':
     optional: true

@@ -1,7 +1,7 @@
 /**
  * @vitest-environment happy-dom
  */
-import { App, defineComponent, markRaw } from 'vue'
+import { App, defineComponent, markRaw, nextTick } from 'vue'
 import { defineColadaLoader } from './defineColadaLoader'
 import {
   describe,
@@ -25,7 +25,6 @@ import { enableAutoUnmount, mount } from '@vue/test-utils'
 import RouterViewMock from '../../tests/data-loaders/RouterViewMock.vue'
 import { setActivePinia, createPinia, getActivePinia } from 'pinia'
 import {
-  useQuery,
   PiniaColada,
   useQueryCache,
   reviveTreeMap,
@@ -68,7 +67,13 @@ describe(
     function singleLoaderOneRoute<Loader extends UseDataLoader>(
       useData: Loader,
       pluginOptions?: Omit<DataLoaderPluginOptions, 'router'>
-    ) {
+    ): {
+      wrapper: ReturnType<typeof mount>
+      router: ReturnType<typeof getRouter>
+      // technically it should be () => ReturnType<Loader> but it doesn't infer all the types
+      useData: Loader,
+      app: App
+    } {
       let useDataResult: ReturnType<Loader>
       const component = defineComponent({
         setup() {
@@ -111,6 +116,7 @@ describe(
       return {
         wrapper,
         router,
+        // @ts-expect-error: not exactly Loader
         useData: () => {
           if (useDataResult) {
             return useDataResult
@@ -148,7 +154,7 @@ describe(
     })
 
     it('updates data loader data if internal data changes', async () => {
-      const query = vi.fn().mockResolvedValue('data')
+      const query = vi.fn(async () => 'data')
 
       const { router, useData } = singleLoaderOneRoute(
         defineColadaLoader({
@@ -165,12 +171,10 @@ describe(
       const wrapper = mount(
         defineComponent({
           setup() {
-            return useQuery({
-              query,
-              key: ['id'],
-            })
+            const caches = useQueryCache()
+            return { caches }
           },
-          template: `<div>{{ data }}</div>`,
+          template: `<div></div>`,
         }),
         {
           global: {
@@ -178,11 +182,8 @@ describe(
           },
         }
       )
-      query.mockResolvedValue('new')
-      await wrapper.vm.refetch()
-      await vi.runAllTimersAsync()
-      expect(query).toHaveBeenCalledTimes(2)
-      expect(wrapper.vm.data).toBe('new')
+      wrapper.vm.caches.setQueryData(['id'], 'new')
+      await nextTick()
       expect(loaderData.value).toBe('new')
     })
 
