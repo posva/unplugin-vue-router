@@ -173,7 +173,17 @@ importers:
         version: 2.0.0
 
   examples/nuxt:
+    dependencies:
+      '@pinia/colada':
+        specifier: ^0.9.0
+        version: 0.9.0
+      pinia:
+        specifier: ^2.2.2
+        version: 2.2.2(typescript@5.6.2)(vue@3.5.3(typescript@5.6.2))
     devDependencies:
+      '@pinia/nuxt':
+        specifier: ^0.5.4
+        version: 0.5.4(magicast@0.3.5)(rollup@4.21.2)(typescript@5.6.2)(vue@3.5.3(typescript@5.6.2))(webpack-sources@3.2.3)
       nuxt:
         specifier: ^3.13.1
         version: 3.13.1(@parcel/watcher@2.4.1)(@types/node@22.5.4)(encoding@0.1.13)(ioredis@5.4.1)(magicast@0.3.5)(rollup@4.21.2)(terser@5.32.0)(typescript@5.6.2)(vite@5.4.3(@types/node@22.5.4)(terser@5.32.0))(vue-tsc@2.1.6(typescript@5.6.2))(webpack-sources@3.2.3)
@@ -1334,6 +1344,9 @@ packages:
 
   '@pinia/colada@0.9.0':
     resolution: {integrity: sha512-U6Pp3Vuo84+LB6BAwr8Q0pbzgoWmQriLdvVImLdt2YqbBG+E+9gg+sXQmP38XjaNRIPbaKESME6ir7f0ji/RLA==}
+
+  '@pinia/nuxt@0.5.4':
+    resolution: {integrity: sha512-nNEs2pq6+Ji5qIyRwmeD9LUdctL8aJ8QMVLTYxUc16cXEOcIIN+MSA8Xudsd0lVETYgEAROT5HiBHnOYRDY3yQ==}
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -6808,6 +6821,19 @@ snapshots:
       '@parcel/watcher-win32-x64': 2.4.1
 
   '@pinia/colada@0.9.0': {}
+
+  '@pinia/nuxt@0.5.4(magicast@0.3.5)(rollup@4.21.2)(typescript@5.6.2)(vue@3.5.3(typescript@5.6.2))(webpack-sources@3.2.3)':
+    dependencies:
+      '@nuxt/kit': 3.13.1(magicast@0.3.5)(rollup@4.21.2)(webpack-sources@3.2.3)
+      pinia: 2.2.2(typescript@5.6.2)(vue@3.5.3(typescript@5.6.2))
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - magicast
+      - rollup
+      - supports-color
+      - typescript
+      - vue
+      - webpack-sources
 
   '@pkgjs/parseargs@0.11.0':
     optional: true

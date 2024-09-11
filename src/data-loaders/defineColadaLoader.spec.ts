@@ -24,11 +24,7 @@ import { getRouter } from 'vue-router-mock'
 import { enableAutoUnmount, mount } from '@vue/test-utils'
 import RouterViewMock from '../../tests/data-loaders/RouterViewMock.vue'
 import { setActivePinia, createPinia, getActivePinia } from 'pinia'
-import {
-  PiniaColada,
-  useQueryCache,
-  reviveTreeMap,
-} from '@pinia/colada'
+import { PiniaColada, useQueryCache, reviveTreeMap } from '@pinia/colada'
 import { RouteLocationNormalizedLoaded } from 'vue-router'
 
 describe(
@@ -71,7 +67,7 @@ describe(
       wrapper: ReturnType<typeof mount>
       router: ReturnType<typeof getRouter>
       // technically it should be () => ReturnType<Loader> but it doesn't infer all the types
-      useData: Loader,
+      useData: Loader
       app: App
     } {
       let useDataResult: ReturnType<Loader>

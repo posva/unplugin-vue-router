@@ -24,6 +24,7 @@ export const useUserData = defineBasicLoader(
 defineOptions({
   __loaders: [useUserData],
 })
+
 const { data: user } = useUserData()
 const route = useRoute('users-id')
 </script>
