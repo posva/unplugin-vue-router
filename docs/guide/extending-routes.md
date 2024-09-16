@@ -66,6 +66,8 @@ definePage({
 </template>
 ```
 
+If you are using ESLint, you will need [to declare it as a global variable](../guide/eslint.md#definepage).
+
 ::: danger
 You cannot use variables in `definePage()` as its passed parameter gets extracted at build time and is removed from `<script setup>`. Similar to other macros like `definePageMeta()` in Nuxt.
 :::
