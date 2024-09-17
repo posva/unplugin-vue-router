@@ -99,8 +99,8 @@ import { routes } from 'vue-router/auto-routes'
 
 for (const route of routes) {
   if (route.name === '/admin') {
-    adminRoute.meta ??= {}
-    adminRoute.meta.requiresAuth = true
+    route.meta ??= {}
+    route.meta.requiresAuth = true
   }
 }
 
