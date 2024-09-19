@@ -28,10 +28,10 @@ function isStringLiteral(node: Node | null | undefined): node is StringLiteral {
   return node?.type === 'StringLiteral'
 }
 
-function parseAst(code: string, id: string): { ast?: Program; offset: number } {
-  let ast: Program | undefined
+function getAst(code: string, id: string): { ast?: Program; offset: number } {
   let offset = 0
-  let lang = getLang(id.split(MACRO_DEFINE_PAGE_QUERY)[0]!)
+  let ast: Program | undefined
+  const lang = getLang(id.split(MACRO_DEFINE_PAGE_QUERY)[0]!)
   if (lang === 'vue') {
     const sfc = parseSFC(code, id)
     if (sfc.scriptSetup) {
@@ -60,7 +60,7 @@ export function definePageTransform({
     return isExtractingDefinePage ? 'export default {}' : undefined
   }
 
-  const { ast, offset } = parseAst(code, id)
+  const { ast, offset } = getAst(code, id)
   if (!ast) return
 
   const definePageNodes = ((ast?.body || []) as Node[])
@@ -182,7 +182,7 @@ export function extractDefinePageNameAndPath(
 ): { name?: string; path?: string } | null | undefined {
   if (!sfcCode.includes(MACRO_DEFINE_PAGE)) return
 
-  const { ast } = parseAst(sfcCode, id)
+  const { ast } = getAst(sfcCode, id)
   if (!ast) return
 
   const definePageNodes = ((ast.body ?? []) as Node[])
