@@ -63,7 +63,7 @@ export function definePageTransform({
   const { ast, offset } = getAst(code, id)
   if (!ast) return
 
-  const definePageNodes = ((ast?.body || []) as Node[])
+  const definePageNodes = ((ast.body || []) as Node[])
     .map((node) => {
       if (node.type === 'ExpressionStatement') node = node.expression
       return isCallOf(node, MACRO_DEFINE_PAGE) ? node : null
