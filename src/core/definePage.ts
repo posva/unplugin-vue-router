@@ -37,6 +37,9 @@ function getAst(code: string, id: string): { ast?: Program; offset: number } {
     if (sfc.scriptSetup) {
       ast = sfc.getSetupAst()
       offset = sfc.scriptSetup.loc.start.offset
+    } else if (sfc.script) {
+      ast = sfc.getScriptAst()
+      offset = sfc.script.loc.start.offset
     }
   } else if (/[jt]sx?$/.test(lang)) {
     ast = babelParse(code, lang)
