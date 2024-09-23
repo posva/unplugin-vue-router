@@ -72,3 +72,10 @@ const b = 1
 </template>
       "
 `;
+
+exports[`definePage > works with jsx 1`] = `
+"export default {
+      name: 'custom',
+      path: '/custom',
+    }"
+`;
