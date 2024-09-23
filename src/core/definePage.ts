@@ -28,7 +28,7 @@ function isStringLiteral(node: Node | null | undefined): node is StringLiteral {
   return node?.type === 'StringLiteral'
 }
 
-function getAst(code: string, id: string): { ast?: Program; offset: number } {
+function getAst(code: string, id: string) {
   let offset = 0
   let ast: Program | undefined
   const lang = getLang(id.split(MACRO_DEFINE_PAGE_QUERY)[0]!)
