@@ -120,7 +120,7 @@ export function createRoutesContext(options: ResolvedOptions) {
       ...definedPageNameAndPath,
     }
 
-    if (routeOverrides.path && !routeOverrides.path.startsWith('/')) {
+    if (routeOverrides.path != null && !routeOverrides.path.startsWith('/')) {
       let parent = node.parent
 
       while (parent && !parent.value.components.size) {
