@@ -219,7 +219,7 @@ It's important to add the `DataLoaderPlugin` before the router to ensure the nav
 
 ### Core Data Loader features
 
-These are the core features of the Data Loader API that every data loader should implement. Throughout the RFC, we will use a **non-existent**, **generic** `defineLoader()`. This is a placeholder for the actual name of the function, e.g. [`defineBasicLoader()`](./basic.md), [`defineColadaLoader()`](./colada.md), etc. In practice, one can globally alias the function to `defineLoader` with [unplugin-auto-import](https://github.com/unplugin/unplugin-auto-import).
+These are the core features of the Data Loader API that every data loader should implement. Throughout the RFC, we will use a **non-existent**, **generic** `defineLoader()`. This is a placeholder for the actual name of the function, e.g. [`defineBasicLoader()`](./basic/), [`defineColadaLoader()`](./colada/), etc. In practice, one can globally alias the function to `defineLoader` with [unplugin-auto-import](https://github.com/unplugin/unplugin-auto-import).
 
 Data Loaders should be able to load data based **solely on the URL**. This ensures that the page can be shared and that the rendering is consistent between the server and the client.
 
@@ -337,7 +337,7 @@ const { data: user } = useUserData()
   })
   ```
 
-Each custom implementation can augment the returned properties with more information. For example, [Pinia Colada](./colada.md) adds `refresh()`, `status` and other properties specific to its features.
+Each custom implementation can augment the returned properties with more information. For example, [Pinia Colada](./colada/) adds `refresh()`, `status` and other properties specific to its features.
 
 #### Parallel Fetching
 
@@ -446,7 +446,7 @@ This allows nested loaders to be aware of their _parent loader_. This could prob
 #### Cache <Badge type="warning" text=">=0.8.0" />
 
 ::: warning
-This part has been removed from the core features of the API. It's now part of custom implementations like [Pinia Colada](./colada.md).
+This part has been removed from the core features of the API. It's now part of custom implementations like [Pinia Colada](./colada/).
 :::
 
 #### Smart Refreshing
@@ -455,7 +455,7 @@ This is not a requirement of the API.
 
 When navigating, depending on the loader, the data is refreshed **automatically based on what params, query params, and hash** are used within the loader.
 
-e.g. using [Pinia Colada](./colada.md), given this loader in page `/users/:id`:
+e.g. using [Pinia Colada](./colada/), given this loader in page `/users/:id`:
 
 ```ts
 export const useUserData = defineColadaLoader(async (route) => {
@@ -488,7 +488,7 @@ export const useBookCollection = defineLoader(
 
 ##### Avoiding double fetch on the client
 
-One of the advantages of having an initial state is that we can avoid fetching on the client. Data Loaders can implement a mechanism to skip fetching on the client if the initial state is provided ([Pinia Colada](./colada.md) implements this). This means nested loaders **aren't executed either**. Since data loaders shouldn't contain side effects besides data fetching, this shouldn't be a problem.
+One of the advantages of having an initial state is that we can avoid fetching on the client. Data Loaders can implement a mechanism to skip fetching on the client if the initial state is provided ([Pinia Colada](./colada/) implements this). This means nested loaders **aren't executed either**. Since data loaders shouldn't contain side effects besides data fetching, this shouldn't be a problem.
 
 ### The Navigation Guard
 
@@ -552,7 +552,7 @@ Some alternatives:
 
 ::: tip
 
-Throwing an error do not trigger the `selectNavigationResult()` method. Instead, it immediately cancels the navigation and triggers the `router.onError()` method, just like in a regular navigation guard.
+Throwing an error does not trigger the `selectNavigationResult()` method. Instead, it immediately cancels the navigation and triggers the `router.onError()` method, just like in a regular navigation guard.
 
 :::
 
@@ -626,18 +626,14 @@ When using vue router named views, each named view can have their own loaders bu
 
 ### Advanced Error handling
 
-::: info
-
-This is still not implemented.
-
-:::
-
 Since throwing an error in a loader cancels the navigation, this doesn't allow to have an error property in _non lazy loaders_ to display the error in the UI. To solve this, we can specify expected errors when defining the loader:
 
-```ts{2-7,14-16}
+```ts{2-9,16}
 // custom error class
 class MyError extends Error {
-  name = 'MyError' // Displays in logs instead of 'Error'
+  // override is only needed in TS
+  override name = 'MyError' // Displays in logs instead of 'Error'
+  // defining a constructor is optional
   constructor(message: string) {
     super(message)
   }
@@ -648,9 +644,7 @@ export const useUserData = defineLoader(
     // ...
   },
   {
-    errors: {
-      MyError, // uses `instanceof MyError`
-    },
+    errors: [MyError],
   }
 )
 ```
@@ -667,16 +661,14 @@ class MyError extends Error {
 
 app.use(DataLoaderPlugin, {
   router,
-  // all mande errors will let the navigation continue but appear in the error property
-  errors: {
-    MyError, // checks with `instanceof MyError`
-  },
+// checks with `instanceof MyError`
+  errors: [MyError],
 })
 ```
 
 ::: tip
 
-In a lazy loader, you can throw an error and since it doesn't block the navigation it will appear in the `error` property.
+In a lazy loader, you can throw an error and since it doesn't block the navigation it will **always** appear in the `error` property. Defining an `errors` property won't change anything.
 
 :::
 
@@ -816,7 +808,7 @@ interface Book {
   description: string
 }
 function fetchBookCollection(options: {
-  signal: AbortSignal
+  signal?: AbortSignal
 }): Promise<Book[]> {
   return {} as any
 }
@@ -832,7 +824,7 @@ This aligns with the future [Navigation API](https://github.com/WICG/navigation-
 
 ### Interfaces
 
-Defining a minimal set of information and options for Data Loaders is what enables external libraries to implement their own data loaders. They are meant to extend these interfaces to add more features that are specific to them. You can see a practical example with the [Pinia Colada](colada.md) implementation.
+Defining a minimal set of information and options for Data Loaders is what enables external libraries to implement their own data loaders. They are meant to extend these interfaces to add more features that are specific to them. You can see a practical example with the [Pinia Colada](./colada/) implementation.
 
 ::: danger
 This section is still a work in progress, see the [implementations](#implementations) instead.
@@ -947,6 +939,8 @@ On top of this it's important to note that this RFC doesn't limit you: you can s
     }
   })
   ```
+
+  But this version overlaps with `lazy: true`. While semantically it would be more natural if it was defined with **one** loader, it limits the API to one loader per page and not being able to reuse the data, loading state, error, etc across pages and components, which also limits the extensibility.
 
   :::
 

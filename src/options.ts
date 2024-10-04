@@ -97,7 +97,7 @@ export function resolveOverridableOption<T>(
 ): T {
   return typeof value === 'function'
     ? (value as (existing: T) => T)(defaultValue)
-    : value ?? defaultValue
+    : (value ?? defaultValue)
 }
 
 export type _RoutesFolder = string | RoutesFolderOption
@@ -209,6 +209,20 @@ export interface Options {
    * @default `!process.env.CI`
    */
   watch?: boolean
+
+  /**
+   * Experimental options. **Warning**: these can change or be removed at any time, even it patch releases. Keep an eye
+   * on the Changelog.
+   */
+  experimental?: {
+    /**
+     * (Vite only). File paths or globs where loaders are exported. This will be used to filter out imported loaders and
+     * automatically re export them in page components. You can for example set this to `'src/loaders/**\/*'` (without
+     * the backslash) to automatically re export any imported variable from files in the `src/loaders` folder within a
+     * page component.
+     */
+    autoExportsDataLoaders?: string | string[]
+  }
 }
 
 export const DEFAULT_OPTIONS = {
@@ -227,6 +241,7 @@ export const DEFAULT_OPTIONS = {
     dotNesting: true,
   },
   watch: !process.env.CI,
+  experimental: {},
 } satisfies Options
 
 export interface ServerContext {
@@ -285,6 +300,16 @@ export function resolveOptions(options: Options) {
     src: resolve(root, routeOption.src),
   }))
 
+  const experimental = { ...options.experimental }
+
+  if (experimental.autoExportsDataLoaders) {
+    experimental.autoExportsDataLoaders = (
+      Array.isArray(experimental.autoExportsDataLoaders)
+        ? experimental.autoExportsDataLoaders
+        : [experimental.autoExportsDataLoaders]
+    ).map((path) => resolve(root, path))
+  }
+
   if (options.extensions) {
     options.extensions = options.extensions
       // ensure that extensions start with a dot or warn the user
@@ -316,6 +341,7 @@ export function resolveOptions(options: Options) {
   return {
     ...DEFAULT_OPTIONS,
     ...options,
+    experimental,
     routesFolder,
     filePatterns,
     exclude,

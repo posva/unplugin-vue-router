@@ -8,7 +8,15 @@ export default defineConfig({
     alias: [
       {
         find: 'unplugin-vue-router/runtime',
-        replacement: fileURLToPath(new URL('src/runtime.ts', import.meta.url)),
+        replacement: fileURLToPath(
+          new URL('./src/runtime.ts', import.meta.url)
+        ),
+      },
+      {
+        find: 'unplugin-vue-router/data-loaders',
+        replacement: fileURLToPath(
+          new URL('./src/data-loaders/entries/index.ts', import.meta.url)
+        ),
       },
     ],
   },
@@ -19,7 +27,18 @@ export default defineConfig({
     // open: false,
     coverage: {
       include: ['src/**/*.ts'],
-      exclude: ['src/**/*.d.ts', 'src/**/*.test-d.ts', 'src/**/*.spec.ts'],
+      exclude: [
+        'src/**/*.d.ts',
+        'src/**/*.test-d.ts',
+        'src/**/*.spec.ts',
+        // entry points
+        'src/index.ts',
+        'src/esbuild.ts',
+        'src/rollup.ts',
+        'src/vite.ts',
+        'src/webpack.ts',
+        'src/types.ts',
+      ],
     },
     typecheck: {
       enabled: true,

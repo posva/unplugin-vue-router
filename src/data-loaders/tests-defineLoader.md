@@ -79,7 +79,7 @@ function _defineVueFireLoader(path: string, docOrCollectionOrQuery: () => unknow
 
   // then we have the entry
   // each entry will have a way to access the pending location based on the current navigation
-  // should that be a weakmap with `to` as the key?
+  // should that be a WeakMap with `to` as the key?
 }
 
 export interface VueFireLoaderEntry<isLazy extends boolean, Data> extends DataLoaderEntryBase<isLazy, Data> {

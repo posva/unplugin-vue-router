@@ -14,7 +14,9 @@
 
 This build-time plugin simplifies your routing setup **and** makes it safer and easier to use thanks to TypeScript. Requires Vue Router >=4.4.0.
 
-⚠️ This package is still experimental. If you found any issue, design flaw, or have ideas to improve it, please, open an [issue](https://github.com/posva/unplugin-vue-router/issues/new/choose) or a [Discussion](https://github.com/posva/unplugin-vue-router/discussions).
+> [!WARNING]
+> While unplugin-vue-router typed routing and file based routing is fundamentally stable, it contains other experimental APIs that are subject to change (e.g. Data Loaders). Make sure to check the relevant [Documentation](https://uvr.esm.is) for the latest information.
+> If you find any issue, design flaw, or have ideas to improve it, please, open open an [issue](https://github.com/posva/unplugin-vue-router/issues/new/choose) or a [Discussion](https://github.com/posva/unplugin-vue-router/discussions).
 
 ## Install
 
@@ -167,7 +169,7 @@ createRouter({
 })
 ```
 
-Alternatively, **you can also import the `routes` array** and create the router manually or pass it to some plugin. Here is an example with [Vitesse starter](https://github.com/antfu/vitesse/blob/main/src/main.ts):
+Alternatively, **you can also import the `routes` array** and create the router manually or pass it to some plugin. Here is an example with [Vitesse starter](https://github.com/antfu-collective/vitesse/blob/main/src/main.ts):
 
 ```diff
  import { ViteSSG } from 'vite-ssg'

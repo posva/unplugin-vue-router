@@ -9,13 +9,8 @@ import {
   releases,
   discord,
 } from './meta'
-import {
-  apiIndexFile,
-  typedRouterFile,
-  typedRouterFileAsModule,
-  usersLoaderFile,
-  vueShimFile,
-} from './twoslash-files'
+import { typedRouterFile, typedRouterFileAsModule } from './twoslash-files'
+import { extraFiles } from './twoslash/files'
 
 export default defineConfig({
   markdown: {
@@ -23,12 +18,9 @@ export default defineConfig({
       transformerTwoslash({
         twoslashOptions: {
           extraFiles: {
+            ...extraFiles,
             'router.ts': typedRouterFileAsModule,
             'typed-router.d.ts': typedRouterFile,
-            'api/index.ts': apiIndexFile,
-            '../api/index.ts': apiIndexFile,
-            'loaders/users.ts': usersLoaderFile,
-            'shims-vue.d.ts': vueShimFile,
           },
         },
       }),
@@ -132,7 +124,7 @@ export default defineConfig({
         //
         sidebarGettingStarted(),
         sidebarGuide(),
-        sidebarRFC(),
+        sidebarDataLoaders(),
         sidebarNuxt(),
       ],
     },
@@ -187,6 +179,67 @@ function sidebarGuide(): SidebarGroup {
   }
 }
 
+function sidebarDataLoaders(): SidebarGroup {
+  return {
+    collapsed: false,
+    text: 'Data Loaders',
+    items: [
+      {
+        text: 'Introduction',
+        link: '/data-loaders/',
+      },
+      {
+        text: 'Defining Data Loaders',
+        link: '/data-loaders/defining-loaders',
+      },
+      {
+        text: 'Reloading data',
+        link: '/data-loaders/reloading-data',
+      },
+      {
+        text: 'Navigation Aware',
+        link: '/data-loaders/navigation-aware',
+      },
+      {
+        text: 'Error Handling',
+        link: '/data-loaders/error-handling',
+      },
+      {
+        text: 'Organizing Loaders',
+        link: '/data-loaders/organization',
+      },
+      {
+        text: 'Nested Loaders',
+        link: '/data-loaders/nested-loaders',
+      },
+      {
+        text: 'Cancelling a load',
+        link: '/data-loaders/load-cancellation',
+      },
+      {
+        text: 'SSR',
+        link: '/data-loaders/ssr',
+      },
+
+      // loaders
+      {
+        text: 'Basic Loader',
+        link: '/data-loaders/basic/',
+      },
+      {
+        text: 'Colada Loader',
+        link: '/data-loaders/colada/',
+      },
+
+      // last
+      {
+        text: 'RFC',
+        link: '/data-loaders/rfc',
+      },
+    ],
+  }
+}
+
 function sidebarNuxt(): SidebarGroup {
   return {
     collapsed: false,
@@ -195,27 +248,6 @@ function sidebarNuxt(): SidebarGroup {
       {
         text: 'Getting Started',
         link: '/nuxt/getting-started',
-      },
-    ],
-  }
-}
-
-function sidebarRFC(): SidebarGroup {
-  return {
-    collapsed: false,
-    text: 'RFC',
-    items: [
-      {
-        text: 'Data Loaders',
-        link: '/rfcs/data-loaders/',
-      },
-      {
-        text: 'Pinia Colada loader',
-        link: '/rfcs/data-loaders/colada',
-      },
-      {
-        text: 'Basic Loader',
-        link: '/rfcs/data-loaders/basic',
       },
     ],
   }

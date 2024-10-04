@@ -6,17 +6,15 @@ import {
   type RouteLocationNormalizedLoaded,
   type Router,
 } from 'vue-router'
-import type {
-  DataLoaderContextBase,
-  DataLoaderEntryBase,
-  DefineDataLoaderOptionsBase,
-  DefineLoaderFn,
-  UseDataLoader,
-  UseDataLoaderResult,
-  _DataMaybeLazy,
-  _DefineLoaderEntryMap,
-} from 'unplugin-vue-router/runtime'
 import {
+  type DataLoaderContextBase,
+  type DataLoaderEntryBase,
+  type DefineDataLoaderOptionsBase,
+  type DefineLoaderFn,
+  type UseDataLoader,
+  type UseDataLoaderResult,
+  type _DefineLoaderEntryMap,
+  type _PromiseMerged,
   ABORT_CONTROLLER_KEY,
   APP_KEY,
   IS_USE_DATA_LOADER_KEY,
@@ -25,26 +23,32 @@ import {
   PENDING_LOCATION_KEY,
   STAGED_NO_VALUE,
   NavigationResult,
-  type _PromiseMerged,
   assign,
   getCurrentContext,
   isSubsetOf,
   setCurrentContext,
   trackRoute,
   IS_SSR_KEY,
-} from 'unplugin-vue-router/runtime'
+} from 'unplugin-vue-router/data-loaders'
 import {} from './utils'
 import { type ShallowRef, shallowRef, watch } from 'vue'
 import {
-  type UseQueryKey,
+  type EntryKey,
   type UseQueryOptions,
   type UseQueryReturn,
   useQuery,
 } from '@pinia/colada'
+import { toLazyValue } from './createDataLoader'
 
 /**
  * Creates a data loader composable that can be exported by pages to attach the data loading to a route. This returns a
  * composable that can be used in any component.
+ *
+ * The returned composable exposes a mix of Data Loaders state and Pinia
+ * Colada state.
+ * - `data`, `isLoading`, `error` are navigation dependent and follow data loaders behavior.
+ * - `status`, `asyncStatus`, `state` are Pinia Colada state and will immediately change and reflect the state of the
+ *   query.
  *
  * @experimental
  * Still under development and subject to change. See https://github.com/vuejs/rfcs/discussions/460
@@ -53,63 +57,55 @@ import {
  * @param loader - function that returns a promise with the data
  * @param options - options to configure the data loader
  */
-export function defineColadaLoader<
-  Name extends keyof RouteMap,
-  Data,
-  isLazy extends boolean,
->(
+export function defineColadaLoader<Name extends keyof RouteMap, Data>(
   name: Name,
-  options: DefineDataColadaLoaderOptions<isLazy, Name, Data>
-): UseDataLoaderColada<isLazy, Data>
-export function defineColadaLoader<Data, isLazy extends boolean>(
-  options: DefineDataColadaLoaderOptions<isLazy, keyof RouteMap, Data>
-): UseDataLoaderColada<isLazy, Data>
+  options: DefineDataColadaLoaderOptions<Name, Data>
+): UseDataLoaderColada<Data>
+export function defineColadaLoader<Data>(
+  options: DefineDataColadaLoaderOptions<keyof RouteMap, Data>
+): UseDataLoaderColada<Data>
 
-export function defineColadaLoader<Data, isLazy extends boolean>(
+export function defineColadaLoader<Data>(
   nameOrOptions:
     | keyof RouteMap
-    | DefineDataColadaLoaderOptions<isLazy, keyof RouteMap, Data>,
-  _options?: DefineDataColadaLoaderOptions<isLazy, keyof RouteMap, Data>
-): UseDataLoaderColada<isLazy, Data> {
+    | DefineDataColadaLoaderOptions<keyof RouteMap, Data>,
+  _options?: DefineDataColadaLoaderOptions<keyof RouteMap, Data>
+): UseDataLoaderColada<Data> {
   // TODO: make it DEV only and remove the first argument in production mode
   // resolve option overrides
   _options =
     _options ||
-    (nameOrOptions as DefineDataColadaLoaderOptions<
-      isLazy,
-      keyof RouteMap,
-      Data
-    >)
+    (nameOrOptions as DefineDataColadaLoaderOptions<keyof RouteMap, Data>)
   const loader = _options.query
 
   const options = {
     ...DEFAULT_DEFINE_LOADER_OPTIONS,
     ..._options,
     commit: _options?.commit || 'after-load',
-  } as DefineDataColadaLoaderOptions<isLazy, keyof RouteMap, Data>
+  } as DefineDataColadaLoaderOptions<keyof RouteMap, Data>
 
   let isInitial = true
 
   function load(
     to: RouteLocationNormalizedLoaded,
     router: Router,
+    from?: RouteLocationNormalizedLoaded,
     parent?: DataLoaderEntryBase,
     reload?: boolean
   ): Promise<void> {
-    const entries = router[
-      LOADER_ENTRIES_KEY
-    ]! as unknown as _DefineLoaderEntryMap<
-      DataLoaderColadaEntry<boolean, unknown>
+    const entries = router[LOADER_ENTRIES_KEY]! as _DefineLoaderEntryMap<
+      DataLoaderColadaEntry<unknown>
     >
     const isSSR = router[IS_SSR_KEY]
-    const key = keyText(options.key(to))
+    const key = serializeQueryKey(options.key, to)
     if (!entries.has(loader)) {
       const route = shallowRef<RouteLocationNormalizedLoaded>(to)
       entries.set(loader, {
         // force the type to match
-        data: shallowRef<_DataMaybeLazy<Data, isLazy>>(),
+        data: shallowRef<Data | undefined>(),
         isLoading: shallowRef(false),
         error: shallowRef<any>(),
+        to,
 
         options,
         children: new Set(),
@@ -138,56 +134,6 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       return entry.pendingLoad
     }
 
-    if (!entry.ext) {
-      // console.log(`🚀 creating query for "${key}"`)
-      entry.ext = useQuery({
-        ...options,
-        // FIXME: type Promise<Data> instead of Promise<unknown>
-        query: () => {
-          const route = entry.route.value
-          const [trackedRoute, params, query, hash] = trackRoute(route)
-          entry.tracked.set(keyText(options.key(trackedRoute)).join('|'), {
-            ready: false,
-            params,
-            query,
-            hash,
-          })
-
-          return loader(trackedRoute, {
-            signal: route.meta[ABORT_CONTROLLER_KEY]!.signal,
-          })
-        },
-        key: () => options.key(entry.route.value),
-      })
-    }
-
-    const { isLoading, data, error, ext } = entry
-
-    // we are rendering for the first time and we have initial data
-    // we need to synchronously set the value so it's available in components
-    // even if it's not exported
-    if (isInitial) {
-      isInitial = false
-      if (ext.data.value !== undefined) {
-        data.value = ext.data.value
-        // pendingLoad is set for guards to work
-        return (entry.pendingLoad = Promise.resolve())
-      }
-    }
-
-    // console.log(
-    //   `😎 Loading context to "${to.fullPath}" with current "${currentContext[2]?.fullPath}"`
-    // )
-    if (entry.route.value !== to) {
-      // ensure we call refetch instead of refresh
-      const tracked = entry.tracked.get(key.join('|'))
-      reload = !tracked || hasRouteChanged(to, tracked)
-    }
-
-    // Currently load for this loader
-    entry.route.value = entry.pendingTo = to
-
-    isLoading.value = true
     // save the current context to restore it later
     const currentContext = getCurrentContext()
 
@@ -200,6 +146,73 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
     }
     // set the current context before loading so nested loaders can use it
     setCurrentContext([entry, router, to])
+
+    if (!entry.ext) {
+      // console.log(`🚀 creating query for "${key}"`)
+      entry.ext = useQuery({
+        ...options,
+        // FIXME: type Promise<Data> instead of Promise<unknown>
+        query: () => {
+          const route = entry.route.value
+          const [trackedRoute, params, query, hash] = trackRoute(route)
+          entry.tracked.set(
+            joinKeys(serializeQueryKey(options.key, trackedRoute)),
+            {
+              ready: false,
+              params,
+              query,
+              hash,
+            }
+          )
+
+          return loader(trackedRoute, {
+            signal: route.meta[ABORT_CONTROLLER_KEY]?.signal,
+          })
+        },
+        key: () => toValueWithParameters(options.key, entry.route.value),
+        // TODO: cleanup if gc
+        // onDestroy() {
+        //   entries.delete(loader)
+        // }
+      })
+      // avoid double reload since calling `useQuery()` will trigger a refresh
+      // and we might also do it below for nested loaders
+      if (entry.ext.asyncStatus.value === 'loading') {
+        reload = false
+      }
+    }
+
+    const { isLoading, data, error, ext } = entry
+
+    // we are rendering for the first time and we have initial data
+    // we need to synchronously set the value so it's available in components
+    // even if it's not exported
+    if (isInitial) {
+      isInitial = false
+      if (ext.data.value !== undefined) {
+        data.value = ext.data.value
+        // restore the context like in the finally branch
+        // otherwise we might end up with entry === parentEntry
+        // TODO: add test that checks the currentContext is reset
+        setCurrentContext(currentContext)
+        // pendingLoad is set for guards to work
+        return (entry.pendingLoad = Promise.resolve())
+      }
+    }
+
+    // console.log(
+    //   `😎 Loading context to "${to.fullPath}" with current "${currentContext[2]?.fullPath}"`
+    // )
+    if (entry.route.value !== to) {
+      // ensure we call refetch instead of refresh
+      const tracked = entry.tracked.get(joinKeys(key))
+      reload = !tracked || hasRouteChanged(to, tracked)
+    }
+
+    // Currently load for this loader
+    entry.route.value = entry.pendingTo = to
+
+    isLoading.value = true
     entry.staged = STAGED_NO_VALUE
     // preserve error until data is committed
     entry.stagedError = error.value
@@ -227,7 +240,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
             entry.stagedError = newError
             // propagate error if non lazy or during SSR
             // NOTE: Cannot be handled at the guard level because of nested loaders
-            if (!options.lazy || isSSR) {
+            if (!toLazyValue(options.lazy, to, from) || isSSR) {
               throw newError
             }
           } else {
@@ -282,10 +295,10 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
   }
 
   function commit(
-    this: DataLoaderColadaEntry<isLazy, Data>,
+    this: DataLoaderColadaEntry<Data>,
     to: RouteLocationNormalizedLoaded
   ) {
-    const key = keyText(options.key(to))
+    const key = serializeQueryKey(options.key, to)
     // console.log(`👉 commit "${key}"`)
     if (this.pendingTo === to) {
       // console.log(' ->', this.staged)
@@ -299,7 +312,15 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       // if the entry is null, it means the loader never resolved, maybe there was an error
       if (this.staged !== STAGED_NO_VALUE) {
         this.data.value = this.staged
-        this.tracked.get(key.join('|'))!.ready = true
+        if (
+          process.env.NODE_ENV === 'development' &&
+          !this.tracked.has(joinKeys(key))
+        ) {
+          console.warn(
+            `A query was defined with the same key as the loader "[${key.join(', ')}]" but with different "query" function.\nSee https://pinia-colada.esm.dev/#TODO`
+          )
+        }
+        this.tracked.get(joinKeys(key))!.ready = true
       }
       // we always commit the error unless the navigation was cancelled
       this.error.value = this.stagedError
@@ -308,7 +329,9 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       this.staged = STAGED_NO_VALUE
       // preserve error until data is committed
       this.stagedError = this.error.value
+      this.to = to
       this.pendingTo = null
+      // FIXME: move pendingLoad to currentLoad or use `to` to check if the current version is valid
       // we intentionally keep pendingLoad so it can be reused until the navigation is finished
 
       // children entries cannot be committed from the navigation guard, so the parent must tell them
@@ -322,49 +345,53 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
 
   // @ts-expect-error: requires the internals and symbol that are added later
   const useDataLoader: // for ts
-  UseDataLoaderColada<isLazy, Data> = () => {
+  UseDataLoaderColada<Data> = () => {
     // work with nested data loaders
-    const [parentEntry, _router, _route] = getCurrentContext()
+    const currentEntry = getCurrentContext()
+    const [parentEntry, _router, _route] = currentEntry
     // fallback to the global router and routes for useDataLoaders used within components
     const router = _router || useRouter()
     const route = _route || (useRoute() as RouteLocationNormalizedLoaded)
 
     const entries = router[
       LOADER_ENTRIES_KEY
-    ]! as unknown as _DefineLoaderEntryMap<
-      DataLoaderColadaEntry<boolean, unknown>
-    >
-    let entry = entries.get(loader)
+    ]! as unknown as _DefineLoaderEntryMap<DataLoaderColadaEntry<unknown>>
+    let entry = entries.get(loader) as DataLoaderColadaEntry<Data> | undefined
 
     if (
       // if the entry doesn't exist, create it with load and ensure it's loading
       !entry ||
       // we are nested and the parent is loading a different route than us
-      (parentEntry && entry.pendingTo !== route)
+      (parentEntry && entry.pendingTo !== route) ||
+      // The user somehow rendered the page without a navigation
+      !entry.pendingLoad
     ) {
       // console.log(
       //   `🔁 loading from useData for "${options.key}": "${route.fullPath}"`
       // )
       router[APP_KEY].runWithContext(() =>
-        load(route, router, parentEntry, true)
+        // in this case we always need to run the functions for nested loaders consistency
+        load(route, router, undefined, parentEntry, true)
       )
     }
 
-    entry = entries.get(loader)!
+    entry = entries.get(loader)! as DataLoaderColadaEntry<Data>
 
     // add ourselves to the parent entry children
     if (parentEntry) {
-      if (parentEntry === entry) {
-        console.warn(
-          `👶❌ "${options.key}" has itself as parent.  This shouldn't be happening. Please report a bug with a reproduction to https://github.com/posva/unplugin-vue-router/`
-        )
+      if (parentEntry !== entry) {
+        // console.log(`👶 "${options.key}" has parent ${parentEntry}`)
+        parentEntry.children.add(entry!)
+      } else {
+        // console.warn(
+        //   `👶❌ "${options.key}" has itself as parent.  This shouldn't be happening. Please report a bug with a reproduction to https://github.com/posva/unplugin-vue-router/`
+        // )
       }
-      // console.log(`👶 "${options.key}" has parent ${parentEntry}`)
-      parentEntry.children.add(entry!)
     }
 
     const { data, error, isLoading, ext } = entry
 
+    // TODO: add watchers only once alongside the entry
     // update the data when pinia colada updates it e.g. after visibility change
     watch(ext!.data, (newData) => {
       // only if we are not in the middle of a navigation
@@ -373,7 +400,7 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       }
     })
 
-    watch(ext!.isFetching, (isFetching) => {
+    watch(ext!.isLoading, (isFetching) => {
       if (!router[PENDING_LOCATION_KEY]) {
         isLoading.value = isFetching
       }
@@ -391,24 +418,26 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       isLoading,
       reload: (to: RouteLocationNormalizedLoaded = router.currentRoute.value) =>
         router[APP_KEY].runWithContext(() =>
-          load(to, router, undefined, true)
+          load(to, router, undefined, undefined, true)
         ).then(() => entry!.commit(to)),
       // pinia colada
       refetch: (
         to: RouteLocationNormalizedLoaded = router.currentRoute.value
       ) =>
         router[APP_KEY].runWithContext(() =>
-          load(to, router, undefined, true)
-        ).then(() => entry!.commit(to)),
+          load(to, router, undefined, undefined, true)
+        ).then(() => (entry!.commit(to), entry!.ext!.state.value)),
       refresh: (
         to: RouteLocationNormalizedLoaded = router.currentRoute.value
       ) =>
-        router[APP_KEY].runWithContext(() => load(to, router)).then(() =>
-          entry!.commit(to)
+        router[APP_KEY].runWithContext(() => load(to, router)).then(
+          () => (entry!.commit(to), entry.ext!.state.value)
         ),
-      isPending: ext!.isPending,
       status: ext!.status,
-    } satisfies UseDataLoaderColadaResult<boolean, unknown>
+      asyncStatus: ext!.asyncStatus,
+      state: ext!.state,
+      isPending: ext!.isPending,
+    } satisfies UseDataLoaderColadaResult<Data>
 
     // load ensures there is a pending load
     const promise = entry
@@ -423,6 +452,8 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
       // otherwise this will end up in "Unhandled promise rejection"
       .catch((e) => (parentEntry ? Promise.reject(e) : null))
 
+    // Restore the context to avoid sequential calls to be nested
+    setCurrentContext(currentEntry)
     return assign(promise, useDataLoaderResult)
   }
 
@@ -442,17 +473,18 @@ export function defineColadaLoader<Data, isLazy extends boolean>(
   return useDataLoader
 }
 
+export const joinKeys = (keys: string[]): string => keys.join('|')
+
 export interface DefineDataColadaLoaderOptions<
-  isLazy extends boolean,
   Name extends keyof RouteMap,
   Data,
-> extends DefineDataLoaderOptionsBase<isLazy>,
-    Omit<UseQueryOptions<unknown>, 'query' | 'key'> {
+> extends DefineDataLoaderOptionsBase,
+    Omit<UseQueryOptions<Data>, 'query' | 'key'> {
   /**
    * Key associated with the data and passed to pinia colada
    * @param to - Route to load the data
    */
-  key: (to: RouteLocationNormalizedLoaded<Name>) => UseQueryKey
+  key: EntryKey | ((to: RouteLocationNormalizedLoaded<Name>) => EntryKey)
 
   /**
    * Function that returns a promise with the data.
@@ -471,18 +503,17 @@ export interface DefineDataColadaLoaderOptions<
  */
 export interface DataColadaLoaderContext extends DataLoaderContextBase {}
 
-export interface UseDataLoaderColadaResult<isLazy extends boolean, Data>
-  extends UseDataLoaderResult<isLazy, Data>,
+export interface UseDataLoaderColadaResult<Data>
+  extends UseDataLoaderResult<Data>,
     Pick<
       UseQueryReturn<Data, any>,
-      'isPending' | 'refetch' | 'refresh' | 'status'
+      'isPending' | 'refetch' | 'refresh' | 'status' | 'asyncStatus' | 'state'
     > {}
 
 /**
  * Data Loader composable returned by `defineColadaLoader()`.
  */
-export interface UseDataLoaderColada<isLazy extends boolean, Data>
-  extends UseDataLoader<isLazy, Data> {
+export interface UseDataLoaderColada<Data> extends UseDataLoader<Data> {
   /**
    * Data Loader composable returned by `defineColadaLoader()`.
    *
@@ -509,12 +540,11 @@ export interface UseDataLoaderColada<isLazy extends boolean, Data>
     // `return new NavigationResult()` in the loader
     Exclude<Data, NavigationResult>,
     // or use it as a composable
-    UseDataLoaderColadaResult<isLazy, Exclude<Data, NavigationResult>>
+    UseDataLoaderColadaResult<Exclude<Data, NavigationResult>>
   >
 }
 
-export interface DataLoaderColadaEntry<isLazy extends boolean, Data>
-  extends DataLoaderEntryBase<isLazy, Data> {
+export interface DataLoaderColadaEntry<Data> extends DataLoaderEntryBase<Data> {
   /**
    * Reactive route passed to pinia colada so it automatically refetch
    */
@@ -555,12 +585,31 @@ const DEFAULT_DEFINE_LOADER_OPTIONS = {
   server: true,
   commit: 'after-load',
 } satisfies Omit<
-  DefineDataColadaLoaderOptions<boolean, keyof RouteMap, unknown>,
+  DefineDataColadaLoaderOptions<keyof RouteMap, unknown>,
   'key' | 'query'
 >
 
-// DEBUG ONLY
-const keyText = (key: UseQueryOptions['key']): string[] => {
+const toValueWithParameters = <T, Arg>(
+  optionValue: T | ((arg: Arg) => T),
+  arg: Arg
+): T => {
+  return typeof optionValue === 'function'
+    ? // This should work in TS without a cast
+      (optionValue as (arg: Arg) => T)(arg)
+    : optionValue
+}
+
+/**
+ * Transform the key to a string array so it can be used as a key in caches.
+ *
+ * @param key - key to transform
+ * @param to - route to use
+ */
+function serializeQueryKey(
+  keyOption: DefineDataColadaLoaderOptions<string, unknown>['key'],
+  to: RouteLocationNormalizedLoaded
+): string[] {
+  const key = toValueWithParameters(keyOption, to)
   const keys = Array.isArray(key) ? key : [key]
   return keys.map(stringifyFlatObject)
 }

@@ -20,7 +20,7 @@ import {
   IS_USE_DATA_LOADER_KEY,
   LOADER_ENTRIES_KEY,
   STAGED_NO_VALUE,
-} from 'unplugin-vue-router/runtime'
+} from 'unplugin-vue-router/data-loaders'
 import { Ref, UnwrapRef, ref, shallowRef } from 'vue'
 
 export function defineVueFireLoader<

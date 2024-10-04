@@ -33,17 +33,21 @@ declare module 'vue-router' {
   }
 }
 
+// FIXME: remove vue-router/auto in next major
+
+/**
+ * @deprecated Directly import from 'vue-router' instead
+ */
 declare module 'vue-router/auto' {
   // reexport all types that are not augmented by unplugin-vue-router
   export * from 'vue-router'
 
-  // TODO: deprecate vue-router/auto
+  export { definePage } from 'unplugin-vue-router/runtime'
+  // Experimental Data Fetching
   export {
-    // Experimental Data Fetching
-    definePage,
     DataLoaderPlugin,
     NavigationResult,
-  } from 'unplugin-vue-router/runtime'
+  } from 'unplugin-vue-router/data-loaders'
   // must be added to the virtual vue-router/auto
   // FIXME: is there a way to achieve this without losing the types?
   // export { defineBasicLoader } from 'unplugin-vue-router/data-loaders/basic'

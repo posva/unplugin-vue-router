@@ -12,8 +12,8 @@ hero:
       text: Get Started
       link: /introduction
     - theme: alt
-      text: Data Loaders RFC
-      link: /rfcs/data-loaders/
+      text: Data Loaders
+      link: /data-loaders/
 
 features:
   - title: Type Safe
@@ -30,5 +30,5 @@ features:
   - title: Data Loaders
     icon: 🔄
     details: Support for the upcoming Data Loaders for Vue Router.
-    link: /rfcs/data-loaders/
+    link: /data-loaders/
 ---

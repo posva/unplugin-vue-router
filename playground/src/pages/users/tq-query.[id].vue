@@ -11,13 +11,14 @@ import {
   useIsFetching,
   useMutationState,
   useMutation,
+  useQueryClient,
 } from '@tanstack/vue-query'
 
 const route = useRoute('/users/[id]')
 
 const simulateError = ref(false)
 
-const enabled = ref(false)
+const enabled = ref(true)
 
 // const tt = useQueries({
 //   queries: [
