@@ -19,7 +19,8 @@ import {
   setCurrentContext,
   DataLoaderPlugin,
   NavigationResult,
-} from 'unplugin-vue-router/runtime'
+  DataLoaderPluginOptions,
+} from 'unplugin-vue-router/data-loaders'
 import { mockPromise } from '../../tests/utils'
 import {
   useDataOne,
@@ -29,7 +30,7 @@ import type { NavigationFailure } from 'vue-router'
 
 function mockedLoader<T = string | NavigationResult>(
   // boolean is easier to handle for router mock
-  options?: DefineDataLoaderOptions<boolean>
+  options?: DefineDataLoaderOptions
 ) {
   const [spy, resolve, reject] = mockPromise<T, unknown>(
     // not correct as T could be something else
@@ -47,7 +48,7 @@ function mockedLoader<T = string | NavigationResult>(
 describe('navigation-guard', () => {
   let globalApp: App | undefined
 
-  function setupApp(isSSR: boolean) {
+  function setupApp(options: Omit<DataLoaderPluginOptions, 'router'>) {
     const app = createApp({ render: () => null })
     const selectNavigationResult = vi
       .fn()
@@ -55,7 +56,7 @@ describe('navigation-guard', () => {
     app.use(DataLoaderPlugin, {
       router: getRouter(),
       selectNavigationResult,
-      isSSR,
+      ...options,
     })
     // invalidate current context
     setCurrentContext(undefined)
@@ -90,7 +91,7 @@ describe('navigation-guard', () => {
   const loader3 = defineBasicLoader(async () => {})
 
   it('creates a set of loaders during navigation', async () => {
-    setupApp(false)
+    setupApp({ isSSR: false })
     const router = getRouter()
     router.addRoute({
       name: '_test',
@@ -104,7 +105,7 @@ describe('navigation-guard', () => {
   })
 
   it('collects loaders from the matched route', async () => {
-    setupApp(false)
+    setupApp({ isSSR: false })
     const router = getRouter()
     router.addRoute({
       name: '_test',
@@ -131,7 +132,7 @@ describe('navigation-guard', () => {
   })
 
   it('collect loaders from nested routes', async () => {
-    setupApp(false)
+    setupApp({ isSSR: false })
     const router = getRouter()
     router.addRoute({
       name: '_test',
@@ -157,7 +158,7 @@ describe('navigation-guard', () => {
   })
 
   it('collects all loaders from lazy loaded pages', async () => {
-    setupApp(false)
+    setupApp({ isSSR: false })
     const router = getRouter()
     router.addRoute({
       name: '_test',
@@ -171,7 +172,7 @@ describe('navigation-guard', () => {
   })
 
   it('awaits for all loaders to be resolved', async () => {
-    setupApp(false)
+    setupApp({ isSSR: false })
     const router = getRouter()
     const l1 = mockedLoader()
     const l2 = mockedLoader()
@@ -195,7 +196,7 @@ describe('navigation-guard', () => {
   })
 
   it('does not await for lazy loaders on client-side navigation', async () => {
-    setupApp(false)
+    setupApp({ isSSR: false })
     const router = getRouter()
     const l1 = mockedLoader({ lazy: true })
     const l2 = mockedLoader({ lazy: false })
@@ -220,7 +221,7 @@ describe('navigation-guard', () => {
   })
 
   it('awaits for lazy loaders on server-side navigation', async () => {
-    setupApp(true)
+    setupApp({ isSSR: true })
     const router = getRouter()
     const l1 = mockedLoader({ lazy: true })
     const l2 = mockedLoader({ lazy: false })
@@ -246,7 +247,7 @@ describe('navigation-guard', () => {
   })
 
   it('does not run loaders on server side if server: false', async () => {
-    setupApp(true)
+    setupApp({ isSSR: true })
     const router = getRouter()
     const l1 = mockedLoader({ lazy: true, server: false })
     const l2 = mockedLoader({ lazy: false, server: false })
@@ -268,7 +269,7 @@ describe('navigation-guard', () => {
   it.each([true, false] as const)(
     'throws if a non lazy loader rejects, isSSR: %s',
     async (isSSR) => {
-      setupApp(isSSR)
+      setupApp({ isSSR })
       const router = getRouter()
       const l1 = mockedLoader({ lazy: false })
       router.addRoute({
@@ -289,7 +290,7 @@ describe('navigation-guard', () => {
   )
 
   it('does not throw if a lazy loader rejects', async () => {
-    setupApp(false)
+    setupApp({ isSSR: false })
     const router = getRouter()
     const l1 = mockedLoader({ lazy: true })
     router.addRoute({
@@ -309,7 +310,7 @@ describe('navigation-guard', () => {
   })
 
   it('throws if a lazy loader rejects on server-side', async () => {
-    setupApp(true)
+    setupApp({ isSSR: true })
     const router = getRouter()
     const l1 = mockedLoader({ lazy: true })
     router.addRoute({
@@ -334,7 +335,7 @@ describe('navigation-guard', () => {
 
   describe('signal', () => {
     it('aborts the signal if the navigation throws', async () => {
-      setupApp(false)
+      setupApp({ isSSR: false })
       const router = getRouter()
 
       router.setNextGuardReturn(new Error('canceled'))
@@ -352,7 +353,7 @@ describe('navigation-guard', () => {
     })
 
     it('aborts the signal if the navigation is canceled', async () => {
-      setupApp(false)
+      setupApp({ isSSR: false })
       const router = getRouter()
 
       router.setNextGuardReturn(false)
@@ -376,7 +377,7 @@ describe('navigation-guard', () => {
 
   describe('selectNavigationResult', () => {
     it('can change the navigation result within a loader', async () => {
-      const { selectNavigationResult } = setupApp(false)
+      const { selectNavigationResult } = setupApp({ isSSR: false })
       const router = getRouter()
       const l1 = mockedLoader()
       router.addRoute({
@@ -397,7 +398,7 @@ describe('navigation-guard', () => {
     })
 
     it('selectNavigationResult is called with an array of all the results returned by the loaders', async () => {
-      const { selectNavigationResult } = setupApp(false)
+      const { selectNavigationResult } = setupApp({ isSSR: false })
       const router = getRouter()
       const l1 = mockedLoader()
       const l2 = mockedLoader()
@@ -424,7 +425,7 @@ describe('navigation-guard', () => {
     })
 
     it('can change the navigation result returned by multiple loaders', async () => {
-      const { selectNavigationResult } = setupApp(false)
+      const { selectNavigationResult } = setupApp({ isSSR: false })
       const router = getRouter()
       const l1 = mockedLoader()
       const l2 = mockedLoader()
@@ -449,7 +450,7 @@ describe('navigation-guard', () => {
     })
 
     it('immediately stops if a NavigationResult is thrown instead of returned inside the loader', async () => {
-      const { selectNavigationResult } = setupApp(false)
+      const { selectNavigationResult } = setupApp({ isSSR: false })
       const router = getRouter()
       const l1 = mockedLoader()
       router.addRoute({
@@ -468,6 +469,143 @@ describe('navigation-guard', () => {
       await router.getPendingNavigation().catch(() => {})
       expect(selectNavigationResult).not.toHaveBeenCalled()
       expect(router.currentRoute.value.fullPath).toBe('/#ok')
+    })
+  })
+
+  describe('errors', () => {
+    class CustomError extends Error {}
+
+    it('lets the navigation continue if the error is expected', async () => {
+      setupApp({ isSSR: false })
+      const router = getRouter()
+      const l1 = mockedLoader({ errors: [CustomError] })
+      router.addRoute({
+        name: '_test',
+        path: '/fetch',
+        component,
+        meta: {
+          loaders: [l1.loader],
+        },
+      })
+
+      router.push('/fetch')
+      await vi.runOnlyPendingTimersAsync()
+      l1.reject(new CustomError('expected'))
+      await router.getPendingNavigation()
+      expect(router.currentRoute.value.fullPath).toBe('/fetch')
+    })
+
+    it('fails the navigation if the error is not expected', async () => {
+      setupApp({ isSSR: false })
+      const router = getRouter()
+      const l1 = mockedLoader({ errors: [CustomError] })
+      router.addRoute({
+        name: '_test',
+        path: '/fetch',
+        component,
+        meta: {
+          loaders: [l1.loader],
+        },
+      })
+
+      router.push('/fetch')
+      await vi.runOnlyPendingTimersAsync()
+      l1.reject(new Error('unexpected'))
+      await expect(router.getPendingNavigation()).rejects.toThrow('unexpected')
+      expect(router.currentRoute.value.fullPath).not.toBe('/fetch')
+    })
+
+    it('works with a function check', async () => {
+      setupApp({ isSSR: false })
+      const router = getRouter()
+      const l1 = mockedLoader({
+        errors: (e) => e instanceof Error && e.message === 'expected',
+      })
+      router.addRoute({
+        name: '_test',
+        path: '/fetch',
+        component,
+        meta: {
+          loaders: [l1.loader],
+        },
+      })
+
+      router.push('/fetch')
+      await vi.runOnlyPendingTimersAsync()
+      l1.reject(new Error('expected'))
+      await router.getPendingNavigation()
+      expect(router.currentRoute.value.fullPath).toBe('/fetch')
+
+      // use an unexpected error
+      await router.push('/')
+      router.push('/fetch')
+      await vi.runOnlyPendingTimersAsync()
+      l1.reject(new Error('unexpected'))
+      await router.getPendingNavigation()
+      expect(router.currentRoute.value.fullPath).not.toBe('/fetch')
+    })
+
+    it('local errors take precedence over global errors', async () => {
+      setupApp({
+        isSSR: false,
+        // global only accepts CustomError
+        errors: (e) => e instanceof CustomError,
+      })
+      const router = getRouter()
+      const l1 = mockedLoader({
+        // but local accepts Error with message 'expected'
+        errors: (e) => e instanceof Error && e.message === 'expected',
+      })
+      router.addRoute({
+        name: '_test',
+        path: '/fetch',
+        component,
+        meta: {
+          loaders: [l1.loader],
+        },
+      })
+
+      // not covered by any
+      router.push('/fetch')
+      await vi.runOnlyPendingTimersAsync()
+      l1.reject(new Error('unexpected'))
+      await router.getPendingNavigation().catch(() => {})
+      expect(router.currentRoute.value.fullPath).not.toBe('/fetch')
+
+      // covered locally only
+      router.push('/fetch')
+      await vi.runOnlyPendingTimersAsync()
+      l1.reject(new Error('expected'))
+      await router.getPendingNavigation().catch(() => {})
+      expect(router.currentRoute.value.fullPath).toBe('/fetch')
+    })
+
+    it('handle global expected errors even when rejected by local errors', async () => {
+      setupApp({
+        isSSR: false,
+        // global only accepts CustomError
+        errors: [CustomError],
+      })
+      const router = getRouter()
+      const l1 = mockedLoader({
+        // but local accepts Error with message 'expected'
+        errors: (e) => e instanceof Error && e.message === 'expected',
+      })
+      router.addRoute({
+        name: '_test',
+        path: '/fetch',
+        component,
+        meta: {
+          loaders: [l1.loader],
+        },
+      })
+      //
+      // covered locally only
+      router.push('/fetch')
+      await vi.runOnlyPendingTimersAsync()
+      l1.reject(new CustomError())
+      await router.getPendingNavigation().catch(() => {})
+      expect(router.currentRoute.value.fullPath).toBe('/fetch')
     })
   })
 })

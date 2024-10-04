@@ -1,48 +1,13 @@
-<script lang="ts">
-import { defineColadaLoader } from 'unplugin-vue-router/data-loaders/pinia-colada'
-
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
-
-const simulateError = ref(false)
-
-// th
-
-export const useUserData = defineColadaLoader('/users/colada-loader.[id]', {
-  async query(to, { signal }) {
-    console.log('[🍹] coladaLoader', to.fullPath)
-    // signal.addEventListener('abort', () => {
-    //   console.log('[🍹❌] aborted', to.fullPath)
-    // })
-    // we need to read these before the delay
-    const id = to.params.id
-    // @ts-expect-error: no param "name"!
-    const name = to.params.name
-
-    await delay(500)
-    if (simulateError.value) {
-      throw new Error('Simulated Error')
-    }
-
-    const user = {
-      id,
-      name,
-      when: new Date().toUTCString(),
-    }
-
-    return user
-  },
-  key: (to) => {
-    // console.log('[🍹] key', to.fullPath)
-    return ['loader-users', to.params.id]
-  },
-  staleTime: 10000,
-})
-</script>
-
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
-import { serialize } from '@pinia/colada'
+import { simulateError, useUserData } from '@/loaders/colada-loaders'
+import { serializeTreeMap } from '@pinia/colada'
 import { getActivePinia } from 'pinia'
+
+definePage({
+  meta: {
+    title: 'Colada Loader',
+  },
+})
 
 const route = useRoute('/users/colada-loader.[id]')
 
@@ -50,7 +15,9 @@ const pinia = getActivePinia()!
 function copy() {
   console.log(
     JSON.parse(
-      JSON.stringify(serialize(pinia.state.value._pc_query.entryRegistry))
+      JSON.stringify(
+        serializeTreeMap(pinia.state.value._pc_query.entryRegistry)
+      )
     )
   )
 }
@@ -61,6 +28,7 @@ const {
   status,
   error,
   isLoading,
+  asyncStatus,
   reload,
   refresh,
 } = useUserData()
@@ -97,6 +65,8 @@ const {
 
     <p>
       <code>status: {{ status }}</code>
+      |
+      <code>asyncStatus: {{ asyncStatus }}</code>
       <br />
       <code>isFetching: {{ isLoading }}</code>
     </p>

@@ -6,7 +6,6 @@ import type { EnhanceAppContext } from 'vitepress'
 export default {
   extends: Theme,
   enhanceApp({ app }: EnhanceAppContext) {
-    // @ts-expect-error: bugged?
     app.use(TwoslashFloatingVue)
   },
 }

@@ -1,9 +1,17 @@
 /**
  * @vitest-environment happy-dom
  */
-import { type App, defineComponent, inject, type Plugin } from 'vue'
+import {
+  type App,
+  defineComponent,
+  h,
+  inject,
+  nextTick,
+  type Plugin,
+  ref,
+} from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { getRouter } from 'vue-router-mock'
 import {
   setCurrentContext,
@@ -13,8 +21,7 @@ import {
   type DataLoaderContextBase,
   type DefineDataLoaderOptionsBase,
   type UseDataLoader,
-  // TODO: move to /data-loaders
-} from 'unplugin-vue-router/runtime'
+} from 'unplugin-vue-router/data-loaders'
 import { mockPromise } from '../utils'
 import RouterViewMock from '../data-loaders/RouterViewMock.vue'
 import ComponentWithNestedLoader from '../data-loaders/ComponentWithNestedLoader.vue'
@@ -29,7 +36,7 @@ export function testDefineLoader<Context = void>(
         to: RouteLocationNormalizedLoaded,
         context: DataLoaderContextBase
       ) => Promise<unknown>
-    } & DefineDataLoaderOptionsBase<boolean> & { key?: string }
+    } & DefineDataLoaderOptionsBase & { key?: string }
   ) => UseDataLoader,
   {
     plugins,
@@ -45,7 +52,7 @@ export function testDefineLoader<Context = void>(
 
   function mockedLoader<T = string | NavigationResult>(
     // boolean is easier to handle for router mock
-    options?: DefineDataLoaderOptionsBase<boolean> & { key?: string }
+    options?: DefineDataLoaderOptionsBase & { key?: string }
   ) {
     const [spy, resolve, reject] = mockPromise<T, unknown>(
       // not correct as T could be something else
@@ -127,188 +134,188 @@ export function testDefineLoader<Context = void>(
     }
   }
 
+  const lazyFnTrue = () => true
+  const lazyFnFalse = () => false
+
   describe.each(['immediate', 'after-load'] as const)(
     'commit: %s',
     (commit) => {
-      describe.each([true, false] as const)('lazy: %s', (lazy) => {
-        it(`can resolve a "null" value`, async () => {
-          const spy = vi
-            .fn<unknown[], Promise<unknown>>()
-            .mockResolvedValueOnce(null)
-          const { useData, router } = singleLoaderOneRoute(
-            loaderFactory({ lazy, commit, fn: spy })
-          )
-          await router.push('/fetch')
-          expect(spy).toHaveBeenCalledTimes(1)
-          const { data } = useData()
-          expect(data.value).toEqual(null)
-        })
-
-        it('can reject outside of a navigation', async () => {
-          const spy = vi
-            .fn<unknown[], Promise<unknown>>()
-            .mockResolvedValue('ko')
-
-          const { useData, router } = singleLoaderOneRoute(
-            loaderFactory({ lazy, commit, fn: spy })
-          )
-          // initial navigation
-          await router.push('/fetch')
-          const { error, reload } = useData()
-          spy.mockRejectedValueOnce(new Error('ok'))
-          await reload().catch(() => {})
-          await vi.runAllTimersAsync()
-          expect(spy).toHaveBeenCalledTimes(2)
-          expect(error.value).toEqual(new Error('ok'))
-        })
-
-        it('can return a NavigationResult without affecting initial data', async () => {
-          let calls = 0
-          const spy = vi.fn(async (to: RouteLocationNormalizedLoaded) => {
-            return calls++ === 0 ? new NavigationResult('/other') : to.query.p
+      describe.each([true, false, lazyFnFalse, lazyFnTrue] as const)(
+        'lazy: %s',
+        (lazy) => {
+          it(`can resolve a "null" value`, async () => {
+            const spy = vi
+              .fn<(...args: unknown[]) => Promise<unknown>>()
+              .mockResolvedValueOnce(null)
+            const { useData, router } = singleLoaderOneRoute(
+              loaderFactory({ lazy, commit, fn: spy })
+            )
+            await router.push('/fetch')
+            expect(spy).toHaveBeenCalledTimes(1)
+            const { data } = useData()
+            expect(data.value).toEqual(null)
           })
-          const { useData, router } = singleLoaderOneRoute(
-            loaderFactory({ lazy, commit, fn: spy })
-          )
-          await router.push('/fetch?p=ko')
-          expect(spy).toHaveBeenCalled()
-          const { data } = useData()
-          expect(data.value).toEqual(undefined)
-        })
 
-        it('can return a NavigationResult without affecting loaded data', async () => {
-          let calls = 0
-          const spy = vi.fn(async (to: RouteLocationNormalizedLoaded) => {
-            return calls++ > 0 ? new NavigationResult('/other') : to.query.p
+          it('can reject outside of a navigation', async () => {
+            const spy = vi
+              .fn<(...args: unknown[]) => Promise<unknown>>()
+              .mockResolvedValue('ko')
+
+            const { useData, router } = singleLoaderOneRoute(
+              loaderFactory({ lazy, commit, fn: spy })
+            )
+            // initial navigation
+            await router.push('/fetch')
+            const { error, reload } = useData()
+            spy.mockRejectedValueOnce(new Error('ok'))
+            await reload().catch(() => {})
+            await vi.runAllTimersAsync()
+            expect(spy).toHaveBeenCalledTimes(2)
+            expect(error.value).toEqual(new Error('ok'))
           })
-          const { useData, router } = singleLoaderOneRoute(
-            loaderFactory({ lazy, commit, fn: spy })
-          )
-          await router.push('/fetch?p=ok')
-          const { data } = useData()
-          expect(spy).toHaveBeenCalled()
-          expect(data.value).toEqual('ok')
-          await router.push('/fetch?p=ko')
-          expect(data.value).toEqual('ok')
-        })
 
-        // NOTE: not sure about what would be expected in this case.
-        // in lazy false, commit after-load, the error prevents the navigation
-        // so the error doesn't even get a chance to be used
-        it.skipIf(!lazy && commit === 'after-load')(
-          'can return a NavigationResult without affecting the last error',
-          async () => {
+          it('can return a NavigationResult without affecting initial data', async () => {
             let calls = 0
             const spy = vi.fn(async (to: RouteLocationNormalizedLoaded) => {
-              return calls++ > 0
-                ? new NavigationResult('/other')
-                : Promise.reject(new Error(to.query.p as string))
+              return calls++ === 0 ? new NavigationResult('/other') : to.query.p
             })
             const { useData, router } = singleLoaderOneRoute(
               loaderFactory({ lazy, commit, fn: spy })
             )
+            await router.push('/fetch?p=ko')
+            expect(spy).toHaveBeenCalled()
+            const { data } = useData()
+            expect(data.value).toEqual(undefined)
+          })
+
+          it('can return a NavigationResult without affecting loaded data', async () => {
+            let calls = 0
+            const spy = vi.fn(async (to: RouteLocationNormalizedLoaded) => {
+              return calls++ > 0 ? new NavigationResult('/other') : to.query.p
+            })
+            const { useData, router } = singleLoaderOneRoute(
+              loaderFactory({ lazy, commit, fn: spy })
+            )
+            await router.push('/fetch?p=ok')
+            const { data } = useData()
+            expect(spy).toHaveBeenCalled()
+            expect(data.value).toEqual('ok')
+            await router.push('/fetch?p=ko')
+            expect(data.value).toEqual('ok')
+          })
+
+          // in lazy false, commit after-load, the error prevents the navigation
+          // so the error doesn't even get a chance to be used if we navigate. This is why we do a first regular navigation and then a reload: to force the fetch again
+          it('can return a NavigationResult without affecting the last error', async () => {
+            const spy = vi.fn().mockResolvedValueOnce('ko')
+            const { useData, router } = singleLoaderOneRoute(
+              loaderFactory({ lazy, commit, fn: spy })
+            )
             await router.push('/fetch?p=ok').catch(() => {})
-            const { error } = useData()
+            const { error, reload } = useData()
+            spy.mockRejectedValueOnce(new Error('ok'))
+            await reload().catch(() => {})
             expect(spy).toHaveBeenCalled()
             expect(error.value).toEqual(new Error('ok'))
+            spy.mockResolvedValueOnce(new NavigationResult('/other'))
             await router.push('/fetch?p=ko').catch(() => {})
             expect(error.value).toEqual(new Error('ok'))
-          }
-        )
-
-        it(`the resolved data is present after navigation`, async () => {
-          const spy = vi
-            .fn<unknown[], Promise<string>>()
-            .mockResolvedValueOnce('resolved')
-          const { wrapper, useData, router } = singleLoaderOneRoute(
-            // loaders are not require to allow sync return values
-            loaderFactory({ lazy, commit, fn: spy })
-          )
-          expect(spy).not.toHaveBeenCalled()
-          await router.push('/fetch')
-          expect(wrapper.get('#error').text()).toBe('')
-          expect(wrapper.get('#isLoading').text()).toBe('false')
-          expect(wrapper.get('#data').text()).toBe('resolved')
-          expect(spy).toHaveBeenCalledTimes(1)
-          const { data } = useData()
-          expect(data.value).toEqual('resolved')
-        })
-
-        it(`can be forced reloaded`, async () => {
-          const spy = vi
-            .fn<unknown[], Promise<string>>()
-            .mockResolvedValueOnce('resolved 1')
-          const { router, useData } = singleLoaderOneRoute(
-            loaderFactory({ lazy, commit, fn: spy })
-          )
-          await router.push('/fetch')
-          expect(spy).toHaveBeenCalledTimes(1)
-          const { data, reload } = useData()
-          expect(data.value).toEqual('resolved 1')
-          spy.mockResolvedValueOnce('resolved 2')
-          await reload()
-          expect(data.value).toEqual('resolved 2')
-          expect(spy).toHaveBeenCalledTimes(2)
-          spy.mockResolvedValueOnce('resolved 3')
-          await reload()
-          expect(spy).toHaveBeenCalledTimes(3)
-          expect(data.value).toEqual('resolved 3')
-        })
-
-        it('always reloads if the previous result is an error', async () => {
-          let calls = 0
-          const spy = vi.fn(async () => {
-            if (calls++ === 0) {
-              throw new Error('nope')
-            } else {
-              return 'ok'
-            }
           })
-          const { useData, router } = singleLoaderOneRoute(
-            loaderFactory({
-              fn: spy,
-              lazy,
-              commit,
+
+          it(`the resolved data is present after navigation`, async () => {
+            const spy = vi
+              .fn<(...args: unknown[]) => Promise<string>>()
+              .mockResolvedValueOnce('resolved')
+            const { wrapper, useData, router } = singleLoaderOneRoute(
+              // loaders are not require to allow sync return values
+              loaderFactory({ lazy, commit, fn: spy })
+            )
+            expect(spy).not.toHaveBeenCalled()
+            await router.push('/fetch')
+            expect(wrapper.get('#error').text()).toBe('')
+            expect(wrapper.get('#isLoading').text()).toBe('false')
+            expect(wrapper.get('#data').text()).toBe('resolved')
+            expect(spy).toHaveBeenCalledTimes(1)
+            const { data } = useData()
+            expect(data.value).toEqual('resolved')
+          })
+
+          it(`can be forced reloaded`, async () => {
+            const spy = vi
+              .fn<(...args: unknown[]) => Promise<string>>()
+              .mockResolvedValueOnce('resolved 1')
+            const { router, useData } = singleLoaderOneRoute(
+              loaderFactory({ lazy, commit, fn: spy })
+            )
+            await router.push('/fetch')
+            expect(spy).toHaveBeenCalledTimes(1)
+            const { data, reload } = useData()
+            expect(data.value).toEqual('resolved 1')
+            spy.mockResolvedValueOnce('resolved 2')
+            await reload()
+            expect(data.value).toEqual('resolved 2')
+            expect(spy).toHaveBeenCalledTimes(2)
+            spy.mockResolvedValueOnce('resolved 3')
+            await reload()
+            expect(spy).toHaveBeenCalledTimes(3)
+            expect(data.value).toEqual('resolved 3')
+          })
+
+          it('always reloads if the previous result is an error', async () => {
+            let calls = 0
+            const spy = vi.fn(async () => {
+              if (calls++ === 0) {
+                throw new Error('nope')
+              } else {
+                return 'ok'
+              }
             })
-          )
-          await router.push('/fetch').catch(() => {})
-          // await vi.runAllTimersAsync()
-          expect(spy).toHaveBeenCalledTimes(1)
+            const { useData, router } = singleLoaderOneRoute(
+              loaderFactory({
+                fn: spy,
+                lazy,
+                commit,
+              })
+            )
+            await router.push('/fetch').catch(() => {})
+            // await vi.runAllTimersAsync()
+            expect(spy).toHaveBeenCalledTimes(1)
 
-          // for lazy loaders we need to navigate to trigger the loader
-          // so we add a hash to enforce that
-          await router.push('/fetch#two').catch(() => {})
-          const { data, error } = useData()
-          // await vi.runAllTimersAsync()
-          expect(spy).toHaveBeenCalledTimes(2)
-          expect(data.value).toBe('ok')
-          expect(error.value).toBe(null)
-        })
+            // for lazy loaders we need to navigate to trigger the loader
+            // so we add a hash to enforce that
+            await router.push('/fetch#two').catch(() => {})
+            const { data, error } = useData()
+            // await vi.runAllTimersAsync()
+            expect(spy).toHaveBeenCalledTimes(2)
+            expect(data.value).toBe('ok')
+            expect(error.value).toBe(null)
+          })
 
-        it('keeps the existing error until the new data is resolved', async () => {
-          const l = mockedLoader({ lazy, commit })
-          const { useData, router } = singleLoaderOneRoute(l.loader)
-          l.spy.mockResolvedValueOnce('initial')
-          // initiate the loader and then force an error
-          await router.push('/fetch?p=ko')
-          const { data, error, reload } = useData()
-          // force the error
-          l.spy.mockRejectedValueOnce(new Error('ok'))
-          await reload().catch(() => {})
-          await vi.runAllTimersAsync()
-          expect(error.value).toEqual(new Error('ok'))
+          it('keeps the existing error until the new data is resolved', async () => {
+            const l = mockedLoader({ lazy, commit })
+            const { useData, router } = singleLoaderOneRoute(l.loader)
+            l.spy.mockResolvedValueOnce('initial')
+            // initiate the loader and then force an error
+            await router.push('/fetch?p=ko')
+            const { data, error, reload } = useData()
+            // force the error
+            l.spy.mockRejectedValueOnce(new Error('ok'))
+            await reload().catch(() => {})
+            await vi.runAllTimersAsync()
+            expect(error.value).toEqual(new Error('ok'))
 
-          // trigger a new navigation
-          router.push('/fetch?p=ok')
-          await vi.runAllTimersAsync()
-          // we still see the error
-          expect(error.value).toEqual(new Error('ok'))
-          l.resolve('resolved')
-          await vi.runAllTimersAsync()
-          // not anymore
-          expect(data.value).toBe('resolved')
-        })
-      })
+            // trigger a new navigation
+            router.push('/fetch?p=ok')
+            await vi.runAllTimersAsync()
+            // we still see the error
+            expect(error.value).toEqual(new Error('ok'))
+            l.resolve('resolved')
+            await vi.runAllTimersAsync()
+            // not anymore
+            expect(data.value).toBe('resolved')
+          })
+        }
+      )
 
       it(`should abort the navigation if a non lazy loader throws, commit: ${commit}`, async () => {
         const { router } = singleLoaderOneRoute(
@@ -345,6 +352,94 @@ export function testDefineLoader<Context = void>(
         expect(router.currentRoute.value.path).toBe('/fetch')
       })
 
+      describe('custom errors', () => {
+        class CustomError extends Error {
+          override name = 'CustomError'
+        }
+        it('should complete the navigation if a non-lazy loader throws an expected error', async () => {
+          const { wrapper, useData, router } = singleLoaderOneRoute(
+            loaderFactory({
+              fn: async () => {
+                throw new CustomError()
+              },
+              lazy: false,
+              commit,
+              errors: [CustomError],
+            })
+          )
+          await router.push('/fetch')
+          const { data, error, isLoading } = useData()
+          expect(wrapper.get('#error').text()).toBe('CustomError')
+          expect(isLoading.value).toBe(false)
+          expect(data.value).toBe(undefined)
+          expect(error.value).toBeInstanceOf(CustomError)
+          expect(router.currentRoute.value.path).toBe('/fetch')
+        })
+
+        it('should complete the navigation if a non-lazy loader throws an expected global error', async () => {
+          const { wrapper, useData, router } = singleLoaderOneRoute(
+            loaderFactory({
+              fn: async () => {
+                throw new CustomError()
+              },
+              lazy: false,
+              commit,
+              // errors: [],
+            }),
+            { errors: [CustomError] }
+          )
+          await router.push('/fetch')
+          const { data, error, isLoading } = useData()
+          expect(wrapper.get('#error').text()).toBe('CustomError')
+          expect(isLoading.value).toBe(false)
+          expect(data.value).toBe(undefined)
+          expect(error.value).toBeInstanceOf(CustomError)
+          expect(router.currentRoute.value.path).toBe('/fetch')
+        })
+
+        it('accepts a function as a global setting instead of a constructor', async () => {
+          const { wrapper, useData, router } = singleLoaderOneRoute(
+            loaderFactory({
+              fn: async () => {
+                throw new CustomError()
+              },
+              lazy: false,
+              commit,
+              // errors: [],
+            }),
+            { errors: (reason) => reason instanceof CustomError }
+          )
+          await router.push('/fetch')
+          const { data, error, isLoading } = useData()
+          expect(wrapper.get('#error').text()).toBe('CustomError')
+          expect(isLoading.value).toBe(false)
+          expect(data.value).toBe(undefined)
+          expect(error.value).toBeInstanceOf(CustomError)
+          expect(router.currentRoute.value.path).toBe('/fetch')
+        })
+
+        it('local errors take priority over a global function that returns false', async () => {
+          const { wrapper, useData, router } = singleLoaderOneRoute(
+            loaderFactory({
+              fn: async () => {
+                throw new CustomError()
+              },
+              lazy: false,
+              commit,
+              errors: [CustomError],
+            }),
+            { errors: () => false }
+          )
+          await router.push('/fetch')
+          const { data, error, isLoading } = useData()
+          expect(wrapper.get('#error').text()).toBe('CustomError')
+          expect(isLoading.value).toBe(false)
+          expect(data.value).toBe(undefined)
+          expect(error.value).toBeInstanceOf(CustomError)
+          expect(router.currentRoute.value.path).toBe('/fetch')
+        })
+      })
+
       it('propagates errors from nested loaders', async () => {
         const l1 = mockedLoader({
           key: 'nested',
@@ -371,10 +466,13 @@ export function testDefineLoader<Context = void>(
   )
 
   it('passes a signal to the loader', async () => {
-    const spy = vi.fn<
-      [to: RouteLocationNormalizedLoaded, context: DataLoaderContextBase],
-      Promise<unknown>
-    >()
+    const spy =
+      vi.fn<
+        (
+          to: RouteLocationNormalizedLoaded,
+          context: DataLoaderContextBase
+        ) => Promise<unknown>
+      >()
     spy.mockResolvedValueOnce('ok')
     const { router } = singleLoaderOneRoute(loaderFactory({ fn: spy }))
     await router.push('/fetch?p=ok')
@@ -461,7 +559,7 @@ export function testDefineLoader<Context = void>(
     const nestedP1 = new Promise((r) => (resolveNestedFirstCall = r))
     const nestedP2 = new Promise((r) => (resolveNestedSecondCall = r))
     const nestedLoaderSpy = vi
-      .fn<[to: RouteLocationNormalizedLoaded], Promise<unknown>>()
+      .fn<(to: RouteLocationNormalizedLoaded) => Promise<unknown>>()
       .mockImplementation(async (to) => {
         nestedCalls++
         if (nestedCalls === 1) {
@@ -483,7 +581,7 @@ export function testDefineLoader<Context = void>(
     const rootP2 = new Promise((r) => (resolveRootSecondCall = r))
 
     const rootLoaderSpy = vi
-      .fn<[to: RouteLocationNormalizedLoaded], Promise<unknown>>()
+      .fn<(to: RouteLocationNormalizedLoaded) => Promise<unknown>>()
       .mockImplementation(async (to) => {
         rootCalls++
         const data = await useNestedLoader()
@@ -630,7 +728,7 @@ export function testDefineLoader<Context = void>(
     const p2 = new Promise((r) => (resolveCall2 = r))
     const p3 = new Promise((r) => (resolveCall3 = r))
     const spy = vi
-      .fn<[to: RouteLocationNormalizedLoaded], Promise<string>>()
+      .fn<(to: RouteLocationNormalizedLoaded) => Promise<unknown>>()
       .mockImplementation(async (to) => {
         calls++
         // the first one should be skipped
@@ -701,10 +799,12 @@ export function testDefineLoader<Context = void>(
 
   it('can nest loaders', async () => {
     const spyOne = vi
-      .fn<unknown[], Promise<string>>()
+      .fn<(...args: unknown[]) => Promise<string>>()
+      .mockResolvedValue('ko')
       .mockResolvedValueOnce('one')
     const spyTwo = vi
-      .fn<unknown[], Promise<string>>()
+      .fn<(...args: unknown[]) => Promise<string>>()
+      .mockResolvedValue('ko')
       .mockResolvedValueOnce('two')
     const useLoaderOne = loaderFactory({ fn: spyOne, key: 'one' })
     const useLoaderTwo = loaderFactory({
@@ -948,6 +1048,127 @@ export function testDefineLoader<Context = void>(
     expect(data.value).toEqual('ok,one')
   })
 
+  it(`reuses a nested loader result even if it's called first from another loader`, async () => {
+    const l1 = mockedLoader({ key: 'search-results', lazy: false })
+    const spy = vi.fn(async (to: RouteLocationNormalizedLoaded) => {
+      // get search results from the search loader
+      const data = await l1.loader()
+      // then fetch images in high res
+      return `${data},${to.query.p}`
+    })
+    const l2 = loaderFactory({
+      fn: spy,
+      key: 'images-from-search',
+
+      // to ensure this is not awaited
+      lazy: true,
+      server: false,
+    })
+
+    let useDataResult!: ReturnType<typeof l1.loader>
+
+    const component = defineComponent({
+      setup() {
+        // it shouldn't matter if l2 is used or not, what matters is the order
+        useDataResult = l1.loader()
+        l2()
+        return {}
+      },
+      template: `<p>a</p>`,
+    })
+    const router = getRouter()
+    router.addRoute({
+      name: '_test',
+      path: '/fetch',
+      meta: {
+        // the images should run first to simulate the issue
+        // in practice the user does not control the order of the loaders and it shouldn't matter
+        loaders: [l2, l1.loader],
+        // this scenario would work
+        // loaders: [l1.loader, l2],
+      },
+      component,
+    })
+
+    const wrapper = mount(RouterViewMock, {
+      global: {
+        plugins: [
+          [DataLoaderPlugin, { router }],
+          ...(plugins?.(customContext!) || []),
+        ],
+      },
+    })
+
+    router.push('/fetch?p=one')
+    await vi.runOnlyPendingTimersAsync()
+    l1.resolve('search')
+    await flushPromises()
+
+    const app: App = wrapper.vm.$.appContext.app
+    const l2Data = app.runWithContext(() => l2())
+
+    expect(useDataResult?.data.value).toEqual('search')
+    expect(l2Data.data.value).toEqual('search,one')
+    expect(l1.spy).toHaveBeenCalledTimes(1)
+    expect(spy).toHaveBeenCalledTimes(1)
+  })
+
+  it.todo('passes to and from to the function version of lazy', async () => {})
+  it.todo('can be first non-lazy then lazy', async () => {})
+  it.todo('can be first non-lazy then lazy', async () => {})
+
+  // https://github.com/posva/unplugin-vue-router/issues/495
+  // in the issue above we have one page with a loader
+  // this page is conditionally rendered based on an error state
+  // when resetting the error state, there is also a duplicated navigation
+  // that invalidates any pendingLoad and renders the page again
+  // since there is no navigation, loaders are not called again and
+  // there is no pendingLoad
+  it('gracefully handles a loader without a pendingLoad', async () => {
+    const l1 = mockedLoader({ lazy: false, key: 'l1' })
+    const router = getRouter()
+    router.addRoute({
+      name: 'a',
+      path: '/a',
+      component: defineComponent({
+        setup() {
+          const { data } = l1.loader()
+          return { data }
+        },
+        template: `<p>{{ data }}</p>`,
+      }),
+      meta: {
+        loaders: [l1.loader],
+      },
+    })
+    l1.spy.mockResolvedValue('ok')
+
+    const isVisible = ref(true)
+
+
+    const wrapper = mount(
+      () => (isVisible.value ? h(RouterViewMock) : h('p', ['hidden'])),
+      {
+        global: {
+          plugins: [
+            [DataLoaderPlugin, { router }],
+            ...(plugins?.(customContext!) || []),
+          ],
+        },
+      }
+    )
+
+    await router.push('/a')
+    expect(wrapper.text()).toBe('ok')
+    isVisible.value = false
+    await nextTick()
+    expect(wrapper.text()).toBe('hidden')
+    await router.push('/a') // failed duplicated navigation
+    isVisible.value = true
+    await nextTick()
+    expect(wrapper.text()).toBe('ok')
+  })
+
   describe('app.runWithContext()', () => {
     it('can inject globals', async () => {
       const { router, useData, app } = singleLoaderOneRoute(
@@ -1000,6 +1221,8 @@ export function testDefineLoader<Context = void>(
       const { router, useData, app } = singleLoaderOneRoute(
         loaderFactory({
           fn: async () => {
+            // this could be written like this, but we allow both for convenience
+            // const [a, b] = await Promise.all([l1(), l2()])
             const a = await l1()
             const b = await l2()
             return `${a},${b}`
@@ -1046,8 +1269,10 @@ export function testDefineLoader<Context = void>(
       const { router, useData, app } = singleLoaderOneRoute(
         loaderFactory({
           fn: async () => {
-            const a = await l1()
-            const b = await l2()
+            // hmm FIXME: stopped here,
+            const [a, b] = await Promise.all([l1(), l2()])
+            // const a = await l1()
+            // const b = await l2()
             return `${a},${b}`
           },
           key: 'root',

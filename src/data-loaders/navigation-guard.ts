@@ -17,7 +17,7 @@ import type {
   Router,
 } from 'vue-router'
 import { type _Awaitable } from '../utils'
-import { type UseDataLoader } from './createDataLoader'
+import { toLazyValue, type UseDataLoader } from './createDataLoader'
 
 /**
  * TODO: export functions that allow preloading outside of a navigation guard
@@ -36,6 +36,7 @@ export function setupLoaderGuard({
   app,
   effect,
   isSSR,
+  errors: globalErrors = [],
   selectNavigationResult = (results) => results[0]!.value,
 }: SetupLoaderGuardOptions) {
   // avoid creating the guards multiple times
@@ -49,7 +50,7 @@ export function setupLoaderGuard({
   }
 
   // explicit dev to avoid warnings in tests
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV === 'development' && !isSSR) {
     console.warn(
       '[vue-router]: Data Loader is experimental and subject to breaking changes in the future.'
     )
@@ -98,21 +99,35 @@ export function setupLoaderGuard({
 
           // we only add async modules because otherwise the component doesn't have any loaders and the user should add
           // them with the `loaders` array
-          if (isAsyncModule(component)) {
-            const promise = component().then(
-              (viewModule: Record<string, unknown>) => {
-                for (const exportName in viewModule) {
-                  const exportValue = viewModule[exportName]
+          const promise = (
+            isAsyncModule(component)
+              ? component()
+              : // we also support __loaders exported as an option to get around some temporary limitations
+                Promise.resolve(
+                  component as Record<string, unknown> | (() => unknown)
+                )
+          ).then((viewModule) => {
+            // avoid checking functional components
+            if (typeof viewModule === 'function') return
 
-                  if (isDataLoader(exportValue)) {
-                    record.meta[LOADER_SET_KEY]!.add(exportValue)
-                  }
+            for (const exportName in viewModule) {
+              const exportValue = viewModule[exportName]
+
+              if (isDataLoader(exportValue)) {
+                record.meta[LOADER_SET_KEY]!.add(exportValue)
+              }
+            }
+            // TODO: remove once nuxt doesn't wrap with `e => e.default` async pages
+            if (Array.isArray(viewModule.__loaders)) {
+              for (const loader of viewModule.__loaders) {
+                if (isDataLoader(loader)) {
+                  record.meta[LOADER_SET_KEY]!.add(loader)
                 }
               }
-            )
+            }
+          })
 
-            lazyLoadingPromises.push(promise)
-          }
+          lazyLoadingPromises.push(promise)
         }
       }
     }
@@ -130,7 +145,7 @@ export function setupLoaderGuard({
     })
   })
 
-  const removeDataLoaderGuard = router.beforeResolve((to) => {
+  const removeDataLoaderGuard = router.beforeResolve((to, from) => {
     // if we reach this guard, all properties have been set
     const loaders = Array.from(to.meta[LOADER_SET_KEY]!) as UseDataLoader[]
 
@@ -143,7 +158,7 @@ export function setupLoaderGuard({
     setCurrentContext([])
     return Promise.all(
       loaders.map((loader) => {
-        const { server, lazy } = loader._.options
+        const { server, lazy, errors } = loader._.options
         // do not run on the server if specified
         if (!server && isSSR) {
           return
@@ -153,16 +168,35 @@ export function setupLoaderGuard({
           app
             // allows inject and provide APIs
             .runWithContext(() =>
-              loader._.load(to as RouteLocationNormalizedLoaded, router)
+              loader._.load(to as RouteLocationNormalizedLoaded, router, from)
             )
         )!
 
         // on client-side, lazy loaders are not awaited, but on server they are
         // we already checked for the `server` option above
-        return !isSSR && lazy
+        return !isSSR && toLazyValue(lazy, to, from)
           ? undefined
           : // return the non-lazy loader to commit changes after all loaders are done
-            ret
+            ret.catch((reason) => {
+              // use local error option if it exists first and then the global one
+              if (
+                errors &&
+                (Array.isArray(errors)
+                  ? errors.some((Err) => reason instanceof Err)
+                  : errors(reason))
+              ) {
+                return // avoid any navigation failure
+              }
+
+              // is the error a globally expected error
+              return (
+                Array.isArray(globalErrors)
+                  ? globalErrors.some((Err) => reason instanceof Err)
+                  : globalErrors(reason)
+              )
+                ? undefined
+                : Promise.reject(reason)
+            })
       })
     ) // let the navigation go through by returning true or void
       .then(() => {
@@ -187,7 +221,7 @@ export function setupLoaderGuard({
 
   // listen to duplicated navigation failures to reset the pendingTo and pendingLoad
   // since they won't trigger the beforeEach or beforeResolve defined above
-  const removeAfterEach = router.afterEach((to, _from, failure) => {
+  const removeAfterEach = router.afterEach((to, from, failure) => {
     // console.log(
     //   `🔚 afterEach "${_from.fullPath}" -> "${to.fullPath}": ${failure?.message}`
     // )
@@ -214,7 +248,10 @@ export function setupLoaderGuard({
           // lazy loaders do not block the navigation so the navigation guard
           // might call commit before the loader is ready
           // on the server, entries might not even exist
-          if (entry && (!lazy || !entry.isLoading.value)) {
+          if (
+            entry &&
+            (!toLazyValue(lazy, to, from) || !entry.isLoading.value)
+          ) {
             entry.commit(to as RouteLocationNormalizedLoaded)
           }
         }
@@ -361,4 +398,10 @@ export interface DataLoaderPluginOptions {
   selectNavigationResult?: (
     results: NavigationResult[]
   ) => _Awaitable<Exclude<NavigationGuardReturn, Function | Promise<unknown>>>
+
+  /**
+   * List of _expected_ errors that shouldn't abort the navigation (for non-lazy loaders). Provide a list of
+   * constructors that can be checked with `instanceof` or a custom function that returns `true` for expected errors.
+   */
+  errors?: Array<new (...args: any) => any> | ((reason?: unknown) => boolean)
 }

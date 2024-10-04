@@ -24,12 +24,14 @@ export function mockPromise<Resolved, Err>(resolved: Resolved, rejected?: Err) {
   }
 
   let promise: Promise<Resolved> | null = null
-  const spy = vi.fn<unknown[], Promise<Resolved>>().mockImplementation(() => {
-    return (promise = new Promise<Resolved>((res, rej) => {
-      _resolve = res
-      _reject = rej
-    }))
-  })
+  const spy = vi
+    .fn<(...args: any[]) => Promise<Resolved>>()
+    .mockImplementation(() => {
+      return (promise = new Promise<Resolved>((res, rej) => {
+        _resolve = res
+        _reject = rej
+      }))
+    })
 
   return [spy, resolve, reject] as const
 }

@@ -1,7 +1,7 @@
 /**
  * @vitest-environment happy-dom
  */
-import { App, defineComponent } from 'vue'
+import { App, defineComponent, markRaw, nextTick } from 'vue'
 import { defineColadaLoader } from './defineColadaLoader'
 import {
   describe,
@@ -15,15 +15,16 @@ import {
 import {
   DataLoaderPlugin,
   DataLoaderPluginOptions,
+  getCurrentContext,
   setCurrentContext,
   UseDataLoader,
-} from 'unplugin-vue-router/runtime'
+} from 'unplugin-vue-router/data-loaders'
 import { testDefineLoader } from '../../tests/data-loaders'
 import { getRouter } from 'vue-router-mock'
 import { enableAutoUnmount, mount } from '@vue/test-utils'
 import RouterViewMock from '../../tests/data-loaders/RouterViewMock.vue'
 import { setActivePinia, createPinia, getActivePinia } from 'pinia'
-import { QueryPlugin, useQuery } from '@pinia/colada'
+import { PiniaColada, useQueryCache, reviveTreeMap } from '@pinia/colada'
 import { RouteLocationNormalizedLoaded } from 'vue-router'
 
 describe(
@@ -55,14 +56,20 @@ describe(
           setActivePinia(pinia)
           return { pinia }
         },
-        plugins: ({ pinia }) => [pinia, QueryPlugin],
+        plugins: ({ pinia }) => [pinia, PiniaColada],
       }
     )
 
     function singleLoaderOneRoute<Loader extends UseDataLoader>(
       useData: Loader,
       pluginOptions?: Omit<DataLoaderPluginOptions, 'router'>
-    ) {
+    ): {
+      wrapper: ReturnType<typeof mount>
+      router: ReturnType<typeof getRouter>
+      // technically it should be () => ReturnType<Loader> but it doesn't infer all the types
+      useData: Loader
+      app: App
+    } {
       let useDataResult: ReturnType<Loader>
       const component = defineComponent({
         setup() {
@@ -95,7 +102,7 @@ describe(
           plugins: [
             [DataLoaderPlugin, { router, ...pluginOptions }],
             createPinia(),
-            QueryPlugin,
+            PiniaColada,
           ],
         },
       })
@@ -105,6 +112,7 @@ describe(
       return {
         wrapper,
         router,
+        // @ts-expect-error: not exactly Loader
         useData: () => {
           if (useDataResult) {
             return useDataResult
@@ -142,7 +150,7 @@ describe(
     })
 
     it('updates data loader data if internal data changes', async () => {
-      const query = vi.fn().mockResolvedValue('data')
+      const query = vi.fn(async () => 'data')
 
       const { router, useData } = singleLoaderOneRoute(
         defineColadaLoader({
@@ -159,24 +167,19 @@ describe(
       const wrapper = mount(
         defineComponent({
           setup() {
-            return useQuery({
-              query,
-              key: ['id'],
-            })
+            const caches = useQueryCache()
+            return { caches }
           },
-          template: `<div>{{ data }}</div>`,
+          template: `<div></div>`,
         }),
         {
           global: {
-            plugins: [getActivePinia()!, QueryPlugin],
+            plugins: [getActivePinia()!, PiniaColada],
           },
         }
       )
-      query.mockResolvedValue('new')
-      await wrapper.vm.refetch()
-      await vi.runAllTimersAsync()
-      expect(query).toHaveBeenCalledTimes(2)
-      expect(wrapper.vm.data).toBe('new')
+      wrapper.vm.caches.setQueryData(['id'], 'new')
+      await nextTick()
       expect(loaderData.value).toBe('new')
     })
 
@@ -204,6 +207,109 @@ describe(
       // we ensure that it was called
       expect(query).toHaveBeenCalledTimes(2)
       expect(loaderData.value).toBe('1')
+    })
+
+    it('hydrates without calling the query on the initial navigation', async () => {
+      // setups the loader
+      const query = vi.fn().mockResolvedValue('data')
+      const useData = defineColadaLoader({
+        query,
+        key: () => ['id'],
+      })
+
+      // sets up the page
+      let useDataResult: ReturnType<typeof useData> | undefined
+      const component = defineComponent({
+        setup() {
+          useDataResult = useData()
+
+          const { data, error, isLoading } = useDataResult
+          return { data, error, isLoading }
+        },
+        template: `<p/>`,
+      })
+
+      // add the page to the router
+      const router = getRouter()
+      router.addRoute({
+        name: '_test',
+        path: '/fetch',
+        meta: {
+          loaders: [useData],
+        },
+        component,
+      })
+
+      // sets up the cache
+      const pinia = createPinia()
+      const treeMap = reviveTreeMap([
+        // entry with successful data for id
+        ['id', ['data', null, Date.now()], undefined],
+      ])
+      pinia.state.value[useQueryCache.$id] = { caches: markRaw(treeMap) }
+
+      mount(RouterViewMock, {
+        global: {
+          plugins: [[DataLoaderPlugin, { router }], pinia, PiniaColada],
+        },
+      })
+
+      await router.push('/fetch')
+      expect(query).toHaveBeenCalledTimes(0)
+
+      await expect(async () => useDataResult!.reload()).not.toThrow()
+      expect(query).toHaveBeenCalledTimes(1)
+    })
+
+    // NOTE: this test should fail if the `setCurrentContext(currentContext)` is not called in the `if (isInitial)` branch
+    it.todo('restores the context after using a loader', async () => {
+      const query = vi.fn().mockResolvedValue('data')
+
+      const useData = defineColadaLoader({
+        query,
+        key: () => ['id'],
+      })
+
+      let useDataResult: ReturnType<typeof useData> | undefined
+      const component = defineComponent({
+        setup() {
+          useDataResult = useData()
+          expect(getCurrentContext()).toEqual([])
+
+          const { data, error, isLoading } = useDataResult
+          return { data, error, isLoading }
+        },
+        template: `<p/>`,
+      })
+
+      const router = getRouter()
+      router.addRoute({
+        name: '_test',
+        path: '/fetch',
+        meta: {
+          loaders: [useData],
+        },
+        component,
+      })
+
+      const pinia = createPinia()
+
+      const treeMap = reviveTreeMap([
+        ['id', ['data', null, Date.now()], undefined],
+      ])
+      pinia.state.value[useQueryCache.$id] = { caches: markRaw(treeMap) }
+
+      mount(RouterViewMock, {
+        global: {
+          plugins: [[DataLoaderPlugin, { router }], pinia, PiniaColada],
+        },
+      })
+
+      await router.push('/fetch')
+
+      expect(useDataResult?.data.value).toBe('data')
+
+      expect(getCurrentContext()).toEqual([])
     })
   }
 )

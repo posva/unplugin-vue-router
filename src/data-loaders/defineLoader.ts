@@ -5,16 +5,13 @@ import {
   useRouter,
   type Router,
 } from 'vue-router'
-import type {
-  DataLoaderContextBase,
-  DataLoaderEntryBase,
-  DefineDataLoaderOptionsBase,
-  DefineLoaderFn,
-  UseDataLoader,
-  UseDataLoaderResult,
-  _DataMaybeLazy,
-} from 'unplugin-vue-router/runtime'
 import {
+  type DataLoaderContextBase,
+  type DataLoaderEntryBase,
+  type DefineDataLoaderOptionsBase,
+  type DefineLoaderFn,
+  type UseDataLoader,
+  type UseDataLoaderResult,
   ABORT_CONTROLLER_KEY,
   APP_KEY,
   IS_USE_DATA_LOADER_KEY,
@@ -26,9 +23,10 @@ import {
   getCurrentContext,
   setCurrentContext,
   IS_SSR_KEY,
-} from 'unplugin-vue-router/runtime'
+} from 'unplugin-vue-router/data-loaders'
 
 import { shallowRef } from 'vue'
+import { toLazyValue } from './createDataLoader'
 
 /**
  * Creates a data loader composable that can be exported by pages to attach the data loading to a route. This returns a
@@ -41,35 +39,31 @@ import { shallowRef } from 'vue'
  * @param loader - function that returns a promise with the data
  * @param options - options to configure the data loader
  */
-export function defineBasicLoader<
-  Name extends keyof RouteMap,
-  Data,
-  isLazy extends boolean,
->(
+export function defineBasicLoader<Name extends keyof RouteMap, Data>(
   name: Name,
   loader: DefineLoaderFn<
     Data,
     DataLoaderContext,
     RouteLocationNormalizedLoaded<Name>
   >,
-  options?: DefineDataLoaderOptions<isLazy>
-): UseDataLoaderBasic<isLazy, Data>
-export function defineBasicLoader<Data, isLazy extends boolean>(
+  options?: DefineDataLoaderOptions
+): UseDataLoaderBasic<Data>
+export function defineBasicLoader<Data>(
   loader: DefineLoaderFn<
     Data,
     DataLoaderContext,
     RouteLocationNormalizedLoaded
   >,
-  options?: DefineDataLoaderOptions<isLazy>
-): UseDataLoaderBasic<isLazy, Data>
+  options?: DefineDataLoaderOptions
+): UseDataLoaderBasic<Data>
 
-export function defineBasicLoader<Data, isLazy extends boolean>(
+export function defineBasicLoader<Data>(
   nameOrLoader: keyof RouteMap | DefineLoaderFn<Data, DataLoaderContext>,
   _loaderOrOptions?:
-    | DefineDataLoaderOptions<isLazy>
+    | DefineDataLoaderOptions
     | DefineLoaderFn<Data, DataLoaderContext>,
-  opts?: DefineDataLoaderOptions<isLazy>
-): UseDataLoaderBasic<isLazy, Data> {
+  opts?: DefineDataLoaderOptions
+): UseDataLoaderBasic<Data> {
   // TODO: make it DEV only and remove the first argument in production mode
   // resolve option overrides
   const loader =
@@ -77,27 +71,31 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
       ? nameOrLoader
       : (_loaderOrOptions! as DefineLoaderFn<Data, DataLoaderContext>)
   opts = typeof _loaderOrOptions === 'object' ? _loaderOrOptions : opts
-  // {} as DefineDataLoaderOptions<isLazy>,
+
   const options = {
     ...DEFAULT_DEFINE_LOADER_OPTIONS,
     ...opts,
     // avoid opts overriding with `undefined`
     commit: opts?.commit || DEFAULT_DEFINE_LOADER_OPTIONS.commit,
-  } as DefineDataLoaderOptions<isLazy>
+  } as DefineDataLoaderOptions
 
   function load(
     to: RouteLocationNormalizedLoaded,
     router: Router,
+    from?: RouteLocationNormalizedLoaded,
     parent?: DataLoaderEntryBase
   ): Promise<void> {
     const entries = router[LOADER_ENTRIES_KEY]!
     const isSSR = router[IS_SSR_KEY]
+
+    // ensure the entry exists
     if (!entries.has(loader)) {
       entries.set(loader, {
         // force the type to match
-        data: shallowRef<_DataMaybeLazy<Data, isLazy>>(),
+        data: shallowRef<Data | undefined>(),
         isLoading: shallowRef(false),
         error: shallowRef<any>(),
+        to,
 
         options,
         children: new Set(),
@@ -165,7 +163,7 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
 
     // Promise.resolve() allows loaders to also be sync
     const currentLoad = Promise.resolve(
-      loader(to, { signal: to.meta[ABORT_CONTROLLER_KEY]!.signal })
+      loader(to, { signal: to.meta[ABORT_CONTROLLER_KEY]?.signal })
     )
       .then((d) => {
         // console.log(
@@ -196,7 +194,7 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
           entry.stagedError = e
           // propagate error if non lazy or during SSR
           // NOTE: Cannot be handled at the guard level because of nested loaders
-          if (!options.lazy || isSSR) {
+          if (!toLazyValue(options.lazy, to, from) || isSSR) {
             throw e
           }
         }
@@ -262,6 +260,7 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
       // preserve error until data is committed
       this.stagedError = this.error.value
       this.pendingTo = null
+      this.to = to
       // we intentionally keep pendingLoad so it can be reused until the navigation is finished
 
       // children entries cannot be committed from the navigation guard, so the parent must tell them
@@ -271,11 +270,12 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
     }
   }
 
-  // @ts-expect-error: requires the internals and symbol that are added later
-  const useDataLoader: // for ts
-  UseDataLoaderBasic<isLazy, Data> = () => {
+  // @ts-expect-error: return type has the generics
+  const useDataLoader // for ts
+  : UseDataLoaderBasic<Data> = () => {
     // work with nested data loaders
-    const [parentEntry, _router, _route] = getCurrentContext()
+    const currentContext = getCurrentContext()
+    const [parentEntry, _router, _route] = currentContext
     // fallback to the global router and routes for useDataLoaders used within components
     const router = _router || useRouter()
     const route = _route || (useRoute() as RouteLocationNormalizedLoaded)
@@ -299,12 +299,19 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
       // if the entry doesn't exist, create it with load and ensure it's loading
       !entry ||
       // the existing pending location isn't good, we need to load again
-      (parentEntry && entry.pendingTo !== route)
+      (parentEntry && entry.pendingTo !== route) ||
+      // we could also check for: but that would break nested loaders since they need to be always called to be associated with the parent
+      // && entry.to !== route
+      // the user managed to render the router view after a valid navigation + a failed navigation
+      // https://github.com/posva/unplugin-vue-router/issues/495
+      !entry.pendingLoad
     ) {
       // console.log(
       //   `🔁 loading from useData for "${options.key}": "${route.fullPath}"`
       // )
-      router[APP_KEY].runWithContext(() => load(route, router, parentEntry))
+      router[APP_KEY].runWithContext(() =>
+        load(route, router, undefined, parentEntry)
+      )
     }
 
     entry = entries.get(loader)!
@@ -341,8 +348,9 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
       })
       // we only want the error if we are nesting the loader
       // otherwise this will end up in "Unhandled promise rejection"
-      .catch((e) => (parentEntry ? Promise.reject(e) : null))
+      .catch((e: unknown) => (parentEntry ? Promise.reject(e) : null))
 
+    setCurrentContext(currentContext)
     return Object.assign(promise, useDataLoaderResult)
   }
 
@@ -362,8 +370,7 @@ export function defineBasicLoader<Data, isLazy extends boolean>(
   return useDataLoader
 }
 
-export interface DefineDataLoaderOptions<isLazy extends boolean>
-  extends DefineDataLoaderOptionsBase<isLazy> {
+export interface DefineDataLoaderOptions extends DefineDataLoaderOptionsBase {
   /**
    * Key to use for SSR state. This will be used to read the initial data from `initialData`'s object.
    */
@@ -376,7 +383,7 @@ const DEFAULT_DEFINE_LOADER_OPTIONS = {
   lazy: false as boolean,
   server: true,
   commit: 'after-load',
-} satisfies DefineDataLoaderOptions<boolean>
+} satisfies DefineDataLoaderOptions
 
 /**
  * Symbol used to store the data in the router so it can be retrieved after the initial navigation.
@@ -403,5 +410,4 @@ declare module 'vue-router' {
   }
 }
 
-export interface UseDataLoaderBasic<isLazy extends boolean, Data>
-  extends UseDataLoader<isLazy, Data> {}
+export interface UseDataLoaderBasic<Data> extends UseDataLoader<Data> {}

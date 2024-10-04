@@ -16,10 +16,8 @@ import { type NavigationResult } from './navigation-guard'
  * @internal
  */
 export type _DefineLoaderEntryMap<
-  DataLoaderEntry extends DataLoaderEntryBase<
-    boolean,
-    unknown
-  > = DataLoaderEntryBase<boolean, unknown>,
+  DataLoaderEntry extends
+    DataLoaderEntryBase<unknown> = DataLoaderEntryBase<unknown>,
 > = WeakMap<
   // Depending on the `defineLoader()` they might use a different thing as key
   // e.g. an function for basic defineLoader, a doc instance for VueFire
@@ -44,8 +42,16 @@ declare module 'vue-router' {
      */
     [PENDING_LOCATION_KEY]: RouteLocationNormalizedLoaded | null
 
+    /**
+     * The app instance that is used by the router.
+     * @internal
+     */
     [APP_KEY]: App<unknown>
 
+    /**
+     * Whether the router is running in server-side rendering mode.
+     * @internal
+     */
     [IS_SSR_KEY]: boolean
   }
 

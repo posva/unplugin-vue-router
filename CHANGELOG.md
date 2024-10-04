@@ -1,3 +1,65 @@
+## [0.10.8](https://github.com/posva/unplugin-vue-router/compare/v0.10.7...v0.10.8) (2024-09-08)
+
+### Features
+
+- **loaders:** allow errors as a function ([df80b28](https://github.com/posva/unplugin-vue-router/commit/df80b28a3a32532120afc558cb6e7d2e95382da6))
+- **loaders:** allow plain value in colada loader key ([646e5bf](https://github.com/posva/unplugin-vue-router/commit/646e5bfccf676ca6112d8ec5cf9655438964215d))
+- **loaders:** avoid warning during ssr ([99d7b0b](https://github.com/posva/unplugin-vue-router/commit/99d7b0b8cbe7938e5dd5c43282b22c0475526ff9))
+- **loaders:** warn incorrect query usage ([e43c5f5](https://github.com/posva/unplugin-vue-router/commit/e43c5f57e1fb46df310d35acb78c9be4da3db2d2))
+
+## [0.10.7](https://github.com/posva/unplugin-vue-router/compare/v0.10.6...v0.10.7) (2024-08-17)
+
+### Bug Fixes
+
+- **loaders:** reset context in ssr scenarios ([4ea4b8c](https://github.com/posva/unplugin-vue-router/commit/4ea4b8c918ce81a495d663a5c8f6fe6ddbd27548))
+
+## [0.10.6](https://github.com/posva/unplugin-vue-router/compare/v0.10.5...v0.10.6) (2024-08-15)
+
+### Bug Fixes
+
+- **loaders:** remove default value for experimental ([8773c96](https://github.com/posva/unplugin-vue-router/commit/8773c9658cfbe827ea554895cf7c04572471e424))
+
+### Features
+
+- expose experimental vite plugin ([0903d61](https://github.com/posva/unplugin-vue-router/commit/0903d6195f43d21ed22586fa2f0fa3efe5625cee))
+- **loaders:** add more state to pinia colada ([0163811](https://github.com/posva/unplugin-vue-router/commit/0163811f3996966f47d61c4d2690cfec5576efab))
+
+## [0.10.5](https://github.com/posva/unplugin-vue-router/compare/v0.10.4...v0.10.5) (2024-08-15)
+
+### Features
+
+- **loaders:** change experimental option to match only specific folders ([f01cddd](https://github.com/posva/unplugin-vue-router/commit/f01cddd2128a3e629d60ac4faee6738ccf2cd8d2))
+
+## [0.10.4](https://github.com/posva/unplugin-vue-router/compare/v0.10.3...v0.10.4) (2024-08-14)
+
+### Features
+
+- experimental auto export of data loaders ([16af831](https://github.com/posva/unplugin-vue-router/commit/16af8317b61dbd56dde7b5f5308269f4a033ec6c))
+
+## [0.10.3](https://github.com/posva/unplugin-vue-router/compare/v0.10.2...v0.10.3) (2024-08-12)
+
+### Features
+
+- upgrade to @pinia/colada 0.8.0 ([c372b14](https://github.com/posva/unplugin-vue-router/commit/c372b14b2c46d096b40347130d3e18b6f0f1cc4a))
+
+## [0.10.2](https://github.com/posva/unplugin-vue-router/compare/v0.10.1...v0.10.2) (2024-07-30)
+
+### Bug Fixes
+
+- avoid nested loaders in setup ([3aea904](https://github.com/posva/unplugin-vue-router/commit/3aea904bd57206aba9b8405c515ec19893580670))
+- **loaders:** avoid double fetch on nested loaders ([f15bedc](https://github.com/posva/unplugin-vue-router/commit/f15bedc8d58678a80cd511c7b546c81d74f5c7f0))
+
+## [0.10.1](https://github.com/posva/unplugin-vue-router/compare/v0.10.0...v0.10.1) (2024-07-22)
+
+### Bug Fixes
+
+- **warn:** missing link ([4efd888](https://github.com/posva/unplugin-vue-router/commit/4efd88821993c832c35d349f9c8c11f1b50319e8)), closes [#450](https://github.com/posva/unplugin-vue-router/issues/450)
+
+### Features
+
+- **data-loaders:** expected errors ([a470a51](https://github.com/posva/unplugin-vue-router/commit/a470a513629428490763207f3b55a6a38e636707))
+- lazy fn option ([174bbd3](https://github.com/posva/unplugin-vue-router/commit/174bbd374e8276be3d9ff3cf25e52627a30cea2f))
+
 # [0.10.0](https://github.com/posva/unplugin-vue-router/compare/v0.9.1...v0.10.0) (2024-06-21)
 
 ### Bug Fixes
@@ -107,8 +169,8 @@ internally to represent the folder structure.
 
 This patch contains the necessary fixes to allow importing the data loaders. However, they cannot be imported from `vue-router/auto` nor from `unplugin-vue-router/runtime`. Instead, they should be imported from `unplugin-vue-router/data-loaders/...`. This is needed as some of the loaders depends on extra packages that not all users have installed. At the moment, there are two data loaders
 
-- `unplugin-vue-router/data-loaders/basic`: https://uvr.esm.is/rfcs/data-loaders/basic.html
-- `unplugin-vue-router/data-loaders/pinia-colada`: https://uvr.esm.is/rfcs/data-loaders/colada.html
+- `unplugin-vue-router/data-loaders/basic`: https://uvr.esm.is/data-loaders/basic/
+- `unplugin-vue-router/data-loaders/pinia-colada`: https://uvr.esm.is/data-loaders/colada/
 
 ### Bug Fixes
 
@@ -195,10 +257,10 @@ For people using the file-based routing, you now need to add `unplugin-vue-route
 
 - Data Loaders have been redesigned to be more flexible
   and account for other libraries. Notably, the caching behavior has been
-  moved out of the basic loader to an extended one [pinia-colada](https://uvr.esm.is/rfcs/data-loaders/colada.html) and the [basic loader](https://uvr.esm.is/rfcs/data-loaders/basic.html)
+  moved out of the basic loader to an extended one [pinia-colada](https://uvr.esm.is/data-loaders/colada/) and the [basic loader](https://uvr.esm.is/data-loaders/basic/)
   has no cache. All of the pending bugs have also been fixed.
   I recommend you to give the RFC examples a new read to get
-  setup: https://uvr.esm.is/rfcs/data-loaders/. Most of the changes are
+  setup: https://uvr.esm.is/data-loaders/rfc. Most of the changes are
   simplifying things by removing them.
   Here is a list of the breaking changes to simplify
   migration:
@@ -207,9 +269,9 @@ For people using the file-based routing, you now need to add `unplugin-vue-route
   - Manual work needed to add loaders with `HasDataLoaderMeta` has been
     removed. It is just no longer needed. Loaders are picked up from lazy
     loaded components and must otherwise be directly added to a `meta.loaders`
-    array. See the example at https://uvr.esm.is/rfcs/data-loaders/#basic-example
+    array. See the example at https://uvr.esm.is/data-loaders/rfc.html#basic-example
   - The function `setupDataFetchingGuard` has been replaced with a Vue
-    Plugin. See https://uvr.esm.is/rfcs/data-loaders/#data-loader-setup
+    Plugin. See https://uvr.esm.is/data-loaders/rfc.html#data-loader-setup
     for details.
   - If you were relying on `cacheTime`, use the `staleTime` option in the
     new [`defineColadaLoader()`](https://uvr.esm.is/rfcs/data-loaders/colada) based off [@pinia/colada](https://github.com/posva/pinia-colada)
