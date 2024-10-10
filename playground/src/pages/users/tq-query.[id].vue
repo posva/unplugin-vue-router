@@ -95,7 +95,7 @@ const {
       {{ mutSate }}
     </pre>
 
-    <button @click="mutate(2)">Mutate</button>
+    <button @click="mutate(Math.round(Math.random() * 100))">Mutate</button>
 
     <fieldset>
       <legend>Controls</legend>
