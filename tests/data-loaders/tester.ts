@@ -335,7 +335,7 @@ export function testDefineLoader<Context = void>(
       })
 
       it(`should complete the navigation if a lazy loader throws, commit: ${commit}`, async () => {
-        const { wrapper, useData, router } = singleLoaderOneRoute(
+        const { useData, router } = singleLoaderOneRoute(
           loaderFactory({
             fn: async () => {
               throw new Error('nope')
@@ -344,19 +344,20 @@ export function testDefineLoader<Context = void>(
             commit,
           })
         )
-        await router.push('/fetch')
-        const { data, isLoading } = useData()
-        expect(wrapper.get('#error').text()).toBe('Error: nope')
+        await router.push('/fetch').catch(() => {})
+        expect(router.currentRoute.value.path).toBe('/fetch')
+        const { data, isLoading, error } = useData()
+        await flushPromises()
         expect(isLoading.value).toBe(false)
         expect(data.value).toBe(undefined)
-        expect(router.currentRoute.value.path).toBe('/fetch')
+        expect(error.value).toEqual(new Error('nope'))
       })
 
       describe('custom errors', () => {
         class CustomError extends Error {
           override name = 'CustomError'
         }
-        it('should complete the navigation if a non-lazy loader throws an expected error', async () => {
+        it(`should complete the navigation if a non-lazy loader throws an expected error, commit: ${commit}`, async () => {
           const { wrapper, useData, router } = singleLoaderOneRoute(
             loaderFactory({
               fn: async () => {
@@ -368,15 +369,15 @@ export function testDefineLoader<Context = void>(
             })
           )
           await router.push('/fetch')
+          expect(router.currentRoute.value.path).toBe('/fetch')
           const { data, error, isLoading } = useData()
           expect(wrapper.get('#error').text()).toBe('CustomError')
           expect(isLoading.value).toBe(false)
           expect(data.value).toBe(undefined)
           expect(error.value).toBeInstanceOf(CustomError)
-          expect(router.currentRoute.value.path).toBe('/fetch')
         })
 
-        it('should complete the navigation if a non-lazy loader throws an expected global error', async () => {
+        it(`should complete the navigation if a non-lazy loader throws an expected global error, commit: ${commit}`, async () => {
           const { wrapper, useData, router } = singleLoaderOneRoute(
             loaderFactory({
               fn: async () => {
@@ -384,7 +385,7 @@ export function testDefineLoader<Context = void>(
               },
               lazy: false,
               commit,
-              // errors: [],
+              errors: true,
             }),
             { errors: [CustomError] }
           )
@@ -397,7 +398,7 @@ export function testDefineLoader<Context = void>(
           expect(router.currentRoute.value.path).toBe('/fetch')
         })
 
-        it('accepts a function as a global setting instead of a constructor', async () => {
+        it(`accepts a function as a global setting instead of a constructor, commit: ${commit}`, async () => {
           const { wrapper, useData, router } = singleLoaderOneRoute(
             loaderFactory({
               fn: async () => {
@@ -405,7 +406,7 @@ export function testDefineLoader<Context = void>(
               },
               lazy: false,
               commit,
-              // errors: [],
+              errors: true,
             }),
             { errors: (reason) => reason instanceof CustomError }
           )
@@ -418,7 +419,7 @@ export function testDefineLoader<Context = void>(
           expect(router.currentRoute.value.path).toBe('/fetch')
         })
 
-        it('local errors take priority over a global function that returns false', async () => {
+        it(`local errors take priority over a global function that returns false, commit: ${commit}`, async () => {
           const { wrapper, useData, router } = singleLoaderOneRoute(
             loaderFactory({
               fn: async () => {
@@ -440,7 +441,7 @@ export function testDefineLoader<Context = void>(
         })
       })
 
-      it('propagates errors from nested loaders', async () => {
+      it(`propagates errors from nested loaders, commit: ${commit}`, async () => {
         const l1 = mockedLoader({
           key: 'nested',
           commit,

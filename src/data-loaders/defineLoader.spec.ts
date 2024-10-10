@@ -3,7 +3,8 @@
  */
 import { App, defineComponent } from 'vue'
 import {
-  type DefineDataLoaderOptions,
+  type DefineDataLoaderOptions_LaxData,
+  DefineDataLoaderOptions_DefinedData,
   INITIAL_DATA_KEY,
   SERVER_INITIAL_DATA_KEY,
   defineBasicLoader,
@@ -33,7 +34,7 @@ import { type RouteLocationNormalizedLoaded } from 'vue-router'
 
 function mockedLoader<T = string | NavigationResult>(
   // boolean is easier to handle for router mock
-  options?: DefineDataLoaderOptions
+  options: DefineDataLoaderOptions_LaxData | DefineDataLoaderOptions_DefinedData = {}
 ) {
   const [spy, resolve, reject] = mockPromise<T, unknown>(
     // not correct as T could be something else

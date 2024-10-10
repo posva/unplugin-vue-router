@@ -2,7 +2,11 @@
  * @vitest-environment happy-dom
  */
 import { App, createApp, defineComponent } from 'vue'
-import { DefineDataLoaderOptions, defineBasicLoader } from './defineLoader'
+import {
+  DefineDataLoaderOptions_LaxData,
+  DefineDataLoaderOptions_DefinedData,
+  defineBasicLoader,
+} from './defineLoader'
 import {
   afterAll,
   afterEach,
@@ -30,7 +34,7 @@ import type { NavigationFailure } from 'vue-router'
 
 function mockedLoader<T = string | NavigationResult>(
   // boolean is easier to handle for router mock
-  options?: DefineDataLoaderOptions
+  options: DefineDataLoaderOptions_LaxData | DefineDataLoaderOptions_DefinedData = {}
 ) {
   const [spy, resolve, reject] = mockPromise<T, unknown>(
     // not correct as T could be something else
@@ -580,7 +584,7 @@ describe('navigation-guard', () => {
       expect(router.currentRoute.value.fullPath).toBe('/fetch')
     })
 
-    it('handle global expected errors even when rejected by local errors', async () => {
+    it('local errors completely override global ones', async () => {
       setupApp({
         isSSR: false,
         // global only accepts CustomError
@@ -605,7 +609,8 @@ describe('navigation-guard', () => {
       await vi.runOnlyPendingTimersAsync()
       l1.reject(new CustomError())
       await router.getPendingNavigation().catch(() => {})
-      expect(router.currentRoute.value.fullPath).toBe('/fetch')
+      // the navigation was not aborted
+      expect(router.currentRoute.value.fullPath).toBe('/')
     })
   })
 })

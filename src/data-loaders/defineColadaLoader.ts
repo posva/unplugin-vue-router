@@ -9,7 +9,7 @@ import {
 import {
   type DataLoaderContextBase,
   type DataLoaderEntryBase,
-  type DefineDataLoaderOptionsBase,
+  type DefineDataLoaderOptionsBase_LaxData,
   type DefineLoaderFn,
   type UseDataLoader,
   type UseDataLoaderResult,
@@ -262,6 +262,10 @@ export function defineColadaLoader<Data>(
         // }
       })
       .finally(() => {
+        // restore the context after the promise resolves
+        // so that nested loaders can be aware of their parent
+        // when multiple loaders are nested and awaited one after the other
+        // within a loader
         setCurrentContext(currentContext)
         // console.log(
         //   `😩 restored context ${key}`,
@@ -348,6 +352,7 @@ export function defineColadaLoader<Data>(
   UseDataLoaderColada<Data> = () => {
     // work with nested data loaders
     const currentEntry = getCurrentContext()
+    // TODO: should _route also contain from?
     const [parentEntry, _router, _route] = currentEntry
     // fallback to the global router and routes for useDataLoaders used within components
     const router = _router || useRouter()
@@ -437,7 +442,7 @@ export function defineColadaLoader<Data>(
       asyncStatus: ext!.asyncStatus,
       state: ext!.state,
       isPending: ext!.isPending,
-    } satisfies UseDataLoaderColadaResult<Data>
+    } satisfies UseDataLoaderColadaResult<Data | undefined>
 
     // load ensures there is a pending load
     const promise = entry
@@ -478,7 +483,7 @@ export const joinKeys = (keys: string[]): string => keys.join('|')
 export interface DefineDataColadaLoaderOptions<
   Name extends keyof RouteMap,
   Data,
-> extends DefineDataLoaderOptionsBase,
+> extends DefineDataLoaderOptionsBase_LaxData,
     Omit<UseQueryOptions<Data>, 'query' | 'key'> {
   /**
    * Key associated with the data and passed to pinia colada

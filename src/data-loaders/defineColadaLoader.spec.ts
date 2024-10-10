@@ -262,7 +262,8 @@ describe(
     })
 
     // NOTE: this test should fail if the `setCurrentContext(currentContext)` is not called in the `if (isInitial)` branch
-    it.todo('restores the context after using a loader', async () => {
+    // Shouldn't this be directly in tester?
+    it('restores the context after using a loader', async () => {
       const query = vi.fn().mockResolvedValue('data')
 
       const useData = defineColadaLoader({

@@ -1,10 +1,12 @@
-# Error Handling
+# Error handling
 
 By default, all errors thrown in a loader are considered _unexpected errors_: they will abort the navigation, just like in a navigation guard. Because they abort the navigation, they will not appear in the `error` property of the loader. Instead, they will be intercepted by Vue Router's error handling with `router.onError()`.
 
 However, if the loader is **not navigation-aware**, the error cannot be intercepted by Vue Router and will be kept in the `error` property of the loader. This is the case for _lazy loaders_ and [_reloading data_](./reloading-data.md).
 
-To be able to intercept errors in blocking loaders, we can specify a list of error classes that are considered _expected errors_. This allows blocking loader to **not abort the navigation** and instead keep the error in the `error` property of the loader and let the page locally display the error state.
+## Defining expected Errors
+
+To be able to intercept errors in non-lazy loaders, we can specify a list of error classes that are considered _expected errors_. This allows blocking loader to **not abort the navigation** and instead keep the error in the `error` property of the loader and let the page locally display the error state.
 
 ```ts{3-10,14,18} twoslash
 import 'unplugin-vue-router/client'
@@ -26,6 +28,9 @@ export const useUserData = defineBasicLoader(
   async (to) => {
     throw new MyError('Something went wrong')
     // ...
+    // ---cut-start---
+    return { name: 'John' }
+    // ---cut-end---
   },
   {
     errors: [MyError],
@@ -57,7 +62,59 @@ app.use(DataLoaderPlugin, {
 })
 ```
 
-It also accepts a function that returns a boolean to determine if the error is expected or not.
+Then you need to opt-in in the loader by setting the `errors` option to `true` to keep the error in the `error` property of the loader.
+
+```ts{7} twoslash
+import 'unplugin-vue-router/client'
+import './typed-router.d'
+import { defineBasicLoader } from 'unplugin-vue-router/data-loaders/basic'
+// @moduleResolution: bundler
+// ---cut---
+export const useUserData = defineBasicLoader(
+  async (to) => {
+    throw new Error('Something went wrong')
+    // ...
+    // ---cut-start---
+    return { name: 'John' }
+    // ---cut-end---
+  },
+  {
+    errors: true,
+  }
+)
+```
+
+::: details Why is `errors: true` needed?
+
+One of the benefits of Data Loaders is that they ensure the `data` to be ready before the component is rendered. With expected errors, this is no longer true and `data` can be `undefined`:
+
+```ts{11} twoslash
+import 'unplugin-vue-router/client'
+import './typed-router.d'
+import { defineBasicLoader } from 'unplugin-vue-router/data-loaders/basic'
+// @moduleResolution: bundler
+// ---cut---
+export const useDataWithErrors = defineBasicLoader(
+  async (to) => {
+    // ...
+    // ---cut-start---
+    return { name: 'John' }
+    // ---cut-end---
+  },
+  {
+    errors: true,
+  }
+)
+
+const { data } = useDataWithErrors()
+data.value // `data` can be `undefined`
+```
+
+:::
+
+## Custom Error handling
+
+If you need more control over the error handling, you can provide a function to the `errors` option. This option is available in both the `DataLoaderPlugin` and when defining a loader.
 
 ```ts{3-9} twoslash
 import 'unplugin-vue-router/client'
@@ -79,3 +136,15 @@ app.use(DataLoaderPlugin, {
   },
 })
 ```
+
+## Handling both, local and global errors
+
+TODO: this hasn't been implemented yet
+
+## Error handling priority
+
+When you use both, global and local error handling, the local error handling has a higher priority and will override the global error handling. This is how the local and global errors are checked:
+
+- if local `errors` is `false`: abort the navigation -> `data` is not `undefined`
+- if local `errors` is `true`: rely on the globally defined `errors` option -> `data` is possibly `undefined`
+- else: rely on the local `errors` option -> `data` is possibly `undefined`

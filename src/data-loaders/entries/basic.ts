@@ -2,6 +2,9 @@ export { defineBasicLoader } from '../defineLoader'
 export type {
   UseDataLoaderBasic,
   DataLoaderContext,
+  DefineDataLoaderOptions_LaxData,
+  DefineDataLoaderOptions_DefinedData,
+  // deprecated
   DefineDataLoaderOptions,
 } from '../defineLoader'
 

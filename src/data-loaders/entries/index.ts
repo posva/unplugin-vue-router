@@ -4,9 +4,13 @@ export type {
   UseDataLoaderResult,
   DataLoaderContextBase,
   DataLoaderEntryBase,
-  DefineDataLoaderOptionsBase,
+  DefineDataLoaderOptionsBase_LaxData,
+  DefineDataLoaderOptionsBase_DefinedData,
   DefineLoaderFn,
+  // deprecated
+  DefineDataLoaderOptionsBase,
 } from '../createDataLoader'
+export { toLazyValue } from '../createDataLoader'
 
 // new data fetching
 export { DataLoaderPlugin, NavigationResult } from '../navigation-guard'
@@ -27,5 +31,5 @@ export {
   currentContext,
 } from '../utils'
 
-// expose all symbols that could be use by loaders
+// expose all symbols that could be used by loaders
 export * from '../meta-extensions'

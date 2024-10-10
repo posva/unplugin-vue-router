@@ -8,7 +8,7 @@ import {
 import {
   type DataLoaderContextBase,
   type DataLoaderEntryBase,
-  type DefineDataLoaderOptionsBase,
+  type DefineDataLoaderOptionsBase_LaxData,
   type DefineLoaderFn,
   type UseDataLoader,
   type UseDataLoaderResult,
@@ -26,16 +26,15 @@ import {
 } from 'unplugin-vue-router/data-loaders'
 
 import { shallowRef } from 'vue'
-import { toLazyValue } from './createDataLoader'
+import {
+  DefineDataLoaderOptionsBase_DefinedData,
+  toLazyValue,
+} from './createDataLoader'
 
 /**
- * Creates a data loader composable that can be exported by pages to attach the data loading to a route. This returns a
- * composable that can be used in any component.
+ * Creates a data loader composable that can be exported by pages to attach the data loading to a route. In this version `data` is always defined.
  *
- * @experimental
- * Still under development and subject to change. See https://github.com/vuejs/rfcs/discussions/460
- *
- * @param name - name of the route to have typed routes
+ * @param name - name of the route
  * @param loader - function that returns a promise with the data
  * @param options - options to configure the data loader
  */
@@ -46,24 +45,64 @@ export function defineBasicLoader<Name extends keyof RouteMap, Data>(
     DataLoaderContext,
     RouteLocationNormalizedLoaded<Name>
   >,
-  options?: DefineDataLoaderOptions
+  options?: DefineDataLoaderOptions_DefinedData
+): UseDataLoaderBasic_DefinedData<Data>
+
+/**
+ * Creates a data loader composable that can be exported by pages to attach the data loading to a route. In this version, `data` can be `undefined`.
+ *
+ * @param name - name of the route
+ * @param loader - function that returns a promise with the data
+ * @param options - options to configure the data loader
+ */
+export function defineBasicLoader<Name extends keyof RouteMap, Data>(
+  name: Name,
+  loader: DefineLoaderFn<
+    Data,
+    DataLoaderContext,
+    RouteLocationNormalizedLoaded<Name>
+  >,
+  options: DefineDataLoaderOptions_LaxData
 ): UseDataLoaderBasic<Data>
+
+/**
+ * Creates a data loader composable that can be exported by pages to attach the data loading to a route. In this version `data` is always defined.
+ *
+ * @param loader - function that returns a promise with the data
+ * @param options - options to configure the data loader
+ */
 export function defineBasicLoader<Data>(
   loader: DefineLoaderFn<
     Data,
     DataLoaderContext,
     RouteLocationNormalizedLoaded
   >,
-  options?: DefineDataLoaderOptions
+  options?: DefineDataLoaderOptions_DefinedData
+): UseDataLoaderBasic_DefinedData<Data>
+
+/**
+ * Creates a data loader composable that can be exported by pages to attach the data loading to a route. In this version, `data` can be `undefined`.
+ *
+ * @param loader - function that returns a promise with the data
+ * @param options - options to configure the data loader
+ */
+export function defineBasicLoader<Data>(
+  loader: DefineLoaderFn<
+    Data,
+    DataLoaderContext,
+    RouteLocationNormalizedLoaded
+  >,
+  options: DefineDataLoaderOptions_LaxData
 ): UseDataLoaderBasic<Data>
 
 export function defineBasicLoader<Data>(
   nameOrLoader: keyof RouteMap | DefineLoaderFn<Data, DataLoaderContext>,
   _loaderOrOptions?:
-    | DefineDataLoaderOptions
+    | DefineDataLoaderOptions_LaxData
+    | DefineDataLoaderOptions_DefinedData
     | DefineLoaderFn<Data, DataLoaderContext>,
-  opts?: DefineDataLoaderOptions
-): UseDataLoaderBasic<Data> {
+  opts?: DefineDataLoaderOptions_LaxData | DefineDataLoaderOptions_DefinedData
+): UseDataLoaderBasic<Data> | UseDataLoaderBasic_DefinedData<Data> {
   // TODO: make it DEV only and remove the first argument in production mode
   // resolve option overrides
   const loader =
@@ -77,7 +116,7 @@ export function defineBasicLoader<Data>(
     ...opts,
     // avoid opts overriding with `undefined`
     commit: opts?.commit || DEFAULT_DEFINE_LOADER_OPTIONS.commit,
-  } as DefineDataLoaderOptions
+  } as DefineDataLoaderOptions_LaxData
 
   function load(
     to: RouteLocationNormalizedLoaded,
@@ -281,7 +320,7 @@ export function defineBasicLoader<Data>(
     const route = _route || (useRoute() as RouteLocationNormalizedLoaded)
 
     const entries = router[LOADER_ENTRIES_KEY]!
-    let entry = entries.get(loader)
+    let entry = entries.get(loader) as DataLoaderEntryBase<Data> | undefined
 
     // console.log(`-- useDataLoader called ${options.key} --`)
     // console.log(
@@ -314,7 +353,7 @@ export function defineBasicLoader<Data>(
       )
     }
 
-    entry = entries.get(loader)!
+    entry = entries.get(loader)! as DataLoaderEntryBase<Data>
 
     // add ourselves to the parent entry children
     if (parentEntry) {
@@ -337,7 +376,7 @@ export function defineBasicLoader<Data>(
         router[APP_KEY].runWithContext(() => load(to, router)).then(() =>
           entry!.commit(to)
         ),
-    } satisfies UseDataLoaderResult
+    } satisfies UseDataLoaderResult<Data | undefined>
 
     // load ensures there is a pending load
     const promise = entry
@@ -370,12 +409,23 @@ export function defineBasicLoader<Data>(
   return useDataLoader
 }
 
-export interface DefineDataLoaderOptions extends DefineDataLoaderOptionsBase {
+export interface DefineDataLoaderOptions_LaxData
+  extends DefineDataLoaderOptionsBase_LaxData {
   /**
    * Key to use for SSR state. This will be used to read the initial data from `initialData`'s object.
    */
   key?: string
 }
+
+export interface DefineDataLoaderOptions_DefinedData
+  extends DefineDataLoaderOptionsBase_DefinedData {
+  key?: string
+}
+
+/**
+ * @deprecated use {@link DefineDataLoaderOptions_LaxData} instead
+ */
+export type DefineDataLoaderOptions = DefineDataLoaderOptions_LaxData
 
 export interface DataLoaderContext extends DataLoaderContextBase {}
 
@@ -383,7 +433,9 @@ const DEFAULT_DEFINE_LOADER_OPTIONS = {
   lazy: false as boolean,
   server: true,
   commit: 'after-load',
-} satisfies DefineDataLoaderOptions
+} satisfies
+  | DefineDataLoaderOptions_LaxData
+  | DefineDataLoaderOptions_DefinedData
 
 /**
  * Symbol used to store the data in the router so it can be retrieved after the initial navigation.
@@ -410,4 +462,7 @@ declare module 'vue-router' {
   }
 }
 
-export interface UseDataLoaderBasic<Data> extends UseDataLoader<Data> {}
+export interface UseDataLoaderBasic<Data>
+  extends UseDataLoader<Data | undefined> {}
+export interface UseDataLoaderBasic_DefinedData<Data>
+  extends UseDataLoader<Data> {}

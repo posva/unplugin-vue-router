@@ -178,24 +178,28 @@ export function setupLoaderGuard({
           ? undefined
           : // return the non-lazy loader to commit changes after all loaders are done
             ret.catch((reason) => {
-              // use local error option if it exists first and then the global one
-              if (
-                errors &&
-                (Array.isArray(errors)
-                  ? errors.some((Err) => reason instanceof Err)
-                  : errors(reason))
-              ) {
-                return // avoid any navigation failure
-              }
+              // errors: false, always abort the navigation
+              if (!errors) throw reason
 
-              // is the error a globally expected error
-              return (
-                Array.isArray(globalErrors)
-                  ? globalErrors.some((Err) => reason instanceof Err)
-                  : globalErrors(reason)
-              )
-                ? undefined
-                : Promise.reject(reason)
+              // errors: true, accept globally defined errors
+              if (errors === true) {
+                // is the error a globally expected error
+                if (
+                  Array.isArray(globalErrors)
+                    ? globalErrors.some((Err) => reason instanceof Err)
+                    : globalErrors(reason)
+                )
+                  return
+              } else if (
+                // use local error option if it exists first and then the global one
+                Array.isArray(errors)
+                  ? errors.some((Err) => reason instanceof Err)
+                  : errors(reason)
+              ) {
+                return
+              }
+              // by default, the error is not handled
+              throw reason
             })
       })
     ) // let the navigation go through by returning true or void
@@ -217,6 +221,11 @@ export function setupLoaderGuard({
             // will not be valid from the navigation guard's perspective
             Promise.reject<never>(error)
       )
+      .finally(() => {
+        // unset the context so mounting happens without an active context
+        // and loaders do not believe they are being called as nested when they are not
+        setCurrentContext([])
+      })
   })
 
   // listen to duplicated navigation failures to reset the pendingTo and pendingLoad
