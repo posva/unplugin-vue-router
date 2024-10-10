@@ -38,51 +38,71 @@ import {
   type UseQueryReturn,
   useQuery,
 } from '@pinia/colada'
-import { toLazyValue } from './createDataLoader'
+import {
+  _DefineDataLoaderOptionsBase_Common,
+  DefineDataLoaderOptionsBase_DefinedData,
+  toLazyValue,
+} from './createDataLoader'
 
 /**
- * Creates a data loader composable that can be exported by pages to attach the data loading to a route. This returns a
- * composable that can be used in any component.
- *
- * The returned composable exposes a mix of Data Loaders state and Pinia
- * Colada state.
- * - `data`, `isLoading`, `error` are navigation dependent and follow data loaders behavior.
- * - `status`, `asyncStatus`, `state` are Pinia Colada state and will immediately change and reflect the state of the
- *   query.
- *
- * @experimental
- * Still under development and subject to change. See https://github.com/vuejs/rfcs/discussions/460
+ * Creates a Pinia Colada data loader with `data` is always defined.
  *
  * @param name - name of the route to have typed routes
- * @param loader - function that returns a promise with the data
  * @param options - options to configure the data loader
  */
 export function defineColadaLoader<Name extends keyof RouteMap, Data>(
   name: Name,
-  options: DefineDataColadaLoaderOptions<Name, Data>
-): UseDataLoaderColada<Data>
+  options: DefineDataColadaLoaderOptions_DefinedData<Name, Data>
+): UseDataLoaderColada_DefinedData<Data>
+
+/**
+ * Creates a Pinia Colada data loader with `data` is possibly `undefined`.
+ *
+ * @param name - name of the route to have typed routes
+ * @param options - options to configure the data loader
+ */
+export function defineColadaLoader<Name extends keyof RouteMap, Data>(
+  name: Name,
+  options: DefineDataColadaLoaderOptions_LaxData<Name, Data>
+): UseDataLoaderColada_LaxData<Data>
+
+/**
+ * Creates a Pinia Colada data loader with `data` is always defined.
+ * @param options - options to configure the data loader
+ */
 export function defineColadaLoader<Data>(
-  options: DefineDataColadaLoaderOptions<keyof RouteMap, Data>
-): UseDataLoaderColada<Data>
+  options: DefineDataColadaLoaderOptions_DefinedData<keyof RouteMap, Data>
+): UseDataLoaderColada_DefinedData<Data>
+
+/**
+ * Creates a Pinia Colada data loader with `data` is possibly `undefined`.
+ * @param options - options to configure the data loader
+ */
+export function defineColadaLoader<Data>(
+  options: DefineDataColadaLoaderOptions_LaxData<keyof RouteMap, Data>
+): UseDataLoaderColada_LaxData<Data>
 
 export function defineColadaLoader<Data>(
   nameOrOptions:
     | keyof RouteMap
-    | DefineDataColadaLoaderOptions<keyof RouteMap, Data>,
-  _options?: DefineDataColadaLoaderOptions<keyof RouteMap, Data>
-): UseDataLoaderColada<Data> {
+    | DefineDataColadaLoaderOptions_LaxData<keyof RouteMap, Data>,
+  _options?: DefineDataColadaLoaderOptions_LaxData<keyof RouteMap, Data>
+): UseDataLoaderColada_LaxData<Data> {
   // TODO: make it DEV only and remove the first argument in production mode
   // resolve option overrides
   _options =
     _options ||
-    (nameOrOptions as DefineDataColadaLoaderOptions<keyof RouteMap, Data>)
+    (nameOrOptions as DefineDataColadaLoaderOptions_LaxData<
+      keyof RouteMap,
+      Data
+    >)
   const loader = _options.query
 
   const options = {
     ...DEFAULT_DEFINE_LOADER_OPTIONS,
     ..._options,
     commit: _options?.commit || 'after-load',
-  } as DefineDataColadaLoaderOptions<keyof RouteMap, Data>
+  } as DefineDataColadaLoaderOptions_LaxData<keyof RouteMap, Data>
 
   let isInitial = true
 
@@ -349,7 +369,7 @@ export function defineColadaLoader<Data>(
 
   // @ts-expect-error: requires the internals and symbol that are added later
   const useDataLoader: // for ts
-  UseDataLoaderColada<Data> = () => {
+  UseDataLoaderColada_LaxData<Data> = () => {
     // work with nested data loaders
     const currentEntry = getCurrentContext()
     // TODO: should _route also contain from?
@@ -480,11 +500,14 @@ export function defineColadaLoader<Data>(
 
 export const joinKeys = (keys: string[]): string => keys.join('|')
 
-export interface DefineDataColadaLoaderOptions<
+/**
+ * Base type with docs for the options of `defineColadaLoader`.
+ * @internal
+ */
+export interface _DefineDataColadaLoaderOptions_Common<
   Name extends keyof RouteMap,
   Data,
-> extends DefineDataLoaderOptionsBase_LaxData,
-    Omit<UseQueryOptions<Data>, 'query' | 'key'> {
+> extends Omit<UseQueryOptions<Data>, 'query' | 'key'> {
   /**
    * Key associated with the data and passed to pinia colada
    * @param to - Route to load the data
@@ -499,9 +522,35 @@ export interface DefineDataColadaLoaderOptions<
     DataColadaLoaderContext,
     RouteLocationNormalizedLoaded<Name>
   >
-
+  //
   // TODO: option to skip refresh if the used properties of the route haven't changed
 }
+
+/**
+ * Options for `defineColadaLoader` when the data is possibly `undefined`.
+ */
+export interface DefineDataColadaLoaderOptions_LaxData<
+  Name extends keyof RouteMap,
+  Data,
+> extends _DefineDataColadaLoaderOptions_Common<Name, Data>,
+    DefineDataLoaderOptionsBase_LaxData {}
+
+/**
+ * Options for `defineColadaLoader` when the data is always defined.
+ */
+export interface DefineDataColadaLoaderOptions_DefinedData<
+  Name extends keyof RouteMap,
+  Data,
+> extends _DefineDataColadaLoaderOptions_Common<Name, Data>,
+    DefineDataLoaderOptionsBase_DefinedData {}
+
+/**
+ * @deprecated Use {@link `DefineDataColadaLoaderOptions_LaxData`} instead.
+ */
+export type DefineDataColadaLoaderOptions<
+  Name extends keyof RouteMap,
+  Data,
+> = DefineDataColadaLoaderOptions_LaxData<Name, Data>
 
 /**
  * @internal
@@ -518,7 +567,8 @@ export interface UseDataLoaderColadaResult<Data>
 /**
  * Data Loader composable returned by `defineColadaLoader()`.
  */
-export interface UseDataLoaderColada<Data> extends UseDataLoader<Data> {
+export interface UseDataLoaderColada_LaxData<Data>
+  extends UseDataLoader<Data | undefined> {
   /**
    * Data Loader composable returned by `defineColadaLoader()`.
    *
@@ -543,7 +593,42 @@ export interface UseDataLoaderColada<Data> extends UseDataLoader<Data> {
     // we can await the raw data
     // excluding NavigationResult allows to ignore it in the type of Data when doing
     // `return new NavigationResult()` in the loader
-    Exclude<Data, NavigationResult>,
+    Exclude<Data, NavigationResult | undefined>,
+    // or use it as a composable
+    UseDataLoaderColadaResult<Exclude<Data, NavigationResult> | undefined>
+  >
+}
+
+/**
+ * Data Loader composable returned by `defineColadaLoader()`.
+ */
+export interface UseDataLoaderColada_DefinedData<Data>
+  extends UseDataLoader<Data> {
+  /**
+   * Data Loader composable returned by `defineColadaLoader()`.
+   *
+   * @example
+   * Returns the Data loader data, isLoading, error etc. Meant to be used in `setup()` or `<script setup>` **without `await`**:
+   * ```vue
+   * <script setup>
+   * const { data, isLoading, error } = useUserData()
+   * </script>
+   * ```
+   *
+   * @example
+   * It also returns a promise of the data when used in nested loaders. Note this `data` is **not a ref**. This is not meant to be used in `setup()` or `<script setup>`.
+   * ```ts
+   * export const useUserConnections = defineLoader(async () => {
+   *   const user = await useUserData()
+   *   return fetchUserConnections(user.id)
+   * })
+   * ```
+   */
+  (): _PromiseMerged<
+    // we can await the raw data
+    // excluding NavigationResult allows to ignore it in the type of Data when doing
+    // `return new NavigationResult()` in the loader
+    Exclude<Data, NavigationResult | undefined>,
     // or use it as a composable
     UseDataLoaderColadaResult<Exclude<Data, NavigationResult>>
   >
@@ -590,7 +675,7 @@ const DEFAULT_DEFINE_LOADER_OPTIONS = {
   server: true,
   commit: 'after-load',
 } satisfies Omit<
-  DefineDataColadaLoaderOptions<keyof RouteMap, unknown>,
+  DefineDataColadaLoaderOptions_LaxData<keyof RouteMap, unknown>,
   'key' | 'query'
 >
 
@@ -611,7 +696,7 @@ const toValueWithParameters = <T, Arg>(
  * @param to - route to use
  */
 function serializeQueryKey(
-  keyOption: DefineDataColadaLoaderOptions<string, unknown>['key'],
+  keyOption: DefineDataColadaLoaderOptions_LaxData<string, unknown>['key'],
   to: RouteLocationNormalizedLoaded
 ): string[] {
   const key = toValueWithParameters(keyOption, to)

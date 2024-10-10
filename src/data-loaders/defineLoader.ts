@@ -462,6 +462,7 @@ declare module 'vue-router' {
   }
 }
 
+// FIXME: rename to _LaxData
 export interface UseDataLoaderBasic<Data>
   extends UseDataLoader<Data | undefined> {}
 export interface UseDataLoaderBasic_DefinedData<Data>

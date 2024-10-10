@@ -34,7 +34,9 @@ import type { NavigationFailure } from 'vue-router'
 
 function mockedLoader<T = string | NavigationResult>(
   // boolean is easier to handle for router mock
-  options: DefineDataLoaderOptions_LaxData | DefineDataLoaderOptions_DefinedData = {}
+  options:
+    | DefineDataLoaderOptions_LaxData
+    | DefineDataLoaderOptions_DefinedData = {}
 ) {
   const [spy, resolve, reject] = mockPromise<T, unknown>(
     // not correct as T could be something else
