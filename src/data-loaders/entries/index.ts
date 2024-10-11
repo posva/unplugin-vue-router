@@ -33,3 +33,5 @@ export {
 
 // expose all symbols that could be used by loaders
 export * from '../meta-extensions'
+
+export type { TypesConfig, ErrorDefault } from '../types-config'

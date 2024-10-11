@@ -15,6 +15,7 @@ import {
   type UseDataLoaderResult,
   type _DefineLoaderEntryMap,
   type _PromiseMerged,
+  type ErrorDefault,
   ABORT_CONTROLLER_KEY,
   APP_KEY,
   IS_USE_DATA_LOADER_KEY,
@@ -381,7 +382,9 @@ export function defineColadaLoader<Data>(
     const entries = router[
       LOADER_ENTRIES_KEY
     ]! as unknown as _DefineLoaderEntryMap<DataLoaderColadaEntry<unknown>>
-    let entry = entries.get(loader) as DataLoaderColadaEntry<Data> | undefined
+    let entry = entries.get(loader) as
+      | DataLoaderColadaEntry<Data, ErrorDefault>
+      | undefined
 
     if (
       // if the entry doesn't exist, create it with load and ensure it's loading
@@ -400,7 +403,7 @@ export function defineColadaLoader<Data>(
       )
     }
 
-    entry = entries.get(loader)! as DataLoaderColadaEntry<Data>
+    entry = entries.get(loader)! as DataLoaderColadaEntry<Data, ErrorDefault>
 
     // add ourselves to the parent entry children
     if (parentEntry) {
@@ -558,7 +561,7 @@ export type DefineDataColadaLoaderOptions<
 export interface DataColadaLoaderContext extends DataLoaderContextBase {}
 
 export interface UseDataLoaderColadaResult<Data>
-  extends UseDataLoaderResult<Data>,
+  extends UseDataLoaderResult<Data, ErrorDefault>,
     Pick<
       UseQueryReturn<Data, any>,
       'isPending' | 'refetch' | 'refresh' | 'status' | 'asyncStatus' | 'state'
@@ -568,7 +571,7 @@ export interface UseDataLoaderColadaResult<Data>
  * Data Loader composable returned by `defineColadaLoader()`.
  */
 export interface UseDataLoaderColada_LaxData<Data>
-  extends UseDataLoader<Data | undefined> {
+  extends UseDataLoader<Data | undefined, ErrorDefault> {
   /**
    * Data Loader composable returned by `defineColadaLoader()`.
    *
@@ -603,7 +606,7 @@ export interface UseDataLoaderColada_LaxData<Data>
  * Data Loader composable returned by `defineColadaLoader()`.
  */
 export interface UseDataLoaderColada_DefinedData<Data>
-  extends UseDataLoader<Data> {
+  extends UseDataLoader<Data, ErrorDefault> {
   /**
    * Data Loader composable returned by `defineColadaLoader()`.
    *
@@ -634,7 +637,8 @@ export interface UseDataLoaderColada_DefinedData<Data>
   >
 }
 
-export interface DataLoaderColadaEntry<Data> extends DataLoaderEntryBase<Data> {
+export interface DataLoaderColadaEntry<Data, TError = unknown>
+  extends DataLoaderEntryBase<Data, TError> {
   /**
    * Reactive route passed to pinia colada so it automatically refetch
    */
@@ -648,7 +652,7 @@ export interface DataLoaderColadaEntry<Data> extends DataLoaderEntryBase<Data> {
   /**
    * Extended options for pinia colada
    */
-  ext: UseQueryReturn<Data> | null
+  ext: UseQueryReturn<Data, TError> | null
 }
 
 interface TrackedRoute {

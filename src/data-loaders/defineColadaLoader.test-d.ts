@@ -107,19 +107,23 @@ describe('defineBasicLoader', () => {
       defineColadaLoader({ key, query, errors: [] })().data.value
     ).toEqualTypeOf<UserData | undefined>()
     expectTypeOf(
-      defineColadaLoader({ key, query, errors: (e) => e instanceof Error })().data.value
+      defineColadaLoader({ key, query, errors: (e) => e instanceof Error })()
+        .data.value
     ).toEqualTypeOf<UserData | undefined>()
-    expectTypeOf(
-      defineColadaLoader({ key, query, errors: (e) => typeof e == 'object' && e != null })().data.value
-    ).toEqualTypeOf<UserData | undefined>()
-  })
-
-  it('can type the error with a type guard', () => {
     expectTypeOf(
       defineColadaLoader({
         key,
         query,
-        errors: (e): e is Error => e instanceof Error,
+        errors: (e) => typeof e == 'object' && e != null,
+      })().data.value
+    ).toEqualTypeOf<UserData | undefined>()
+  })
+
+  it('error is typed to Error by default', () => {
+    expectTypeOf(
+      defineColadaLoader({
+        key,
+        query,
       })().error.value
     ).toEqualTypeOf<Error | null>()
   })

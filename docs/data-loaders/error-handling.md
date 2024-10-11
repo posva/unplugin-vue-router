@@ -148,3 +148,29 @@ When you use both, global and local error handling, the local error handling has
 - if local `errors` is `false`: abort the navigation -> `data` is not `undefined`
 - if local `errors` is `true`: rely on the globally defined `errors` option -> `data` is possibly `undefined`
 - else: rely on the local `errors` option -> `data` is possibly `undefined`
+
+## TypeScript
+
+You will notice that the type of `error` is `Error | null` even when you specify the `errors` option. This is because if we call the `reload()` method (meaning we are outside of a navigation), the error isn't discarded, it appears in the `error` property **without being filtered** by the `errors` option.
+
+In practice, depending on how you handle the error, you will add a [type guard](https://www.typescriptlang.org/docs/handbook/advanced-types.html#user-defined-type-guards) inside the component responsible for displaying an error or directly in a `v-if` in the template.
+
+```vue-html
+<template>
+  <!-- ... -->
+  <p v-if="isMyError(error)">{{ error.message }}</p>
+</template>
+```
+
+If you want to be even stricter, you can override the default `Error` type with `unknown` (or anything else) by augmenting the `TypesConfig` interface.
+
+```ts
+// types-extension.d.ts
+import 'unplugin-vue-router/data-loaders'
+export {}
+declare module 'unplugin-vue-router/data-loaders' {
+  interface TypesConfig {
+    Error: unknown
+  }
+}
+```

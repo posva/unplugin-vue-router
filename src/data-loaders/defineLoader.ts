@@ -30,7 +30,7 @@ import {
   DefineDataLoaderOptionsBase_DefinedData,
   toLazyValue,
 } from './createDataLoader'
-import { ErrorDefault } from './types-config'
+import type { ErrorDefault } from './types-config'
 
 /**
  * Creates a data loader composable that can be exported by pages to attach the data loading to a route. In this version `data` is always defined.
@@ -56,15 +56,15 @@ export function defineBasicLoader<Name extends keyof RouteMap, Data>(
  * @param loader - function that returns a promise with the data
  * @param options - options to configure the data loader
  */
-export function defineBasicLoader<Name extends keyof RouteMap, Data, TError = ErrorDefault>(
+export function defineBasicLoader<Name extends keyof RouteMap, Data>(
   name: Name,
   loader: DefineLoaderFn<
     Data,
     DataLoaderContext,
     RouteLocationNormalizedLoaded<Name>
   >,
-  options: DefineDataLoaderOptions_LaxData<TError>
-): UseDataLoaderBasic<Data, TError>
+  options: DefineDataLoaderOptions_LaxData
+): UseDataLoaderBasic_LaxData<Data>
 
 /**
  * Creates a data loader composable that can be exported by pages to attach the data loading to a route. In this version `data` is always defined.
@@ -87,23 +87,23 @@ export function defineBasicLoader<Data>(
  * @param loader - function that returns a promise with the data
  * @param options - options to configure the data loader
  */
-export function defineBasicLoader<Data, TError = ErrorDefault>(
+export function defineBasicLoader<Data>(
   loader: DefineLoaderFn<
     Data,
     DataLoaderContext,
     RouteLocationNormalizedLoaded
   >,
-  options: DefineDataLoaderOptions_LaxData<TError>
-): UseDataLoaderBasic<Data, TError>
+  options: DefineDataLoaderOptions_LaxData
+): UseDataLoaderBasic_LaxData<Data>
 
-export function defineBasicLoader<Data, TError = ErrorDefault>(
+export function defineBasicLoader<Data>(
   nameOrLoader: keyof RouteMap | DefineLoaderFn<Data, DataLoaderContext>,
   _loaderOrOptions?:
-    | DefineDataLoaderOptions_LaxData<TError>
+    | DefineDataLoaderOptions_LaxData
     | DefineDataLoaderOptions_DefinedData
     | DefineLoaderFn<Data, DataLoaderContext>,
-  opts?: DefineDataLoaderOptions_LaxData<TError> | DefineDataLoaderOptions_DefinedData
-): UseDataLoaderBasic<Data, TError> | UseDataLoaderBasic_DefinedData<Data> {
+  opts?: DefineDataLoaderOptions_LaxData | DefineDataLoaderOptions_DefinedData
+): UseDataLoaderBasic_LaxData<Data> | UseDataLoaderBasic_DefinedData<Data> {
   // TODO: make it DEV only and remove the first argument in production mode
   // resolve option overrides
   const loader =
@@ -117,7 +117,7 @@ export function defineBasicLoader<Data, TError = ErrorDefault>(
     ...opts,
     // avoid opts overriding with `undefined`
     commit: opts?.commit || DEFAULT_DEFINE_LOADER_OPTIONS.commit,
-  } as DefineDataLoaderOptions_LaxData<TError>
+  } as DefineDataLoaderOptions_LaxData
 
   function load(
     to: RouteLocationNormalizedLoaded,
@@ -134,7 +134,7 @@ export function defineBasicLoader<Data, TError = ErrorDefault>(
         // force the type to match
         data: shallowRef<Data | undefined>(),
         isLoading: shallowRef(false),
-        error: shallowRef<TError | null>(),
+        error: shallowRef<ErrorDefault | null>(),
         to,
 
         options,
@@ -312,7 +312,7 @@ export function defineBasicLoader<Data, TError = ErrorDefault>(
 
   // @ts-expect-error: return type has the generics
   const useDataLoader // for ts
-  : UseDataLoaderBasic<Data, TError> = () => {
+  : UseDataLoaderBasic_LaxData<Data> = () => {
     // work with nested data loaders
     const currentContext = getCurrentContext()
     const [parentEntry, _router, _route] = currentContext
@@ -321,7 +321,9 @@ export function defineBasicLoader<Data, TError = ErrorDefault>(
     const route = _route || (useRoute() as RouteLocationNormalizedLoaded)
 
     const entries = router[LOADER_ENTRIES_KEY]!
-    let entry = entries.get(loader) as DataLoaderEntryBase<Data, TError> | undefined
+    let entry = entries.get(loader) as
+      | DataLoaderEntryBase<Data, ErrorDefault>
+      | undefined
 
     // console.log(`-- useDataLoader called ${options.key} --`)
     // console.log(
@@ -354,7 +356,7 @@ export function defineBasicLoader<Data, TError = ErrorDefault>(
       )
     }
 
-    entry = entries.get(loader)! as DataLoaderEntryBase<Data, TError>
+    entry = entries.get(loader)! as DataLoaderEntryBase<Data, ErrorDefault>
 
     // add ourselves to the parent entry children
     if (parentEntry) {
@@ -377,7 +379,7 @@ export function defineBasicLoader<Data, TError = ErrorDefault>(
         router[APP_KEY].runWithContext(() => load(to, router)).then(() =>
           entry!.commit(to)
         ),
-    } satisfies UseDataLoaderResult<Data | undefined, TError>
+    } satisfies UseDataLoaderResult<Data | undefined, ErrorDefault>
 
     // load ensures there is a pending load
     const promise = entry
@@ -410,8 +412,8 @@ export function defineBasicLoader<Data, TError = ErrorDefault>(
   return useDataLoader
 }
 
-export interface DefineDataLoaderOptions_LaxData<TError>
-  extends DefineDataLoaderOptionsBase_LaxData<TError> {
+export interface DefineDataLoaderOptions_LaxData
+  extends DefineDataLoaderOptionsBase_LaxData {
   /**
    * Key to use for SSR state. This will be used to read the initial data from `initialData`'s object.
    */
@@ -426,7 +428,7 @@ export interface DefineDataLoaderOptions_DefinedData
 /**
  * @deprecated use {@link DefineDataLoaderOptions_LaxData} instead
  */
-export type DefineDataLoaderOptions = DefineDataLoaderOptions_LaxData<any>
+export type DefineDataLoaderOptions = DefineDataLoaderOptions_LaxData
 
 export interface DataLoaderContext extends DataLoaderContextBase {}
 
@@ -435,7 +437,7 @@ const DEFAULT_DEFINE_LOADER_OPTIONS = {
   server: true,
   commit: 'after-load',
 } satisfies
-  | DefineDataLoaderOptions_LaxData<any>
+  | DefineDataLoaderOptions_LaxData
   | DefineDataLoaderOptions_DefinedData
 
 /**
@@ -463,8 +465,13 @@ declare module 'vue-router' {
   }
 }
 
-// FIXME: rename to _LaxData
-export interface UseDataLoaderBasic<Data, TError>
-  extends UseDataLoader<Data | undefined, TError> {}
+export interface UseDataLoaderBasic_LaxData<Data>
+  extends UseDataLoader<Data | undefined, ErrorDefault> {}
+
+/**
+ * @deprecated use {@link UseDataLoaderBasic_LaxData} instead
+ */
+export type UseDataLoaderBasic<Data> = UseDataLoaderBasic_LaxData<Data>
+
 export interface UseDataLoaderBasic_DefinedData<Data>
-  extends UseDataLoader<Data> {}
+  extends UseDataLoader<Data, ErrorDefault> {}

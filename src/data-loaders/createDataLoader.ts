@@ -18,7 +18,7 @@ export interface DataLoaderEntryBase<Data = unknown, TError = unknown> {
   /**
    * Error if there was an error.
    */
-  error: ShallowRef<TError | null> // any is simply more convenient for errors
+  error: ShallowRef<TError | null>
 
   /**
    * Location the data was loaded for or `null` if the data is not loaded.
@@ -128,7 +128,7 @@ export interface _DefineDataLoaderOptionsBase_Common {
  * Options for a data loader that returns a data that is possibly `undefined`. Available for data loaders
  * implementations so they can be used in `defineLoader()` overloads.
  */
-export interface DefineDataLoaderOptionsBase_LaxData<TError = any>
+export interface DefineDataLoaderOptionsBase_LaxData
   extends _DefineDataLoaderOptionsBase_Common {
   lazy?:
     | boolean
@@ -143,35 +143,11 @@ export interface DefineDataLoaderOptionsBase_LaxData<TError = any>
 
   errors?:
     | boolean
-  // NOTE:
-    // | (any extends TError ? any[] : readonly (new (...args: any[]) => TError)[])
-    | Array<new (...args: any[]) => TError>
-    | (any extends TError
-        ? (reason?: unknown) => boolean
-        : (reason?: unknown) => reason is TError)
+    // array of constructors
+    | Array<new (...args: any[]) => any>
+    // custom type guard
+    | ((reason?: unknown) => boolean)
 }
-
-export function errorsFromArray<
-  const T extends readonly (new (...args: any) => any)[],
->(
-  errorConstructorsArray: T
-): (reason?: unknown) => reason is _UnionFromConstructorsArray<T> {
-  return (r: unknown): r is _UnionFromConstructorsArray<T> =>
-    errorConstructorsArray.some((ErrConstructor) => r instanceof ErrConstructor)
-}
-
-/**
- * Extracts the union of the constructors from an array of constructors.
- * @internal
- */
-export type _UnionFromConstructorsArray<T extends readonly any[]> = T extends readonly [
-  new (...args: any[]) => infer R,
-  ...infer Rest,
-]
-  ? Rest extends readonly [any, ...any[]]
-    ? R | _UnionFromConstructorsArray<Rest>
-    : R
-  : never
 
 /**
  * Options for a data loader making the data defined without it being possibly `undefined`. Available for data loaders
@@ -256,7 +232,7 @@ export interface UseDataLoader<Data = unknown, TError = unknown> {
    * Internals of the data loader.
    * @internal
    */
-  _: UseDataLoaderInternals<Exclude<Data, NavigationResult | undefined>>
+  _: UseDataLoaderInternals<Exclude<Data, NavigationResult | undefined>, TError>
 }
 
 /**
@@ -310,7 +286,7 @@ export interface UseDataLoaderResult<Data = unknown, TError = ErrorDefault> {
   /**
    * Error if there was an error.
    */
-  error: ShallowRef<TError | null> // any is simply more convenient for errors
+  error: ShallowRef<TError | null>
 
   /**
    * Reload the data using the current route location. Returns a promise that resolves when the data is reloaded. This
