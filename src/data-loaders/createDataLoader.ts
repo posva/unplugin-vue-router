@@ -4,11 +4,12 @@ import { type _PromiseMerged } from './utils'
 import { type NavigationResult } from './navigation-guard'
 import type { RouteLocationNormalizedLoaded, Router } from 'vue-router'
 import { type _Awaitable } from '../utils'
+import { ErrorDefault } from './types-config'
 
 /**
  * Base type for a data loader entry. Each Data Loader has its own entry in the `loaderEntries` (accessible via `[LOADER_ENTRIES_KEY]`) map.
  */
-export interface DataLoaderEntryBase<Data = unknown> {
+export interface DataLoaderEntryBase<Data = unknown, TError = unknown> {
   /**
    * Data stored in the entry.
    */
@@ -17,7 +18,7 @@ export interface DataLoaderEntryBase<Data = unknown> {
   /**
    * Error if there was an error.
    */
-  error: ShallowRef<any> // any is simply more convenient for errors
+  error: ShallowRef<TError | null> // any is simply more convenient for errors
 
   /**
    * Location the data was loaded for or `null` if the data is not loaded.
@@ -56,7 +57,7 @@ export interface DataLoaderEntryBase<Data = unknown> {
    * Error that was staged by a loader. This is used to avoid showing the old error while the new data is loading.
    * Calling the internal `commit()` function will replace the error with the staged error.
    */
-  stagedError: any | null
+  stagedError: TError | null
 
   // entry instance
 
@@ -127,7 +128,7 @@ export interface _DefineDataLoaderOptionsBase_Common {
  * Options for a data loader that returns a data that is possibly `undefined`. Available for data loaders
  * implementations so they can be used in `defineLoader()` overloads.
  */
-export interface DefineDataLoaderOptionsBase_LaxData
+export interface DefineDataLoaderOptionsBase_LaxData<TError = any>
   extends _DefineDataLoaderOptionsBase_Common {
   lazy?:
     | boolean
@@ -142,9 +143,35 @@ export interface DefineDataLoaderOptionsBase_LaxData
 
   errors?:
     | boolean
-    | Array<new (...args: any) => any>
-    | ((reason?: unknown) => boolean)
+  // NOTE:
+    // | (any extends TError ? any[] : readonly (new (...args: any[]) => TError)[])
+    | Array<new (...args: any[]) => TError>
+    | (any extends TError
+        ? (reason?: unknown) => boolean
+        : (reason?: unknown) => reason is TError)
 }
+
+export function errorsFromArray<
+  const T extends readonly (new (...args: any) => any)[],
+>(
+  errorConstructorsArray: T
+): (reason?: unknown) => reason is _UnionFromConstructorsArray<T> {
+  return (r: unknown): r is _UnionFromConstructorsArray<T> =>
+    errorConstructorsArray.some((ErrConstructor) => r instanceof ErrConstructor)
+}
+
+/**
+ * Extracts the union of the constructors from an array of constructors.
+ * @internal
+ */
+export type _UnionFromConstructorsArray<T extends readonly any[]> = T extends readonly [
+  new (...args: any[]) => infer R,
+  ...infer Rest,
+]
+  ? Rest extends readonly [any, ...any[]]
+    ? R | _UnionFromConstructorsArray<Rest>
+    : R
+  : never
 
 /**
  * Options for a data loader making the data defined without it being possibly `undefined`. Available for data loaders
@@ -192,7 +219,7 @@ export interface DefineDataLoader<Context extends DataLoaderContextBase> {
  * Data Loader composable returned by `defineLoader()`.
  * @see {@link DefineDataLoader}
  */
-export interface UseDataLoader<Data = unknown> {
+export interface UseDataLoader<Data = unknown, TError = unknown> {
   [IS_USE_DATA_LOADER_KEY]: true
 
   /**
@@ -222,7 +249,7 @@ export interface UseDataLoader<Data = unknown> {
     // excluding `undefined` allows to await for lazy loaders and others
     Exclude<Data, NavigationResult | undefined>,
     // or use it as a composable
-    UseDataLoaderResult<Exclude<Data, NavigationResult>>
+    UseDataLoaderResult<Exclude<Data, NavigationResult>, TError>
   >
 
   /**
@@ -236,7 +263,7 @@ export interface UseDataLoader<Data = unknown> {
  * Internal properties of a data loader composable. Used by the internal implementation of `defineLoader()`. **Should
  * not be used in application code.**
  */
-export interface UseDataLoaderInternals<Data = unknown> {
+export interface UseDataLoaderInternals<Data = unknown, TError = unknown> {
   /**
    * Loads the data from the cache if possible, otherwise loads it from the loader and awaits it.
    *
@@ -263,13 +290,13 @@ export interface UseDataLoaderInternals<Data = unknown> {
    *
    * @param router - router instance
    */
-  getEntry(router: Router): DataLoaderEntryBase<Data>
+  getEntry(router: Router): DataLoaderEntryBase<Data, TError>
 }
 
 /**
  * Return value of a loader composable defined with `defineLoader()`.
  */
-export interface UseDataLoaderResult<Data = unknown> {
+export interface UseDataLoaderResult<Data = unknown, TError = ErrorDefault> {
   /**
    * Data returned by the loader. If the data loader is lazy, it will be undefined until the first load.
    */
@@ -283,7 +310,7 @@ export interface UseDataLoaderResult<Data = unknown> {
   /**
    * Error if there was an error.
    */
-  error: ShallowRef<any> // any is simply more convenient for errors
+  error: ShallowRef<TError | null> // any is simply more convenient for errors
 
   /**
    * Reload the data using the current route location. Returns a promise that resolves when the data is reloaded. This

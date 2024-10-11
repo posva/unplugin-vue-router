@@ -2,7 +2,7 @@ import { describe, expectTypeOf, it } from 'vitest'
 import { defineComponent } from 'vue'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import { defineBasicLoader } from './defineLoader'
-import { UseDataLoader } from './createDataLoader'
+import type { UseDataLoader } from './createDataLoader'
 
 describe('meta-extensions', () => {
   it('works when adding routes', () => {
@@ -89,7 +89,6 @@ describe('meta-extensions', () => {
     })
 
     expectTypeOf<UseDataLoader[] | undefined>(
-      // @ts-expect-error: FIXME: is this possible to test with the meta extension of vue-router module
       router.currentRoute.value.meta.loaders
     )
   })
