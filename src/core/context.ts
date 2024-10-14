@@ -6,7 +6,7 @@ import { generateRouteNamedMap } from '../codegen/generateRouteMap'
 import { MODULE_ROUTES_PATH, MODULE_VUE_ROUTER_AUTO } from './moduleConstants'
 import { generateRouteRecord } from '../codegen/generateRouteRecords'
 import fg from 'fast-glob'
-import { relative, resolve } from 'pathe'
+import { dirname, relative, resolve } from 'pathe'
 import { ServerContext } from '../options'
 import { getRouteBlock } from './customBlock'
 import {
@@ -252,6 +252,7 @@ if (import.meta.hot) {
     if (dts) {
       const content = generateDTS()
       if (lastDTS !== content) {
+        await fs.mkdir(dirname(dts), { recursive: true })
         await fs.writeFile(dts, content, 'utf-8')
         logger.timeLog('writeConfigFiles', 'wrote dts file')
         lastDTS = content
