@@ -12,6 +12,7 @@ import {
 import { typedRouterFile, typedRouterFileAsModule } from './twoslash-files'
 import { extraFiles } from './twoslash/files'
 import { ModuleResolutionKind } from 'typescript'
+import { groupIconMdPlugin, groupIconVitePlugin } from 'vitepress-plugin-group-icons'
 
 export default defineConfig({
   markdown: {
@@ -29,6 +30,9 @@ export default defineConfig({
         },
       }),
     ],
+    config(md) {
+      md.use(groupIconMdPlugin)
+    },
   },
 
   title: headTitle,
@@ -133,6 +137,11 @@ export default defineConfig({
       ],
     },
   },
+  vite: {
+    plugins: [
+      groupIconVitePlugin()
+    ],
+  }
 })
 
 type SidebarGroup = DefaultTheme.SidebarItem

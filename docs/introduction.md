@@ -269,7 +269,7 @@ Check the [file-based routing](/guide/file-based-routing) guide for more informa
 
 You can pass the `routes` to any plugin that needs to add changes to them but note that **these changes will not be reflected in types**. Use [build-time routes instead](./guide/extending-routes.md) if you want to have types support. Here is an example with [Vitesse starter](https://github.com/antfu-collective/vitesse/blob/main/src/main.ts):
 
-```ts
+```ts [main.ts]
 import { ViteSSG } from 'vite-ssg'
 import { setupLayouts } from 'virtual:generated-layouts'
 import App from './App.vue'
@@ -306,7 +306,7 @@ export const createApp = ViteSSG(
 
 If you are using [unplugin-auto-import](https://github.com/unplugin/unplugin-auto-import), make sure to remove the `vue-router` preset and use the one exported by `unplugin-vue-router`:
 
-```ts
+```ts [vite.config.ts]
 import { defineConfig } from 'vite'
 import AutoImport from 'unplugin-auto-import/vite'
 import { VueRouterAutoImports } from 'unplugin-vue-router' // [!code ++]

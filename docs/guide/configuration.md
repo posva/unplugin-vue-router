@@ -79,7 +79,7 @@ Highlight any of the options to see more details about it.
 
 It might be necessary to mark `vue-router` as `noExternal` in your `vite.config.js` in development mode:
 
-```ts{7}
+```ts{7} [vite.config.js]
 import { defineConfig } from 'vite'
 import Vue from '@vitejs/plugin-vue'
 import VueRouter from 'unplugin-vue-router/vite'
