@@ -4,9 +4,25 @@
 
 Install using your favorite package manager:
 
-```bash
+::: code-group
+
+```bash [npm]
 npm install -D unplugin-vue-router
 ```
+
+```bash [pnpm]
+pnpm add -D unplugin-vue-router
+```
+
+```bash [yarn]
+yarn add -D unplugin-vue-router
+```
+
+```bash [bun]
+bun add -D unplugin-vue-router
+```
+
+:::
 
 Add the plugin to your bundler:
 
