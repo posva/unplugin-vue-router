@@ -146,7 +146,7 @@ definePage({
     `,
       result = (await definePageTransform({
         code,
-        id: 'src/pages/basic.jsx?definePage&jsx',
+        id: 'src/pages/basic.jsx?definePage&lang.jsx',
       })) as Exclude<TransformResult, string>
     expect(result).toBeDefined()
     expect(result).toHaveProperty('code')
