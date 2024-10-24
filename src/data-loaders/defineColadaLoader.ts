@@ -344,7 +344,7 @@ export function defineColadaLoader<Data>(
           console.warn(
             `A query was defined with the same key as the loader "[${key.join(', ')}]". If the "key" is meant to be the same, you should directly use the data loader instead. If not, change the key of the "useQuery()".\nSee https://pinia-colada.esm.dev/#TODO`
           )
-            // avoid a crash that requires the page to be reloaded
+          // avoid a crash that requires the page to be reloaded
           return
         }
         this.tracked.get(joinKeys(key))!.ready = true
