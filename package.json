@@ -200,7 +200,7 @@
     "conventional-changelog-cli": "^5.0.0",
     "enquirer": "^2.4.1",
     "execa": "^9.4.1",
-    "firebase": "^10.14.1",
+    "firebase": "^11.0.1",
     "happy-dom": "^15.7.4",
     "lint-staged": "^15.2.10",
     "minimist": "^1.2.8",
