@@ -1,0 +1,27 @@
+{
+  "name": "webpack",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "preview": "npm run build && serve -s dist"
+  },
+  "dependencies": {
+    "vue": "^3.3.4",
+    "vue-loader": "^17.4.2",
+    "vue-router": "^4.2.2"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-router": "^5.0.8",
+    "@vue/cli-plugin-typescript": "^5.0.8",
+    "typescript": "^5.5.4",
+    "unplugin-vue-router": "workspace:*"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie 11"
+  ]
+}
