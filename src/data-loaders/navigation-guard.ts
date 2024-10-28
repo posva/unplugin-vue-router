@@ -36,7 +36,7 @@ export function setupLoaderGuard({
   app,
   effect,
   isSSR,
-  errors = [],
+  errors: globalErrors = [],
   selectNavigationResult = (results) => results[0]!.value,
 }: SetupLoaderGuardOptions) {
   // avoid creating the guards multiple times
@@ -50,7 +50,7 @@ export function setupLoaderGuard({
   }
 
   // explicit dev to avoid warnings in tests
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV === 'development' && !isSSR) {
     console.warn(
       '[vue-router]: Data Loader is experimental and subject to breaking changes in the future.'
     )
@@ -99,28 +99,35 @@ export function setupLoaderGuard({
 
           // we only add async modules because otherwise the component doesn't have any loaders and the user should add
           // them with the `loaders` array
-          if (isAsyncModule(component)) {
-            const promise = component().then(
-              (viewModule: Record<string, unknown>) => {
-                for (const exportName in viewModule) {
-                  const exportValue = viewModule[exportName]
+          const promise = (
+            isAsyncModule(component)
+              ? component()
+              : // we also support __loaders exported as an option to get around some temporary limitations
+                Promise.resolve(
+                  component as Record<string, unknown> | (() => unknown)
+                )
+          ).then((viewModule) => {
+            // avoid checking functional components
+            if (typeof viewModule === 'function') return
 
-                  if (isDataLoader(exportValue)) {
-                    record.meta[LOADER_SET_KEY]!.add(exportValue)
-                  }
-                }
-                if (Array.isArray(viewModule.__loaders)) {
-                  for (const loader of viewModule.__loaders) {
-                    if (isDataLoader(loader)) {
-                      record.meta[LOADER_SET_KEY]!.add(loader)
-                    }
-                  }
+            for (const exportName in viewModule) {
+              const exportValue = viewModule[exportName]
+
+              if (isDataLoader(exportValue)) {
+                record.meta[LOADER_SET_KEY]!.add(exportValue)
+              }
+            }
+            // TODO: remove once nuxt doesn't wrap with `e => e.default` async pages
+            if (Array.isArray(viewModule.__loaders)) {
+              for (const loader of viewModule.__loaders) {
+                if (isDataLoader(loader)) {
+                  record.meta[LOADER_SET_KEY]!.add(loader)
                 }
               }
-            )
+            }
+          })
 
-            lazyLoadingPromises.push(promise)
-          }
+          lazyLoadingPromises.push(promise)
         }
       }
     }
@@ -151,7 +158,7 @@ export function setupLoaderGuard({
     setCurrentContext([])
     return Promise.all(
       loaders.map((loader) => {
-        const { server, lazy } = loader._.options
+        const { server, lazy, errors } = loader._.options
         // do not run on the server if specified
         if (!server && isSSR) {
           return
@@ -170,15 +177,30 @@ export function setupLoaderGuard({
         return !isSSR && toLazyValue(lazy, to, from)
           ? undefined
           : // return the non-lazy loader to commit changes after all loaders are done
-            ret.catch((reason) =>
-              // Check if the error is an expected error to discard it
-              loader._.options.errors?.some((Err) => reason instanceof Err) ||
-              (Array.isArray(errors)
-                ? errors.some((Err) => reason instanceof Err)
-                : errors(reason))
-                ? undefined
-                : Promise.reject(reason)
-            )
+            ret.catch((reason) => {
+              // errors: false, always abort the navigation
+              if (!errors) throw reason
+
+              // errors: true, accept globally defined errors
+              if (errors === true) {
+                // is the error a globally expected error
+                if (
+                  Array.isArray(globalErrors)
+                    ? globalErrors.some((Err) => reason instanceof Err)
+                    : globalErrors(reason)
+                )
+                  return
+              } else if (
+                // use local error option if it exists first and then the global one
+                Array.isArray(errors)
+                  ? errors.some((Err) => reason instanceof Err)
+                  : errors(reason)
+              ) {
+                return
+              }
+              // by default, the error is not handled
+              throw reason
+            })
       })
     ) // let the navigation go through by returning true or void
       .then(() => {
@@ -199,6 +221,11 @@ export function setupLoaderGuard({
             // will not be valid from the navigation guard's perspective
             Promise.reject<never>(error)
       )
+      .finally(() => {
+        // unset the context so mounting happens without an active context
+        // and loaders do not believe they are being called as nested when they are not
+        setCurrentContext([])
+      })
   })
 
   // listen to duplicated navigation failures to reset the pendingTo and pendingLoad

@@ -1,7 +1,15 @@
 /**
  * @vitest-environment happy-dom
  */
-import { type App, defineComponent, inject, type Plugin } from 'vue'
+import {
+  type App,
+  defineComponent,
+  h,
+  inject,
+  nextTick,
+  type Plugin,
+  ref,
+} from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import { getRouter } from 'vue-router-mock'
@@ -13,8 +21,7 @@ import {
   type DataLoaderContextBase,
   type DefineDataLoaderOptionsBase,
   type UseDataLoader,
-  // TODO: move to /data-loaders
-} from 'unplugin-vue-router/runtime'
+} from 'unplugin-vue-router/data-loaders'
 import { mockPromise } from '../utils'
 import RouterViewMock from '../data-loaders/RouterViewMock.vue'
 import ComponentWithNestedLoader from '../data-loaders/ComponentWithNestedLoader.vue'
@@ -29,7 +36,7 @@ export function testDefineLoader<Context = void>(
         to: RouteLocationNormalizedLoaded,
         context: DataLoaderContextBase
       ) => Promise<unknown>
-    } & DefineDataLoaderOptionsBase<boolean> & { key?: string }
+    } & DefineDataLoaderOptionsBase & { key?: string }
   ) => UseDataLoader,
   {
     plugins,
@@ -45,7 +52,7 @@ export function testDefineLoader<Context = void>(
 
   function mockedLoader<T = string | NavigationResult>(
     // boolean is easier to handle for router mock
-    options?: DefineDataLoaderOptionsBase<boolean> & { key?: string }
+    options?: DefineDataLoaderOptionsBase & { key?: string }
   ) {
     const [spy, resolve, reject] = mockPromise<T, unknown>(
       // not correct as T could be something else
@@ -328,7 +335,7 @@ export function testDefineLoader<Context = void>(
       })
 
       it(`should complete the navigation if a lazy loader throws, commit: ${commit}`, async () => {
-        const { wrapper, useData, router } = singleLoaderOneRoute(
+        const { useData, router } = singleLoaderOneRoute(
           loaderFactory({
             fn: async () => {
               throw new Error('nope')
@@ -337,19 +344,20 @@ export function testDefineLoader<Context = void>(
             commit,
           })
         )
-        await router.push('/fetch')
-        const { data, isLoading } = useData()
-        expect(wrapper.get('#error').text()).toBe('Error: nope')
+        await router.push('/fetch').catch(() => {})
+        expect(router.currentRoute.value.path).toBe('/fetch')
+        const { data, isLoading, error } = useData()
+        await flushPromises()
         expect(isLoading.value).toBe(false)
         expect(data.value).toBe(undefined)
-        expect(router.currentRoute.value.path).toBe('/fetch')
+        expect(error.value).toEqual(new Error('nope'))
       })
 
       describe('custom errors', () => {
         class CustomError extends Error {
           override name = 'CustomError'
         }
-        it('should complete the navigation if a non-lazy loader throws an expected error', async () => {
+        it(`should complete the navigation if a non-lazy loader throws an expected error, commit: ${commit}`, async () => {
           const { wrapper, useData, router } = singleLoaderOneRoute(
             loaderFactory({
               fn: async () => {
@@ -361,15 +369,15 @@ export function testDefineLoader<Context = void>(
             })
           )
           await router.push('/fetch')
+          expect(router.currentRoute.value.path).toBe('/fetch')
           const { data, error, isLoading } = useData()
           expect(wrapper.get('#error').text()).toBe('CustomError')
           expect(isLoading.value).toBe(false)
           expect(data.value).toBe(undefined)
           expect(error.value).toBeInstanceOf(CustomError)
-          expect(router.currentRoute.value.path).toBe('/fetch')
         })
 
-        it('should complete the navigation if a non-lazy loader throws an expected global error', async () => {
+        it(`should complete the navigation if a non-lazy loader throws an expected global error, commit: ${commit}`, async () => {
           const { wrapper, useData, router } = singleLoaderOneRoute(
             loaderFactory({
               fn: async () => {
@@ -377,7 +385,7 @@ export function testDefineLoader<Context = void>(
               },
               lazy: false,
               commit,
-              // errors: [],
+              errors: true,
             }),
             { errors: [CustomError] }
           )
@@ -390,7 +398,7 @@ export function testDefineLoader<Context = void>(
           expect(router.currentRoute.value.path).toBe('/fetch')
         })
 
-        it('accepts a function as a global setting instead of a constructor', async () => {
+        it(`accepts a function as a global setting instead of a constructor, commit: ${commit}`, async () => {
           const { wrapper, useData, router } = singleLoaderOneRoute(
             loaderFactory({
               fn: async () => {
@@ -398,7 +406,7 @@ export function testDefineLoader<Context = void>(
               },
               lazy: false,
               commit,
-              // errors: [],
+              errors: true,
             }),
             { errors: (reason) => reason instanceof CustomError }
           )
@@ -411,7 +419,7 @@ export function testDefineLoader<Context = void>(
           expect(router.currentRoute.value.path).toBe('/fetch')
         })
 
-        it('local errors take priority over a global function that returns false', async () => {
+        it(`local errors take priority over a global function that returns false, commit: ${commit}`, async () => {
           const { wrapper, useData, router } = singleLoaderOneRoute(
             loaderFactory({
               fn: async () => {
@@ -433,7 +441,7 @@ export function testDefineLoader<Context = void>(
         })
       })
 
-      it('propagates errors from nested loaders', async () => {
+      it(`propagates errors from nested loaders, commit: ${commit}`, async () => {
         const l1 = mockedLoader({
           key: 'nested',
           commit,
@@ -1102,8 +1110,6 @@ export function testDefineLoader<Context = void>(
 
     expect(useDataResult?.data.value).toEqual('search')
     expect(l2Data.data.value).toEqual('search,one')
-    // FIXME: go from here: figure out why with colada it's called 2 times
-    // but only once with the basic loader. Probably need a currentLoad variable
     expect(l1.spy).toHaveBeenCalledTimes(1)
     expect(spy).toHaveBeenCalledTimes(1)
   })
@@ -1111,6 +1117,58 @@ export function testDefineLoader<Context = void>(
   it.todo('passes to and from to the function version of lazy', async () => {})
   it.todo('can be first non-lazy then lazy', async () => {})
   it.todo('can be first non-lazy then lazy', async () => {})
+
+  // https://github.com/posva/unplugin-vue-router/issues/495
+  // in the issue above we have one page with a loader
+  // this page is conditionally rendered based on an error state
+  // when resetting the error state, there is also a duplicated navigation
+  // that invalidates any pendingLoad and renders the page again
+  // since there is no navigation, loaders are not called again and
+  // there is no pendingLoad
+  it('gracefully handles a loader without a pendingLoad', async () => {
+    const l1 = mockedLoader({ lazy: false, key: 'l1' })
+    const router = getRouter()
+    router.addRoute({
+      name: 'a',
+      path: '/a',
+      component: defineComponent({
+        setup() {
+          const { data } = l1.loader()
+          return { data }
+        },
+        template: `<p>{{ data }}</p>`,
+      }),
+      meta: {
+        loaders: [l1.loader],
+      },
+    })
+    l1.spy.mockResolvedValue('ok')
+
+    const isVisible = ref(true)
+
+
+    const wrapper = mount(
+      () => (isVisible.value ? h(RouterViewMock) : h('p', ['hidden'])),
+      {
+        global: {
+          plugins: [
+            [DataLoaderPlugin, { router }],
+            ...(plugins?.(customContext!) || []),
+          ],
+        },
+      }
+    )
+
+    await router.push('/a')
+    expect(wrapper.text()).toBe('ok')
+    isVisible.value = false
+    await nextTick()
+    expect(wrapper.text()).toBe('hidden')
+    await router.push('/a') // failed duplicated navigation
+    isVisible.value = true
+    await nextTick()
+    expect(wrapper.text()).toBe('ok')
+  })
 
   describe('app.runWithContext()', () => {
     it('can inject globals', async () => {

@@ -66,6 +66,8 @@ definePage({
 </template>
 ```
 
+If you are using ESLint, you will need [to declare it as a global variable](../guide/eslint.md#definepage).
+
 ::: danger
 You cannot use variables in `definePage()` as its passed parameter gets extracted at build time and is removed from `<script setup>`. Similar to other macros like `definePageMeta()` in Nuxt.
 :::
@@ -89,7 +91,7 @@ Note you can specify the language to use with `<route lang="yaml">`. By default,
 
 ## Extending routes at runtime
 
-As an escape-hatch, it's possible to extend the routes **at runtime** by simply changing the `routes` array before passing it to `createRouter()`. Since these changes are made at runtime, they are not reflected in the generated `typed-router.d.ts` file.
+As an escape-hatch, it's possible to extend the routes **at runtime** by simply changing or cloning the `routes` array before passing it to `createRouter()`. Since these changes are made at runtime, they are not reflected in the generated `typed-router.d.ts` file.
 
 ```js{4-9}
 import { createWebHistory, createRouter } from 'vue-router'
@@ -97,8 +99,8 @@ import { routes } from 'vue-router/auto-routes'
 
 for (const route of routes) {
   if (route.name === '/admin') {
-    adminRoute.meta ??= {}
-    adminRoute.meta.requiresAuth = true
+    route.meta ??= {}
+    route.meta.requiresAuth = true
   }
 }
 

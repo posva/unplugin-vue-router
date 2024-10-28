@@ -2,7 +2,11 @@
  * @vitest-environment happy-dom
  */
 import { App, createApp, defineComponent } from 'vue'
-import { DefineDataLoaderOptions, defineBasicLoader } from './defineLoader'
+import {
+  DefineDataLoaderOptions_LaxData,
+  DefineDataLoaderOptions_DefinedData,
+  defineBasicLoader,
+} from './defineLoader'
 import {
   afterAll,
   afterEach,
@@ -20,7 +24,7 @@ import {
   DataLoaderPlugin,
   NavigationResult,
   DataLoaderPluginOptions,
-} from 'unplugin-vue-router/runtime'
+} from 'unplugin-vue-router/data-loaders'
 import { mockPromise } from '../../tests/utils'
 import {
   useDataOne,
@@ -30,7 +34,9 @@ import type { NavigationFailure } from 'vue-router'
 
 function mockedLoader<T = string | NavigationResult>(
   // boolean is easier to handle for router mock
-  options?: DefineDataLoaderOptions<boolean>
+  options:
+    | DefineDataLoaderOptions_LaxData
+    | DefineDataLoaderOptions_DefinedData = {}
 ) {
   const [spy, resolve, reject] = mockPromise<T, unknown>(
     // not correct as T could be something else
@@ -48,7 +54,7 @@ function mockedLoader<T = string | NavigationResult>(
 describe('navigation-guard', () => {
   let globalApp: App | undefined
 
-  function setupApp({ isSSR }: Omit<DataLoaderPluginOptions, 'router'>) {
+  function setupApp(options: Omit<DataLoaderPluginOptions, 'router'>) {
     const app = createApp({ render: () => null })
     const selectNavigationResult = vi
       .fn()
@@ -56,7 +62,7 @@ describe('navigation-guard', () => {
     app.use(DataLoaderPlugin, {
       router: getRouter(),
       selectNavigationResult,
-      isSSR,
+      ...options,
     })
     // invalidate current context
     setCurrentContext(undefined)
@@ -469,6 +475,144 @@ describe('navigation-guard', () => {
       await router.getPendingNavigation().catch(() => {})
       expect(selectNavigationResult).not.toHaveBeenCalled()
       expect(router.currentRoute.value.fullPath).toBe('/#ok')
+    })
+  })
+
+  describe('errors', () => {
+    class CustomError extends Error {}
+
+    it('lets the navigation continue if the error is expected', async () => {
+      setupApp({ isSSR: false })
+      const router = getRouter()
+      const l1 = mockedLoader({ errors: [CustomError] })
+      router.addRoute({
+        name: '_test',
+        path: '/fetch',
+        component,
+        meta: {
+          loaders: [l1.loader],
+        },
+      })
+
+      router.push('/fetch')
+      await vi.runOnlyPendingTimersAsync()
+      l1.reject(new CustomError('expected'))
+      await router.getPendingNavigation()
+      expect(router.currentRoute.value.fullPath).toBe('/fetch')
+    })
+
+    it('fails the navigation if the error is not expected', async () => {
+      setupApp({ isSSR: false })
+      const router = getRouter()
+      const l1 = mockedLoader({ errors: [CustomError] })
+      router.addRoute({
+        name: '_test',
+        path: '/fetch',
+        component,
+        meta: {
+          loaders: [l1.loader],
+        },
+      })
+
+      router.push('/fetch')
+      await vi.runOnlyPendingTimersAsync()
+      l1.reject(new Error('unexpected'))
+      await expect(router.getPendingNavigation()).rejects.toThrow('unexpected')
+      expect(router.currentRoute.value.fullPath).not.toBe('/fetch')
+    })
+
+    it('works with a function check', async () => {
+      setupApp({ isSSR: false })
+      const router = getRouter()
+      const l1 = mockedLoader({
+        errors: (e) => e instanceof Error && e.message === 'expected',
+      })
+      router.addRoute({
+        name: '_test',
+        path: '/fetch',
+        component,
+        meta: {
+          loaders: [l1.loader],
+        },
+      })
+
+      router.push('/fetch')
+      await vi.runOnlyPendingTimersAsync()
+      l1.reject(new Error('expected'))
+      await router.getPendingNavigation()
+      expect(router.currentRoute.value.fullPath).toBe('/fetch')
+
+      // use an unexpected error
+      await router.push('/')
+      router.push('/fetch')
+      await vi.runOnlyPendingTimersAsync()
+      l1.reject(new Error('unexpected'))
+      await router.getPendingNavigation()
+      expect(router.currentRoute.value.fullPath).not.toBe('/fetch')
+    })
+
+    it('local errors take precedence over global errors', async () => {
+      setupApp({
+        isSSR: false,
+        // global only accepts CustomError
+        errors: (e) => e instanceof CustomError,
+      })
+      const router = getRouter()
+      const l1 = mockedLoader({
+        // but local accepts Error with message 'expected'
+        errors: (e) => e instanceof Error && e.message === 'expected',
+      })
+      router.addRoute({
+        name: '_test',
+        path: '/fetch',
+        component,
+        meta: {
+          loaders: [l1.loader],
+        },
+      })
+
+      // not covered by any
+      router.push('/fetch')
+      await vi.runOnlyPendingTimersAsync()
+      l1.reject(new Error('unexpected'))
+      await router.getPendingNavigation().catch(() => {})
+      expect(router.currentRoute.value.fullPath).not.toBe('/fetch')
+
+      // covered locally only
+      router.push('/fetch')
+      await vi.runOnlyPendingTimersAsync()
+      l1.reject(new Error('expected'))
+      await router.getPendingNavigation().catch(() => {})
+      expect(router.currentRoute.value.fullPath).toBe('/fetch')
+    })
+
+    it('local errors completely override global ones', async () => {
+      setupApp({
+        isSSR: false,
+        // global only accepts CustomError
+        errors: [CustomError],
+      })
+      const router = getRouter()
+      const l1 = mockedLoader({
+        // but local accepts Error with message 'expected'
+        errors: (e) => e instanceof Error && e.message === 'expected',
+      })
+      router.addRoute({
+        name: '_test',
+        path: '/fetch',
+        component,
+        meta: {
+          loaders: [l1.loader],
+        },
+      })
+      //
+      // covered locally only
+      router.push('/fetch')
+      await vi.runOnlyPendingTimersAsync()
+      l1.reject(new CustomError())
+      await router.getPendingNavigation().catch(() => {})
+      // the navigation was not aborted
+      expect(router.currentRoute.value.fullPath).toBe('/')
     })
   })
 })

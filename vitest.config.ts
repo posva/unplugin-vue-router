@@ -8,7 +8,15 @@ export default defineConfig({
     alias: [
       {
         find: 'unplugin-vue-router/runtime',
-        replacement: fileURLToPath(new URL('src/runtime.ts', import.meta.url)),
+        replacement: fileURLToPath(
+          new URL('./src/runtime.ts', import.meta.url)
+        ),
+      },
+      {
+        find: 'unplugin-vue-router/data-loaders',
+        replacement: fileURLToPath(
+          new URL('./src/data-loaders/entries/index.ts', import.meta.url)
+        ),
       },
     ],
   },
@@ -16,6 +24,8 @@ export default defineConfig({
 
   test: {
     setupFiles: ['./tests/router-mock.ts'],
+    include: ['src/**/*.spec.ts'],
+    exclude: ['src/**/*.test-d.ts'],
     // open: false,
     coverage: {
       include: ['src/**/*.ts'],
@@ -37,7 +47,7 @@ export default defineConfig({
       checker: 'vue-tsc',
       // only: true,
       // by default it includes all specs too
-      include: ['**/*.test-d.ts'],
+      include: ['src/**/*.test-d.ts'],
       // tsconfig: './tsconfig.typecheck.json',
     },
   },

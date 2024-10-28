@@ -11,12 +11,16 @@ import {
 } from './meta'
 import { typedRouterFile, typedRouterFileAsModule } from './twoslash-files'
 import { extraFiles } from './twoslash/files'
+import { ModuleResolutionKind } from 'typescript'
 
 export default defineConfig({
   markdown: {
     codeTransformers: [
       transformerTwoslash({
         twoslashOptions: {
+          compilerOptions: {
+            moduleResolution: ModuleResolutionKind.Bundler,
+          },
           extraFiles: {
             ...extraFiles,
             'router.ts': typedRouterFileAsModule,

@@ -77,11 +77,12 @@ import { useRoute, type RouteLocationNormalizedLoaded } from 'vue-router'
 // @errors: 2322 2339
 // @moduleResolution: bundler
 // these are all valid
-let userWithId = useRoute() as RouteLocationNormalizedLoaded<'/users/[id]'>
-userWithId = useRoute<'/users/[id]'>()
+const userWithIdCasted = useRoute() as RouteLocationNormalizedLoaded<'/users/[id]'>
+userWithIdCasted.params.id
+const userWithIdTypeParam = useRoute<'/users/[id]'>()
+userWithIdTypeParam.params.id
 // 👇 this one is the easiest to write because it autocompletes
-userWithId = useRoute('/users/[id]')
-
-userWithId.params
-//         ^?
+const userWithIdParam = useRoute('/users/[id]')
+userWithIdParam.params
+//              ^?
 ```

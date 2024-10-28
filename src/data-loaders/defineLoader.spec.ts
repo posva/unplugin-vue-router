@@ -3,7 +3,8 @@
  */
 import { App, defineComponent } from 'vue'
 import {
-  DefineDataLoaderOptions,
+  type DefineDataLoaderOptions_LaxData,
+  DefineDataLoaderOptions_DefinedData,
   INITIAL_DATA_KEY,
   SERVER_INITIAL_DATA_KEY,
   defineBasicLoader,
@@ -23,17 +24,19 @@ import {
   NavigationResult,
   UseDataLoader,
   setCurrentContext,
-} from 'unplugin-vue-router/runtime'
+} from 'unplugin-vue-router/data-loaders'
 import { testDefineLoader } from '../../tests/data-loaders'
 import { getRouter } from 'vue-router-mock'
 import { enableAutoUnmount, mount } from '@vue/test-utils'
 import RouterViewMock from '../../tests/data-loaders/RouterViewMock.vue'
 import { mockPromise } from '../../tests/utils'
-import { RouteLocationNormalizedLoaded } from 'vue-router'
+import { type RouteLocationNormalizedLoaded } from 'vue-router'
 
 function mockedLoader<T = string | NavigationResult>(
   // boolean is easier to handle for router mock
-  options?: DefineDataLoaderOptions<boolean>
+  options:
+    | DefineDataLoaderOptions_LaxData
+    | DefineDataLoaderOptions_DefinedData = {}
 ) {
   const [spy, resolve, reject] = mockPromise<T, unknown>(
     // not correct as T could be something else

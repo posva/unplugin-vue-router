@@ -1,17 +1,11 @@
-// https://v3.nuxtjs.org/api/configuration/nuxt.config
 export default defineNuxtConfig({
-  typescript: {
-    shim: false,
-  },
+  devtools: { enabled: true },
 
-  build: { transpile: [/unplugin-vue-router\/runtime/] },
-
-  app: {
-    pageTransition: false,
-    layoutTransition: false,
-  },
+  modules: ['@pinia/nuxt'],
 
   experimental: {
     typedPages: true,
   },
+
+  compatibilityDate: '2024-09-10',
 })

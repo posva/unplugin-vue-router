@@ -9,7 +9,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import {
   NavigationResult,
   setCurrentContext,
-} from 'unplugin-vue-router/runtime'
+} from 'unplugin-vue-router/data-loaders'
 import { testDefineLoader } from '../../tests/data-loaders'
 import { enableAutoUnmount } from '@vue/test-utils'
 

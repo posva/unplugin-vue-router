@@ -19,6 +19,7 @@ export default defineConfig([
       ...commonOptions.external,
       'unplugin-vue-router/types',
       'unplugin-vue-router/runtime',
+      'unplugin-vue-router/data-loaders',
     ],
   },
 ])
