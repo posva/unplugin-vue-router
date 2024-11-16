@@ -19,6 +19,18 @@ const route = useRoute('/users/[id]')
 const simulateError = ref(false)
 
 const enabled = ref(true)
+const queryClient = useQueryClient()
+// queryClient.prefetchQuery({
+//   queryKey: ['user-id', computed(() => route.params.id)],
+//   // queryFn: async () => {
+//   //   await delay(500)
+//   //   return {
+//   //     id: route.params.id,
+//   //     name: 'Edu',
+//   //     when: new Date().toUTCString(),
+//   //   }
+//   // },
+// }).then((val) => {})
 
 // const tt = useQueries({
 //   queries: [
@@ -43,12 +55,17 @@ const {
   error: tqError,
   refetch,
 } = useQuery({
-  async queryFn() {
+  async queryFn({ signal }) {
     console.log('[TQ]useUserData', route.fullPath)
+    signal.addEventListener('abort', (ev) => {
+      // console.log('[TQ]useUserData aborted', ev)
+    })
     await delay(500)
     if (simulateError.value) {
       throw new Error('Simulated Error')
     }
+    signal.throwIfAborted()
+    console.log('✅ returning data')
     const user = {
       id: route.params.id,
       // @ts-expect-error: no param "name"!
@@ -58,11 +75,29 @@ const {
     return user
   },
   queryKey: ['user-id', computed(() => route.params.id)],
-  staleTime: 5000,
+  staleTime: 0,
   retry: false,
-  refetchOnMount: false,
+  refetchOnMount: true,
+  refetchOnWindowFocus(query) {
+    console.log('[TQ]refetchOnWindowFocus', query)
+    return true
+  },
   enabled,
 })
+
+let _id = 0
+function testRefetch() {
+  const id = ++_id
+  console.log(id + ' refetch started')
+  refetch({ cancelRefetch: true, throwOnError: true }).then(res => {
+    console.log(id + ' refetch finished', res)
+  }).catch(err => {
+    console.log(id + ' refetch error', err)
+  }).finally(() => {
+    console.log(id + ' refetch finally')
+  })
+}
+
 
 const {
   data,
@@ -70,9 +105,13 @@ const {
   mutate,
   status: mutSate,
 } = useMutation({
-  mutationKey: ['hey'],
+  // mutationKey: ['hey'],
+  networkMode: 'always',
+  onMutate(vars) {
+
+  },
   mutationFn: async (id: number) => {
-    await delay(500)
+    await delay(5000)
     return 'hey'
   },
 })
@@ -80,7 +119,7 @@ const {
 
 <template>
   <main>
-    <h1>defineQueryLoader()</h1>
+    <h1>TanStack Query</h1>
     <pre>User: {{ route.params.id }}</pre>
 
     <label>
@@ -104,16 +143,13 @@ const {
         <input type="checkbox" v-model="simulateError" /> Throw on Fetch
       </label>
       <br />
-      <button @click="refetch()">Refresh</button>
+      <button @click="refetch({ cancelRefetch: false })">Refresh</button>
+      <button @click="testRefetch()">Refresh 2</button>
     </fieldset>
 
-    <RouterLink :to="{ params: { id: Number(route.params.id) - 1 } }"
-      >Previous</RouterLink
-    >
+    <RouterLink :to="{ params: { id: Number(route.params.id) - 1 } }">Previous</RouterLink>
     |
-    <RouterLink :to="{ params: { id: Number(route.params.id) + 1 } }"
-      >Next</RouterLink
-    >
+    <RouterLink :to="{ params: { id: Number(route.params.id) + 1 } }">Next</RouterLink>
 
     <h2>TQ</h2>
 

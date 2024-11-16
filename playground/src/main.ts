@@ -17,6 +17,9 @@ app.use(VueQueryPlugin, {
         // debugger
         mutation
       },
+      onMutate(variables, mutation) {
+        return { wow: 'wah' }
+      },
       async onSettled(...args) {
         await new Promise((r) => setTimeout(r, 1000))
         console.log('global onSettled', ...args)
