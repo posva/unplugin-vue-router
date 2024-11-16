@@ -89,15 +89,17 @@ let _id = 0
 function testRefetch() {
   const id = ++_id
   console.log(id + ' refetch started')
-  refetch({ cancelRefetch: true, throwOnError: true }).then(res => {
-    console.log(id + ' refetch finished', res)
-  }).catch(err => {
-    console.log(id + ' refetch error', err)
-  }).finally(() => {
-    console.log(id + ' refetch finally')
-  })
+  refetch({ cancelRefetch: true, throwOnError: true })
+    .then((res) => {
+      console.log(id + ' refetch finished', res)
+    })
+    .catch((err) => {
+      console.log(id + ' refetch error', err)
+    })
+    .finally(() => {
+      console.log(id + ' refetch finally')
+    })
 }
-
 
 const {
   data,
@@ -107,9 +109,7 @@ const {
 } = useMutation({
   // mutationKey: ['hey'],
   networkMode: 'always',
-  onMutate(vars) {
-
-  },
+  onMutate(vars) {},
   mutationFn: async (id: number) => {
     await delay(5000)
     return 'hey'
@@ -147,9 +147,13 @@ const {
       <button @click="testRefetch()">Refresh 2</button>
     </fieldset>
 
-    <RouterLink :to="{ params: { id: Number(route.params.id) - 1 } }">Previous</RouterLink>
+    <RouterLink :to="{ params: { id: Number(route.params.id) - 1 } }"
+      >Previous</RouterLink
+    >
     |
-    <RouterLink :to="{ params: { id: Number(route.params.id) + 1 } }">Next</RouterLink>
+    <RouterLink :to="{ params: { id: Number(route.params.id) + 1 } }"
+      >Next</RouterLink
+    >
 
     <h2>TQ</h2>
 
