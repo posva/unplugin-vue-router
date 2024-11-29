@@ -33,5 +33,5 @@ export const useUserData = defineColadaLoader('/users/colada-loader.[id]', {
     return ['loader-users', to.params.id]
   },
   staleTime: 10000,
-  // lazy: (to, from) => to.name && to.name === from?.name,
+  lazy: (to, from) => to.name && to.name === from?.name,
 })
