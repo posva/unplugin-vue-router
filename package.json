@@ -5,16 +5,18 @@
   "packageManager": "pnpm@9.12.3",
   "description": "File based typed routing for Vue Router",
   "keywords": [
+    "unplugin",
+    "vite",
+    "webpack",
+    "rollup",
     "vue-router",
     "pages",
     "filesystem",
     "types",
     "typed",
-    "router",
-    "unplugin",
-    "vite",
-    "webpack",
-    "rollup"
+    "vue",
+    "nuxt",
+    "router"
   ],
   "homepage": "https://github.com/posva/unplugin-vue-router#readme",
   "bugs": {
