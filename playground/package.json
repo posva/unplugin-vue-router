@@ -12,8 +12,8 @@
     "@vue/tsconfig": "^0.6.0",
     "json-server": "^0.17.4",
     "unplugin-vue-router": "workspace:*",
-    "vite": "^6.0.1",
-    "vite-plugin-inspect": "^0.10.1"
+    "vite": "^5.4.11",
+    "vite-plugin-inspect": "^0.8.8"
   },
   "dependencies": {
     "@tanstack/vue-query": "^5.60.6",
