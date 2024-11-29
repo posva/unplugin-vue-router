@@ -69,7 +69,7 @@ export function AutoExportLoaders({
   filterPageComponents: filterPagesOrGlobs,
   loadersPathsGlobs,
   root = process.cwd(),
-}: AutoExportLoadersOptions) {
+}: AutoExportLoadersOptions): Plugin {
   const filterPaths = createFilter(loadersPathsGlobs)
   const filterPageComponents =
     typeof filterPagesOrGlobs === 'function'
@@ -106,7 +106,9 @@ export function AutoExportLoaders({
   } satisfies Plugin
 }
 
-export function createAutoExportPlugin(options: AutoExportLoadersOptions) {
+export function createAutoExportPlugin(
+  options: AutoExportLoadersOptions
+): UnpluginOptions {
   return {
     name: PLUGIN_NAME,
     vite: AutoExportLoaders(options),
