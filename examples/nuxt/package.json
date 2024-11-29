@@ -7,12 +7,12 @@
     "preview": "nuxt preview"
   },
   "devDependencies": {
-    "@pinia/nuxt": "^0.5.5",
-    "nuxt": "^3.13.2",
+    "@pinia/nuxt": "^0.7.0",
+    "nuxt": "^3.14.1592",
     "unplugin-vue-router": "workspace:*"
   },
   "dependencies": {
-    "@pinia/colada": "^0.10.0",
-    "pinia": "^2.2.4"
+    "@pinia/colada": "^0.12.1",
+    "pinia": "^2.2.8"
   }
 }

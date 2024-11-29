@@ -1,7 +1,7 @@
 /**
  * @vitest-environment happy-dom
  */
-import { App, defineComponent, markRaw, nextTick } from 'vue'
+import { App, defineComponent, nextTick } from 'vue'
 import { defineColadaLoader } from './defineColadaLoader'
 import {
   describe,
@@ -24,7 +24,12 @@ import { getRouter } from 'vue-router-mock'
 import { enableAutoUnmount, mount } from '@vue/test-utils'
 import RouterViewMock from '../../tests/data-loaders/RouterViewMock.vue'
 import { setActivePinia, createPinia, getActivePinia } from 'pinia'
-import { PiniaColada, useQueryCache, reviveTreeMap } from '@pinia/colada'
+import {
+  PiniaColada,
+  useQueryCache,
+  serializeTreeMap,
+  hydrateQueryCache,
+} from '@pinia/colada'
 import { RouteLocationNormalizedLoaded } from 'vue-router'
 
 describe(
@@ -242,22 +247,26 @@ describe(
 
       // sets up the cache
       const pinia = createPinia()
-      const treeMap = reviveTreeMap([
-        // entry with successful data for id
-        ['id', ['data', null, Date.now()], undefined],
-      ])
-      pinia.state.value[useQueryCache.$id] = { caches: markRaw(treeMap) }
 
-      mount(RouterViewMock, {
+      const wrapper = mount(RouterViewMock, {
         global: {
           plugins: [[DataLoaderPlugin, { router }], pinia, PiniaColada],
         },
       })
 
+      const serializedCache = [
+        // entry with successful data for id
+        ['id', ['data', null, Date.now()], undefined],
+      ] satisfies ReturnType<typeof serializeTreeMap>
+
+      wrapper.vm.$.appContext.app.runWithContext(() => {
+        hydrateQueryCache(useQueryCache(pinia), serializedCache)
+      })
+
       await router.push('/fetch')
       expect(query).toHaveBeenCalledTimes(0)
 
-      await expect(async () => useDataResult!.reload()).not.toThrow()
+      await expect(useDataResult!.reload()).resolves.toBeUndefined()
       expect(query).toHaveBeenCalledTimes(1)
     })
 
@@ -295,15 +304,18 @@ describe(
 
       const pinia = createPinia()
 
-      const treeMap = reviveTreeMap([
-        ['id', ['data', null, Date.now()], undefined],
-      ])
-      pinia.state.value[useQueryCache.$id] = { caches: markRaw(treeMap) }
-
-      mount(RouterViewMock, {
+      const wrapper = mount(RouterViewMock, {
         global: {
           plugins: [[DataLoaderPlugin, { router }], pinia, PiniaColada],
         },
+      })
+
+      const serializedCache = [
+        ['id', ['data', null, Date.now()], undefined],
+      ] satisfies ReturnType<typeof serializeTreeMap>
+
+      wrapper.vm.$.appContext.app.runWithContext(() => {
+        hydrateQueryCache(useQueryCache(pinia), serializedCache)
       })
 
       await router.push('/fetch')

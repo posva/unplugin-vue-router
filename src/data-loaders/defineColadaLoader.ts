@@ -566,8 +566,18 @@ export interface UseDataLoaderColadaResult<Data>
   extends UseDataLoaderResult<Data, ErrorDefault>,
     Pick<
       UseQueryReturn<Data, any>,
-      'isPending' | 'refetch' | 'refresh' | 'status' | 'asyncStatus' | 'state'
-    > {}
+      'isPending' | 'status' | 'asyncStatus' | 'state'
+    > {
+  refetch: (
+    to?: RouteLocationNormalizedLoaded
+    // TODO: we might need to add this in the future
+    // ...coladaArgs: Parameters<UseQueryReturn<Data, any>['refresh']>
+  ) => ReturnType<UseQueryReturn<Data, any>['refetch']>
+
+  refresh: (
+    to?: RouteLocationNormalizedLoaded
+  ) => ReturnType<UseQueryReturn<Data, any>['refetch']>
+}
 
 /**
  * Data Loader composable returned by `defineColadaLoader()`.
