@@ -191,7 +191,7 @@
   },
   "devDependencies": {
     "@pinia/colada": "^0.13.0",
-    "@shikijs/vitepress-twoslash": "1.23.1",
+    "@shikijs/vitepress-twoslash": "1.24.0",
     "@tanstack/vue-query": "^5.60.6",
     "@types/node": "^22.10.1",
     "@vitest/coverage-v8": "^2.1.6",
