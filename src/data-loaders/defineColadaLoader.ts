@@ -562,21 +562,24 @@ export type DefineDataColadaLoaderOptions<
  */
 export interface DataColadaLoaderContext extends DataLoaderContextBase {}
 
-export interface UseDataLoaderColadaResult<Data>
-  extends UseDataLoaderResult<Data, ErrorDefault>,
+export interface UseDataLoaderColadaResult<
+  TData,
+  TError = ErrorDefault,
+  TDataInitial extends TData | undefined = TData | undefined,
+> extends UseDataLoaderResult<TData | TDataInitial, ErrorDefault>,
     Pick<
-      UseQueryReturn<Data, any>,
+      UseQueryReturn<TData, TError, TDataInitial>,
       'isPending' | 'status' | 'asyncStatus' | 'state'
     > {
   refetch: (
     to?: RouteLocationNormalizedLoaded
     // TODO: we might need to add this in the future
     // ...coladaArgs: Parameters<UseQueryReturn<Data, any>['refresh']>
-  ) => ReturnType<UseQueryReturn<Data, any>['refetch']>
+  ) => ReturnType<UseQueryReturn<TData, TError, TDataInitial>['refetch']>
 
   refresh: (
     to?: RouteLocationNormalizedLoaded
-  ) => ReturnType<UseQueryReturn<Data, any>['refetch']>
+  ) => ReturnType<UseQueryReturn<TData, TError, TDataInitial>['refetch']>
 }
 
 /**
@@ -649,8 +652,11 @@ export interface UseDataLoaderColada_DefinedData<Data>
   >
 }
 
-export interface DataLoaderColadaEntry<Data, TError = unknown>
-  extends DataLoaderEntryBase<Data, TError> {
+export interface DataLoaderColadaEntry<
+  TData,
+  TError = unknown,
+  TDataInitial extends TData | undefined = TData | undefined,
+> extends DataLoaderEntryBase<TData, TError, TDataInitial> {
   /**
    * Reactive route passed to pinia colada so it automatically refetch
    */
@@ -664,7 +670,7 @@ export interface DataLoaderColadaEntry<Data, TError = unknown>
   /**
    * Extended options for pinia colada
    */
-  ext: UseQueryReturn<Data, TError> | null
+  ext: UseQueryReturn<TData, TError, TDataInitial> | null
 }
 
 interface TrackedRoute {

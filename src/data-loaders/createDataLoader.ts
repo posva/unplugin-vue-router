@@ -9,11 +9,17 @@ import { ErrorDefault } from './types-config'
 /**
  * Base type for a data loader entry. Each Data Loader has its own entry in the `loaderEntries` (accessible via `[LOADER_ENTRIES_KEY]`) map.
  */
-export interface DataLoaderEntryBase<Data = unknown, TError = unknown> {
+export interface DataLoaderEntryBase<
+  TData = unknown,
+  TError = unknown,
+  // TODO: technically we could just make loaders pass TData | undefined as the first type parameter
+  // this requires quite some code updates, this version is retro-compatible
+  TDataInitial extends TData | undefined = TData | undefined,
+> {
   /**
    * Data stored in the entry.
    */
-  data: ShallowRef<Data | undefined>
+  data: ShallowRef<TData | TDataInitial>
 
   /**
    * Error if there was an error.
@@ -51,7 +57,7 @@ export interface DataLoaderEntryBase<Data = unknown, TError = unknown> {
    * Data that was staged by a loader. This is used to avoid showing the old data while the new data is loading. Calling
    * the internal `commit()` function will replace the data with the staged data.
    */
-  staged: Data | typeof STAGED_NO_VALUE
+  staged: TData | typeof STAGED_NO_VALUE
 
   /**
    * Error that was staged by a loader. This is used to avoid showing the old error while the new data is loading.
@@ -272,11 +278,11 @@ export interface UseDataLoaderInternals<Data = unknown, TError = unknown> {
 /**
  * Return value of a loader composable defined with `defineLoader()`.
  */
-export interface UseDataLoaderResult<Data = unknown, TError = ErrorDefault> {
+export interface UseDataLoaderResult<TData = unknown, TError = ErrorDefault> {
   /**
    * Data returned by the loader. If the data loader is lazy, it will be undefined until the first load.
    */
-  data: ShallowRef<Data>
+  data: ShallowRef<TData>
 
   /**
    * Whether there is an ongoing request.

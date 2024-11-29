@@ -190,7 +190,7 @@
     }
   },
   "devDependencies": {
-    "@pinia/colada": "^0.12.1",
+    "@pinia/colada": "^0.13.0",
     "@shikijs/vitepress-twoslash": "1.23.1",
     "@tanstack/vue-query": "^5.60.6",
     "@types/node": "^22.10.1",
@@ -209,7 +209,7 @@
     "nodemon": "^3.1.7",
     "p-series": "^3.0.0",
     "pinia": "^2.2.8",
-    "prettier": "^3.3.3",
+    "prettier": "^3.4.1",
     "rimraf": "^6.0.1",
     "rollup": "^4.27.4",
     "semver": "^7.6.3",
