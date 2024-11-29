@@ -512,7 +512,7 @@ export const joinKeys = (keys: string[]): string => keys.join('|')
 export interface _DefineDataColadaLoaderOptions_Common<
   Name extends keyof RouteMap,
   Data,
-> extends Omit<UseQueryOptions<Data>, 'query' | 'key'> {
+> extends Omit<UseQueryOptions<Data, ErrorDefault, Data>, 'query' | 'key'> {
   /**
    * Key associated with the data and passed to pinia colada
    * @param to - Route to load the data
@@ -620,8 +620,8 @@ export interface UseDataLoaderColada_LaxData<Data>
 /**
  * Data Loader composable returned by `defineColadaLoader()`.
  */
-export interface UseDataLoaderColada_DefinedData<Data>
-  extends UseDataLoader<Data, ErrorDefault> {
+export interface UseDataLoaderColada_DefinedData<TData>
+  extends UseDataLoader<TData, ErrorDefault> {
   /**
    * Data Loader composable returned by `defineColadaLoader()`.
    *
@@ -646,9 +646,13 @@ export interface UseDataLoaderColada_DefinedData<Data>
     // we can await the raw data
     // excluding NavigationResult allows to ignore it in the type of Data when doing
     // `return new NavigationResult()` in the loader
-    Exclude<Data, NavigationResult | undefined>,
+    Exclude<TData, NavigationResult | undefined>,
     // or use it as a composable
-    UseDataLoaderColadaResult<Exclude<Data, NavigationResult>>
+    UseDataLoaderColadaResult<
+      Exclude<TData, NavigationResult>,
+      ErrorDefault,
+      Exclude<TData, NavigationResult>
+    >
   >
 }
 
