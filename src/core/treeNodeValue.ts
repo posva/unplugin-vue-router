@@ -5,6 +5,7 @@ import { joinPath, mergeRouteRecordOverride } from './utils'
 export const enum TreeNodeType {
   static,
   param,
+  group,
 }
 
 export interface RouteRecordOverride
@@ -90,6 +91,9 @@ class _TreeNodeValueBase {
     return this._type === TreeNodeType.static
   }
 
+  isGroup(): this is TreeNodeValueGroup {
+    return this._type === TreeNodeType.group
+  }
   get overrides() {
     return [...this._overrides.entries()]
       .sort(([nameA], [nameB]) =>
@@ -201,7 +205,27 @@ export class TreeNodeValueParam extends _TreeNodeValueBase {
   }
 }
 
-export type TreeNodeValue = TreeNodeValueStatic | TreeNodeValueParam
+export class TreeNodeValueGroup extends _TreeNodeValueBase {
+  override _type: TreeNodeType.group = TreeNodeType.group
+
+  constructor(
+    rawSegment: string,
+    parent: TreeNodeValue | undefined,
+    pathSegment: string = rawSegment,
+    subSegments: SubSegment[] = [pathSegment]
+  ) {
+    // Sanitize both rawSegment and pathSegment
+    const sanitizedRawSegment = rawSegment.replace(/\(.*?\)/g, '')
+    const sanitizedPathSegment = pathSegment.replace(/\(.*?\)/g, '')
+
+    super(sanitizedRawSegment, parent, sanitizedPathSegment, subSegments)
+  }
+}
+
+export type TreeNodeValue =
+  | TreeNodeValueStatic
+  | TreeNodeValueParam
+  | TreeNodeValueGroup
 
 export interface TreeNodeValueOptions extends ParseSegmentOptions {
   /**
@@ -226,6 +250,10 @@ export function createTreeNodeValue(
   parent?: TreeNodeValue,
   options: TreeNodeValueOptions = {}
 ): TreeNodeValue {
+  // Check if the segment represents a group file (contains `()`)
+  if (segment.includes('(') && segment.includes(')')) {
+    return new TreeNodeValueGroup(segment, parent)
+  }
   if (!segment || segment === 'index') {
     return new TreeNodeValueStatic(segment, parent, '')
   }
