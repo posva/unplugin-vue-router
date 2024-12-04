@@ -103,7 +103,7 @@ export function AutoExportLoaders({
         }
       },
     },
-  } satisfies Plugin
+  }
 }
 
 export function createAutoExportPlugin(
@@ -112,5 +112,5 @@ export function createAutoExportPlugin(
   return {
     name: PLUGIN_NAME,
     vite: AutoExportLoaders(options),
-  } satisfies UnpluginOptions
+  }
 }
