@@ -1,3 +1,6 @@
+// for highlighting
+const ts = String.raw
+
 export function generateDTS({
   routesModule,
   routeNamedMap,
@@ -6,7 +9,7 @@ export function generateDTS({
   routesModule: string
   routeNamedMap: string
 }) {
-  return `
+  return ts`
 /* eslint-disable */
 /* prettier-ignore */
 // @ts-nocheck

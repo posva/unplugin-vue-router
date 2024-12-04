@@ -1,15 +1,10 @@
 import { fileURLToPath, URL } from 'url'
 import { defineConfig } from 'vite'
 import { join } from 'node:path'
-import Inspect from 'vite-plugin-inspect'
 import Markdown from 'unplugin-vue-markdown/vite'
 // @ts-ignore: the plugin should not be checked in the playground
 import VueRouter from '../src/vite'
-import {
-  getFileBasedRouteName,
-  getPascalCaseRouteName,
-  VueRouterAutoImports,
-} from '../src'
+import { VueRouterAutoImports } from '../src'
 import Vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
 import VueDevtools from 'vite-plugin-vue-devtools'
@@ -163,6 +158,5 @@ export default defineConfig({
       ],
     }),
     VueDevtools(),
-    Inspect(),
   ],
 })
