@@ -1,3 +1,25 @@
+# [0.10.9](https://github.com/posva/unplugin-vue-router/compare/v0.10.8...v0.11.0) (2024-12-04)
+
+### Bug Fixes
+
+- **warn**: better message ([a55bc53](https://github.com/posva/unplugin-vue-router/commit/a55bc53ffc6778781207cecf6b1c7e7efdb4de1a))
+- **loaders:** ensure loads when a navigation is missed ([b799598](https://github.com/posva/unplugin-vue-router/commit/b799598bde55e77cd7266f97efbe3c9e450f9b2d)), closes [#495](https://github.com/posva/unplugin-vue-router/issues/495)
+- **loaders:** make data possibly undefined in some cases([#506](https://github.com/posva/unplugin-vue-router/issues/506)) ([10112a0](https://github.com/posva/unplugin-vue-router/commit/10112a0309e27b8caffb1990740081d286fd84a7))
+- upgrade support for pinia colada 0.13.0 ([b01dce4](https://github.com/posva/unplugin-vue-router/commit/b01dce4f4cdb47e22efe9c00ea902a9f1d3316a5))
+
+### Features
+
+- **data-loaders:** adapt colada to support always defined data ([a1cda5d](https://github.com/posva/unplugin-vue-router/commit/a1cda5de246cc2931bb3a311c52cdc340e1bcf33))
+- **data-loaders:** allow `data` to always be defined ([7cf7796](https://github.com/posva/unplugin-vue-router/commit/7cf7796ca82e2589b68882bfef708c755b65c77b)), closes [#319](https://github.com/posva/unplugin-vue-router/issues/319)
+- **data-loaders:** allow default type for errors ([5ec4076](https://github.com/posva/unplugin-vue-router/commit/5ec4076add65bbfa62a57c2c1cb8e230c6ba3e1b))
+- **loaders:** nuxt temp workaround ([7763619](https://github.com/posva/unplugin-vue-router/commit/7763619deb9cbbc91e569a84a1402b1a1d7c2f48))
+- support vite 6 ([b1c4f6c](https://github.com/posva/unplugin-vue-router/commit/b1c4f6c16cb14cd60bce677e77b1d0cd8ef6afc9))
+
+### BREAKING CHANGES
+
+- **data-loaders:** The default type for `error` is now `Error`.
+- **data-loaders:** Based on the `options` passed to a `defineLoader()` function, the `data` will now be possibly `undefined`. This enables a more convenient typing
+
 ## [0.10.8](https://github.com/posva/unplugin-vue-router/compare/v0.10.7...v0.10.8) (2024-09-08)
 
 ### Features
@@ -169,8 +191,8 @@ internally to represent the folder structure.
 
 This patch contains the necessary fixes to allow importing the data loaders. However, they cannot be imported from `vue-router/auto` nor from `unplugin-vue-router/runtime`. Instead, they should be imported from `unplugin-vue-router/data-loaders/...`. This is needed as some of the loaders depends on extra packages that not all users have installed. At the moment, there are two data loaders
 
-- `unplugin-vue-router/data-loaders/basic`: https://uvr.esm.is/data-loaders/basic/
-- `unplugin-vue-router/data-loaders/pinia-colada`: https://uvr.esm.is/data-loaders/colada/
+- `unplugin-vue-router/data-loaders/basic`: <https://uvr.esm.is/data-loaders/basic/>
+- `unplugin-vue-router/data-loaders/pinia-colada`: <https://uvr.esm.is/data-loaders/colada/>
 
 ### Bug Fixes
 
@@ -200,7 +222,7 @@ This patch contains the necessary fixes to allow importing the data loaders. How
 
 # [0.8.0](https://github.com/posva/unplugin-vue-router/compare/v0.7.0...v0.8.0) (2024-02-22)
 
-Based on the feedback of the RFC, the Data Loaders have been redesigned from the ground up and are now way more flexible and powerful. As a result, if you were using the experimental data loaders, make sure to check the list of breaking changes and the new RFC at https://uvr.esm.is/rfcs/data-loaders. We are looking for early testers and feedback!
+Based on the feedback of the RFC, the Data Loaders have been redesigned from the ground up and are now way more flexible and powerful. As a result, if you were using the experimental data loaders, make sure to check the list of breaking changes and the new RFC at <https://uvr.esm.is/rfcs/data-loaders>. We are looking for early testers and feedback!
 
 For people using the file-based routing, you now need to add `unplugin-vue-router/client` to the `types` property of your tsconfig. See [setup](https://uvr.esm.is/introduction.html#setup) for an example.
 
@@ -260,7 +282,7 @@ For people using the file-based routing, you now need to add `unplugin-vue-route
   moved out of the basic loader to an extended one [pinia-colada](https://uvr.esm.is/data-loaders/colada/) and the [basic loader](https://uvr.esm.is/data-loaders/basic/)
   has no cache. All of the pending bugs have also been fixed.
   I recommend you to give the RFC examples a new read to get
-  setup: https://uvr.esm.is/data-loaders/rfc. Most of the changes are
+  setup: <https://uvr.esm.is/data-loaders/rfc>. Most of the changes are
   simplifying things by removing them.
   Here is a list of the breaking changes to simplify
   migration:
@@ -269,9 +291,9 @@ For people using the file-based routing, you now need to add `unplugin-vue-route
   - Manual work needed to add loaders with `HasDataLoaderMeta` has been
     removed. It is just no longer needed. Loaders are picked up from lazy
     loaded components and must otherwise be directly added to a `meta.loaders`
-    array. See the example at https://uvr.esm.is/data-loaders/rfc.html#basic-example
+    array. See the example at <https://uvr.esm.is/data-loaders/rfc.html#basic-example>
   - The function `setupDataFetchingGuard` has been replaced with a Vue
-    Plugin. See https://uvr.esm.is/data-loaders/rfc.html#data-loader-setup
+    Plugin. See <https://uvr.esm.is/data-loaders/rfc.html#data-loader-setup>
     for details.
   - If you were relying on `cacheTime`, use the `staleTime` option in the
     new [`defineColadaLoader()`](https://uvr.esm.is/rfcs/data-loaders/colada) based off [@pinia/colada](https://github.com/posva/pinia-colada)
@@ -323,7 +345,7 @@ For people using the file-based routing, you now need to add `unplugin-vue-route
     by adding a library that properly handles the caching. This new strategy
     will also enable other integrations like VueFire, Apollo, and custom
     ones. Keep an eye (subscribe) to the RFC for news and to discus about
-    the future of Data Loaders: https://github.com/vuejs/rfcs/discussions/460
+    the future of Data Loaders: <https://github.com/vuejs/rfcs/discussions/460>
   - since data loaders aren't meant to be awaited in script
     setup (they are awaited at the navigation level), they now return a
     promise of the raw data only, not of the UseDataLoaderReturn, to make it
