@@ -201,6 +201,8 @@ export class TreeNodeValueParam extends _TreeNodeValueBase {
   }
 }
 
+
+
 export type TreeNodeValue = TreeNodeValueStatic | TreeNodeValueParam
 
 export interface TreeNodeValueOptions extends ParseSegmentOptions {
@@ -288,10 +290,17 @@ function parseFileSegment(
   const subSegments: SubSegment[] = []
   let currentTreeRouteParam: TreeRouteParam = createEmptyRouteParam()
 
-  // position in segment
+  //  Function to handle content inside parentheses
+  function shouldIgnoreParenthesesContent(content: string): boolean {
+    // Ignore content that looks like non-regex patterns
+    // This could be expanded based on specific use cases
+      return /^[a-zA-Z0-9\-_\s.]+$/.test(content);
+  }
+
   let pos = 0
-  // current char
   let c: string
+  let parenthesesBuffer = ''
+  let insideParentheses = false
 
   function consumeBuffer() {
     if (state === ParseFileSegmentState.static) {
@@ -307,8 +316,18 @@ function parseFileSegment(
         : currentTreeRouteParam.repeatable
           ? '+'
           : ''
+
+      // Handle potential regex or additional modifiers in parentheses
+      let regexModifier = ''
+      if (
+        insideParentheses &&
+        !shouldIgnoreParenthesesContent(parenthesesBuffer)
+      ) {
+        regexModifier = `(${parenthesesBuffer})`
+      }
+
       buffer = ''
-      pathSegment += `:${currentTreeRouteParam.paramName}${
+      pathSegment += `:${currentTreeRouteParam.paramName}${regexModifier}${
         currentTreeRouteParam.isSplat
           ? '(.*)'
           : // Only append () if necessary
@@ -321,6 +340,10 @@ function parseFileSegment(
       params.push(currentTreeRouteParam)
       subSegments.push(currentTreeRouteParam)
       currentTreeRouteParam = createEmptyRouteParam()
+
+      // Reset parentheses-related state
+      parenthesesBuffer = ''
+      insideParentheses = false
     }
     buffer = ''
   }
@@ -329,10 +352,20 @@ function parseFileSegment(
     c = segment[pos]!
 
     if (state === ParseFileSegmentState.static) {
-      if (c === '[') {
+      if (c === '(') {
+        // Start of parentheses content
+        insideParentheses = true
+        parenthesesBuffer = ''
+      } else if (c === ')' && insideParentheses) {
+        // End of parentheses content
+        insideParentheses = false
+        parenthesesBuffer = ''
+      } else if (c === '[') {
         consumeBuffer()
         // check if it's an optional param or not
         state = ParseFileSegmentState.paramOptional
+      } else if (insideParentheses) {
+        parenthesesBuffer += c
       } else {
         // append the char to the buffer or if the dotNesting option
         // is enabled (by default it is), transform into a slash
@@ -350,7 +383,14 @@ function parseFileSegment(
       }
       state = ParseFileSegmentState.param
     } else if (state === ParseFileSegmentState.param) {
-      if (c === ']') {
+      if (c === '(') {
+        // Start of parentheses content within param
+        insideParentheses = true
+        parenthesesBuffer = ''
+      } else if (c === ')' && insideParentheses) {
+        // End of parentheses content
+        insideParentheses = false
+      } else if (c === ']') {
         if (currentTreeRouteParam.optional) {
           // skip the next ]
           pos++
@@ -359,6 +399,8 @@ function parseFileSegment(
       } else if (c === '.') {
         currentTreeRouteParam.isSplat = true
         pos += 2 // skip the other 2 dots
+      } else if (insideParentheses) {
+        parenthesesBuffer += c
       } else {
         buffer += c
       }
