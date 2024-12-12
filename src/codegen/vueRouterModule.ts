@@ -1,5 +1,6 @@
 // NOTE: this code needs to be generated because otherwise it doesn't go through transforms and `vue-router/auto-routes`
 
+import { ts } from '../utils'
 import type { ResolvedOptions } from '../options'
 
 // cannot be resolved.
@@ -8,7 +9,7 @@ export function generateVueRouterProxy(
   _options: ResolvedOptions,
   { addPiniaColada }: { addPiniaColada: boolean }
 ) {
-  return `
+  return ts`
 import { createRouter as _createRouter } from 'vue-router'
 
 export * from 'vue-router'

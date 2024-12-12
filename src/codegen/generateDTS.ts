@@ -1,5 +1,4 @@
-// for highlighting
-const ts = String.raw
+import { ts } from '../utils'
 
 export function generateDTS({
   routesModule,
