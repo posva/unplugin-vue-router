@@ -226,6 +226,20 @@ export function createTreeNodeValue(
   parent?: TreeNodeValue,
   options: TreeNodeValueOptions = {}
 ): TreeNodeValue {
+  // extract the group between partheses
+  const openingPar = segment.indexOf('(')
+  let groupName: string | undefined
+  if (options.format === 'file' && openingPar >= 0) {
+    const closingPar = segment.lastIndexOf(')')
+    if (closingPar < -1) {
+      throw new Error(`Invalid segment: "${segment}"`)
+    }
+    groupName = segment.slice(openingPar + 1, closingPar)
+    segment = segment.slice(0, openingPar) + segment.slice(closingPar + 1)
+    console.log(`groupName: "${groupName}"`)
+    console.log(`segment: "${segment}"`)
+  }
+
   if (!segment || segment === 'index') {
     return new TreeNodeValueStatic(segment, parent, '')
   }
