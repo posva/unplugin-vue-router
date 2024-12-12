@@ -26,12 +26,12 @@ class _TreeNodeValueBase {
   parent: TreeNodeValue | undefined
 
   /**
-   * segment as defined by the file structure e.g. keeps the `index` name
+   * segment as defined by the file structure e.g. keeps the `index` name, `(group-name)`
    */
   rawSegment: string
   /**
    * transformed version of the segment into a vue-router path. e.g. `'index'` becomes `''` and `[param]` becomes
-   * `:param`
+   * `:param`, `prefix-[param]-end` becomes `prefix-:param-end`.
    */
   pathSegment: string
 
