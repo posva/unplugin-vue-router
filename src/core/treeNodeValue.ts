@@ -209,9 +209,25 @@ export interface TreeNodeValueOptions extends ParseSegmentOptions {
    * structure (e.g. `index`, ``, or `users/[id]`). In `path` format, routes are expected in the format of vue-router
    * (e.g. `/` or '/users/:id' ).
    *
-   * @default 'file'
+   * @default `'file'`
    */
   format?: 'file' | 'path'
+}
+
+/**
+ * Resolves the options for the TreeNodeValue.
+ *
+ * @param options - options to resolve
+ * @returns resolved options
+ */
+function resolveTreeNodeValueOptions(
+  options: TreeNodeValueOptions
+): Required<TreeNodeValueOptions> {
+  return {
+    format: 'file',
+    dotNesting: true,
+    ...options,
+  }
 }
 
 /**
@@ -224,7 +240,7 @@ export interface TreeNodeValueOptions extends ParseSegmentOptions {
 export function createTreeNodeValue(
   segment: string,
   parent?: TreeNodeValue,
-  options: TreeNodeValueOptions = {}
+  opts: TreeNodeValueOptions = {}
 ): TreeNodeValue {
   // extract the group between partheses
   const openingPar = segment.indexOf('(')
@@ -243,6 +259,9 @@ export function createTreeNodeValue(
   if (!segment || segment === 'index') {
     return new TreeNodeValueStatic(segment, parent, '')
   }
+
+  // ensure default options
+  const options = resolveTreeNodeValueOptions(opts)
 
   const [pathSegment, params, subSegments] =
     options.format === 'path'
@@ -278,6 +297,7 @@ export interface ParseSegmentOptions {
   /**
    * Should we allow dot nesting in the param name. e.g. `users.[id]` will be parsed as `users/[id]` if this is `true`,
    * nesting. Note this only works for the `file` format.
+   *
    * @default `true`
    */
   dotNesting?: boolean
