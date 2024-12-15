@@ -70,9 +70,14 @@ class _TreeNodeValueBase {
    * fullPath of the node based on parent nodes
    */
   get path(): string {
-    const parentPath = this.parent?.path
+    if (this.overrides.path?.startsWith('/')) {
+      return this.overrides.path
+    }
+
     // both the root record and the index record have a path of /
     const pathSegment = this.overrides.path ?? this.pathSegment
+    const parentPath = this.parent?.path
+
     return (!parentPath || parentPath === '/') && pathSegment === ''
       ? '/'
       : joinPath(parentPath || '', pathSegment)
