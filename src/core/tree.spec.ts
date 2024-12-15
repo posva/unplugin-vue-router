@@ -446,6 +446,82 @@ describe('Tree', () => {
     expect(child.fullPath).toBe('/')
   })
 
+  it('should strip groups and rename file paths correctly', () => {
+    const tree = new PrefixTree(RESOLVED_OPTIONS)
+    tree.insert('users(details)', 'users(details).vue')
+    let child = tree.children.get('users(details)')!
+    expect(child).toBeDefined()
+    expect(child.path).toBe('/users')
+    expect(child.fullPath).toBe('/users')
+  })
+
+  it('should strip groups and remove parentheses when group is nested inside a folder', () => {
+    const tree = new PrefixTree(RESOLVED_OPTIONS)
+    tree.insert(
+      'nested-group/(nested-group)/nested-group-something(ignore-parentheses)',
+      'nested-group/(nested-group)/nested-group-something(ignore-parentheses).vue'
+    )
+
+    const rootNode = tree.children.get('nested-group')!
+    expect(rootNode).toBeDefined()
+    expect(rootNode.value.path).toBe('/nested-group')
+
+    const nestedGroupNode = rootNode.children.get('(nested-group)')!
+    expect(nestedGroupNode).toBeDefined()
+    expect(nestedGroupNode.value.path).toBe('/nested-group')
+
+    const finalNode = nestedGroupNode.children.get(
+      'nested-group-something(ignore-parentheses)'
+    )!
+    expect(finalNode).toBeDefined()
+
+    expect(finalNode.value.path).toBe('/nested-group/nested-group-something')
+    expect(finalNode.fullPath).toBe('/nested-group/nested-group-something')
+  })
+
+  it('should strip groups and remove parentheses when there are nested groups inside folders', () => {
+    const tree = new PrefixTree(RESOLVED_OPTIONS)
+    tree.insert(
+      'test-group(ignore-parentheses)more-text',
+      'test-group(ignore-parentheses)more-text.vue'
+    )
+    let child = tree.children.get('test-group(ignore-parentheses)more-text')!
+    expect(child).toBeDefined()
+    expect(child.value.path).toBe('/test-group-more-text')
+    expect(child.fullPath).toBe('/test-group-more-text')
+  })
+
+  it('should strip nested groups and parentheses at the end of a segment correctly', () => {
+    const tree = new PrefixTree(RESOLVED_OPTIONS)
+
+    tree.insert(
+      'nested-group/(nested-group)/(nested-group-deep)/nested-group-something(ignore-parentheses)',
+      'nested-group/(nested-group)/(nested-group-deep)/nested-group-something(ignore-parentheses).vue'
+    )
+
+    const rootNode = tree.children.get('nested-group')!
+    expect(rootNode).toBeDefined()
+    expect(rootNode.value.path).toBe('/nested-group')
+
+    const nestedGroupNode = rootNode.children.get('(nested-group)')!
+    expect(nestedGroupNode).toBeDefined()
+    expect(nestedGroupNode.value.path).toBe('/nested-group')
+
+    const nestedGroupDeepNode = nestedGroupNode.children.get(
+      '(nested-group-deep)'
+    )!
+    expect(nestedGroupDeepNode).toBeDefined()
+    expect(nestedGroupDeepNode.value.path).toBe('/nested-group')
+
+    const finalNode = nestedGroupDeepNode.children.get(
+      'nested-group-something(ignore-parentheses)'
+    )!
+    expect(finalNode).toBeDefined()
+
+    expect(finalNode.value.path).toBe('/nested-group/nested-group-something')
+    expect(finalNode.fullPath).toBe('/nested-group/nested-group-something')
+  })
+
   describe('dot nesting', () => {
     it('transforms dots into nested routes by default', () => {
       const tree = new PrefixTree(RESOLVED_OPTIONS)
