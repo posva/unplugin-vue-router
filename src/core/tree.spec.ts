@@ -455,7 +455,7 @@ describe('Tree', () => {
     expect(child.fullPath).toBe('/users')
   })
 
-  it('should strip groups and remove parentheses when group is nested inside a folder', () => {
+  it('strips groups in folders', () => {
     const tree = new PrefixTree(RESOLVED_OPTIONS)
     tree.insert(
       'nested-group/(nested-group)/nested-group-something(ignore-parentheses)',
