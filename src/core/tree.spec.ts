@@ -446,7 +446,7 @@ describe('Tree', () => {
     expect(child.fullPath).toBe('/')
   })
 
-  it('should strip groups and rename file paths correctly', () => {
+  it('strips a trailing group from a file path while keeping the rest', () => {
     const tree = new PrefixTree(RESOLVED_OPTIONS)
     tree.insert('users(details)', 'users(details).vue')
     let child = tree.children.get('users(details)')!
