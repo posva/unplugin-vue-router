@@ -298,8 +298,8 @@ export function createTreeNodeValue(
       // no trailing static part, so just use what's before
       groupPathSegment = before
     } else {
-      // both before and after exist, separate them with a dash
-      groupPathSegment = `${before}-${after}`
+      // both before and after exist, merge them
+      groupPathSegment = before + after
     }
 
     return new TreeNodeValueGroup(segment, parent, groupPathSegment, groupName)
