@@ -178,7 +178,7 @@ export const useUserData = defineBasicLoader(
     // ...
   },
   {
-    lazy: !import.env.SSR, // Vite specific
+    lazy: !import.meta.env.SSR, // Vite specific
   }
 )
 ```
