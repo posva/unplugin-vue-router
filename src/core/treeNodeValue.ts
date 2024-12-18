@@ -4,6 +4,7 @@ import { joinPath, mergeRouteRecordOverride } from './utils'
 
 export const enum TreeNodeType {
   static,
+  group,
   param,
 }
 
@@ -88,6 +89,10 @@ class _TreeNodeValueBase {
 
   isStatic(): this is TreeNodeValueStatic {
     return this._type === TreeNodeType.static
+  }
+
+  isGroup(): this is TreeNodeValueGroup {
+    return this._type === TreeNodeType.group
   }
 
   get overrides() {
@@ -177,6 +182,21 @@ export class TreeNodeValueStatic extends _TreeNodeValueBase {
   }
 }
 
+export class TreeNodeValueGroup extends _TreeNodeValueBase {
+  override _type: TreeNodeType.group = TreeNodeType.group
+  groupName: string
+
+  constructor(
+    rawSegment: string,
+    parent: TreeNodeValue | undefined,
+    pathSegment: string,
+    groupName: string
+  ) {
+    super(rawSegment, parent, pathSegment)
+    this.groupName = groupName
+  }
+}
+
 export interface TreeRouteParam {
   paramName: string
   modifier: string
@@ -201,7 +221,10 @@ export class TreeNodeValueParam extends _TreeNodeValueBase {
   }
 }
 
-export type TreeNodeValue = TreeNodeValueStatic | TreeNodeValueParam
+export type TreeNodeValue =
+  | TreeNodeValueStatic
+  | TreeNodeValueParam
+  | TreeNodeValueGroup
 
 export interface TreeNodeValueOptions extends ParseSegmentOptions {
   /**
@@ -231,7 +254,7 @@ function resolveTreeNodeValueOptions(
 }
 
 /**
- * Creates a new TreeNodeValue based on the segment. The result can be a static segment or a param segment.
+ * Creates a new TreeNodeValue based on the segment. The result can be a static segment, group segment or a param segment.
  *
  * @param segment - path segment
  * @param parent - parent node
@@ -248,6 +271,39 @@ export function createTreeNodeValue(
 
   // ensure default options
   const options = resolveTreeNodeValueOptions(opts)
+
+  // extract the group between parentheses
+  const openingPar = segment.indexOf('(')
+
+  if (options.format === 'file' && openingPar >= 0) {
+    let groupName: string
+    let groupPathSegment: string
+
+    const closingPar = segment.lastIndexOf(')')
+    if (closingPar < 0 || closingPar < openingPar) {
+      throw new Error(`Invalid segment: "${segment}"`)
+    }
+
+    groupName = segment.slice(openingPar + 1, closingPar)
+    const before = segment.slice(0, openingPar)
+    const after = segment.slice(closingPar + 1)
+
+    if (!before && !after) {
+      // pure group: no contribution to the path
+      groupPathSegment = ''
+    } else if (!before) {
+      // no leading static part, so just use what's after
+      groupPathSegment = after
+    } else if (!after) {
+      // no trailing static part, so just use what's before
+      groupPathSegment = before
+    } else {
+      // both before and after exist, merge them
+      groupPathSegment = before + after
+    }
+
+    return new TreeNodeValueGroup(segment, parent, groupPathSegment, groupName)
+  }
 
   const [pathSegment, params, subSegments] =
     options.format === 'path'
