@@ -277,7 +277,6 @@ export function createTreeNodeValue(
 
   if (options.format === 'file' && openingPar >= 0) {
     let groupName: string
-    let groupPathSegment: string
 
     const closingPar = segment.lastIndexOf(')')
     if (closingPar < 0 || closingPar < openingPar) {
@@ -290,19 +289,13 @@ export function createTreeNodeValue(
 
     if (!before && !after) {
       // pure group: no contribution to the path
-      groupPathSegment = ''
-    } else if (!before) {
-      // no leading static part, so just use what's after
-      groupPathSegment = after
-    } else if (!after) {
-      // no trailing static part, so just use what's before
-      groupPathSegment = before
-    } else {
-      // both before and after exist, merge them
-      groupPathSegment = before + after
+      return new TreeNodeValueGroup(segment, parent, '', groupName)
     }
+    console.warn(
+      `Warning: Invalid group syntax detected in segment "${segment}". Treated as a static path.`
+    )
 
-    return new TreeNodeValueGroup(segment, parent, groupPathSegment, groupName)
+    return new TreeNodeValueStatic(segment, parent, segment)
   }
 
   const [pathSegment, params, subSegments] =
