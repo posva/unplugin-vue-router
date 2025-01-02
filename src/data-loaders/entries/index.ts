@@ -13,7 +13,11 @@ export type {
 export { toLazyValue } from '../createDataLoader'
 
 // new data fetching
-export { DataLoaderPlugin, NavigationResult } from '../navigation-guard'
+export {
+  DataLoaderPlugin,
+  NavigationResult,
+  useIsDataLoading,
+} from '../navigation-guard'
 export type {
   DataLoaderPluginOptions,
   SetupLoaderGuardOptions,
