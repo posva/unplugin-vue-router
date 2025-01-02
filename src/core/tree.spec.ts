@@ -448,10 +448,7 @@ describe('Tree', () => {
 
   it('strips groups in folders', () => {
     const tree = new PrefixTree(RESOLVED_OPTIONS)
-    tree.insert(
-      'nested-group/(nested-group)',
-      'nested-group/(nested-group)'
-    )
+    tree.insert('nested-group/(nested-group)', 'nested-group/(nested-group)')
 
     const rootNode = tree.children.get('nested-group')!
     expect(rootNode).toBeDefined()
@@ -460,7 +457,6 @@ describe('Tree', () => {
     const nestedGroupNode = rootNode.children.get('(nested-group)')!
     expect(nestedGroupNode).toBeDefined()
     expect(nestedGroupNode.value.path).toBe('/nested-group')
-
   })
 
   describe('dot nesting', () => {
