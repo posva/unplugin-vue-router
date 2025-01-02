@@ -18,6 +18,7 @@ import type {
 } from 'vue-router'
 import { type _Awaitable } from '../utils'
 import { toLazyValue, type UseDataLoader } from './createDataLoader'
+import { shallowRef, watch } from 'vue'
 
 /**
  * TODO: export functions that allow preloading outside of a navigation guard
@@ -413,4 +414,36 @@ export interface DataLoaderPluginOptions {
    * constructors that can be checked with `instanceof` or a custom function that returns `true` for expected errors.
    */
   errors?: Array<new (...args: any) => any> | ((reason?: unknown) => boolean)
+}
+
+export function useIsDataLoading(router: Router) {
+  const isLoading = shallowRef(false)
+
+  watch(
+    () => {
+      // read the current route
+      const currentRoute = router.currentRoute.value
+      if (!currentRoute) {
+        return []
+      }
+
+      // extract the loaders from route meta
+      const loaders = currentRoute.meta[LOADER_SET_KEY] || new Set()
+
+      // map each loader to its isLoading.value
+      return Array.from(loaders).map((loader) => {
+        const entry = loader._.getEntry(router)
+        return entry?.isLoading.value ?? false
+      })
+    },
+    (loaderStates) => {
+      // if any loader is true, isLoading becomes true
+      isLoading.value = loaderStates.some((state) => state)
+    },
+    {
+      immediate: true,
+    }
+  )
+
+  return isLoading
 }
