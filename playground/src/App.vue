@@ -62,6 +62,9 @@ function _test() {
             <RouterLink to="/">Home</RouterLink>
           </li>
           <li>
+            <RouterLink to="/group">Group (thing.vue)</RouterLink>
+          </li>
+          <li>
             <RouterLink to="/users/2" v-slot="{ href }">{{ href }}</RouterLink>
           </li>
           <li>

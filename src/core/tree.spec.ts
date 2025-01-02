@@ -437,6 +437,28 @@ describe('Tree', () => {
     expect(child.fullPath).toBe('/a')
   })
 
+  it('should strip groups from file paths', () => {
+    const tree = new PrefixTree(RESOLVED_OPTIONS)
+    tree.insert('(home)', '(home).vue')
+    let child = tree.children.get('(home)')!
+    expect(child).toBeDefined()
+    expect(child.path).toBe('/')
+    expect(child.fullPath).toBe('/')
+  })
+
+  it('strips groups in folders', () => {
+    const tree = new PrefixTree(RESOLVED_OPTIONS)
+    tree.insert('nested-group/(nested-group)', 'nested-group/(nested-group)')
+
+    const rootNode = tree.children.get('nested-group')!
+    expect(rootNode).toBeDefined()
+    expect(rootNode.value.path).toBe('/nested-group')
+
+    const nestedGroupNode = rootNode.children.get('(nested-group)')!
+    expect(nestedGroupNode).toBeDefined()
+    expect(nestedGroupNode.value.path).toBe('/nested-group')
+  })
+
   describe('dot nesting', () => {
     it('transforms dots into nested routes by default', () => {
       const tree = new PrefixTree(RESOLVED_OPTIONS)

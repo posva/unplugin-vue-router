@@ -181,6 +181,42 @@ describe('generateRouteNamedMap', () => {
       }"
     `)
   })
+
+  it('ignores folder names in parentheses', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+
+    tree.insert('(group)/a', 'a.vue')
+
+    expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
+    "export interface RouteNamedMap {
+      '/(group)/a': RouteRecordInfo<'/(group)/a', '/a', Record<never, never>, Record<never, never>>,
+    }"
+  `)
+  })
+
+  it('ignores nested folder names in parentheses', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+
+    tree.insert('(group)/(subgroup)/c', 'c.vue')
+
+    expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
+    "export interface RouteNamedMap {
+      '/(group)/(subgroup)/c': RouteRecordInfo<'/(group)/(subgroup)/c', '/c', Record<never, never>, Record<never, never>>,
+    }"
+  `)
+  })
+
+  it('treats files named with parentheses as index inside static folder', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+
+    tree.insert('folder/(group)', 'folder/(group).vue')
+
+    expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
+    "export interface RouteNamedMap {
+      '/folder/(group)': RouteRecordInfo<'/folder/(group)', '/folder', Record<never, never>, Record<never, never>>,
+    }"
+  `)
+  })
 })
 
 /**
@@ -193,4 +229,8 @@ describe('generateRouteNamedMap', () => {
  * /static/...[param].vue -> /static/:param+
  * /static/...[[param]].vue -> /static/:param*
  * /static/...[[...param]].vue -> /static/:param(.*)*
+ * /(group)/a.vue -> /a
+ * /(group)/(subgroup)/c.vue -> /c
+ * /folder/(group).vue -> /folder
+ * /(home).vue -> /
  */
