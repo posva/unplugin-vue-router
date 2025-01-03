@@ -44,7 +44,7 @@ app.mount('#app')
 
 There are different data loaders implementation, the most simple one is the [Basic Loader](./basic/) which always reruns data fetching. A more efficient one, is the [Colada Loader](./colada/) which uses [@pinia/colada](https://github.com/posva/pinia-colada) under the hood. In the following examples, we will be using the _basic loader_.
 
-Loaders are [composables](https://vuejs.org/guide/reusability/composables.html) defined through a `defineLoader` function like `defineBasicLoader` or `defineColadaLoader`. They are _used_ in the component `setup` to extract the needed information.
+Loaders are [composables](https://vuejs.org/guide/reusability/composables.html) defined through a `defineLoader` function like `defineBasicLoader` or `defineColadaLoader`. They are _used_ in the component `setup` to extract the needed information. While you can organize your loaders in separate files, each loader always has to be exported from the page component where it is used. For more information, check [Organizing Loaders](./organization.md/).
 
 To get started, _define_ and _export_ a loader from a page:
 
