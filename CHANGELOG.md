@@ -19,6 +19,7 @@
 
 - **data-loaders:** The default type for `error` is now `Error`.
 - **data-loaders:** Based on the `options` passed to a `defineLoader()` function, the `data` will now be possibly `undefined`. This enables a more convenient typing
+- **data-loaders:**: The `DataLoaderPlugin` must be imported from `unplugin-vue-router/data-loaders` instead of `unplugin-vue-router/runtime`.
 
 ## [0.10.8](https://github.com/posva/unplugin-vue-router/compare/v0.10.7...v0.10.8) (2024-09-08)
 
