@@ -10,3 +10,5 @@ export type {
   TreeNodeValueStatic,
 } from './core/treeNodeValue'
 export type { EditableTreeNode } from './core/extendRoutes'
+
+export {}
