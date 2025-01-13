@@ -173,7 +173,7 @@
     "chokidar": "^3.6.0",
     "fast-glob": "^3.3.2",
     "json5": "^2.2.3",
-    "local-pkg": "^0.5.1",
+    "local-pkg": "^1.0.0",
     "magic-string": "^0.30.14",
     "mlly": "^1.7.3",
     "pathe": "^2.0.0",
