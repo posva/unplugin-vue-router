@@ -1,6 +1,6 @@
 import type { RouteRecordRaw } from 'vue-router'
 import { CustomRouteBlock } from './customBlock'
-import { joinPath, mergeRouteRecordOverride } from './utils'
+import { joinPath, mergeRouteRecordOverride, warn } from './utils'
 
 export const enum TreeNodeType {
   static,
@@ -275,12 +275,18 @@ export function createTreeNodeValue(
   // extract the group between parentheses
   const openingPar = segment.indexOf('(')
 
+  // only apply to files, not to manually added routes
   if (options.format === 'file' && openingPar >= 0) {
     let groupName: string
 
     const closingPar = segment.lastIndexOf(')')
     if (closingPar < 0 || closingPar < openingPar) {
-      throw new Error(`Invalid segment: "${segment}"`)
+      warn(
+        `Segment "${segment}" is missing the closing ")". It will be treated as a static segment.`
+      )
+
+      // avoid parsing errors
+      return new TreeNodeValueStatic(segment, parent, segment)
     }
 
     groupName = segment.slice(openingPar + 1, closingPar)
@@ -291,11 +297,6 @@ export function createTreeNodeValue(
       // pure group: no contribution to the path
       return new TreeNodeValueGroup(segment, parent, '', groupName)
     }
-    console.warn(
-      `Warning: Invalid group syntax detected in segment "${segment}". Treated as a static path.`
-    )
-
-    return new TreeNodeValueStatic(segment, parent, segment)
   }
 
   const [pathSegment, params, subSegments] =

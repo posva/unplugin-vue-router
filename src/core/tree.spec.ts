@@ -3,9 +3,12 @@ import { DEFAULT_OPTIONS, resolveOptions } from '../options'
 import { PrefixTree } from './tree'
 import { TreeNodeType } from './treeNodeValue'
 import { resolve } from 'pathe'
+import { mockWarn } from '../../tests/vitest-mock-warn'
 
 describe('Tree', () => {
   const RESOLVED_OPTIONS = resolveOptions(DEFAULT_OPTIONS)
+  mockWarn()
+
   it('creates an empty tree', () => {
     const tree = new PrefixTree(RESOLVED_OPTIONS)
     expect(tree.children.size).toBe(0)
@@ -502,6 +505,15 @@ describe('Tree', () => {
     expect(indexNode).toBeDefined()
     expect(indexNode.fullPath).toBe('/nested')
   })
+
+  it('warns if the closing group is missing', () => {
+    const tree = new PrefixTree(RESOLVED_OPTIONS)
+    tree.insert('(home', '(home).vue')
+    expect(`"(home" is missing the closing ")"`).toHaveBeenWarned()
+  })
+
+  // TODO: check warns with different order
+  it.todo(`warns when a group's path conflicts with an existing file`)
 
   describe('dot nesting', () => {
     it('transforms dots into nested routes by default', () => {
