@@ -1,5 +1,13 @@
 import { isNavigationFailure } from 'vue-router'
-import { effectScope, type App, type EffectScope } from 'vue'
+import {
+  effectScope,
+  inject,
+  shallowRef,
+  type InjectionKey,
+  type ShallowRef,
+  type App,
+  type EffectScope,
+} from 'vue'
 import {
   ABORT_CONTROLLER_KEY,
   APP_KEY,
@@ -18,7 +26,12 @@ import type {
 } from 'vue-router'
 import { type _Awaitable } from '../utils'
 import { toLazyValue, type UseDataLoader } from './createDataLoader'
-import { shallowRef, watch } from 'vue'
+
+/**
+ * Key to inject the global loading state for loaders used in `useIsDataLoading`.
+ * @internal
+ */
+export const IS_DATA_LOADING_KEY = Symbol() as InjectionKey<ShallowRef<boolean>>
 
 /**
  * TODO: export functions that allow preloading outside of a navigation guard
@@ -35,7 +48,7 @@ import { shallowRef, watch } from 'vue'
 export function setupLoaderGuard({
   router,
   app,
-  effect,
+  effect: scope,
   isSSR,
   errors: globalErrors = [],
   selectNavigationResult = (results) => results[0]!.value,
@@ -64,6 +77,10 @@ export function setupLoaderGuard({
   router[APP_KEY] = app
 
   router[IS_SSR_KEY] = !!isSSR
+
+  // global loading state for loaders used in `useIsDataLoading`
+  const isDataLoading = scope.run(() => shallowRef(false))!
+  app.provide(IS_DATA_LOADING_KEY, isDataLoading)
 
   // guard to add the loaders to the meta property
   const removeLoaderGuard = router.beforeEach((to) => {
@@ -157,6 +174,9 @@ export function setupLoaderGuard({
 
     // unset the context so all loaders are executed as root loaders
     setCurrentContext([])
+
+    isDataLoading.value = true
+
     return Promise.all(
       loaders.map((loader) => {
         const { server, lazy, errors } = loader._.options
@@ -165,7 +185,7 @@ export function setupLoaderGuard({
           return
         }
         // keep track of loaders that should be committed after all loaders are done
-        const ret = effect.run(() =>
+        const ret = scope.run(() =>
           app
             // allows inject and provide APIs
             .runWithContext(() =>
@@ -226,6 +246,7 @@ export function setupLoaderGuard({
         // unset the context so mounting happens without an active context
         // and loaders do not believe they are being called as nested when they are not
         setCurrentContext([])
+        isDataLoading.value = false
       })
   })
 
@@ -416,34 +437,10 @@ export interface DataLoaderPluginOptions {
   errors?: Array<new (...args: any) => any> | ((reason?: unknown) => boolean)
 }
 
-export function useIsDataLoading(router: Router) {
-  const isLoading = shallowRef(false)
-
-  watch(
-    () => {
-      // read the current route
-      const currentRoute = router.currentRoute.value
-      if (!currentRoute) {
-        return []
-      }
-
-      // extract the loaders from route meta
-      const loaders = currentRoute.meta[LOADER_SET_KEY] || new Set()
-
-      // map each loader to its isLoading.value
-      return Array.from(loaders).map((loader) => {
-        const entry = loader._.getEntry(router)
-        return entry?.isLoading.value ?? false
-      })
-    },
-    (loaderStates) => {
-      // if any loader is true, isLoading becomes true
-      isLoading.value = loaderStates.some((state) => state)
-    },
-    {
-      immediate: true,
-    }
-  )
-
-  return isLoading
+/**
+ * Return a ref that reflects the global loading state of all loaders within a navigation.
+ * This state doesn't update if `refresh()` is manually called.
+ */
+export function useIsDataLoading() {
+  return inject(IS_DATA_LOADING_KEY)!
 }

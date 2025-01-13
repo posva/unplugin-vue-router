@@ -24,6 +24,7 @@ import {
   DataLoaderPlugin,
   NavigationResult,
   DataLoaderPluginOptions,
+  useIsDataLoading,
 } from 'unplugin-vue-router/data-loaders'
 import { mockPromise } from '../../tests/utils'
 import {
@@ -338,6 +339,12 @@ describe('navigation-guard', () => {
   it.todo(
     'does not call commit for a loader if the navigation is canceled by another loader'
   )
+
+  it.todo('sets isDataLoading within a navigation', () => {
+    const { app } = setupApp({ isSSR: false })
+    const isGloballyLoading = app.runWithContext(() => useIsDataLoading())
+    expect(isGloballyLoading.value).toBe(false)
+  })
 
   describe('signal', () => {
     it('aborts the signal if the navigation throws', async () => {
