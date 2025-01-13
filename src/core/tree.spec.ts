@@ -446,17 +446,61 @@ describe('Tree', () => {
     expect(child.fullPath).toBe('/')
   })
 
+  it('strips groups from nested file paths', () => {
+    const tree = new PrefixTree(RESOLVED_OPTIONS)
+    tree.insert('nested/(home)', 'nested/(home).vue')
+    let child = tree.children.get('nested')!
+    expect(child).toBeDefined()
+
+    child = child.children.get('(home)')!
+    expect(child).toBeDefined()
+    expect(child.path).toBe('')
+    expect(child.fullPath).toBe('/nested')
+  })
+
   it('strips groups in folders', () => {
     const tree = new PrefixTree(RESOLVED_OPTIONS)
-    tree.insert('nested-group/(nested-group)', 'nested-group/(nested-group)')
+    tree.insert('(group)/a', '(group)/a.vue')
+    tree.insert('(group)/index', '(group)/index.vue')
 
-    const rootNode = tree.children.get('nested-group')!
+    const group = tree.children.get('(group)')!
+    expect(group).toBeDefined()
+    expect(group.path).toBe('/')
+
+    const a = group.children.get('a')!
+    expect(a).toBeDefined()
+    expect(a.fullPath).toBe('/a')
+
+    const index = group.children.get('index')!
+    expect(index).toBeDefined()
+    expect(index.fullPath).toBe('/')
+  })
+
+  it('strips groups in nested folders', () => {
+    const tree = new PrefixTree(RESOLVED_OPTIONS)
+    tree.insert('nested/(nested-group)/a', 'nested/(nested-group)/a.vue')
+    tree.insert(
+      'nested/(nested-group)/index',
+      'nested/(nested-group)/index.vue'
+    )
+
+    const rootNode = tree.children.get('nested')!
     expect(rootNode).toBeDefined()
-    expect(rootNode.value.path).toBe('/nested-group')
+    expect(rootNode.path).toBe('/nested')
 
     const nestedGroupNode = rootNode.children.get('(nested-group)')!
     expect(nestedGroupNode).toBeDefined()
-    expect(nestedGroupNode.value.path).toBe('/nested-group')
+    // nested groups have an empty path
+    expect(nestedGroupNode.path).toBe('')
+    expect(nestedGroupNode.fullPath).toBe('/nested')
+
+    const aNode = nestedGroupNode.children.get('a')!
+    expect(aNode).toBeDefined()
+    expect(aNode.fullPath).toBe('/nested/a')
+
+    const indexNode = nestedGroupNode.children.get('index')!
+    expect(indexNode).toBeDefined()
+    expect(indexNode.fullPath).toBe('/nested')
   })
 
   describe('dot nesting', () => {
