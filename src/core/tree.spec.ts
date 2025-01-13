@@ -3,9 +3,12 @@ import { DEFAULT_OPTIONS, resolveOptions } from '../options'
 import { PrefixTree } from './tree'
 import { TreeNodeType } from './treeNodeValue'
 import { resolve } from 'pathe'
+import { mockWarn } from '../../tests/vitest-mock-warn'
 
 describe('Tree', () => {
   const RESOLVED_OPTIONS = resolveOptions(DEFAULT_OPTIONS)
+  mockWarn()
+
   it('creates an empty tree', () => {
     const tree = new PrefixTree(RESOLVED_OPTIONS)
     expect(tree.children.size).toBe(0)
@@ -436,6 +439,81 @@ describe('Tree', () => {
     expect(child.name).toBe('/a/')
     expect(child.fullPath).toBe('/a')
   })
+
+  it('strips groups from file paths', () => {
+    const tree = new PrefixTree(RESOLVED_OPTIONS)
+    tree.insert('(home)', '(home).vue')
+    let child = tree.children.get('(home)')!
+    expect(child).toBeDefined()
+    expect(child.path).toBe('/')
+    expect(child.fullPath).toBe('/')
+  })
+
+  it('strips groups from nested file paths', () => {
+    const tree = new PrefixTree(RESOLVED_OPTIONS)
+    tree.insert('nested/(home)', 'nested/(home).vue')
+    let child = tree.children.get('nested')!
+    expect(child).toBeDefined()
+
+    child = child.children.get('(home)')!
+    expect(child).toBeDefined()
+    expect(child.path).toBe('')
+    expect(child.fullPath).toBe('/nested')
+  })
+
+  it('strips groups in folders', () => {
+    const tree = new PrefixTree(RESOLVED_OPTIONS)
+    tree.insert('(group)/a', '(group)/a.vue')
+    tree.insert('(group)/index', '(group)/index.vue')
+
+    const group = tree.children.get('(group)')!
+    expect(group).toBeDefined()
+    expect(group.path).toBe('/')
+
+    const a = group.children.get('a')!
+    expect(a).toBeDefined()
+    expect(a.fullPath).toBe('/a')
+
+    const index = group.children.get('index')!
+    expect(index).toBeDefined()
+    expect(index.fullPath).toBe('/')
+  })
+
+  it('strips groups in nested folders', () => {
+    const tree = new PrefixTree(RESOLVED_OPTIONS)
+    tree.insert('nested/(nested-group)/a', 'nested/(nested-group)/a.vue')
+    tree.insert(
+      'nested/(nested-group)/index',
+      'nested/(nested-group)/index.vue'
+    )
+
+    const rootNode = tree.children.get('nested')!
+    expect(rootNode).toBeDefined()
+    expect(rootNode.path).toBe('/nested')
+
+    const nestedGroupNode = rootNode.children.get('(nested-group)')!
+    expect(nestedGroupNode).toBeDefined()
+    // nested groups have an empty path
+    expect(nestedGroupNode.path).toBe('')
+    expect(nestedGroupNode.fullPath).toBe('/nested')
+
+    const aNode = nestedGroupNode.children.get('a')!
+    expect(aNode).toBeDefined()
+    expect(aNode.fullPath).toBe('/nested/a')
+
+    const indexNode = nestedGroupNode.children.get('index')!
+    expect(indexNode).toBeDefined()
+    expect(indexNode.fullPath).toBe('/nested')
+  })
+
+  it('warns if the closing group is missing', () => {
+    const tree = new PrefixTree(RESOLVED_OPTIONS)
+    tree.insert('(home', '(home).vue')
+    expect(`"(home" is missing the closing ")"`).toHaveBeenWarned()
+  })
+
+  // TODO: check warns with different order
+  it.todo(`warns when a group's path conflicts with an existing file`)
 
   describe('dot nesting', () => {
     it('transforms dots into nested routes by default', () => {
