@@ -109,18 +109,27 @@ const routes = [
 
 All generated routes that have a `component` property will have a `name` property. This avoid accidentally directing your users to a parent route. By default, names are generated using the file path, but you can override this behavior by passing a custom `getRouteName()` function. You will get TypeScript validation almost everywhere, so changing this should be easy.
 
-### Route groups
+## Route groups
 
-Sometimes, it helps to organize your file structure in a way that doesn't change the URL of your routes. Route groups let you organize your routes logically, in a way that makes sense to you, without affecting the actual URLs. For example, if you have several routes that share the same layout, you can group them together using route groups.
+Sometimes, it helps to organize your file structure in a way that doesn't change the URL of your routes. Route groups let you organize your routes logically, in a way that makes sense to you, without affecting the actual URLs. For example, if you have several routes that share the same layout, you can group them together using route groups. Consider the the following file structure:
 
 ```text
 src/pages/
 ├── (admin)/
-│   ├── dashboard.vue
-│   ├── settings.vue
+│   ├── dashboard.vue
+│   └── settings.vue
 ├── (user)/
-│   ├── profile.vue
-│   ├── orders.vue
+│   ├── profile.vue
+│   └── order.vue
+```
+
+In this case, even though the files are grouped into (admin) and (user) directories, the resulting URLs will be:
+
+```text
+├── dashboard.vue
+├── settings.vue
+├── profile.vue
+├── order.vue
 ```
 
 You can also use file route groups for better organization. For example:
@@ -128,8 +137,11 @@ You can also use file route groups for better organization. For example:
 ```text
 src/pages/
 ├── admin/
-│   ├── (dashboard).vue // Becomes index.vue of admin route
-│   ├── settings.vue
+│   ├── (dashboard).vue // Becomes index.vue of admin route
+│   └── settings(additional-info).vue // Becomes settings.vue
+├── (user)/
+│   ├── dashboard.vue
+│   └── settings.vue
 ```
 
 ## Named views
