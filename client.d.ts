@@ -47,7 +47,6 @@ declare module 'vue-router/auto' {
   export {
     DataLoaderPlugin,
     NavigationResult,
-    useIsDataLoading
   } from 'unplugin-vue-router/data-loaders'
   // must be added to the virtual vue-router/auto
   // FIXME: is there a way to achieve this without losing the types?
