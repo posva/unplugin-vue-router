@@ -111,7 +111,7 @@ All generated routes that have a `component` property will have a `name` propert
 
 ## Route groups
 
-Sometimes, it helps to organize your file structure in a way that doesn't change the URL of your routes. Route groups let you organize your routes logically, in a way that makes sense to you, without affecting the actual URLs. For example, if you have several routes that share the same layout, you can group them together using route groups. Consider the the following file structure:
+Sometimes, it helps to organize your file structure in a way that doesn't change the URL of your routes. Route groups let you organize your routes logically, in a way that makes sense to you, without affecting the actual URLs. For example, if you have several routes that share the same layout, you can group them together using route groups. Consider the following file structure:
 
 ```text
 src/pages/
