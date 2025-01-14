@@ -133,7 +133,7 @@ src/pages/
 ├── order.vue
 ```
 
-You can also use file route groups for better organization. For example:
+You can also use route groups in page components. This is equivalent to name the page component `index.vue`:
 
 ```text
 src/pages/
