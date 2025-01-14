@@ -140,9 +140,6 @@ src/pages/
 ├── admin/
 │   ├── (dashboard).vue // Becomes index.vue of admin route
 │   └── settings.vue
-├── (user)/
-│   ├── dashboard.vue
-│   └── settings.vue
 ```
 
 ## Named views
