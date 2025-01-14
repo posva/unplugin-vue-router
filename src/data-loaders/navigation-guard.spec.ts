@@ -362,7 +362,7 @@ describe('navigation-guard', () => {
     expect(isGloballyLoading.value).toBe(true)
 
     l1.resolve()
-    await vi.runAllTimersAsync();
+    await vi.runAllTimersAsync()
     expect(isGloballyLoading.value).toBe(true)
     l2.resolve()
     await vi.runAllTimersAsync()
