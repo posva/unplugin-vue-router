@@ -139,7 +139,7 @@ You can also use route groups in page components. This is equivalent to name the
 src/pages/
 ├── admin/
 │   ├── (dashboard).vue // Becomes index.vue of admin route
-│   └── settings(additional-info).vue // Becomes settings.vue
+│   └── settings.vue
 ├── (user)/
 │   ├── dashboard.vue
 │   └── settings.vue
