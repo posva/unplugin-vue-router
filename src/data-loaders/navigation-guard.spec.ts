@@ -340,9 +340,32 @@ describe('navigation-guard', () => {
     'does not call commit for a loader if the navigation is canceled by another loader'
   )
 
-  it.todo('sets isDataLoading within a navigation', () => {
+  it('sets isDataLoading within a navigation', async () => {
     const { app } = setupApp({ isSSR: false })
     const isGloballyLoading = app.runWithContext(() => useIsDataLoading())
+    expect(isGloballyLoading.value).toBe(false)
+
+    const router = getRouter()
+    const l1 = mockedLoader()
+    const l2 = mockedLoader()
+    router.addRoute({
+      name: '_test',
+      path: '/fetch',
+      component,
+      meta: {
+        loaders: [l1.loader, l2.loader],
+      },
+    })
+
+    router.push('/fetch')
+    await vi.runOnlyPendingTimersAsync()
+    expect(isGloballyLoading.value).toBe(true)
+
+    l1.resolve()
+    await vi.runAllTimersAsync();
+    expect(isGloballyLoading.value).toBe(true)
+    l2.resolve()
+    await vi.runAllTimersAsync()
     expect(isGloballyLoading.value).toBe(false)
   })
 
