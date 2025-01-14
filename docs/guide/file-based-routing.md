@@ -126,6 +126,7 @@ src/pages/
 In this case, even though the files are grouped into (admin) and (user) directories, the resulting URLs will be:
 
 ```text
+src/pages/
 ├── dashboard.vue
 ├── settings.vue
 ├── profile.vue
