@@ -123,15 +123,14 @@ src/pages/
 │   └── order.vue
 ```
 
-In this case, even though the files are grouped into (admin) and (user) directories, the resulting URLs will be:
-
+Resulting URLs:
 ```text
-src/pages/
-├── dashboard.vue
-├── settings.vue
-├── profile.vue
-├── order.vue
+- `/dashboard` -> renders `dashboard.vue`
+- `/settings` -> renders `settings.vue`
+- `/profile` -> renders `profile.vue`
+- `/order` -> renders `order.vue`
 ```
+This approach allows you to organize your files for better maintainability without changing the structure of your application's routes.
 
 You can also use route groups in page components. This is equivalent to name the page component `index.vue`:
 
