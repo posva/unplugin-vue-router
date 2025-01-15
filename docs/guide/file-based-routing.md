@@ -118,9 +118,9 @@ src/pages/
 ├── (admin)/
 │   ├── dashboard.vue
 │   └── settings.vue
-├── (user)/
-│   ├── profile.vue
-│   └── order.vue
+└── (user)/
+    ├── profile.vue
+    └── order.vue
 ```
 
 Resulting URLs:
