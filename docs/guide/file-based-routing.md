@@ -125,10 +125,10 @@ src/pages/
 
 Resulting URLs:
 ```text
-- `/dashboard` -> renders `src/pages/(admin)/dashboard.vue`
-- `/settings` -> renders `settings.vue`
-- `/profile` -> renders `profile.vue`
-- `/order` -> renders `order.vue`
+- `/dashboard` -> Route groups`src/pages/(admin)/dashboard.vue`
+- `/settings` -> renders `src/pages/(admin)/settings.vue`
+- `/profile` -> renders src/pages/(user)/`profile.vue`
+- `/order` -> renders `src/pages/(user)/order.vue`
 ```
 This approach allows you to organize your files for better maintainability without changing the structure of your application's routes.
 
