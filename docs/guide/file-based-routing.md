@@ -130,6 +130,7 @@ Resulting URLs:
 - `/profile` -> renders `src/pages/(user)/profile.vue`
 - `/order` -> renders `src/pages/(user)/order.vue`
 ```
+
 This approach allows you to organize your files for better maintainability without changing the structure of your application's routes.
 
 You can also use route groups in page components. This is equivalent to name the page component `index.vue`:
