@@ -136,9 +136,9 @@ You can also use route groups in page components. This is equivalent to name the
 
 ```text
 src/pages/
-├── admin/
-│   ├── (dashboard).vue // Becomes index.vue of admin route
-│   └── settings.vue
+└─── admin/
+    ├── (dashboard).vue // Becomes index.vue of admin route
+    └── settings.vue
 ```
 
 ## Named views
