@@ -210,7 +210,7 @@
     "nodemon": "^3.1.9",
     "p-series": "^3.0.0",
     "pinia": "^2.3.1",
-    "prettier": "^3.4.2",
+    "prettier": "3.4.1",
     "rimraf": "^6.0.1",
     "rollup": "^4.31.0",
     "semver": "^7.6.3",
