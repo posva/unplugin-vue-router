@@ -246,7 +246,7 @@ export const DEFAULT_OPTIONS = {
 
 export interface ServerContext {
   invalidate: (module: string) => void
-  updateRoutes: () => void
+  updateRoutes: () => Promise<void>
   reload: () => void
 }
 
