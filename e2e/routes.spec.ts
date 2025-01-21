@@ -14,7 +14,7 @@ describe('e2e routes', () => {
   it('generates the routes', async () => {
     const context = createRoutesContext(
       resolveOptions({
-        // dts: join(__dirname, './__types.d.ts'),
+        // dts: join(__dirname, './.types/__types.d.ts'),
         dts: false,
         logs: false,
         watch: false,
