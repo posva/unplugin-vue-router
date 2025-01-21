@@ -134,7 +134,7 @@
     "@rollup/pluginutils": "^5.1.4",
     "@vue-macros/common": "^1.15.0",
     "ast-walker-scope": "^0.6.2",
-    "chokidar": "^3.6.0",
+    "chokidar": "^4.0.1",
     "fast-glob": "^3.3.2",
     "json5": "^2.2.3",
     "local-pkg": "^1.0.0",
