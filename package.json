@@ -32,50 +32,92 @@
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "types": {
+        "require": "./dist/index.d.cts",
+        "import": "./dist/index.d.ts"
+      },
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.js"
     },
     "./vite": {
-      "import": "./dist/vite.js",
-      "require": "./dist/vite.cjs"
+      "types": {
+        "require": "./dist/vite.d.cts",
+        "import": "./dist/vite.d.ts"
+      },
+      "require": "./dist/vite.cjs",
+      "import": "./dist/vite.js"
     },
     "./webpack": {
-      "import": "./dist/webpack.js",
-      "require": "./dist/webpack.cjs"
+      "types": {
+        "require": "./dist/webpack.d.cts",
+        "import": "./dist/webpack.d.ts"
+      },
+      "require": "./dist/webpack.cjs",
+      "import": "./dist/webpack.js"
     },
     "./rollup": {
-      "import": "./dist/rollup.js",
-      "require": "./dist/rollup.cjs"
+      "types": {
+        "require": "./dist/rollup.d.cts",
+        "import": "./dist/rollup.d.ts"
+      },
+      "require": "./dist/rollup.cjs",
+      "import": "./dist/rollup.js"
     },
     "./esbuild": {
-      "import": "./dist/esbuild.js",
-      "require": "./dist/esbuild.cjs"
+      "types": {
+        "require": "./dist/esbuild.d.cts",
+        "import": "./dist/esbuild.d.ts"
+      },
+      "require": "./dist/esbuild.cjs",
+      "import": "./dist/esbuild.js"
     },
     "./options": {
-      "import": "./dist/options.js",
-      "require": "./dist/options.cjs"
+      "types": {
+        "require": "./dist/options.d.cts",
+        "import": "./dist/options.d.ts"
+      },
+      "require": "./dist/options.cjs",
+      "import": "./dist/options.js"
     },
     "./runtime": {
-      "import": "./dist/runtime.js",
-      "require": "./dist/runtime.cjs"
+      "types": {
+        "require": "./dist/runtime.d.cts",
+        "import": "./dist/runtime.d.ts"
+      },
+      "require": "./dist/runtime.cjs",
+      "import": "./dist/runtime.js"
     },
     "./types": {
       "types": {
-        "import": "./dist/types.d.ts",
-        "require": "./dist/types.d.cts"
-      }
+        "require": "./dist/types.d.cts",
+        "import": "./dist/types.d.ts"
+      },
+      "require": "./dist/types.cjs",
+      "import": "./dist/types.js"
     },
     "./data-loaders": {
-      "import": "./dist/data-loaders/index.js",
-      "require": "./dist/data-loaders/index.cjs"
+      "types": {
+        "require": "./dist/data-loaders/index.d.cts",
+        "import": "./dist/data-loaders/index.d.ts"
+      },
+      "require": "./dist/data-loaders/index.cjs",
+      "import": "./dist/data-loaders/index.js"
     },
     "./data-loaders/basic": {
-      "import": "./dist/data-loaders/basic.js",
-      "require": "./dist/data-loaders/basic.cjs"
+      "types": {
+        "require": "./dist/data-loaders/basic.d.cts",
+        "import": "./dist/data-loaders/basic.d.ts"
+      },
+      "require": "./dist/data-loaders/basic.cjs",
+      "import": "./dist/data-loaders/basic.js"
     },
     "./data-loaders/pinia-colada": {
-      "import": "./dist/data-loaders/pinia-colada.js",
-      "require": "./dist/data-loaders/pinia-colada.cjs"
+      "types": {
+        "require": "./dist/data-loaders/pinia-colada.d.cts",
+        "import": "./dist/data-loaders/pinia-colada.d.ts"
+      },
+      "require": "./dist/data-loaders/pinia-colada.cjs",
+      "import": "./dist/data-loaders/pinia-colada.js"
     },
     "./client": {
       "types": "./client.d.ts"
@@ -83,14 +125,8 @@
   },
   "typesVersions": {
     "*": {
-      "data-loaders": [
-        "./dist/data-loaders/index.d.ts"
-      ],
-      "data-loaders/basic": [
-        "./dist/data-loaders/basic.d.ts"
-      ],
-      "data-loaders/pinia-colada": [
-        "./dist/data-loaders/pinia-colada.d.ts"
+      "./client": [
+        "./client.d.ts"
       ],
       "*": [
         "./dist/*",

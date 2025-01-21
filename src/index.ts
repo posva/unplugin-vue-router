@@ -22,7 +22,7 @@ import { appendExtensionListToPattern } from './core/utils'
 import { MACRO_DEFINE_PAGE_QUERY } from './core/definePage'
 import { createAutoExportPlugin } from './data-loaders/auto-exports'
 
-export type * from './types'
+export * from './types'
 
 export { DEFAULT_OPTIONS }
 

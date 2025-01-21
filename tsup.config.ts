@@ -1,8 +1,7 @@
-import { rm } from 'node:fs/promises'
 import { defineConfig, type Options } from 'tsup'
 
 export const commonOptions = {
-  clean: false,
+  clean: true,
   format: ['cjs', 'esm'],
   dts: true,
   external: [
@@ -17,25 +16,17 @@ export const commonOptions = {
   splitting: true,
 } satisfies Options
 
-export default defineConfig(async () => {
-  await rm('dist', { recursive: true, force: true })
-
-  return [
-    {
-      ...commonOptions,
-      entry: [
-        './src/index.ts',
-        './src/options.ts',
-        './src/esbuild.ts',
-        './src/rollup.ts',
-        './src/vite.ts',
-        './src/webpack.ts',
-      ],
-    },
-    {
-      ...commonOptions,
-      dts: { only: true },
-      entry: ['./src/types.ts'],
-    },
-  ]
-})
+export default defineConfig([
+  {
+    ...commonOptions,
+    entry: [
+      './src/index.ts',
+      './src/options.ts',
+      './src/esbuild.ts',
+      './src/rollup.ts',
+      './src/vite.ts',
+      './src/webpack.ts',
+      './src/types.ts',
+    ],
+  },
+])
