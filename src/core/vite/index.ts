@@ -39,11 +39,14 @@ export function createViteContext(server: ViteDevServer): ServerContext {
     })
   }
 
-  function updateRoutes() {
+  /**
+   * Triggers HMR for the vue-router/auto-routes module.
+   */
+  async function updateRoutes() {
     const modId = asVirtualId(MODULE_ROUTES_PATH)
     const mod = server.moduleGraph.getModuleById(modId)
     if (mod) {
-      server.reloadModule(mod)  
+      return server.reloadModule(mod)
     }
   }
 
