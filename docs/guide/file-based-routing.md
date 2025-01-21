@@ -109,6 +109,39 @@ const routes = [
 
 All generated routes that have a `component` property will have a `name` property. This avoid accidentally directing your users to a parent route. By default, names are generated using the file path, but you can override this behavior by passing a custom `getRouteName()` function. You will get TypeScript validation almost everywhere, so changing this should be easy.
 
+## Route groups
+
+Sometimes, it helps to organize your file structure in a way that doesn't change the URL of your routes. Route groups let you organize your routes logically, in a way that makes sense to you, without affecting the actual URLs. For example, if you have several routes that share the same layout, you can group them together using route groups. Consider the following file structure:
+
+```text
+src/pages/
+├── (admin)/
+│   ├── dashboard.vue
+│   └── settings.vue
+└── (user)/
+    ├── profile.vue
+    └── order.vue
+```
+
+Resulting URLs:
+```text
+- `/dashboard` -> renders `src/pages/(admin)/dashboard.vue`
+- `/settings` -> renders `src/pages/(admin)/settings.vue`
+- `/profile` -> renders `src/pages/(user)/profile.vue`
+- `/order` -> renders `src/pages/(user)/order.vue`
+```
+
+This approach allows you to organize your files for better maintainability without changing the structure of your application's routes.
+
+You can also use route groups in page components. This is equivalent to name the page component `index.vue`:
+
+```text
+src/pages/
+└─── admin/
+    ├── (dashboard).vue // Becomes index.vue of admin route
+    └── settings.vue
+```
+
 ## Named views
 
 It is possible to define [named views](https://router.vuejs.org/guide/essentials/named-views.html#named-views) by appending an `@` + a name to their filename, e.g. a file named `src/pages/index@aux.vue` will generate a route of:
