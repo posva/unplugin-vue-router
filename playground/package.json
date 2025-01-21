@@ -12,7 +12,7 @@
     "@vue/tsconfig": "^0.7.0",
     "json-server": "^0.17.4",
     "unplugin-vue-router": "workspace:*",
-    "vite": "^6.0.1",
+    "vite": "^6.0.10",
     "vite-plugin-inspect": "^0.10.1"
   },
   "dependencies": {

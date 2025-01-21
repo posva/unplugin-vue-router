@@ -8,7 +8,7 @@
   },
   "devDependencies": {
     "@pinia/nuxt": "^0.8.0",
-    "nuxt": "^3.14.1592",
+    "nuxt": "^3.15.2",
     "unplugin-vue-router": "workspace:*"
   },
   "dependencies": {
