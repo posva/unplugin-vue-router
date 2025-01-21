@@ -1,3 +1,9 @@
+## [0.11.1](https://github.com/posva/unplugin-vue-router/compare/v0.11.0...v0.11.1) (2025-01-21)
+
+### Bug Fixes
+
+- remove empty chunks ([#575](https://github.com/posva/unplugin-vue-router/issues/575)) ([02b0e24](https://github.com/posva/unplugin-vue-router/commit/02b0e243c1866f8fb4aa0e4d33ece7eb21cb0ea9))
+
 # [0.11.0](https://github.com/posva/unplugin-vue-router/compare/v0.10.9...v0.11.0) (2025-01-21)
 
 ### Bug Fixes
