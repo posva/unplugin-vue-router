@@ -47,7 +47,7 @@ VueRouter({
   // default language for <route> custom blocks
   routeBlockLang: 'json5',
 
-  // how to import routes. can also be a string
+  // how to import routes, can also be a string
   importMode: 'async',
 
   // where are paths relative to
