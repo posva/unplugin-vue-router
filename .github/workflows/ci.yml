@@ -47,11 +47,11 @@ jobs:
 
       - name: Tests with coverage
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.node == 'lts/*' }}
-        run: pnpm run dev -- --coverage
+        run: pnpm run vitest --coverage
 
       - name: Tests
         if: ${{ matrix.os != 'ubuntu-latest' || matrix.node != 'lts/*' }}
-        run: pnpm run dev
+        run: pnpm run vitest
 
       - name: Upload coverage to Codecov
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.node == 'lts/*' }}
