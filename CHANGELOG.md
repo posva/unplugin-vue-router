@@ -1,3 +1,16 @@
+# [0.11.0](https://github.com/posva/unplugin-vue-router/compare/v0.10.9...v0.11.0) (2025-01-21)
+
+### Bug Fixes
+
+- resolve tree node value options ([1bf080a](https://github.com/posva/unplugin-vue-router/commit/1bf080ad81fc079a5d0d1225037ebc5c28464a2c))
+
+### Features
+
+- add route groups ([#549](https://github.com/posva/unplugin-vue-router/issues/549)) ([e9bbf05](https://github.com/posva/unplugin-vue-router/commit/e9bbf057fc4ae952c43b366ebdf22b2f7b531490))
+- **hmr:** improve Vite HMR implementation ([#502](https://github.com/posva/unplugin-vue-router/issues/502)) ([68bb979](https://github.com/posva/unplugin-vue-router/commit/68bb979d2c5706415935c763b9782cda812865dc))
+- **loaders:** add useIsDataLoading hook ([#559](https://github.com/posva/unplugin-vue-router/issues/559)) ([9c69f54](https://github.com/posva/unplugin-vue-router/commit/9c69f54fc4715a22e118c9ad0c5a3f73a01400a0))
+- mkdir if parent dir does not exists ([#516](https://github.com/posva/unplugin-vue-router/issues/516)) ([6bea24a](https://github.com/posva/unplugin-vue-router/commit/6bea24a284871b0948a33e41c63aa11ce0caed19))
+
 # [0.10.9](https://github.com/posva/unplugin-vue-router/compare/v0.10.8...v0.11.0) (2024-12-04)
 
 ### Bug Fixes
