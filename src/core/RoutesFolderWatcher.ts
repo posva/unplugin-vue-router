@@ -1,4 +1,5 @@
-import chokidar from 'chokidar'
+import { type FSWatcher, watch as fsWatch } from 'chokidar'
+import micromatch from 'micromatch'
 import { resolve } from 'pathe'
 import {
   ResolvedOptions,
@@ -17,7 +18,7 @@ export class RoutesFolderWatcher {
   filePatterns: string[]
   exclude: string[]
 
-  watcher: chokidar.FSWatcher
+  watcher: FSWatcher
 
   constructor(folderOptions: RoutesFolderOptionResolved) {
     this.src = folderOptions.src
@@ -25,15 +26,29 @@ export class RoutesFolderWatcher {
     this.exclude = folderOptions.exclude
     this.extensions = folderOptions.extensions
     this.filePatterns = folderOptions.filePatterns
+    console.log(
+      '🚀 ~ file: RoutesFolderWatcher.ts ~ line 86 ~ RoutesFolderWatcher ~ constructor ~ this.filePatterns',
+      this.filePatterns
+    )
 
-    this.watcher = chokidar.watch(folderOptions.pattern, {
+    this.watcher = fsWatch('.', {
       cwd: this.src,
       ignoreInitial: true,
-      // disableGlobbing: true,
       ignorePermissionErrors: true,
-      ignored: this.exclude,
+      ignored: (filepath, stats) => {
+        // let folders pass, they are ignored by the glob pattern
+        if (stats?.isDirectory()) {
+          return false
+        }
 
-      // useFsEvents: true,
+        const isMatch = micromatch.isMatch(filepath, this.filePatterns, {
+          cwd: this.src,
+          ignore: this.exclude,
+        })
+
+        return !isMatch
+      },
+
       // TODO: allow user options
     })
   }
