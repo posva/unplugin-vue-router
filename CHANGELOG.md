@@ -1,3 +1,10 @@
+## [0.11.2](https://github.com/posva/unplugin-vue-router/compare/v0.11.1...v0.11.2) (2025-01-26)
+
+### Features
+
+- allow HMR Callback ([170df11](https://github.com/posva/unplugin-vue-router/commit/170df1187fd488b8d4eceef4fa6895a54bc711dc)), closes [#503](https://github.com/posva/unplugin-vue-router/issues/503)
+- fix indent in generated js for auto-routes ([b734d9a](https://github.com/posva/unplugin-vue-router/commit/b734d9a1883eef472ca38514f5d44f7f99e4f20b))
+
 ## [0.11.1](https://github.com/posva/unplugin-vue-router/compare/v0.11.0...v0.11.1) (2025-01-21)
 
 ### Bug Fixes
