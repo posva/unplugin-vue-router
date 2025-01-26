@@ -19,6 +19,7 @@ import { generateVueRouterProxy as _generateVueRouterProxy } from '../codegen/vu
 import { definePageTransform, extractDefinePageNameAndPath } from './definePage'
 import { EditableTreeNode } from './extendRoutes'
 import { isPackageExists as isPackageInstalled } from 'local-pkg'
+import { ts } from '../utils'
 
 export function createRoutesContext(options: ResolvedOptions) {
   const { dts: preferDTS, root, routesFolder } = options
@@ -186,10 +187,11 @@ export function createRoutesContext(options: ResolvedOptions) {
       importsMap
     )}\n`
 
-    let hmr = `
-export function handleHotUpdate(_router) {
+    let hmr = ts`
+export function handleHotUpdate(_router, _hotUpdateCallback) {
   if (import.meta.hot) {
     import.meta.hot.data.router = _router
+    import.meta.hot.data.router_hotUpdateCallback = _hotUpdateCallback
   }
 }
 
@@ -204,7 +206,18 @@ if (import.meta.hot) {
     for (const route of mod.routes) {
       router.addRoute(route)
     }
-    router.replace('')
+    // call the hotUpdateCallback for custom updates
+    import.meta.hot.data.router_hotUpdateCallback?.(mod.routes)
+    const route = router.currentRoute.value
+    router.replace({
+      ...route,
+      // NOTE: we should be able to just do ...route but the router
+      // currently skips resolving and can give errors with renamed routes
+      // so we explicitly set remove matched and name
+      name: undefined,
+      matched: undefined,
+      force: true
+    })
   })
 }
 `
