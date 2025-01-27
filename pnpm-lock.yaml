@@ -187,6 +187,9 @@ importers:
         specifier: ^2.3.1
         version: 2.3.1(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3))
     devDependencies:
+      '@pinia/colada-nuxt':
+        specifier: 0.0.4
+        version: 0.0.4(@pinia/colada@0.13.3(pinia@2.3.1(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3))))(magicast@0.3.5)(rollup@4.32.0)
       '@pinia/nuxt':
         specifier: ^0.9.0
         version: 0.9.0(magicast@0.3.5)(pinia@2.3.1(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3)))(rollup@4.32.0)
@@ -1239,6 +1242,11 @@ packages:
   '@parcel/watcher@2.5.1':
     resolution: {integrity: sha512-dfUnCxiN9H4ap84DvD2ubjw+3vUNpstxa0TneY/Paat8a3R4uQZDLSvWjmznAY/DoahqTHl9V46HF/Zs3F29pg==}
     engines: {node: '>= 10.0.0'}
+
+  '@pinia/colada-nuxt@0.0.4':
+    resolution: {integrity: sha512-EgYs3c36j+aTR1ByDShojYJgoksM/vSYox2oLaZjwTSWP65ml2cifD5H8ELPoPbWAa0zu9Ompx3kC6+x4LMZSg==}
+    peerDependencies:
+      '@pinia/colada': ^0.13.0
 
   '@pinia/colada@0.13.3':
     resolution: {integrity: sha512-3OkzYIsAXGzSqnKUXExdPAMWufBsfl/OmGa4qxS+mE5GXsfbOmYTxqUHonK+61xgeOKmCBI3sJwaQJzShDQsKw==}
@@ -6823,6 +6831,15 @@ snapshots:
       '@parcel/watcher-win32-arm64': 2.5.1
       '@parcel/watcher-win32-ia32': 2.5.1
       '@parcel/watcher-win32-x64': 2.5.1
+
+  '@pinia/colada-nuxt@0.0.4(@pinia/colada@0.13.3(pinia@2.3.1(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3))))(magicast@0.3.5)(rollup@4.32.0)':
+    dependencies:
+      '@nuxt/kit': 3.15.3(magicast@0.3.5)(rollup@4.32.0)
+      '@pinia/colada': 0.13.3(pinia@2.3.1(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3)))
+    transitivePeerDependencies:
+      - magicast
+      - rollup
+      - supports-color
 
   '@pinia/colada@0.13.3(pinia@2.3.1(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3)))':
     dependencies:
