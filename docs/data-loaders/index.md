@@ -44,7 +44,7 @@ app.mount('#app')
 
 There are different data loaders implementation, the most simple one is the [Basic Loader](./basic/) which always reruns data fetching. A more efficient one, is the [Colada Loader](./colada/) which uses [@pinia/colada](https://github.com/posva/pinia-colada) under the hood. In the following examples, we will be using the _basic loader_.
 
-Loaders are [composables](https://vuejs.org/guide/reusability/composables.html) defined through a `defineLoader` function like `defineBasicLoader` or `defineColadaLoader`. They are _used_ in the component `setup` to extract the needed information.
+Loaders are [composables](https://vuejs.org/guide/reusability/composables.html) defined through a `defineLoader` function like `defineBasicLoader` or `defineColadaLoader`. They are _used_ in the component `setup` to extract the needed information. 
 
 To get started, _define_ and _**export**_ a loader from a **page** component:
 
@@ -90,7 +90,7 @@ const {
 
 The loader will automatically run when the route changes, for example when navigating to `/users/1`, even when coming from `/users/2`, the loader will fetch the data and delay the navigation until the data is ready.
 
-On top of that, you are free to _reuse_ the returned composable `useUserData` in any other component, and it will automatically share the same data fetching instance.
+On top of that, you are free to _reuse_ the returned composable `useUserData` in any other component, and it will automatically share the same data fetching instance. You can even [organize your loaders in separate files](./organization.md) as long as you **export** the loader from a **page** component.
 
 ## Why Data Loaders?
 
