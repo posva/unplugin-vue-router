@@ -221,6 +221,10 @@ function sidebarDataLoaders(): SidebarGroup {
         link: '/data-loaders/load-cancellation',
       },
       {
+        text: 'Nuxt',
+        link: '/data-loaders/nuxt',
+      },
+      {
         text: 'SSR',
         link: '/data-loaders/ssr',
       },
