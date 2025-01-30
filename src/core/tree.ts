@@ -195,7 +195,7 @@ export class TreeNode {
    * Returns the route path of the node including parent paths.
    */
   get fullPath() {
-    return this.value.overrides.path ?? this.value.path
+    return this.value.path
   }
 
   /**
