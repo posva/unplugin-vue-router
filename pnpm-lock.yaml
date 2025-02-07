@@ -11,9 +11,6 @@ importers:
       '@babel/types':
         specifier: ^7.26.7
         version: 7.26.7
-      '@rollup/pluginutils':
-        specifier: ^5.1.4
-        version: 5.1.4(rollup@4.32.0)
       '@vue-macros/common':
         specifier: ^1.16.1
         version: 1.16.1(vue@3.5.13(typescript@5.7.3))
@@ -50,6 +47,9 @@ importers:
       unplugin:
         specifier: 2.1.2
         version: 2.1.2
+      unplugin-utils:
+        specifier: ^0.2.3
+        version: 0.2.3
       yaml:
         specifier: ^2.7.0
         version: 2.7.0
@@ -5069,6 +5069,10 @@ packages:
         optional: true
       '@vueuse/core':
         optional: true
+
+  unplugin-utils@0.2.3:
+    resolution: {integrity: sha512-unB2e2ogZwEoMw/X0Gq1vj2jaRKLmTh9wcSEJggESPllcrZI68uO7B8ykixbXqsSwG8r9T7qaHZudXIC/3qvhw==}
+    engines: {node: '>=18.12.0'}
 
   unplugin-vue-markdown@28.1.0:
     resolution: {integrity: sha512-OcweFC2A/PJB6+/swBbgA5UPryYdhktzR4eqKhpk44zCh5JBljnWhArM5z4py7IwgCQr5XFuXc5u3spggv8Tvg==}
@@ -11357,6 +11361,11 @@ snapshots:
       '@vueuse/core': 12.5.0(typescript@5.7.3)
     transitivePeerDependencies:
       - rollup
+
+  unplugin-utils@0.2.3:
+    dependencies:
+      pathe: 2.0.2
+      picomatch: 4.0.2
 
   unplugin-vue-markdown@28.1.0(rollup@4.32.0)(vite@6.0.11(@types/node@22.10.10)(jiti@2.4.2)(terser@5.37.0)(yaml@2.7.0)):
     dependencies:
