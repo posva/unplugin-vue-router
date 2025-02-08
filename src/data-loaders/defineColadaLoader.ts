@@ -172,8 +172,7 @@ export function defineColadaLoader<Data>(
       // console.log(`🚀 creating query for "${key}"`)
       entry.ext = useQuery({
         ...options,
-        // FIXME: type Promise<Data> instead of Promise<unknown>
-        query: () => {
+        query: (): Promise<Data> => {
           const route = entry.route.value
           const [trackedRoute, params, query, hash] = trackRoute(route)
           entry.tracked.set(
@@ -202,6 +201,7 @@ export function defineColadaLoader<Data>(
         reload = false
       }
     }
+    // TODO: should also reload in the case of nested loaders if a nested loader has been invalidated
 
     const { isLoading, data, error, ext } = entry
 
