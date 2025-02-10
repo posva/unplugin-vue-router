@@ -324,5 +324,57 @@ describe(
 
       expect(getCurrentContext()).toEqual([])
     })
+
+    it('can refetch nested loaders on invalidation', async () => {
+      const nestedQuery = vi.fn(async () => [{ id: 0 }, { id: 1 }])
+      const useListData = defineColadaLoader({
+        query: nestedQuery,
+        key: () => ['list'],
+      })
+
+      const useDetailData = defineColadaLoader({
+        key: (to) => ['list', to.params.id as string],
+        async query(to) {
+          const list = await useListData()
+          const item = list.find(
+            (item) => String(item.id) === (to.params.id as string)
+          )
+          if (!item) {
+            throw new Error('Not Found')
+          }
+          return { ...item, when: Date.now() }
+        },
+      })
+
+      const component = defineComponent({
+        setup() {
+          return { ...useDetailData() }
+        },
+        template: `<p/>`,
+      })
+
+      const router = getRouter()
+      router.addRoute({
+        name: 'item-id',
+        path: '/items/:id',
+        meta: { loaders: [useDetailData] },
+        component,
+      })
+
+      const pinia = createPinia()
+
+      mount(RouterViewMock, {
+        global: {
+          plugins: [[DataLoaderPlugin, { router }], pinia, PiniaColada],
+        },
+      })
+
+      await router.push('/items/0')
+      const queryCache = useQueryCache(pinia)
+
+      await expect(
+        queryCache.invalidateQueries({ key: ['list'] })
+      ).resolves.toBeDefined()
+    })
   }
 )

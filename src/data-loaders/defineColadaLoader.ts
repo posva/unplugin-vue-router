@@ -168,6 +168,8 @@ export function defineColadaLoader<Data>(
     // set the current context before loading so nested loaders can use it
     setCurrentContext([entry, router, to])
 
+    const app = router[APP_KEY]
+
     if (!entry.ext) {
       // console.log(`🚀 creating query for "${key}"`)
       entry.ext = useQuery({
@@ -185,9 +187,13 @@ export function defineColadaLoader<Data>(
             }
           )
 
-          return loader(trackedRoute, {
-            signal: route.meta[ABORT_CONTROLLER_KEY]?.signal,
-          })
+          // needed for automatic refetching and nested loaders
+          // https://github.com/posva/unplugin-vue-router/issues/583
+          return app.runWithContext(() =>
+            loader(trackedRoute, {
+              signal: route.meta[ABORT_CONTROLLER_KEY]?.signal,
+            })
+          )
         },
         key: () => toValueWithParameters(options.key, entry.route.value),
         // TODO: cleanup if gc
@@ -380,6 +386,7 @@ export function defineColadaLoader<Data>(
     // fallback to the global router and routes for useDataLoaders used within components
     const router = _router || useRouter()
     const route = _route || (useRoute() as RouteLocationNormalizedLoaded)
+    const app = router[APP_KEY]
 
     const entries = router[
       LOADER_ENTRIES_KEY
@@ -399,7 +406,7 @@ export function defineColadaLoader<Data>(
       // console.log(
       //   `🔁 loading from useData for "${options.key}": "${route.fullPath}"`
       // )
-      router[APP_KEY].runWithContext(() =>
+      app.runWithContext(() =>
         // in this case we always need to run the functions for nested loaders consistency
         load(route, router, undefined, parentEntry, true)
       )
@@ -447,22 +454,22 @@ export function defineColadaLoader<Data>(
       error,
       isLoading,
       reload: (to: RouteLocationNormalizedLoaded = router.currentRoute.value) =>
-        router[APP_KEY].runWithContext(() =>
-          load(to, router, undefined, undefined, true)
-        ).then(() => entry!.commit(to)),
+        app
+          .runWithContext(() => load(to, router, undefined, undefined, true))
+          .then(() => entry!.commit(to)),
       // pinia colada
       refetch: (
         to: RouteLocationNormalizedLoaded = router.currentRoute.value
       ) =>
-        router[APP_KEY].runWithContext(() =>
-          load(to, router, undefined, undefined, true)
-        ).then(() => (entry!.commit(to), entry!.ext!.state.value)),
+        app
+          .runWithContext(() => load(to, router, undefined, undefined, true))
+          .then(() => (entry!.commit(to), entry!.ext!.state.value)),
       refresh: (
         to: RouteLocationNormalizedLoaded = router.currentRoute.value
       ) =>
-        router[APP_KEY].runWithContext(() => load(to, router)).then(
-          () => (entry!.commit(to), entry.ext!.state.value)
-        ),
+        app
+          .runWithContext(() => load(to, router))
+          .then(() => (entry!.commit(to), entry.ext!.state.value)),
       status: ext!.status,
       asyncStatus: ext!.asyncStatus,
       state: ext!.state,
