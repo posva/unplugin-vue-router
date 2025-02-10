@@ -372,9 +372,11 @@ describe(
       await router.push('/items/0')
       const queryCache = useQueryCache(pinia)
 
+      expect(nestedQuery).toHaveBeenCalledTimes(1)
       await expect(
         queryCache.invalidateQueries({ key: ['list'] })
       ).resolves.toBeDefined()
+      expect(nestedQuery).toHaveBeenCalledTimes(2)
     })
   }
 )
