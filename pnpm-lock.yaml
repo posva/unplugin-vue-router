@@ -20,9 +20,6 @@ importers:
       chokidar:
         specifier: ^4.0.3
         version: 4.0.3
-      fast-glob:
-        specifier: ^3.3.3
-        version: 3.3.3
       json5:
         specifier: ^2.2.3
         version: 2.2.3
@@ -44,6 +41,9 @@ importers:
       scule:
         specifier: ^1.3.0
         version: 1.3.0
+      tinyglobby:
+        specifier: ^0.2.11
+        version: 0.2.11
       unplugin:
         specifier: 2.1.2
         version: 2.1.2
@@ -4893,6 +4893,10 @@ packages:
     resolution: {integrity: sha512-Zc+8eJlFMvgatPZTl6A9L/yht8QqdmUNtURHaKZLmKBE12hNPSrqNkUp2cs3M/UKmNVVAMFQYSjYIVHDjW5zew==}
     engines: {node: '>=12.0.0'}
 
+  tinyglobby@0.2.11:
+    resolution: {integrity: sha512-32TmKeeKUahv0Go8WmQgiEp9Y21NuxjwjqiRC1nrUB51YacfSwuB44xgXD+HdIppmMRgjQNPdrHyA6vIybYZ+g==}
+    engines: {node: '>=12.0.0'}
+
   tinypool@1.0.2:
     resolution: {integrity: sha512-al6n+QEANGFOMf/dmUMsuS5/r9B06uwlyNjZZql/zv8J7ybHCgoihBNORZCY2mzUuAnomQa2JdhyHKzZxPCrFA==}
     engines: {node: ^18.0.0 || >=20.0.0}
@@ -7363,7 +7367,7 @@ snapshots:
       flatted: 3.3.2
       pathe: 2.0.2
       sirv: 3.0.0
-      tinyglobby: 0.2.10
+      tinyglobby: 0.2.11
       tinyrainbow: 2.0.0
       vitest: 3.0.5(@types/debug@4.1.12)(@types/node@22.13.1)(@vitest/ui@3.0.5)(happy-dom@17.0.2)(jiti@2.4.2)(terser@5.38.1)(yaml@2.7.0)
 
@@ -11162,6 +11166,11 @@ snapshots:
       fdir: 6.4.3(picomatch@4.0.2)
       picomatch: 4.0.2
 
+  tinyglobby@0.2.11:
+    dependencies:
+      fdir: 6.4.3(picomatch@4.0.2)
+      picomatch: 4.0.2
+
   tinypool@1.0.2: {}
 
   tinyrainbow@2.0.0: {}
@@ -11210,7 +11219,7 @@ snapshots:
       source-map: 0.8.0-beta.0
       sucrase: 3.35.0
       tinyexec: 0.3.2
-      tinyglobby: 0.2.10
+      tinyglobby: 0.2.11
       tree-kill: 1.2.2
     optionalDependencies:
       postcss: 8.5.1
