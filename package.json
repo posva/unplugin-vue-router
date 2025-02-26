@@ -159,7 +159,7 @@
   "devDependencies": {
     "@pinia/colada": "^0.13.5",
     "@posva/prompts": "^2.4.4",
-    "@shikijs/vitepress-twoslash": "2.3.2",
+    "@shikijs/vitepress-twoslash": "3.0.0",
     "@tanstack/vue-query": "^5.66.0",
     "@types/micromatch": "^4.0.9",
     "@types/node": "^22.13.1",
