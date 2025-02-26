@@ -329,11 +329,11 @@ describe(
       const nestedQuery = vi.fn(async () => [{ id: 0 }, { id: 1 }])
       const useListData = defineColadaLoader({
         query: nestedQuery,
-        key: () => ['list'],
+        key: () => ['items'],
       })
 
       const useDetailData = defineColadaLoader({
-        key: (to) => ['list', to.params.id as string],
+        key: (to) => ['items', to.params.id as string],
         async query(to) {
           const list = await useListData()
           const item = list.find(
@@ -374,8 +374,12 @@ describe(
 
       expect(nestedQuery).toHaveBeenCalledTimes(1)
       await expect(
-        queryCache.invalidateQueries({ key: ['list'] })
+        queryCache.invalidateQueries({ key: ['items'] })
       ).resolves.toBeDefined()
+      expect(nestedQuery).toHaveBeenCalledTimes(2)
+
+      await router.push('/items/1')
+      // FIXME:
       expect(nestedQuery).toHaveBeenCalledTimes(2)
     })
   }
