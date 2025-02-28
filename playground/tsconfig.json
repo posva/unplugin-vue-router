@@ -35,7 +35,7 @@
   },
   "vueCompilerOptions": {
     "plugins": [
-      "../volar"
+      "../volar/index.cjs"
     ]
   },
   "references": [
