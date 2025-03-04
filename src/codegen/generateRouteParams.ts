@@ -1,11 +1,15 @@
 import { TreeNode } from '../core/tree'
 
+function dedupe<T>(array: T[]): T[] {
+  return [...new Set(array)]
+}
+
 export function generateRouteParams(node: TreeNode, isRaw: boolean): string {
   // node.params is a getter so we compute it once
   const nodeParams = node.params
   return nodeParams.length > 0
-    ? `{ ${nodeParams
-        .map(
+    ? `{ ${dedupe(
+        nodeParams.map(
           (param) =>
             `${param.paramName}${param.optional ? '?' : ''}: ` +
             (param.modifier === '+'
@@ -16,7 +20,7 @@ export function generateRouteParams(node: TreeNode, isRaw: boolean): string {
                   ? `ParamValueZeroOrOne<${isRaw}>`
                   : `ParamValue<${isRaw}>`)
         )
-        .join(', ')} }`
+      ).join(', ')} }`
     : // no params allowed
       'Record<never, never>'
 }
