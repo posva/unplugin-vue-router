@@ -1,3 +1,14 @@
+# [0.12.0](https://github.com/posva/unplugin-vue-router/compare/v0.11.2...v0.12.0) (2025-03-04)
+
+### Bug Fixes
+
+- **data-loaders:** allow nested loaders to run on invalidation ([0665635](https://github.com/posva/unplugin-vue-router/commit/0665635f78a3cbebcb676c288545e870f76a9243)), closes [#583](https://github.com/posva/unplugin-vue-router/issues/583)
+- unpin `unplugin` ([#592](https://github.com/posva/unplugin-vue-router/issues/592)) ([89daf52](https://github.com/posva/unplugin-vue-router/commit/89daf524bd71c01a48cc7c02021e20388666da79))
+
+### Performance Improvements
+
+- replace `@rollup/pluginutils` with `unplugin-utils` ([#579](https://github.com/posva/unplugin-vue-router/issues/579)) ([e83a972](https://github.com/posva/unplugin-vue-router/commit/e83a972feb2156191353dbf32411f1d6fd6f9142))
+
 ## [0.11.2](https://github.com/posva/unplugin-vue-router/compare/v0.11.1...v0.11.2) (2025-01-26)
 
 ### Features
