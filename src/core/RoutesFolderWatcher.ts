@@ -26,10 +26,6 @@ export class RoutesFolderWatcher {
     this.exclude = folderOptions.exclude
     this.extensions = folderOptions.extensions
     this.filePatterns = folderOptions.filePatterns
-    console.log(
-      '🚀 ~ file: RoutesFolderWatcher.ts ~ line 86 ~ RoutesFolderWatcher ~ constructor ~ this.filePatterns',
-      this.filePatterns
-    )
 
     this.watcher = fsWatch('.', {
       cwd: this.src,
