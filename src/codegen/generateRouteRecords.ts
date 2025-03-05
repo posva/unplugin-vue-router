@@ -1,3 +1,4 @@
+import { normalize } from 'pathe'
 import type { TreeNode } from '../core/tree'
 import { ImportsMap } from '../core/utils'
 import { type ResolvedOptions } from '../options'
@@ -145,6 +146,9 @@ function generatePageImport(
   importMode: ResolvedOptions['importMode'],
   importsMap: ImportsMap
 ) {
+  if (process.platform === 'win32') {
+    filepath = normalize(filepath)
+  }
   const mode =
     typeof importMode === 'function' ? importMode(filepath) : importMode
   if (mode === 'async') {
