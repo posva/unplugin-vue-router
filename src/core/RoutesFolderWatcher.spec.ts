@@ -14,9 +14,8 @@ import {
 } from './RoutesFolderWatcher'
 import { resolveOptions, RoutesFolderOption } from '../options'
 import pathe from 'pathe'
-import fs from 'node:fs'
+import fs from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { delay } from '../../tests/utils'
 
 const FIXTURES_ROOT = pathe.resolve(
   pathe.join(tmpdir(), 'vue-router-' + Date.now())
@@ -25,14 +24,14 @@ const FIXTURES_ROOT = pathe.resolve(
 const TEST_TIMEOUT = 4000
 
 describe('RoutesFolderWatcher', () => {
-  beforeAll(() => {
-    fs.mkdirSync(FIXTURES_ROOT, { recursive: true })
+  beforeAll(async () => {
+    await fs.mkdir(FIXTURES_ROOT, { recursive: true })
   })
 
   // keep track of all watchers to close them after the tests
   let watcherList: RoutesFolderWatcher[] = []
   let testId = 0
-  function createWatcher(routesFolderOptions: RoutesFolderOption) {
+  async function createWatcher(routesFolderOptions: RoutesFolderOption) {
     const rootDir = pathe.join(FIXTURES_ROOT, `test-${testId++}`)
     const srcDir = pathe.join(rootDir, routesFolderOptions.src)
     const options = resolveFolderOptions(
@@ -40,7 +39,7 @@ describe('RoutesFolderWatcher', () => {
       routesFolderOptions
     )
 
-    fs.mkdirSync(srcDir, { recursive: true })
+    await fs.mkdir(srcDir, { recursive: true })
 
     const watcher = new RoutesFolderWatcher(options)
     watcherList.push(watcher)
@@ -75,17 +74,16 @@ describe('RoutesFolderWatcher', () => {
   }
 
   it('triggers when new pages are added', async () => {
-    const { watcher, srcDir } = createWatcher({ src: 'src/pages' })
+    const { watcher, srcDir } = await createWatcher({ src: 'src/pages' })
 
     const add = vi.fn<(ctx: HandlerContext) => void>()
-    // watcher.on('add', add)
-    // chokidar triggers change instead of add
+    // chokidar triggers change and/or add ???
+    watcher.on('add', add)
     watcher.on('change', add)
 
     expect(add).toHaveBeenCalledTimes(0)
-    await delay(200)
 
-    fs.writeFileSync(pathe.join(srcDir, 'a.vue'), '', 'utf-8')
+    await fs.writeFile(pathe.join(srcDir, 'a.vue'), '', 'utf-8')
 
     await waitForSpy(add)
   })
