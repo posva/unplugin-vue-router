@@ -1,5 +1,5 @@
 import { type FSWatcher, watch as fsWatch } from 'chokidar'
-import micromatch from 'micromatch'
+import picomatch from 'picomatch'
 import { resolve } from 'pathe'
 import {
   ResolvedOptions,
@@ -8,6 +8,7 @@ import {
   _OverridableOption,
 } from '../options'
 import { appendExtensionListToPattern, asRoutePath } from './utils'
+import path from 'pathe'
 
 // TODO: export an implementable interface to create a watcher and let users provide a different watcher than chokidar to improve performance on windows
 
@@ -25,24 +26,27 @@ export class RoutesFolderWatcher {
     this.path = folderOptions.path
     this.exclude = folderOptions.exclude
     this.extensions = folderOptions.extensions
-    this.filePatterns = folderOptions.filePatterns
+    // the pattern includes the extenions, so we leverage picomatch check
+    this.filePatterns = folderOptions.pattern
+
+    const isMatch = picomatch(this.filePatterns, {
+      ignore: this.exclude,
+      // it seems like cwd isn't used by picomatch
+      // so we need to use path.relative to get the relative path
+      // cwd: this.src,
+    })
 
     this.watcher = fsWatch('.', {
       cwd: this.src,
       ignoreInitial: true,
       ignorePermissionErrors: true,
-      ignored: (filepath, stats) => {
+      ignored: (filePath, stats) => {
         // let folders pass, they are ignored by the glob pattern
-        if (stats?.isDirectory()) {
+        if (!stats || stats.isDirectory()) {
           return false
         }
 
-        const isMatch = micromatch.isMatch(filepath, this.filePatterns, {
-          cwd: this.src,
-          ignore: this.exclude,
-        })
-
-        return !isMatch
+        return !isMatch(path.relative(this.src, filePath))
       },
 
       // TODO: allow user options
@@ -54,10 +58,7 @@ export class RoutesFolderWatcher {
     handler: (context: HandlerContext) => void
   ) {
     this.watcher.on(event, (filePath: string) => {
-      // skip other extensions
-      if (this.extensions.every((extension) => !filePath.endsWith(extension))) {
-        return
-      }
+      // console.log('📦 Event', event, filePath)
 
       // ensure consistent absolute path for Windows and Unix
       filePath = resolve(this.src, filePath)
@@ -78,7 +79,7 @@ export class RoutesFolderWatcher {
   }
 
   close() {
-    this.watcher.close()
+    return this.watcher.close()
   }
 }
 
@@ -103,7 +104,7 @@ export function resolveFolderOptions(
   )
 
   return {
-    src: folderOptions.src,
+    src: path.resolve(globalOptions.root, folderOptions.src),
     pattern: appendExtensionListToPattern(
       filePatterns,
       // also override the extensions if the folder has a custom extensions
