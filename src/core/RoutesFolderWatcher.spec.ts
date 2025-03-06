@@ -16,6 +16,7 @@ import { resolveOptions, RoutesFolderOption } from '../options'
 import pathe from 'pathe'
 import fs from 'node:fs/promises'
 import { tmpdir } from 'node:os'
+import { type FSWatcher } from 'chokidar'
 
 const FIXTURES_ROOT = pathe.resolve(
   pathe.join(tmpdir(), 'vue-router-' + Date.now())
@@ -42,6 +43,7 @@ describe('RoutesFolderWatcher', () => {
     await fs.mkdir(srcDir, { recursive: true })
 
     const watcher = new RoutesFolderWatcher(options)
+    await waitForWatcher(watcher.watcher)
     watcherList.push(watcher)
 
     return { watcher, options, rootDir, srcDir }
@@ -70,6 +72,22 @@ describe('RoutesFolderWatcher', () => {
         clearTimeout(checkTimeout)
         reject(new Error('Spy was not called'))
       }, TEST_TIMEOUT)
+    })
+  }
+
+  function waitForWatcher(watcher: FSWatcher) {
+    return new Promise<void>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('timeout'))
+      }, TEST_TIMEOUT)
+      watcher.on('error', (...args) => {
+        clearTimeout(timeout)
+        reject(...args)
+      })
+      watcher.on('ready', (...args) => {
+        clearTimeout(timeout)
+        resolve(...args)
+      })
     })
   }
 
