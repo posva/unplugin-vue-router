@@ -16,9 +16,10 @@ import { resolveOptions, RoutesFolderOption } from '../options'
 import pathe from 'pathe'
 import fs from 'node:fs'
 import { tmpdir } from 'node:os'
+import { delay } from '../../tests/utils'
 
 const FIXTURES_ROOT = pathe.resolve(
-  pathe.join(tmpdir(), 'chokidar-' + Date.now())
+  pathe.join(tmpdir(), 'vue-router-' + Date.now())
 )
 
 const TEST_TIMEOUT = 4000
@@ -29,7 +30,7 @@ describe('RoutesFolderWatcher', () => {
   })
 
   // keep track of all watchers to close them after the tests
-  const watcherList: RoutesFolderWatcher[] = []
+  let watcherList: RoutesFolderWatcher[] = []
   let testId = 0
   function createWatcher(routesFolderOptions: RoutesFolderOption) {
     const rootDir = pathe.join(FIXTURES_ROOT, `test-${testId++}`)
@@ -49,6 +50,7 @@ describe('RoutesFolderWatcher', () => {
 
   afterAll(async () => {
     await Promise.all(watcherList.map((watcher) => watcher.close()))
+    watcherList = []
   })
 
   function waitForSpy(...spies: Mock[]) {
@@ -81,6 +83,7 @@ describe('RoutesFolderWatcher', () => {
     watcher.on('change', add)
 
     expect(add).toHaveBeenCalledTimes(0)
+    await delay(200)
 
     fs.writeFileSync(pathe.join(srcDir, 'a.vue'), '', 'utf-8')
 
