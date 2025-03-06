@@ -13,18 +13,7 @@ export function getRouteBlock(
   const parsedSFC = parse(content, { pad: 'space' }).descriptor
   const blockStr = parsedSFC?.customBlocks.find((b) => b.type === 'route')
 
-  if (!blockStr) return
-
-  let result = parseCustomBlock(blockStr, path, options)
-
-  // validation
-  if (result) {
-    if (result.path != null && !result.path.startsWith('/')) {
-      warn(`Overridden path must start with "/". Found in "${path}".`)
-    }
-  }
-
-  return result
+  if (blockStr) return parseCustomBlock(blockStr, path, options)
 }
 
 export interface CustomRouteBlock
