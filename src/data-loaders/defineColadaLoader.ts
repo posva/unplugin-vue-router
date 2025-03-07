@@ -578,12 +578,19 @@ export interface UseDataLoaderColadaResult<
       UseQueryReturn<TData, TError, TDataInitial>,
       'isPending' | 'status' | 'asyncStatus' | 'state'
     > {
+  /**
+   * Equivalent to `useQuery().refetch()`. Refetches the data no matter if its stale or not.
+   * @see reload - It also calls `refetch()` but returns an empty promise
+   */
   refetch: (
     to?: RouteLocationNormalizedLoaded
     // TODO: we might need to add this in the future
     // ...coladaArgs: Parameters<UseQueryReturn<Data, any>['refresh']>
   ) => ReturnType<UseQueryReturn<TData, TError, TDataInitial>['refetch']>
 
+  /**
+   * Equivalent to `useQuery().refresh()`. Refetches the data **only** if it's stale.
+   */
   refresh: (
     to?: RouteLocationNormalizedLoaded
   ) => ReturnType<UseQueryReturn<TData, TError, TDataInitial>['refetch']>
