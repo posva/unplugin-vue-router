@@ -419,6 +419,16 @@ describe('Tree', () => {
     expect(node.fullPath).toBe('/custom-child')
   })
 
+  it('does not contain duplicated params when a child route overrides the path', () => {
+    const tree = new PrefixTree(RESOLVED_OPTIONS)
+    tree.insert('[a]', '[a].vue')
+    const node = tree.insert('[a]/b', '[a]/b.vue')
+    node.value.setOverride('', {
+      path: '/:a()/b',
+    })
+    expect(node.params.length).toBe(1)
+  })
+
   it('removes trailing slash from path but not from name', () => {
     const tree = new PrefixTree(RESOLVED_OPTIONS)
     tree.insert('a/index', 'a/index.vue')
