@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_OPTIONS, resolveOptions } from '../options'
 import { PrefixTree } from './tree'
-import { TreeNodeType } from './treeNodeValue'
+import { TreeNodeType, type TreeRouteParam } from './treeNodeValue'
 import { resolve } from 'pathe'
 import { mockWarn } from '../../tests/vitest-mock-warn'
 
@@ -419,14 +419,23 @@ describe('Tree', () => {
     expect(node.fullPath).toBe('/custom-child')
   })
 
+  // https://github.com/posva/unplugin-vue-router/pull/597
+  // added because in Nuxt the result was different
   it('does not contain duplicated params when a child route overrides the path', () => {
     const tree = new PrefixTree(RESOLVED_OPTIONS)
     tree.insert('[a]', '[a].vue')
     const node = tree.insert('[a]/b', '[a]/b.vue')
     node.value.setOverride('', {
-      path: '/:a()/b',
+      path: '/:a()/new-b',
     })
-    expect(node.params.length).toBe(1)
+    expect(node.params).toHaveLength(1)
+    expect(node.params[0]).toEqual({
+      paramName: 'a',
+      isSplat: false,
+      modifier: '',
+      optional: false,
+      repeatable: false,
+    } satisfies TreeRouteParam)
   })
 
   it('removes trailing slash from path but not from name', () => {
