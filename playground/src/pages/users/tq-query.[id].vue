@@ -57,14 +57,14 @@ const {
 } = useQuery({
   async queryFn({ signal }) {
     console.log('[TQ]useUserData', route.fullPath)
-    signal.addEventListener('abort', (ev) => {
-      // console.log('[TQ]useUserData aborted', ev)
+    signal.addEventListener('abort', () => {
+      console.log('[TQ]useUserData aborted ❌', signal.reason)
     })
     await delay(500)
     if (simulateError.value) {
       throw new Error('Simulated Error')
     }
-    signal.throwIfAborted()
+    // signal.throwIfAborted()
     console.log('✅ returning data')
     const user = {
       id: route.params.id,
