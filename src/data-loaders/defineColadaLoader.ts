@@ -191,6 +191,7 @@ export function defineColadaLoader<Data>(
           // https://github.com/posva/unplugin-vue-router/issues/583
           return app.runWithContext(() =>
             loader(trackedRoute, {
+              // TODO: provide the query signal too
               signal: route.meta[ABORT_CONTROLLER_KEY]?.signal,
             })
           )
