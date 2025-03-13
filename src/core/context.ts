@@ -263,7 +263,12 @@ if (import.meta.hot) {
 
     logTree(routeTree, logger.log)
     if (dts) {
-      const content = generateDTS()
+      let content = generateDTS()
+
+      if (options.postProcessDTS) {
+        content = await options.postProcessDTS(content)
+      }
+
       if (lastDTS !== content) {
         await fs.mkdir(dirname(dts), { recursive: true })
         await fs.writeFile(dts, content, 'utf-8')

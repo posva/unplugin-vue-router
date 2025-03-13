@@ -68,6 +68,11 @@ VueRouter({
   async beforeWriteFiles(rootRoute) {
     // ...
   },
+
+  // modify the generated DTS file before written to disk
+  async postProcessDTS(dts) {
+    // ...
+  },
 })
 ```
 

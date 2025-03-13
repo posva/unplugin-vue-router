@@ -164,6 +164,11 @@ export interface Options {
   beforeWriteFiles?: (rootRoute: EditableTreeNode) => _Awaitable<void>
 
   /**
+   * Allows to post-process the generated d.ts files. This will be invoked **every time** the d.ts file needs to be written.
+   */
+  postProcessDTS?: (dts: string) => _Awaitable<string>
+
+  /**
    * Defines how page components should be imported. Defaults to dynamic imports to enable lazy loading of pages.
    * @default `'async'`
    */

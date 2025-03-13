@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createRoutesContext } from '../src/core/context'
 import { resolveOptions } from '../src/options'
+import { readFileSync } from 'node:fs'
 import { fileURLToPath, URL } from 'node:url'
 import { normalize, join } from 'pathe'
 
@@ -32,6 +33,23 @@ describe('e2e routes', () => {
         )
         .replace(/(import\(["'])(?:.+?)fixtures\/filenames/gi, '$1')
     ).toMatchSnapshot()
+  })
+
+  it('allows post-processing the generated DTS file', async () => {
+    const suffix = `export type Foo = 'bar'`
+    const dts = join(__dirname, './.types/__types.d.ts')
+    const context = createRoutesContext(
+      resolveOptions({
+        dts,
+        logs: false,
+        watch: false,
+        routesFolder: [{ src: join(__dirname, './fixtures/filenames/routes') }],
+        postProcessDTS: (dts) => `${dts}\n${suffix}\n`,
+      })
+    )
+
+    await context.scanPages()
+    expect(readFileSync(dts, 'utf-8')).toContain(suffix)
   })
 
   it.skip('works with mixed extensions', async () => {
