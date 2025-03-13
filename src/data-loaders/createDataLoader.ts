@@ -161,7 +161,7 @@ export interface DefineDataLoaderOptionsBase_LaxData
  */
 export interface DefineDataLoaderOptionsBase_DefinedData
   extends _DefineDataLoaderOptionsBase_Common {
-  lazy?: false
+  lazy?: boolean
   server?: true
   errors?: false
 }
