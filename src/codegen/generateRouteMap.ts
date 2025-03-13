@@ -20,7 +20,15 @@ ${node.getSortedChildren().map(generateRouteNamedMap).join('')}}`
 }
 
 export function generateRouteRecordInfo(node: TreeNode) {
+  const childrenRouteNamesGeneric =
+    node.children.size > 0
+      ? node
+          .getSortedChildren()
+          .map((childRoute) => `'${childRoute.name}'`)
+          .join(' | ')
+      : 'never'
+
   return `RouteRecordInfo<'${node.name}', '${
     node.fullPath
-  }', ${generateRouteParams(node, true)}, ${generateRouteParams(node, false)}>`
+  }', ${generateRouteParams(node, true)}, ${generateRouteParams(node, false)}, RouteMeta, ${childrenRouteNamesGeneric}>`
 }
