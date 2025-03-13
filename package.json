@@ -111,6 +111,7 @@
     "vitest": "vitest --typecheck",
     "docs": "vitepress dev docs",
     "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
     "lint": "prettier -c '{src,test,e2e,examples,playground}/**/*.{ts,vue}'",
     "play": "npm -C playground run dev",
     "play:build": "npm -C playground run build",
@@ -199,5 +200,17 @@
     "vuefire": "^3.2.1",
     "webpack": "^5.99.9",
     "yorkie": "^2.0.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@parcel/watcher",
+      "esbuild",
+      "protobufjs",
+      "vue-demi",
+      "yorkie"
+    ],
+    "patchedDependencies": {
+      "vue-router": "patches/vue-router.patch"
+    }
   }
 }

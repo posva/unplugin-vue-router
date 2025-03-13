@@ -50,6 +50,7 @@ import type {
   ParamValueOneOrMore,
   ParamValueZeroOrMore,
   ParamValueZeroOrOne,
+  RouteMeta,
 } from 'vue-router'
 declare module 'vue-router/auto-routes' {
   export interface RouteNamedMap {
@@ -60,7 +61,20 @@ declare module 'vue-router/auto-routes' {
       // these are the raw param types (accept numbers, strings, booleans, etc)
       { path: ParamValue<true> },
       // these are the normalized params as found in useRoute().params
-      { path: ParamValue<false> }
+      { path: ParamValue<false> },
+      // these are the `meta` fields
+      RouteMeta,
+      // this is a union of all children route names
+      // if the route does not have nested routes, pass `never` or omit this generic entirely
+      'custom-dynamic-child-name'
+    >
+    'custom-dynamic-child-name': RouteRecordInfo<
+      'custom-dynamic-child-name',
+      '/added-during-runtime/[...path]/child',
+      { path: ParamValue<true> },
+      { path: ParamValue<false> },
+      RouteMeta,
+      never
     >
   }
 }
@@ -76,13 +90,19 @@ import { useRoute, type RouteLocationNormalizedLoaded } from 'vue-router'
 // ---cut-end---
 // @errors: 2322 2339
 // @moduleResolution: bundler
-// these are all valid
-const userWithIdCasted = useRoute() as RouteLocationNormalizedLoaded<'/users/[id]'>
-userWithIdCasted.params.id
-const userWithIdTypeParam = useRoute<'/users/[id]'>()
-userWithIdTypeParam.params.id
-// 👇 this one is the easiest to write because it autocompletes
-const userWithIdParam = useRoute('/users/[id]')
-userWithIdParam.params
-//              ^?
+// These are all valid ways to get a typed route and return the
+// provided route's and any of its child routes' typings.
+// Note that `/users/[id]/edit` is a child route
+// of `/users/[id]` in this example.
+
+// Not recommended, since this leaves out any child routes' typings.
+const userRouteWithIdCasted = useRoute() as RouteLocationNormalizedLoaded<'/users/[id]'>
+userRouteWithIdCasted.params.id
+// Better way, but no autocompletion.
+const userRouteWithIdTypeParam = useRoute<'/users/[id]'>()
+userRouteWithIdTypeParam.params.id
+// 👇 This one is the easiest to write because it autocompletes.
+const userRouteWithIdParam = useRoute('/users/[id]')
+userRouteWithIdParam.name
+//                   ^?
 ```

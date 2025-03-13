@@ -1,0 +1,73 @@
+diff --git a/dist/vue-router.d.ts b/dist/vue-router.d.ts
+index 8f2c2e5a39d50cf517b4aa512d363f402ce2255a..0c9864363cae71d34327a78025629d34240e38e7 100644
+--- a/dist/vue-router.d.ts
++++ b/dist/vue-router.d.ts
+@@ -871,6 +871,22 @@ export declare type RouteMap = TypesConfig extends Record<'RouteNamedMap', infer
+  */
+ export declare type RouteMapGeneric = Record<string | symbol, RouteRecordInfo>;
+ 
++/**
++ * Returns a union of route names from children of the route with given route name
++ */
++export type GetDeepChildrenRouteNames<T extends keyof RouteMap> =
++  RouteMap[T] extends RouteRecordInfo<any, any, any, any, any, infer N>
++    ? N extends any
++      ? N | GetDeepChildrenRouteNames<N>
++      : never
++    : never
++
++/**
++ * Returns a union of given route name and the route names of children of that route
++ */
++export type RouteNameWithChildren<T extends keyof RouteMap> =
++  RouteMapGeneric extends RouteMap ? T : T | GetDeepChildrenRouteNames<T>
++
+ /**
+  * Interface to type `meta` fields in route records.
+  *
+@@ -1148,7 +1164,14 @@ export declare interface _RouteRecordBase extends PathParserOptions {
+  * Helper type to define a Typed `RouteRecord`
+  * @see {@link RouteRecord}
+  */
+-export declare interface RouteRecordInfo<Name extends string | symbol = string, Path extends string = string, ParamsRaw extends RouteParamsRawGeneric = RouteParamsRawGeneric, Params extends RouteParamsGeneric = RouteParamsGeneric, Meta extends RouteMeta = RouteMeta> {
++export declare interface RouteRecordInfo<
++    Name extends string | symbol = string,
++    Path extends string = string,
++    ParamsRaw extends RouteParamsRawGeneric = RouteParamsRawGeneric,
++    Params extends RouteParamsGeneric = RouteParamsGeneric,
++    Meta extends RouteMeta = RouteMeta,
++    _ChildrenRouteNames extends string | symbol = never,
++> {
+     name: Name;
+     path: Path;
+     paramsRaw: ParamsRaw;
+@@ -1740,11 +1763,14 @@ export declare interface UseLinkReturn<Name extends keyof RouteMap = keyof Route
+     navigate(e?: MouseEvent): Promise<void | NavigationFailure>;
+ }
+ 
+-/**
++type GetRouteLocationNormalizedLoaded<Name extends keyof RouteMap> =
++  Name extends any ? RouteLocationNormalizedLoaded<Name> : never;
++
++/**
+  * Returns the current route location. Equivalent to using `$route` inside
+  * templates.
+  */
+-export declare function useRoute<Name extends keyof RouteMap = keyof RouteMap>(_name?: Name): RouteLocationNormalizedLoaded<Name>;
++export declare function useRoute<CurrentRouteName extends keyof RouteMap = keyof RouteMap>(_currentRouteName?: CurrentRouteName): GetRouteLocationNormalizedLoaded<RouteNameWithChildren<CurrentRouteName>>;
+ 
+ /**
+  * Returns the router instance. Equivalent to using `$router` inside
+diff --git a/dist/vue-router.mjs b/dist/vue-router.mjs
+index 399f57cd8150fe8bb96686110b859d7745e5fc8d..b5fbc8ecf857a5b0ce9dda54c323e59785700766 100644
+--- a/dist/vue-router.mjs
++++ b/dist/vue-router.mjs
+@@ -3774,7 +3774,7 @@ function useRouter() {
+  * Returns the current route location. Equivalent to using `$route` inside
+  * templates.
+  */
+-function useRoute(_name) {
++function useRoute(_currentRouteName) {
+     return inject(routeLocationKey);
+ }
+ 

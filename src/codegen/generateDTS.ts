@@ -23,6 +23,7 @@ declare module '${routesModule}' {
     ParamValueOneOrMore,
     ParamValueZeroOrMore,
     ParamValueZeroOrOne,
+    RouteMeta,
   } from 'vue-router'
 
   /**
