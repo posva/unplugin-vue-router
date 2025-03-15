@@ -74,6 +74,11 @@ const {
     }
     return user
   },
+  placeholderData: () => ({
+    id: route.params.id,
+    name: 'Loading...',
+    when: new Date().toUTCString(),
+  }),
   queryKey: ['user-id', computed(() => route.params.id)],
   staleTime: 0,
   retry: false,
