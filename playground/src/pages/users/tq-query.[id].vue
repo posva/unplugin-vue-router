@@ -169,6 +169,6 @@ const {
       <code>fetchStatus: {{ fetchStatus }}</code>
     </p>
     <pre v-if="tqError">Error: {{ tqError }}</pre>
-    <pre v-else>{{ tqUser == null ? String(tqUser) : tqUser }}</pre>
+    <pre>data: {{ tqUser == null ? String(tqUser) : tqUser }}</pre>
   </main>
 </template>
