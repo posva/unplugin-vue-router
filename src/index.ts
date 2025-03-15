@@ -16,13 +16,13 @@ import {
   mergeAllExtensions,
 } from './options'
 import { createViteContext } from './core/vite'
-import { createFilter } from '@rollup/pluginutils'
+import { createFilter } from 'unplugin-utils'
 import { join } from 'pathe'
 import { appendExtensionListToPattern } from './core/utils'
 import { MACRO_DEFINE_PAGE_QUERY } from './core/definePage'
 import { createAutoExportPlugin } from './data-loaders/auto-exports'
 
-export * from './types'
+export type * from './types'
 
 export { DEFAULT_OPTIONS }
 

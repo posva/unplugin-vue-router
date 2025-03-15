@@ -17,6 +17,9 @@ app.use(VueQueryPlugin, {
         // debugger
         mutation
       },
+      onMutate(variables, mutation) {
+        return { wow: 'wah' }
+      },
       async onSettled(...args) {
         await new Promise((r) => setTimeout(r, 1000))
         console.log('global onSettled', ...args)
@@ -28,3 +31,10 @@ app.use(DataLoaderPlugin, { router })
 app.use(router)
 
 app.mount('#app')
+
+// small logger for navigations, useful to check HMR
+router.isReady().then(() => {
+  router.beforeEach((to, from) => {
+    console.log('🧭', from.fullPath, '->', to.fullPath)
+  })
+})

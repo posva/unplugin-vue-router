@@ -3,7 +3,7 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 </script>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { useQuery, serialize } from '@pinia/colada'
 import { getActivePinia } from 'pinia'
 
@@ -24,7 +24,7 @@ const {
   data: pcUSer,
   status,
   error: pcError,
-  isFetching: pcIsFetching,
+  isLoading: pcIsFetching,
   refetch,
   refresh,
 } = useQuery({

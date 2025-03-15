@@ -47,7 +47,7 @@ When using this pattern, remember to **export the loader** in all the page compo
 
 ## Usage outside of page components
 
-Until now, we have only seen loaders used in page components. However, one of the benefits of using loaders is that they can be **reused in many part of your application**, just like regular composables. This will not only eliminate code duplication but also ensure an optimal and performant data fetching by **deduplicating requests and sharing the data**.
+Until now, we have only seen loaders used in page components. However, one of the benefits of using loaders is that they can be **reused in many parts of your application**, just like regular composables. This will not only eliminate code duplication but also ensure an optimal and performant data fetching by **deduplicating requests and sharing the data**.
 
 To use a loader outside of a page component, you can simply **import it** and use it like any other composable, without the need to export it.
 
@@ -59,6 +59,12 @@ import { useProjectIssues } from '@/pages/[projectId]/issues.vue'
 const { data: issues } = useProjectIssues()
 </script>
 ```
+
+::: tip
+
+When using a loader in a non-page component, you must **export the loader** from the page components where it is used. If you only import and use the loader in a regular component, the router will not recognize it and won't trigger or await it during navigation.
+
+:::
 
 ## Nested Routes
 

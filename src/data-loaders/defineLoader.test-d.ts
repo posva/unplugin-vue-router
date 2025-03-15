@@ -1,7 +1,7 @@
 import { describe, it, expectTypeOf } from 'vitest'
 import { defineBasicLoader } from './defineLoader'
-import { Ref } from 'vue'
-import { NavigationResult } from 'unplugin-vue-router/data-loaders'
+import type { Ref } from 'vue'
+import { NavigationResult } from './navigation-guard'
 
 describe('defineBasicLoader', () => {
   interface UserData {
@@ -38,50 +38,162 @@ describe('defineBasicLoader', () => {
 
     return user
   }
+
+  it('can enforce defined data', () => {
+    expectTypeOf(
+      defineBasicLoader(loaderUser)().data.value
+    ).toEqualTypeOf<UserData>()
+    expectTypeOf(
+      defineBasicLoader(loaderUser, {})().data.value
+    ).toEqualTypeOf<UserData>()
+    expectTypeOf(
+      defineBasicLoader(loaderUser, {
+        errors: false,
+        lazy: false,
+        server: true,
+      })().data.value
+    ).toEqualTypeOf<UserData>()
+    expectTypeOf(
+      defineBasicLoader(loaderUser, {
+        lazy: false,
+        server: true,
+      })().data.value
+    ).toEqualTypeOf<UserData>()
+    expectTypeOf(
+      defineBasicLoader(loaderUser, {
+        errors: false,
+      })().data.value
+    ).toEqualTypeOf<UserData>()
+    expectTypeOf(
+      defineBasicLoader(loaderUser, {
+        server: true,
+      })().data.value
+    ).toEqualTypeOf<UserData>()
+    expectTypeOf(
+      defineBasicLoader(loaderUser, {
+        lazy: false,
+      })().data.value
+    ).toEqualTypeOf<UserData>()
+  })
+
+  it('makes data possibly undefined when lazy', () => {
+    expectTypeOf(
+      defineBasicLoader(loaderUser, { lazy: true })().data.value
+    ).toEqualTypeOf<UserData | undefined>()
+  })
+
+  it('makes data possibly undefined when lazy is a function', () => {
+    expectTypeOf(
+      defineBasicLoader(loaderUser, { lazy: () => false })().data.value
+    ).toEqualTypeOf<UserData | undefined>()
+  })
+
+  it('makes data possibly undefined when errors is not false', () => {
+    expectTypeOf(
+      defineBasicLoader(loaderUser, { errors: true })().data.value
+    ).toEqualTypeOf<UserData | undefined>()
+    expectTypeOf(
+      defineBasicLoader(loaderUser, { errors: [] })().data.value
+    ).toEqualTypeOf<UserData | undefined>()
+    expectTypeOf(
+      defineBasicLoader(loaderUser, { errors: (e) => e instanceof Error })()
+        .data.value
+    ).toEqualTypeOf<UserData | undefined>()
+    expectTypeOf(
+      defineBasicLoader(loaderUser, { errors: () => true })().data.value
+    ).toEqualTypeOf<UserData | undefined>()
+  })
+
+  class MyError1 extends Error {
+    // properties to differentiate the errors types
+    p1: string = 'p1'
+  }
+  class MyError2 extends Error {
+    p2: string = 'p2'
+  }
+
+  it('uses a default type of Error | null', () => {
+    expectTypeOf(
+      defineBasicLoader(loaderUser, {})().error.value
+    ).toEqualTypeOf<Error | null>()
+  })
+
+  it('makes data possibly undefined when server is not true', () => {
+    expectTypeOf(
+      defineBasicLoader(loaderUser, { server: false })().data.value
+    ).toEqualTypeOf<UserData | undefined>()
+  })
+
   it('infers the returned type for data', () => {
-    expectTypeOf<Ref<UserData | undefined>>(
-      defineBasicLoader(loaderUser, { lazy: true })().data
+    expectTypeOf<UserData | undefined>(
+      defineBasicLoader(loaderUser, { lazy: true })().data.value
     )
-    expectTypeOf<Ref<UserData | undefined>>(
-      defineBasicLoader(loaderUser, { lazy: () => false })().data
+    expectTypeOf<UserData | undefined>(
+      defineBasicLoader(loaderUser, { lazy: () => false })().data.value
     )
   })
 
-  it('infers the returned type for the resolved value', () => {
-    expectTypeOf<Promise<UserData>>(
-      defineBasicLoader(loaderUser, { lazy: true })()
-    )
-    expectTypeOf<Promise<UserData>>(defineBasicLoader(loaderUser, {})())
+  it('infers the returned type for the resolved value to always be defined', async () => {
+    expectTypeOf(
+      await defineBasicLoader(loaderUser)()
+    ).toEqualTypeOf<UserData>()
+    expectTypeOf(
+      await defineBasicLoader(loaderUser, {})()
+    ).toEqualTypeOf<UserData>()
+    expectTypeOf(
+      await defineBasicLoader(loaderUser, { lazy: false })()
+    ).toEqualTypeOf<UserData>()
+    expectTypeOf(
+      await defineBasicLoader(loaderUser, { lazy: true })()
+    ).toEqualTypeOf<UserData>()
+    expectTypeOf(
+      await defineBasicLoader(loaderUser, { server: true })()
+    ).toEqualTypeOf<UserData>()
+    expectTypeOf(
+      await defineBasicLoader(loaderUser, { server: false })()
+    ).toEqualTypeOf<UserData>()
+    expectTypeOf(
+      await defineBasicLoader(loaderUser, { errors: false })()
+    ).toEqualTypeOf<UserData>()
+    expectTypeOf(
+      await defineBasicLoader(loaderUser, { errors: true })()
+    ).toEqualTypeOf<UserData>()
+    expectTypeOf(
+      await defineBasicLoader(loaderUser, { errors: [] })()
+    ).toEqualTypeOf<UserData>()
+    expectTypeOf(
+      await defineBasicLoader(loaderUser, { errors: false, lazy: true })()
+    ).toEqualTypeOf<UserData>()
+    expectTypeOf(
+      await defineBasicLoader(loaderUser, { server: false, lazy: true })()
+    ).toEqualTypeOf<UserData>()
+    expectTypeOf(
+      await defineBasicLoader(loaderUser, {
+        errors: false,
+        server: false,
+        lazy: true,
+      })()
+    ).toEqualTypeOf<UserData>()
   })
-
-  expectTypeOf<{ data: Ref<UserData | undefined> }>(
-    defineBasicLoader(loaderUser, { lazy: false })()
-  )
 
   it('allows returning a Navigation Result without a type error', () => {
-    expectTypeOf<{ data: Ref<UserData | undefined> }>(
-      defineBasicLoader(
-        async () => {
-          if (Math.random()) {
-            return loaderUser()
-          } else {
-            return new NavigationResult('/')
-          }
-        },
-        { lazy: false }
-      )()
+    expectTypeOf<UserData>(
+      defineBasicLoader(async () => {
+        if (Math.random()) {
+          return loaderUser()
+        } else {
+          return new NavigationResult('/')
+        }
+      })().data.value
     )
-    expectTypeOf<Promise<UserData>>(
-      defineBasicLoader(
-        async () => {
-          if (Math.random()) {
-            return loaderUser()
-          } else {
-            return new NavigationResult('/')
-          }
-        },
-        { lazy: false }
-      )()
-    )
+    expectTypeOf(
+      defineBasicLoader(async () => {
+        if (Math.random()) {
+          return loaderUser()
+        } else {
+          return new NavigationResult('/')
+        }
+      })()
+    ).resolves.toEqualTypeOf<UserData>()
   })
 })

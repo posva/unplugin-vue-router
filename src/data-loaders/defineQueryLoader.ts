@@ -3,7 +3,7 @@ import { useRoute, useRouter } from 'vue-router'
 import {
   DataLoaderContextBase,
   DataLoaderEntryBase,
-  DefineDataLoaderOptionsBase,
+  DefineDataLoaderOptionsBase_LaxData,
   DefineLoaderFn,
   UseDataLoader,
   UseDataLoaderResult,
@@ -340,7 +340,7 @@ export function defineQueryLoader<Data, isLazy extends boolean>(
 }
 
 export interface DefineQueryLoaderOptions<isLazy extends boolean, Data>
-  extends DefineDataLoaderOptionsBase<isLazy>,
+  extends DefineDataLoaderOptionsBase_LaxData<isLazy>,
     // NOTE: queryFn is always needed and passed as the first argument
     Omit<QueryObserverOptions<Data>, 'queryFn'> {}
 

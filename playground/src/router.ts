@@ -7,8 +7,21 @@ export const router = createRouter({
   routes,
 })
 
+function addRedirects() {
+  router.addRoute({
+    path: '/new-about',
+    redirect: '/about?from=hoho',
+  })
+}
+
 if (import.meta.hot) {
-  handleHotUpdate(router)
+  handleHotUpdate(router, (routes) => {
+    console.log('🔥 HMR with', routes)
+    addRedirects()
+  })
+} else {
+  // production
+  addRedirects()
 }
 
 // manual extension of route types

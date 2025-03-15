@@ -2,6 +2,7 @@
 definePage({
   meta: {
     title: 'hello',
+    n: 8,
   },
 })
 </script>

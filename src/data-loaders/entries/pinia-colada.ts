@@ -2,9 +2,12 @@ export { defineColadaLoader } from '../defineColadaLoader'
 export type {
   DataLoaderColadaEntry,
   DataColadaLoaderContext,
-  DefineDataColadaLoaderOptions,
-  UseDataLoaderColada,
+  DefineDataColadaLoaderOptions_LaxData,
   UseDataLoaderColadaResult,
+  UseDataLoaderColada_LaxData,
+  UseDataLoaderColada_DefinedData,
+  // deprecated
+  DefineDataColadaLoaderOptions,
 } from '../defineColadaLoader'
 // export type {
 //   UseDataLoader,

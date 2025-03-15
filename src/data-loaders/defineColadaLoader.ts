@@ -9,12 +9,13 @@ import {
 import {
   type DataLoaderContextBase,
   type DataLoaderEntryBase,
-  type DefineDataLoaderOptionsBase,
+  type DefineDataLoaderOptionsBase_LaxData,
   type DefineLoaderFn,
   type UseDataLoader,
   type UseDataLoaderResult,
   type _DefineLoaderEntryMap,
   type _PromiseMerged,
+  type ErrorDefault,
   ABORT_CONTROLLER_KEY,
   APP_KEY,
   IS_USE_DATA_LOADER_KEY,
@@ -38,51 +39,71 @@ import {
   type UseQueryReturn,
   useQuery,
 } from '@pinia/colada'
-import { toLazyValue } from './createDataLoader'
+import {
+  _DefineDataLoaderOptionsBase_Common,
+  DefineDataLoaderOptionsBase_DefinedData,
+  toLazyValue,
+} from './createDataLoader'
 
 /**
- * Creates a data loader composable that can be exported by pages to attach the data loading to a route. This returns a
- * composable that can be used in any component.
- *
- * The returned composable exposes a mix of Data Loaders state and Pinia
- * Colada state.
- * - `data`, `isLoading`, `error` are navigation dependent and follow data loaders behavior.
- * - `status`, `asyncStatus`, `state` are Pinia Colada state and will immediately change and reflect the state of the
- *   query.
- *
- * @experimental
- * Still under development and subject to change. See https://github.com/vuejs/rfcs/discussions/460
+ * Creates a Pinia Colada data loader with `data` is always defined.
  *
  * @param name - name of the route to have typed routes
- * @param loader - function that returns a promise with the data
  * @param options - options to configure the data loader
  */
 export function defineColadaLoader<Name extends keyof RouteMap, Data>(
   name: Name,
-  options: DefineDataColadaLoaderOptions<Name, Data>
-): UseDataLoaderColada<Data>
+  options: DefineDataColadaLoaderOptions_DefinedData<Name, Data>
+): UseDataLoaderColada_DefinedData<Data>
+
+/**
+ * Creates a Pinia Colada data loader with `data` is possibly `undefined`.
+ *
+ * @param name - name of the route to have typed routes
+ * @param options - options to configure the data loader
+ */
+export function defineColadaLoader<Name extends keyof RouteMap, Data>(
+  name: Name,
+  options: DefineDataColadaLoaderOptions_LaxData<Name, Data>
+): UseDataLoaderColada_LaxData<Data>
+
+/**
+ * Creates a Pinia Colada data loader with `data` is always defined.
+ * @param options - options to configure the data loader
+ */
 export function defineColadaLoader<Data>(
-  options: DefineDataColadaLoaderOptions<keyof RouteMap, Data>
-): UseDataLoaderColada<Data>
+  options: DefineDataColadaLoaderOptions_DefinedData<keyof RouteMap, Data>
+): UseDataLoaderColada_DefinedData<Data>
+
+/**
+ * Creates a Pinia Colada data loader with `data` is possibly `undefined`.
+ * @param options - options to configure the data loader
+ */
+export function defineColadaLoader<Data>(
+  options: DefineDataColadaLoaderOptions_LaxData<keyof RouteMap, Data>
+): UseDataLoaderColada_LaxData<Data>
 
 export function defineColadaLoader<Data>(
   nameOrOptions:
     | keyof RouteMap
-    | DefineDataColadaLoaderOptions<keyof RouteMap, Data>,
-  _options?: DefineDataColadaLoaderOptions<keyof RouteMap, Data>
-): UseDataLoaderColada<Data> {
+    | DefineDataColadaLoaderOptions_LaxData<keyof RouteMap, Data>,
+  _options?: DefineDataColadaLoaderOptions_LaxData<keyof RouteMap, Data>
+): UseDataLoaderColada_LaxData<Data> {
   // TODO: make it DEV only and remove the first argument in production mode
   // resolve option overrides
   _options =
     _options ||
-    (nameOrOptions as DefineDataColadaLoaderOptions<keyof RouteMap, Data>)
+    (nameOrOptions as DefineDataColadaLoaderOptions_LaxData<
+      keyof RouteMap,
+      Data
+    >)
   const loader = _options.query
 
   const options = {
     ...DEFAULT_DEFINE_LOADER_OPTIONS,
     ..._options,
     commit: _options?.commit || 'after-load',
-  } as DefineDataColadaLoaderOptions<keyof RouteMap, Data>
+  } as DefineDataColadaLoaderOptions_LaxData<keyof RouteMap, Data>
 
   let isInitial = true
 
@@ -147,12 +168,13 @@ export function defineColadaLoader<Data>(
     // set the current context before loading so nested loaders can use it
     setCurrentContext([entry, router, to])
 
+    const app = router[APP_KEY]
+
     if (!entry.ext) {
       // console.log(`🚀 creating query for "${key}"`)
       entry.ext = useQuery({
         ...options,
-        // FIXME: type Promise<Data> instead of Promise<unknown>
-        query: () => {
+        query: (): Promise<Data> => {
           const route = entry.route.value
           const [trackedRoute, params, query, hash] = trackRoute(route)
           entry.tracked.set(
@@ -165,9 +187,14 @@ export function defineColadaLoader<Data>(
             }
           )
 
-          return loader(trackedRoute, {
-            signal: route.meta[ABORT_CONTROLLER_KEY]?.signal,
-          })
+          // needed for automatic refetching and nested loaders
+          // https://github.com/posva/unplugin-vue-router/issues/583
+          return app.runWithContext(() =>
+            loader(trackedRoute, {
+              // TODO: provide the query signal too
+              signal: route.meta[ABORT_CONTROLLER_KEY]?.signal,
+            })
+          )
         },
         key: () => toValueWithParameters(options.key, entry.route.value),
         // TODO: cleanup if gc
@@ -181,6 +208,7 @@ export function defineColadaLoader<Data>(
         reload = false
       }
     }
+    // TODO: should also reload in the case of nested loaders if a nested loader has been invalidated
 
     const { isLoading, data, error, ext } = entry
 
@@ -262,6 +290,10 @@ export function defineColadaLoader<Data>(
         // }
       })
       .finally(() => {
+        // restore the context after the promise resolves
+        // so that nested loaders can be aware of their parent
+        // when multiple loaders are nested and awaited one after the other
+        // within a loader
         setCurrentContext(currentContext)
         // console.log(
         //   `😩 restored context ${key}`,
@@ -317,8 +349,10 @@ export function defineColadaLoader<Data>(
           !this.tracked.has(joinKeys(key))
         ) {
           console.warn(
-            `A query was defined with the same key as the loader "[${key.join(', ')}]" but with different "query" function.\nSee https://pinia-colada.esm.dev/#TODO`
+            `A query was defined with the same key as the loader "[${key.join(', ')}]". If the "key" is meant to be the same, you should directly use the data loader instead. If not, change the key of the "useQuery()".\nSee https://pinia-colada.esm.dev/#TODO`
           )
+          // avoid a crash that requires the page to be reloaded
+          return
         }
         this.tracked.get(joinKeys(key))!.ready = true
       }
@@ -345,18 +379,22 @@ export function defineColadaLoader<Data>(
 
   // @ts-expect-error: requires the internals and symbol that are added later
   const useDataLoader: // for ts
-  UseDataLoaderColada<Data> = () => {
+  UseDataLoaderColada_LaxData<Data> = () => {
     // work with nested data loaders
     const currentEntry = getCurrentContext()
+    // TODO: should _route also contain from?
     const [parentEntry, _router, _route] = currentEntry
     // fallback to the global router and routes for useDataLoaders used within components
     const router = _router || useRouter()
     const route = _route || (useRoute() as RouteLocationNormalizedLoaded)
+    const app = router[APP_KEY]
 
     const entries = router[
       LOADER_ENTRIES_KEY
     ]! as unknown as _DefineLoaderEntryMap<DataLoaderColadaEntry<unknown>>
-    let entry = entries.get(loader) as DataLoaderColadaEntry<Data> | undefined
+    let entry = entries.get(loader) as
+      | DataLoaderColadaEntry<Data, ErrorDefault>
+      | undefined
 
     if (
       // if the entry doesn't exist, create it with load and ensure it's loading
@@ -369,13 +407,13 @@ export function defineColadaLoader<Data>(
       // console.log(
       //   `🔁 loading from useData for "${options.key}": "${route.fullPath}"`
       // )
-      router[APP_KEY].runWithContext(() =>
+      app.runWithContext(() =>
         // in this case we always need to run the functions for nested loaders consistency
         load(route, router, undefined, parentEntry, true)
       )
     }
 
-    entry = entries.get(loader)! as DataLoaderColadaEntry<Data>
+    entry = entries.get(loader)! as DataLoaderColadaEntry<Data, ErrorDefault>
 
     // add ourselves to the parent entry children
     if (parentEntry) {
@@ -417,27 +455,27 @@ export function defineColadaLoader<Data>(
       error,
       isLoading,
       reload: (to: RouteLocationNormalizedLoaded = router.currentRoute.value) =>
-        router[APP_KEY].runWithContext(() =>
-          load(to, router, undefined, undefined, true)
-        ).then(() => entry!.commit(to)),
+        app
+          .runWithContext(() => load(to, router, undefined, undefined, true))
+          .then(() => entry!.commit(to)),
       // pinia colada
       refetch: (
         to: RouteLocationNormalizedLoaded = router.currentRoute.value
       ) =>
-        router[APP_KEY].runWithContext(() =>
-          load(to, router, undefined, undefined, true)
-        ).then(() => (entry!.commit(to), entry!.ext!.state.value)),
+        app
+          .runWithContext(() => load(to, router, undefined, undefined, true))
+          .then(() => (entry!.commit(to), entry!.ext!.state.value)),
       refresh: (
         to: RouteLocationNormalizedLoaded = router.currentRoute.value
       ) =>
-        router[APP_KEY].runWithContext(() => load(to, router)).then(
-          () => (entry!.commit(to), entry.ext!.state.value)
-        ),
+        app
+          .runWithContext(() => load(to, router))
+          .then(() => (entry!.commit(to), entry.ext!.state.value)),
       status: ext!.status,
       asyncStatus: ext!.asyncStatus,
       state: ext!.state,
       isPending: ext!.isPending,
-    } satisfies UseDataLoaderColadaResult<Data>
+    } satisfies UseDataLoaderColadaResult<Data | undefined>
 
     // load ensures there is a pending load
     const promise = entry
@@ -475,11 +513,14 @@ export function defineColadaLoader<Data>(
 
 export const joinKeys = (keys: string[]): string => keys.join('|')
 
-export interface DefineDataColadaLoaderOptions<
+/**
+ * Base type with docs for the options of `defineColadaLoader`.
+ * @internal
+ */
+export interface _DefineDataColadaLoaderOptions_Common<
   Name extends keyof RouteMap,
   Data,
-> extends DefineDataLoaderOptionsBase,
-    Omit<UseQueryOptions<Data>, 'query' | 'key'> {
+> extends Omit<UseQueryOptions<Data, ErrorDefault, Data>, 'query' | 'key'> {
   /**
    * Key associated with the data and passed to pinia colada
    * @param to - Route to load the data
@@ -494,26 +535,73 @@ export interface DefineDataColadaLoaderOptions<
     DataColadaLoaderContext,
     RouteLocationNormalizedLoaded<Name>
   >
-
+  //
   // TODO: option to skip refresh if the used properties of the route haven't changed
 }
+
+/**
+ * Options for `defineColadaLoader` when the data is possibly `undefined`.
+ */
+export interface DefineDataColadaLoaderOptions_LaxData<
+  Name extends keyof RouteMap,
+  Data,
+> extends _DefineDataColadaLoaderOptions_Common<Name, Data>,
+    DefineDataLoaderOptionsBase_LaxData {}
+
+/**
+ * Options for `defineColadaLoader` when the data is always defined.
+ */
+export interface DefineDataColadaLoaderOptions_DefinedData<
+  Name extends keyof RouteMap,
+  Data,
+> extends _DefineDataColadaLoaderOptions_Common<Name, Data>,
+    DefineDataLoaderOptionsBase_DefinedData {}
+
+/**
+ * @deprecated Use {@link `DefineDataColadaLoaderOptions_LaxData`} instead.
+ */
+export type DefineDataColadaLoaderOptions<
+  Name extends keyof RouteMap,
+  Data,
+> = DefineDataColadaLoaderOptions_LaxData<Name, Data>
 
 /**
  * @internal
  */
 export interface DataColadaLoaderContext extends DataLoaderContextBase {}
 
-export interface UseDataLoaderColadaResult<Data>
-  extends UseDataLoaderResult<Data>,
+export interface UseDataLoaderColadaResult<
+  TData,
+  TError = ErrorDefault,
+  TDataInitial extends TData | undefined = TData | undefined,
+> extends UseDataLoaderResult<TData | TDataInitial, ErrorDefault>,
     Pick<
-      UseQueryReturn<Data, any>,
-      'isPending' | 'refetch' | 'refresh' | 'status' | 'asyncStatus' | 'state'
-    > {}
+      UseQueryReturn<TData, TError, TDataInitial>,
+      'isPending' | 'status' | 'asyncStatus' | 'state'
+    > {
+  /**
+   * Equivalent to `useQuery().refetch()`. Refetches the data no matter if its stale or not.
+   * @see reload - It also calls `refetch()` but returns an empty promise
+   */
+  refetch: (
+    to?: RouteLocationNormalizedLoaded
+    // TODO: we might need to add this in the future
+    // ...coladaArgs: Parameters<UseQueryReturn<Data, any>['refresh']>
+  ) => ReturnType<UseQueryReturn<TData, TError, TDataInitial>['refetch']>
+
+  /**
+   * Equivalent to `useQuery().refresh()`. Refetches the data **only** if it's stale.
+   */
+  refresh: (
+    to?: RouteLocationNormalizedLoaded
+  ) => ReturnType<UseQueryReturn<TData, TError, TDataInitial>['refetch']>
+}
 
 /**
  * Data Loader composable returned by `defineColadaLoader()`.
  */
-export interface UseDataLoaderColada<Data> extends UseDataLoader<Data> {
+export interface UseDataLoaderColada_LaxData<Data>
+  extends UseDataLoader<Data | undefined, ErrorDefault> {
   /**
    * Data Loader composable returned by `defineColadaLoader()`.
    *
@@ -538,13 +626,56 @@ export interface UseDataLoaderColada<Data> extends UseDataLoader<Data> {
     // we can await the raw data
     // excluding NavigationResult allows to ignore it in the type of Data when doing
     // `return new NavigationResult()` in the loader
-    Exclude<Data, NavigationResult>,
+    Exclude<Data, NavigationResult | undefined>,
     // or use it as a composable
-    UseDataLoaderColadaResult<Exclude<Data, NavigationResult>>
+    UseDataLoaderColadaResult<Exclude<Data, NavigationResult> | undefined>
   >
 }
 
-export interface DataLoaderColadaEntry<Data> extends DataLoaderEntryBase<Data> {
+/**
+ * Data Loader composable returned by `defineColadaLoader()`.
+ */
+export interface UseDataLoaderColada_DefinedData<TData>
+  extends UseDataLoader<TData, ErrorDefault> {
+  /**
+   * Data Loader composable returned by `defineColadaLoader()`.
+   *
+   * @example
+   * Returns the Data loader data, isLoading, error etc. Meant to be used in `setup()` or `<script setup>` **without `await`**:
+   * ```vue
+   * <script setup>
+   * const { data, isLoading, error } = useUserData()
+   * </script>
+   * ```
+   *
+   * @example
+   * It also returns a promise of the data when used in nested loaders. Note this `data` is **not a ref**. This is not meant to be used in `setup()` or `<script setup>`.
+   * ```ts
+   * export const useUserConnections = defineLoader(async () => {
+   *   const user = await useUserData()
+   *   return fetchUserConnections(user.id)
+   * })
+   * ```
+   */
+  (): _PromiseMerged<
+    // we can await the raw data
+    // excluding NavigationResult allows to ignore it in the type of Data when doing
+    // `return new NavigationResult()` in the loader
+    Exclude<TData, NavigationResult | undefined>,
+    // or use it as a composable
+    UseDataLoaderColadaResult<
+      Exclude<TData, NavigationResult>,
+      ErrorDefault,
+      Exclude<TData, NavigationResult>
+    >
+  >
+}
+
+export interface DataLoaderColadaEntry<
+  TData,
+  TError = unknown,
+  TDataInitial extends TData | undefined = TData | undefined,
+> extends DataLoaderEntryBase<TData, TError, TDataInitial> {
   /**
    * Reactive route passed to pinia colada so it automatically refetch
    */
@@ -558,7 +689,7 @@ export interface DataLoaderColadaEntry<Data> extends DataLoaderEntryBase<Data> {
   /**
    * Extended options for pinia colada
    */
-  ext: UseQueryReturn<Data> | null
+  ext: UseQueryReturn<TData, TError, TDataInitial> | null
 }
 
 interface TrackedRoute {
@@ -585,7 +716,7 @@ const DEFAULT_DEFINE_LOADER_OPTIONS = {
   server: true,
   commit: 'after-load',
 } satisfies Omit<
-  DefineDataColadaLoaderOptions<keyof RouteMap, unknown>,
+  DefineDataColadaLoaderOptions_LaxData<keyof RouteMap, unknown>,
   'key' | 'query'
 >
 
@@ -606,7 +737,7 @@ const toValueWithParameters = <T, Arg>(
  * @param to - route to use
  */
 function serializeQueryKey(
-  keyOption: DefineDataColadaLoaderOptions<string, unknown>['key'],
+  keyOption: DefineDataColadaLoaderOptions_LaxData<string, unknown>['key'],
   to: RouteLocationNormalizedLoaded
 ): string[] {
   const key = toValueWithParameters(keyOption, to)

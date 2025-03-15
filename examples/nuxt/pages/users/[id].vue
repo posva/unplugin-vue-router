@@ -32,6 +32,9 @@ const route = useRoute('users-id')
 <template>
   <div>
     <h1>User {{ route.params.id }}</h1>
-    <pre>{{ user }}</pre>
+    <p>{{ user.name }}</p>
+    <ClientOnly>
+      <pre>{{ user }}</pre>
+    </ClientOnly>
   </div>
 </template>

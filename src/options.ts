@@ -54,14 +54,17 @@ export interface RoutesFolderOption {
   filePatterns?: _OverridableOption<string[], string | string[]>
 
   /**
-   * Allows to override the global `exclude` option for this folder. It can also extend the global values by passing a
-   * function that returns an array.
+   * Allows to override the global `exclude` option for this folder. It can
+   * also extend the global values by passing a function that returns an array.
    */
   exclude?: _OverridableOption<string[], string | string[]>
 
   /**
-   * Allows to override the global `extensions` option for this folder. It can also extend the global values by passing
-   * a function that returns an array.
+   * Allows to override the global `extensions` option for this folder. It can
+   * also extend the global values by passing a function that returns an array.
+   * The provided extensions are removed from the final route. For example,
+   * `.page.vue` allows to suffix all pages with `.page.vue` and remove it from
+   * the route name.
    */
   extensions?: _OverridableOption<string[]>
 }
@@ -134,7 +137,7 @@ export interface Options {
   // NOTE: the comment below contains ZWJ characters to allow the sequence `**/*` to be displayed correctly
   /**
    * Pattern to match files in the `routesFolder`. Defaults to `**‍/*` plus a combination of all the possible extensions,
-   * e.g. `**‍/*.{vue,md}` if `extensions` is set to `['.vue', '.md']`.
+   * e.g. `**‍/*.{vue,md}` if `extensions` is set to `['.vue', '.md']`. This is relative to the {@link RoutesFolderOption['src']} and
    * @default `['**‍/*']`
    */
   filePatterns?: string[] | string
@@ -246,7 +249,7 @@ export const DEFAULT_OPTIONS = {
 
 export interface ServerContext {
   invalidate: (module: string) => void
-  updateRoutes: () => void
+  updateRoutes: () => Promise<void>
   reload: () => void
 }
 

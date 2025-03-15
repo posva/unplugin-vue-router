@@ -23,6 +23,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm run lint
       - run: pnpm run build
+      - run: pnpm run -C playground build
 
   test:
     runs-on: ${{ matrix.os }}
@@ -46,14 +47,14 @@ jobs:
 
       - name: Tests with coverage
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.node == 'lts/*' }}
-        run: pnpm test -- --coverage
+        run: pnpm run vitest --coverage
 
       - name: Tests
         if: ${{ matrix.os != 'ubuntu-latest' || matrix.node != 'lts/*' }}
-        run: pnpm test
+        run: pnpm run vitest
 
       - name: Upload coverage to Codecov
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.node == 'lts/*' }}
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}

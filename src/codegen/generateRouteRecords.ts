@@ -27,6 +27,27 @@ ${node
 ]`
   }
 
+  const definePageDataList: string[] = []
+
+  if (node.hasDefinePage) {
+    for (const [name, filePath] of node.value.components) {
+      const pageDataImport = `_definePage_${name}_${importsMap.size}`
+      definePageDataList.push(pageDataImport)
+      const lang = getLang(filePath)
+      importsMap.addDefault(
+        // TODO: apply the language used in the sfc
+        `${filePath}?definePage&` +
+          (lang === 'vue' ? 'vue&lang.tsx' : `lang.${lang}`),
+        pageDataImport
+      )
+    }
+
+    // extra indent to add `_mergeRouteRecord()`
+    if (definePageDataList.length > 0) {
+      indent++
+    }
+  }
+
   const startIndent = ' '.repeat(indent * 2)
   const indentStr = ' '.repeat((indent + 1) * 2)
 
@@ -76,27 +97,14 @@ ${indentStr}],`
   }${formatMeta(node, indentStr)}
 ${startIndent}}`
 
-  if (node.hasDefinePage) {
-    const definePageDataList: string[] = []
-    for (const [name, filePath] of node.value.components) {
-      const pageDataImport = `_definePage_${name}_${importsMap.size}`
-      definePageDataList.push(pageDataImport)
-      const lang = getLang(filePath)
-      importsMap.addDefault(
-        // TODO: apply the language used in the sfc
-        `${filePath}?definePage&` +
-          (lang === 'vue' ? 'vue&lang.tsx' : `lang.${lang}`),
-        pageDataImport
-      )
-    }
-
-    if (definePageDataList.length) {
-      importsMap.add('unplugin-vue-router/runtime', '_mergeRouteRecord')
-      return `  _mergeRouteRecord(
+  if (definePageDataList.length > 0) {
+    // remove one tab
+    const mergeCallIndent = startIndent.slice(2)
+    importsMap.add('unplugin-vue-router/runtime', '_mergeRouteRecord')
+    return `${mergeCallIndent}_mergeRouteRecord(
 ${routeRecord},
-  ${definePageDataList.join(',\n')}
-  )`
-    }
+${definePageDataList.map((s) => startIndent + s).join(',\n')}
+${mergeCallIndent})`
   }
 
   return routeRecord
