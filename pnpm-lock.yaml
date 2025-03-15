@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  vue-router:
+    hash: 14dce4b268cad56942a181f931cec1334c4fa1d7ea18c13d841f4a2c5c765797
+    path: patches/vue-router.patch
+
 importers:
 
   .:
@@ -161,10 +166,10 @@ importers:
         version: 3.5.13(typescript@5.7.3)
       vue-router:
         specifier: ^4.5.0
-        version: 4.5.0(vue@3.5.13(typescript@5.7.3))
+        version: 4.5.0(patch_hash=14dce4b268cad56942a181f931cec1334c4fa1d7ea18c13d841f4a2c5c765797)(vue@3.5.13(typescript@5.7.3))
       vue-router-mock:
         specifier: ^1.1.0
-        version: 1.1.0(vue-router@4.5.0(vue@3.5.13(typescript@5.7.3)))(vue@3.5.13(typescript@5.7.3))
+        version: 1.1.0(vue-router@4.5.0(patch_hash=14dce4b268cad56942a181f931cec1334c4fa1d7ea18c13d841f4a2c5c765797)(vue@3.5.13(typescript@5.7.3)))(vue@3.5.13(typescript@5.7.3))
       vue-tsc:
         specifier: ^2.2.8
         version: 2.2.8(typescript@5.7.3)
@@ -216,7 +221,7 @@ importers:
         version: 3.5.13(typescript@5.7.3)
       vue-router:
         specifier: ^4.5.0
-        version: 4.5.0(vue@3.5.13(typescript@5.7.3))
+        version: 4.5.0(patch_hash=14dce4b268cad56942a181f931cec1334c4fa1d7ea18c13d841f4a2c5c765797)(vue@3.5.13(typescript@5.7.3))
     devDependencies:
       '@vitejs/plugin-vue':
         specifier: ^5.2.1
@@ -10929,13 +10934,13 @@ snapshots:
       unenv: 2.0.0-rc.14
       unimport: 4.1.2
       unplugin: 2.2.0
-      unplugin-vue-router: 0.12.0(vue-router@4.5.0(vue@3.5.13(typescript@5.7.3)))(vue@3.5.13(typescript@5.7.3))
+      unplugin-vue-router: 0.12.0(vue-router@4.5.0(patch_hash=14dce4b268cad56942a181f931cec1334c4fa1d7ea18c13d841f4a2c5c765797)(vue@3.5.13(typescript@5.7.3)))(vue@3.5.13(typescript@5.7.3))
       unstorage: 1.15.0(db0@0.3.1)(ioredis@5.6.0)
       untyped: 2.0.0
       vue: 3.5.13(typescript@5.7.3)
       vue-bundle-renderer: 2.1.1
       vue-devtools-stub: 0.1.0
-      vue-router: 4.5.0(vue@3.5.13(typescript@5.7.3))
+      vue-router: 4.5.0(patch_hash=14dce4b268cad56942a181f931cec1334c4fa1d7ea18c13d841f4a2c5c765797)(vue@3.5.13(typescript@5.7.3))
     optionalDependencies:
       '@parcel/watcher': 2.5.1
       '@types/node': 22.13.10
@@ -12289,7 +12294,7 @@ snapshots:
     transitivePeerDependencies:
       - rollup
 
-  unplugin-vue-router@0.12.0(vue-router@4.5.0(vue@3.5.13(typescript@5.7.3)))(vue@3.5.13(typescript@5.7.3)):
+  unplugin-vue-router@0.12.0(vue-router@4.5.0(patch_hash=14dce4b268cad56942a181f931cec1334c4fa1d7ea18c13d841f4a2c5c765797)(vue@3.5.13(typescript@5.7.3)))(vue@3.5.13(typescript@5.7.3)):
     dependencies:
       '@babel/types': 7.26.9
       '@vue-macros/common': 1.16.1(vue@3.5.13(typescript@5.7.3))
@@ -12307,7 +12312,7 @@ snapshots:
       unplugin-utils: 0.2.4
       yaml: 2.7.0
     optionalDependencies:
-      vue-router: 4.5.0(vue@3.5.13(typescript@5.7.3))
+      vue-router: 4.5.0(patch_hash=14dce4b268cad56942a181f931cec1334c4fa1d7ea18c13d841f4a2c5c765797)(vue@3.5.13(typescript@5.7.3))
     transitivePeerDependencies:
       - vue
 
@@ -12728,12 +12733,12 @@ snapshots:
     dependencies:
       vue: 3.5.13(typescript@5.7.3)
 
-  vue-router-mock@1.1.0(vue-router@4.5.0(vue@3.5.13(typescript@5.7.3)))(vue@3.5.13(typescript@5.7.3)):
+  vue-router-mock@1.1.0(vue-router@4.5.0(patch_hash=14dce4b268cad56942a181f931cec1334c4fa1d7ea18c13d841f4a2c5c765797)(vue@3.5.13(typescript@5.7.3)))(vue@3.5.13(typescript@5.7.3)):
     dependencies:
       vue: 3.5.13(typescript@5.7.3)
-      vue-router: 4.5.0(vue@3.5.13(typescript@5.7.3))
+      vue-router: 4.5.0(patch_hash=14dce4b268cad56942a181f931cec1334c4fa1d7ea18c13d841f4a2c5c765797)(vue@3.5.13(typescript@5.7.3))
 
-  vue-router@4.5.0(vue@3.5.13(typescript@5.7.3)):
+  vue-router@4.5.0(patch_hash=14dce4b268cad56942a181f931cec1334c4fa1d7ea18c13d841f4a2c5c765797)(vue@3.5.13(typescript@5.7.3)):
     dependencies:
       '@vue/devtools-api': 6.6.4
       vue: 3.5.13(typescript@5.7.3)
