@@ -132,7 +132,6 @@
     ]
   },
   "dependencies": {
-    "@babel/types": "^7.26.8",
     "@vue-macros/common": "^1.16.1",
     "ast-walker-scope": "^0.6.2",
     "chokidar": "^4.0.3",
@@ -157,6 +156,7 @@
     }
   },
   "devDependencies": {
+    "@babel/types": "^7.26.8",
     "@pinia/colada": "^0.13.8",
     "@posva/prompts": "^2.4.4",
     "@shikijs/vitepress-twoslash": "3.0.0",

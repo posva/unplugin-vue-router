@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@babel/types':
-        specifier: ^7.26.8
-        version: 7.26.8
       '@vue-macros/common':
         specifier: ^1.16.1
         version: 1.16.1(vue@3.5.13(typescript@5.7.3))
@@ -54,6 +51,9 @@ importers:
         specifier: ^2.7.0
         version: 2.7.0
     devDependencies:
+      '@babel/types':
+        specifier: ^7.26.8
+        version: 7.26.8
       '@pinia/colada':
         specifier: ^0.13.8
         version: 0.13.8(pinia@3.0.1(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3)))
