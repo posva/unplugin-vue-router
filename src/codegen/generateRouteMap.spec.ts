@@ -148,6 +148,22 @@ describe('generateRouteNamedMap', () => {
     `)
   })
 
+  it('nested index routes', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+    tree.insert('a', 'a.vue')
+    tree.insert('a/index', 'a/index.vue')
+    tree.insert('a/[id]', 'a/[id].vue')
+    tree.insert('a/[id]/index', 'a/[id]/index.vue')
+    expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
+      "export interface RouteNamedMap {
+        '/a': RouteRecordInfo<'/a', '/a', Record<never, never>, Record<never, never>>,
+        '/a/': RouteRecordInfo<'/a/', '/a', Record<never, never>, Record<never, never>>,
+        '/a/[id]': RouteRecordInfo<'/a/[id]', '/a/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
+        '/a/[id]/': RouteRecordInfo<'/a/[id]/', '/a/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
+      }"
+    `)
+  })
+
   it('keeps parent path overrides', () => {
     const tree = new PrefixTree(DEFAULT_OPTIONS)
     const parent = tree.insert('parent', 'parent.vue')
