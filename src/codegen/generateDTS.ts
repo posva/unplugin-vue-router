@@ -4,7 +4,8 @@ import { ts } from '../utils'
  * Removes empty lines and indent by two spaces to match the rest of the file.
  */
 function normalizeLines(code: string) {
-  return code.split('\n')
+  return code
+    .split('\n')
     .filter((line) => line.length !== 0)
     .map((line) => '  ' + line)
     .join('\n')

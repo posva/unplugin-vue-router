@@ -1,8 +1,9 @@
+import { relative } from 'node:path'
 import type { VueLanguagePlugin } from '@vue/language-core'
 import { replaceAll, toString } from 'muggle-string'
 import { augmentVlsCtx } from '../utils/augment-vls-ctx'
 
-const plugin: VueLanguagePlugin = () => {
+const plugin: VueLanguagePlugin = (ctx) => {
   const RE = {
     USE_ROUTE: {
       /** Targets the spot between `useRoute` and `()` */
@@ -23,14 +24,18 @@ const plugin: VueLanguagePlugin = () => {
 
   return {
     version: 2.1,
-    resolveEmbeddedCode (fileName, _sfc, embeddedFile) {
+    resolveEmbeddedCode(fileName, _sfc, embeddedFile) {
       if (!embeddedFile.id.startsWith('script_')) {
         return
       }
 
       // TODO: Do we want to apply this to EVERY .vue file or only to components that the user wrote themselves?
 
-      const routeNameGetter = `import('vue-router/auto-routes').GetRouteNameByPath<'${fileName}'>`
+      const relativeFilePath = ctx.compilerOptions.baseUrl
+        ? relative(ctx.compilerOptions.baseUrl, fileName)
+        : fileName
+
+      const routeNameGetter = `import('vue-router/auto-routes').GetRouteNameByPath<'${relativeFilePath}'>`
       const routeNameGetterGeneric = `<${routeNameGetter}>`
       const typedCall = `useRoute${routeNameGetterGeneric}`
 
@@ -40,20 +45,16 @@ const plugin: VueLanguagePlugin = () => {
         replaceAll(
           embeddedFile.content,
           RE.USE_ROUTE.BEFORE_PARENTHESES,
-          routeNameGetterGeneric,
+          routeNameGetterGeneric
         )
       } else if (embeddedFile.id.startsWith('script_js')) {
         // Typecasts `useRoute()` calls.
         // We only apply this mutation on plain JS <script setup> blocks.
-        replaceAll(
-          embeddedFile.content,
-          RE.USE_ROUTE.BEFORE,
-          `(`,
-        )
+        replaceAll(embeddedFile.content, RE.USE_ROUTE.BEFORE, `(`)
         replaceAll(
           embeddedFile.content,
           RE.USE_ROUTE.AFTER,
-          ` as ReturnType<typeof ${typedCall}>)`,
+          ` as ReturnType<typeof ${typedCall}>)`
         )
       }
 
@@ -61,9 +62,12 @@ const plugin: VueLanguagePlugin = () => {
 
       // Augment `__VLS_ctx.$route` to override the typings of `$route` in template blocks
       if (contentStr.match(RE.DOLLAR_ROUTE.VLS_CTX)) {
-        augmentVlsCtx(embeddedFile.content, () => ` & {
+        augmentVlsCtx(
+          embeddedFile.content,
+          () => ` & {
   $route: ReturnType<typeof ${typedCall}>;
-}`)
+}`
+        )
       }
     },
   }
