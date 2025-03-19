@@ -8,7 +8,6 @@ export default defineConfig([
     entry: ['./src/runtime.ts'],
     external: [...commonOptions.external, 'unplugin-vue-router/types'],
   },
-
   {
     ...commonOptions,
     clean: false,
@@ -20,6 +19,19 @@ export default defineConfig([
       'unplugin-vue-router/types',
       'unplugin-vue-router/runtime',
       'unplugin-vue-router/data-loaders',
+    ],
+  },
+  // TODO: place here or somewhere else?
+  {
+    ...commonOptions,
+    clean: false,
+    format: ['cjs'],
+    entry: ['./src/volar/entries/*'],
+    // to work with node10 moduleResolution mode
+    outDir: 'dist/volar',
+    external: [
+      ...commonOptions.external,
+      'unplugin-vue-router/volar',
     ],
   },
 ])

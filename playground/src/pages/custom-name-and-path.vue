@@ -9,4 +9,7 @@
 
 <!-- For some reason, a local link doesn't work... -->
 
-<template>custom names</template>
+<template>
+  custom names
+  {{ $route.name satisfies 'the most rebel' }}
+</template>
