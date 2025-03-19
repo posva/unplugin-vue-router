@@ -78,4 +78,72 @@ declare module 'vue-router/auto-routes' {
     '/vuefire-tests/get-doc': RouteRecordInfo<'/vuefire-tests/get-doc', '/vuefire-tests/get-doc', Record<never, never>, Record<never, never>>,
     '/with-extension': RouteRecordInfo<'/with-extension', '/with-extension', Record<never, never>, Record<never, never>>,
   }
+
+  /**
+   * File path to route names map by unplugin-vue-router
+   */
+  export interface FilePathToRouteNamesMap {
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/(test-group).vue': '/(test-group)' | '/(test-group)/test-group-child',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/(test-group)/test-group-child.vue': '/(test-group)/test-group-child',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/index.vue': 'home',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/index@named.vue': 'home',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/[name].vue': '/[name]',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/[...path].vue': '/[...path]',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/[...path]+.vue': '/[...path]+',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/@[profileId].vue': '/@[profileId]',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/about.vue': '/about',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/about.extra.nested.vue': '/about.extra.nested',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/articles.vue': '/articles' | '/articles/' | '/articles/[id]' | '/articles/[id]+',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/articles/index.vue': '/articles/',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/articles/[id].vue': '/articles/[id]',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/articles/[id]+.vue': '/articles/[id]+',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/custom-definePage.vue': '/custom-definePage',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/custom-name.vue': 'a rebel',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/deep/nesting/works/too.vue': '/custom/page',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/deep/nesting/works/[[files]]+.vue': '/deep/nesting/works/[[files]]+',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/deep/nesting/works/too.vue': '/deep/nesting/works/at-root-but-from-nested',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/deep/nesting/works/custom-name-and-path.vue': 'deep the most rebel',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/deep/nesting/works/custom-path.vue': '/deep/nesting/works/custom-path',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/deep/nesting/works/custom-name.vue': 'deep a rebel',
+    '/var/www/open-source/unplugin-vue-router/playground/src/docs/real/index.md': '/docs/[lang]/real/',
+    '/var/www/open-source/unplugin-vue-router/playground/src/features/feature-1/pages/index.vue': '/feature-1/',
+    '/var/www/open-source/unplugin-vue-router/playground/src/features/feature-1/pages/about.vue': '/feature-1/about',
+    '/var/www/open-source/unplugin-vue-router/playground/src/features/feature-2/pages/index.vue': '/feature-2/',
+    '/var/www/open-source/unplugin-vue-router/playground/src/features/feature-2/pages/about.vue': '/feature-2/about',
+    '/var/www/open-source/unplugin-vue-router/playground/src/features/feature-3/pages/index.vue': '/feature-3/',
+    '/var/www/open-source/unplugin-vue-router/playground/src/features/feature-3/pages/about.vue': '/feature-3/about',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/file(ignored-parentheses).vue': '/file(ignored-parentheses)',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/index.vue': '/from-root',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/group/(thing).vue': '/group/(thing)',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/custom-name-and-path.vue': 'the most rebel',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/multiple-[a]-[b]-params.vue': '/multiple-[a]-[b]-params',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/my-optional-[[slug]].vue': '/my-optional-[[slug]]',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/n-[[n]]/index.vue': '/n-[[n]]/',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/n-[[n]]/[[more]]+/index.vue': '/n-[[n]]/[[more]]+/',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/n-[[n]]/[[more]]+/[final].vue': '/n-[[n]]/[[more]]+/[final]',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/nested-group/(group).vue': '/nested-group/(group)',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/nested-group/(nested-group-first-level)/(nested-group-deep)/nested-group-deep-child.vue': '/nested-group/(nested-group-first-level)/(nested-group-deep)/nested-group-deep-child',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/nested-group/(nested-group-first-level)/nested-group-first-level-child.vue': '/nested-group/(nested-group-first-level)/nested-group-first-level-child',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/partial-[name].vue': '/partial-[name]',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/custom-path.vue': '/custom-path',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/test-[a-id].vue': '/test-[a-id]',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/todos/index.vue': '/todos/',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/users/index.vue': '/users/',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/users/[id].vue': '/users/[id]',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/users/[id].edit.vue': '/users/[id].edit',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/users/colada-loader.[id].vue': '/users/colada-loader.[id]',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/users/nested.route.deep.vue': '/users/nested.route.deep',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/users/pinia-colada.[id].vue': '/users/pinia-colada.[id]',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/users/query.[id].vue': '/users/query.[id]',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/users/tq-query.[id].vue': '/users/tq-query.[id]',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/vuefire-tests/get-doc.vue': '/vuefire-tests/get-doc',
+    '/var/www/open-source/unplugin-vue-router/playground/src/pages/with-extension.page.vue': '/with-extension',
+  }
+
+  /**
+   * Get a route's name by file path
+   */
+  export type GetRouteNameByPath<T extends string> = T extends keyof FilePathToRouteNamesMap
+    ? FilePathToRouteNamesMap[T]
+    : keyof import('vue-router/auto-routes').RouteNamedMap
 }

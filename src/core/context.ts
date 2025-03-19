@@ -3,6 +3,7 @@ import { TreeNode, PrefixTree } from './tree'
 import { promises as fs } from 'fs'
 import { asRoutePath, ImportsMap, logTree, throttle } from './utils'
 import { generateRouteNamedMap } from '../codegen/generateRouteMap'
+import { generateFilePathToRouteNamesMap } from '../codegen/generateFilePathToRouteNamesMap'
 import { MODULE_ROUTES_PATH, MODULE_VUE_ROUTER_AUTO } from './moduleConstants'
 import { generateRouteRecord } from '../codegen/generateRouteRecords'
 import fg from 'fast-glob'
@@ -241,6 +242,7 @@ if (import.meta.hot) {
       vueRouterModule: MODULE_VUE_ROUTER_AUTO,
       routesModule: MODULE_ROUTES_PATH,
       routeNamedMap: generateRouteNamedMap(routeTree),
+      filePathToRouteNamesMap: generateFilePathToRouteNamesMap(routeTree),
     })
   }
 

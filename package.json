@@ -77,6 +77,12 @@
       "import": "./dist/data-loaders/pinia-colada.js",
       "require": "./dist/data-loaders/pinia-colada.cjs"
     },
+    "./volar/sfc-route-blocks": {
+      "require": "./dist/volar/sfc-route-blocks.cjs"
+    },
+    "./volar/sfc-typed-router": {
+      "require": "./dist/volar/sfc-typed-router.cjs"
+    },
     "./client": {
       "types": "./client.d.ts"
     }
@@ -142,6 +148,7 @@
     "magic-string": "^0.30.17",
     "mlly": "^1.7.4",
     "pathe": "^2.0.3",
+    "muggle-string": "^0.4.1",
     "picomatch": "^4.0.2",
     "scule": "^1.3.0",
     "unplugin": "^2.3.5",
