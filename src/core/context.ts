@@ -242,7 +242,9 @@ if (import.meta.hot) {
       vueRouterModule: MODULE_VUE_ROUTER_AUTO,
       routesModule: MODULE_ROUTES_PATH,
       routeNamedMap: generateRouteNamedMap(routeTree),
-      filePathToRouteNamesMap: generateFilePathToRouteNamesMap(routeTree),
+      filePathToRouteNamesMap: generateFilePathToRouteNamesMap(routeTree, {
+        root,
+      }),
     })
   }
 
