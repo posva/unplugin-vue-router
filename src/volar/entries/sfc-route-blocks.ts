@@ -9,10 +9,10 @@ const plugin: VueLanguagePlugin = () => {
       for (let i = 0; i < sfc.customBlocks.length; i++) {
         const block = sfc.customBlocks[i]!
 
+        // TODO: `<route>` block without `lang` is still interpreted as text right now, it seems
         if (block.type === 'route') {
-          console.log(block.lang)
           const lang = block.lang === 'txt' ? 'json' : block.lang
-          names.push({ id: `route_${i}`, lang })
+          names.push({ id: `route_${i}`, lang: lang || 'json' })
         }
       }
 
