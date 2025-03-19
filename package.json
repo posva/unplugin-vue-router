@@ -157,7 +157,7 @@
   },
   "devDependencies": {
     "@babel/types": "^7.26.8",
-    "@pinia/colada": "^0.13.8",
+    "@pinia/colada": "^0.14.0",
     "@posva/prompts": "^2.4.4",
     "@shikijs/vitepress-twoslash": "3.0.0",
     "@tanstack/vue-query": "^5.66.0",

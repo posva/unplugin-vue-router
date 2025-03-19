@@ -55,8 +55,8 @@ importers:
         specifier: ^7.26.8
         version: 7.26.8
       '@pinia/colada':
-        specifier: ^0.13.8
-        version: 0.13.8(pinia@3.0.1(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3)))
+        specifier: ^0.14.0
+        version: 0.14.0(pinia@3.0.1(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3)))
       '@posva/prompts':
         specifier: ^2.4.4
         version: 2.4.4
@@ -181,15 +181,15 @@ importers:
   examples/nuxt:
     dependencies:
       '@pinia/colada':
-        specifier: ^0.13.8
-        version: 0.13.8(pinia@3.0.1(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3)))
+        specifier: ^0.14.0
+        version: 0.14.0(pinia@3.0.1(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3)))
       pinia:
         specifier: ^3.0.1
         version: 3.0.1(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3))
     devDependencies:
       '@pinia/colada-nuxt':
-        specifier: 0.0.6
-        version: 0.0.6(@pinia/colada@0.13.8(pinia@3.0.1(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3))))(magicast@0.3.5)
+        specifier: 0.1.0
+        version: 0.1.0(@pinia/colada@0.14.0(pinia@3.0.1(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3))))(magicast@0.3.5)
       '@pinia/nuxt':
         specifier: ^0.10.1
         version: 0.10.1(magicast@0.3.5)(pinia@3.0.1(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3)))
@@ -1495,13 +1495,13 @@ packages:
     resolution: {integrity: sha512-dfUnCxiN9H4ap84DvD2ubjw+3vUNpstxa0TneY/Paat8a3R4uQZDLSvWjmznAY/DoahqTHl9V46HF/Zs3F29pg==}
     engines: {node: '>= 10.0.0'}
 
-  '@pinia/colada-nuxt@0.0.6':
-    resolution: {integrity: sha512-3SKU1WATEzTekaqmwipUaGcUdocWLimRO1HGeUoiPIEuI0UxXU00AVlc7HnYGFp+ZuSC+u9pILajttn0tyXvNw==}
+  '@pinia/colada-nuxt@0.1.0':
+    resolution: {integrity: sha512-sUlCfL0MZYT3iUG4oD+owfHrfBatSQriSs1aP/F3ocrInxT9Fy9iiZNq2tRnD9SrkRZaWe3iwOGiGGikuFJ9Og==}
     peerDependencies:
-      '@pinia/colada': ^0.13.7
+      '@pinia/colada': ^0.14.0
 
-  '@pinia/colada@0.13.8':
-    resolution: {integrity: sha512-+UvrsQw3vQYoeVPh0r6xEpQfc/TKTCKTE2yX2NemNo5DESIHUo4NoVfFZVKjNhnwvI0u2jzdVCcEV653yXPaJg==}
+  '@pinia/colada@0.14.0':
+    resolution: {integrity: sha512-TbWMFnWv19Rf0SC5UMadG3+5lBqE4Y+ZGQoYsrm3yb0gBiLYiF83X793HaR2qEDDYprpLwJFxwm6qE5JYW8S1g==}
     peerDependencies:
       pinia: ^2.2.6 || ^3.0.0
 
@@ -7554,14 +7554,14 @@ snapshots:
       '@parcel/watcher-win32-ia32': 2.5.1
       '@parcel/watcher-win32-x64': 2.5.1
 
-  '@pinia/colada-nuxt@0.0.6(@pinia/colada@0.13.8(pinia@3.0.1(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3))))(magicast@0.3.5)':
+  '@pinia/colada-nuxt@0.1.0(@pinia/colada@0.14.0(pinia@3.0.1(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3))))(magicast@0.3.5)':
     dependencies:
       '@nuxt/kit': 3.16.0(magicast@0.3.5)
-      '@pinia/colada': 0.13.8(pinia@3.0.1(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3)))
+      '@pinia/colada': 0.14.0(pinia@3.0.1(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3)))
     transitivePeerDependencies:
       - magicast
 
-  '@pinia/colada@0.13.8(pinia@3.0.1(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3)))':
+  '@pinia/colada@0.14.0(pinia@3.0.1(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3)))':
     dependencies:
       '@vue/devtools-api': 7.7.2
       pinia: 3.0.1(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3))

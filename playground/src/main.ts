@@ -9,7 +9,7 @@ import { DataLoaderPlugin } from 'unplugin-vue-router/data-loaders'
 const app = createApp(App)
 
 app.use(createPinia())
-app.use(PiniaColada)
+app.use(PiniaColada, {})
 app.use(VueQueryPlugin, {
   queryClientConfig: {
     mutationCache: new MutationCache({
