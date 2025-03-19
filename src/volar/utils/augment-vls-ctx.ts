@@ -1,6 +1,6 @@
 import type { Code } from '@vue/language-core'
 
-export function augmentVlsCtx (content: Code[], getCodes: () => ` & ${string}`) {
+export function augmentVlsCtx(content: Code[], getCodes: () => ` & ${string}`) {
   let from = -1
   let to = -1
 

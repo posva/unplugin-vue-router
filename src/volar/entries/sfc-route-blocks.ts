@@ -4,7 +4,7 @@ const plugin: VueLanguagePlugin = () => {
   return {
     version: 2.1,
     getEmbeddedCodes(_fileName, sfc) {
-      const names = [];
+      const names = []
 
       for (let i = 0; i < sfc.customBlocks.length; i++) {
         const block = sfc.customBlocks[i]!
