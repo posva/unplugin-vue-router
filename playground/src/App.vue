@@ -12,7 +12,8 @@ import { useMutationState, useQueryClient } from '@tanstack/vue-query'
 console.log(`We have ${routes.length} routes.`)
 
 const queryClient = useQueryClient()
-const states = useMutationState({ filters: { mutationKey: ['hey'] } })
+// const states = useMutationState({ filters: { mutationKey: ['hey'] } })
+const states = useMutationState()
 watch(states, () => {
   window.ss = states
 })

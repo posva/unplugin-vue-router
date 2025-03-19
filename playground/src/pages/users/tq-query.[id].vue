@@ -4,6 +4,7 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
+import { VueQueryDevtools } from '@tanstack/vue-query-devtools'
 import {
   useQuery,
   useQueries,
@@ -20,6 +21,7 @@ const simulateError = ref(false)
 
 const enabled = ref(true)
 const queryClient = useQueryClient()
+window.qc = queryClient
 // queryClient.prefetchQuery({
 //   queryKey: ['user-id', computed(() => route.params.id)],
 //   // queryFn: async () => {
@@ -119,6 +121,7 @@ const {
     await delay(5000)
     return 'hey'
   },
+  // gcTime: 5_000,
 })
 </script>
 
@@ -176,4 +179,6 @@ const {
     <pre v-if="tqError">Error: {{ tqError }}</pre>
     <pre>data: {{ tqUser == null ? String(tqUser) : tqUser }}</pre>
   </main>
+
+  <VueQueryDevtools />
 </template>
