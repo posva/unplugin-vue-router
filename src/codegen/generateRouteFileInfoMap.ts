@@ -30,7 +30,7 @@ function generateRouteFileInfoLines(
   const childrenNamedViewsUnion = children
     ? Array.from(
         new Set(
-          Array.from(children.values())
+          children
             .map((child) => Array.from(child.value.components.keys()))
             .flat()
         )
@@ -84,9 +84,6 @@ function generateRouteFileInfoEntry(
 function recursiveGetRouteNames(node: TreeNode): TreeNode['name'][] {
   return [
     node.name,
-    ...node
-      .getSortedChildren()
-      .values()
-      .map((child) => recursiveGetRouteNames(child)),
+    ...node.getSortedChildren().map((child) => recursiveGetRouteNames(child)),
   ].flat()
 }
