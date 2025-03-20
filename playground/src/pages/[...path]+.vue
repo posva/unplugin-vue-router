@@ -11,7 +11,7 @@ const route = useRoute('/[...path]+')
   </main>
 </template>
 
-<route>
+<route lang="json">
 {
   "props": true
 }

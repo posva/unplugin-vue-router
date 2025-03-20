@@ -5,7 +5,7 @@
   </main>
 </template>
 
-<route>
+<route lang="json">
 {
   "props": true
 }
