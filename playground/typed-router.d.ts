@@ -57,6 +57,8 @@ declare module 'vue-router/auto-routes' {
     '/n-[[n]]/': RouteRecordInfo<'/n-[[n]]/', '/n-:n?', { n?: ParamValueZeroOrOne<true> }, { n?: ParamValueZeroOrOne<false> }>,
     '/n-[[n]]/[[more]]+/': RouteRecordInfo<'/n-[[n]]/[[more]]+/', '/n-:n?/:more*', { n?: ParamValueZeroOrOne<true>, more?: ParamValueZeroOrMore<true> }, { n?: ParamValueZeroOrOne<false>, more?: ParamValueZeroOrMore<false> }>,
     '/n-[[n]]/[[more]]+/[final]': RouteRecordInfo<'/n-[[n]]/[[more]]+/[final]', '/n-:n?/:more*/:final', { n?: ParamValueZeroOrOne<true>, more?: ParamValueZeroOrMore<true>, final: ParamValue<true> }, { n?: ParamValueZeroOrOne<false>, more?: ParamValueZeroOrMore<false>, final: ParamValue<false> }>,
+    '/named-views/parent': RouteRecordInfo<'/named-views/parent', '/named-views/parent', Record<never, never>, Record<never, never>>,
+    '/named-views/parent/': RouteRecordInfo<'/named-views/parent/', '/named-views/parent', Record<never, never>, Record<never, never>>,
     '/nested-group/(group)': RouteRecordInfo<'/nested-group/(group)', '/nested-group', Record<never, never>, Record<never, never>>,
     '/nested-group/(nested-group-first-level)/(nested-group-deep)/nested-group-deep-child': RouteRecordInfo<'/nested-group/(nested-group-first-level)/(nested-group-deep)/nested-group-deep-child', '/nested-group/nested-group-deep-child', Record<never, never>, Record<never, never>>,
     '/nested-group/(nested-group-first-level)/nested-group-first-level-child': RouteRecordInfo<'/nested-group/(nested-group-first-level)/nested-group-first-level-child', '/nested-group/nested-group-first-level-child', Record<never, never>, Record<never, never>>,
@@ -82,68 +84,249 @@ declare module 'vue-router/auto-routes' {
   /**
    * File path to route names map by unplugin-vue-router
    */
-  export interface FilePathToRouteNamesMap {
-    'src/pages/(test-group).vue': '/(test-group)' | '/(test-group)/test-group-child',
-    'src/pages/(test-group)/test-group-child.vue': '/(test-group)/test-group-child',
-    'src/pages/index.vue': 'home',
-    'src/pages/index@named.vue': 'home',
-    'src/pages/[name].vue': '/[name]',
-    'src/pages/[...path].vue': '/[...path]',
-    'src/pages/[...path]+.vue': '/[...path]+',
-    'src/pages/@[profileId].vue': '/@[profileId]',
-    'src/pages/about.vue': '/about',
-    'src/pages/about.extra.nested.vue': '/about.extra.nested',
-    'src/pages/articles.vue': '/articles' | '/articles/' | '/articles/[id]' | '/articles/[id]+',
-    'src/pages/articles/index.vue': '/articles/',
-    'src/pages/articles/[id].vue': '/articles/[id]',
-    'src/pages/articles/[id]+.vue': '/articles/[id]+',
-    'src/pages/custom-definePage.vue': '/custom-definePage',
-    'src/pages/custom-name.vue': 'a rebel',
-    'src/pages/deep/nesting/works/too.vue': '/custom/page',
-    'src/pages/deep/nesting/works/[[files]]+.vue': '/deep/nesting/works/[[files]]+',
-    'src/pages/deep/nesting/works/too.vue': '/deep/nesting/works/at-root-but-from-nested',
-    'src/pages/deep/nesting/works/custom-name-and-path.vue': 'deep the most rebel',
-    'src/pages/deep/nesting/works/custom-path.vue': '/deep/nesting/works/custom-path',
-    'src/pages/deep/nesting/works/custom-name.vue': 'deep a rebel',
-    'src/docs/real/index.md': '/docs/[lang]/real/',
-    'src/features/feature-1/pages/index.vue': '/feature-1/',
-    'src/features/feature-1/pages/about.vue': '/feature-1/about',
-    'src/features/feature-2/pages/index.vue': '/feature-2/',
-    'src/features/feature-2/pages/about.vue': '/feature-2/about',
-    'src/features/feature-3/pages/index.vue': '/feature-3/',
-    'src/features/feature-3/pages/about.vue': '/feature-3/about',
-    'src/pages/file(ignored-parentheses).vue': '/file(ignored-parentheses)',
-    'src/pages/index.vue': '/from-root',
-    'src/pages/group/(thing).vue': '/group/(thing)',
-    'src/pages/custom-name-and-path.vue': 'the most rebel',
-    'src/pages/multiple-[a]-[b]-params.vue': '/multiple-[a]-[b]-params',
-    'src/pages/my-optional-[[slug]].vue': '/my-optional-[[slug]]',
-    'src/pages/n-[[n]]/index.vue': '/n-[[n]]/',
-    'src/pages/n-[[n]]/[[more]]+/index.vue': '/n-[[n]]/[[more]]+/',
-    'src/pages/n-[[n]]/[[more]]+/[final].vue': '/n-[[n]]/[[more]]+/[final]',
-    'src/pages/nested-group/(group).vue': '/nested-group/(group)',
-    'src/pages/nested-group/(nested-group-first-level)/(nested-group-deep)/nested-group-deep-child.vue': '/nested-group/(nested-group-first-level)/(nested-group-deep)/nested-group-deep-child',
-    'src/pages/nested-group/(nested-group-first-level)/nested-group-first-level-child.vue': '/nested-group/(nested-group-first-level)/nested-group-first-level-child',
-    'src/pages/partial-[name].vue': '/partial-[name]',
-    'src/pages/custom-path.vue': '/custom-path',
-    'src/pages/test-[a-id].vue': '/test-[a-id]',
-    'src/pages/todos/index.vue': '/todos/',
-    'src/pages/users/index.vue': '/users/',
-    'src/pages/users/[id].vue': '/users/[id]',
-    'src/pages/users/[id].edit.vue': '/users/[id].edit',
-    'src/pages/users/colada-loader.[id].vue': '/users/colada-loader.[id]',
-    'src/pages/users/nested.route.deep.vue': '/users/nested.route.deep',
-    'src/pages/users/pinia-colada.[id].vue': '/users/pinia-colada.[id]',
-    'src/pages/users/query.[id].vue': '/users/query.[id]',
-    'src/pages/users/tq-query.[id].vue': '/users/tq-query.[id]',
-    'src/pages/vuefire-tests/get-doc.vue': '/vuefire-tests/get-doc',
-    'src/pages/with-extension.page.vue': '/with-extension',
+  export interface RouteFileInfoMap {
+    'src/pages/(test-group).vue': {
+      routes: '/(test-group)' | '/(test-group)/test-group-child',
+      views: 'default',
+    },
+    'src/pages/(test-group)/test-group-child.vue': {
+      routes: '/(test-group)/test-group-child',
+      views: never,
+    },
+    'src/pages/index.vue': {
+      routes: 'home',
+      views: never,
+    },
+    'src/pages/index@named.vue': {
+      routes: 'home',
+      views: never,
+    },
+    'src/pages/[name].vue': {
+      routes: '/[name]',
+      views: never,
+    },
+    'src/pages/[...path].vue': {
+      routes: '/[...path]',
+      views: never,
+    },
+    'src/pages/[...path]+.vue': {
+      routes: '/[...path]+',
+      views: never,
+    },
+    'src/pages/@[profileId].vue': {
+      routes: '/@[profileId]',
+      views: never,
+    },
+    'src/pages/about.vue': {
+      routes: '/about',
+      views: never,
+    },
+    'src/pages/about.extra.nested.vue': {
+      routes: '/about.extra.nested',
+      views: never,
+    },
+    'src/pages/articles.vue': {
+      routes: '/articles' | '/articles/' | '/articles/[id]' | '/articles/[id]+',
+      views: 'default',
+    },
+    'src/pages/articles/index.vue': {
+      routes: '/articles/',
+      views: never,
+    },
+    'src/pages/articles/[id].vue': {
+      routes: '/articles/[id]',
+      views: never,
+    },
+    'src/pages/articles/[id]+.vue': {
+      routes: '/articles/[id]+',
+      views: never,
+    },
+    'src/pages/custom-definePage.vue': {
+      routes: '/custom-definePage',
+      views: never,
+    },
+    'src/pages/custom-name.vue': {
+      routes: 'a rebel',
+      views: never,
+    },
+    'src/pages/deep/nesting/works/too.vue': {
+      routes: '/custom/page',
+      views: never,
+    },
+    'src/pages/deep/nesting/works/[[files]]+.vue': {
+      routes: '/deep/nesting/works/[[files]]+',
+      views: never,
+    },
+    'src/pages/deep/nesting/works/too.vue': {
+      routes: '/deep/nesting/works/at-root-but-from-nested',
+      views: never,
+    },
+    'src/pages/deep/nesting/works/custom-name-and-path.vue': {
+      routes: 'deep the most rebel',
+      views: never,
+    },
+    'src/pages/deep/nesting/works/custom-path.vue': {
+      routes: '/deep/nesting/works/custom-path',
+      views: never,
+    },
+    'src/pages/deep/nesting/works/custom-name.vue': {
+      routes: 'deep a rebel',
+      views: never,
+    },
+    'src/docs/real/index.md': {
+      routes: '/docs/[lang]/real/',
+      views: never,
+    },
+    'src/features/feature-1/pages/index.vue': {
+      routes: '/feature-1/',
+      views: never,
+    },
+    'src/features/feature-1/pages/about.vue': {
+      routes: '/feature-1/about',
+      views: never,
+    },
+    'src/features/feature-2/pages/index.vue': {
+      routes: '/feature-2/',
+      views: never,
+    },
+    'src/features/feature-2/pages/about.vue': {
+      routes: '/feature-2/about',
+      views: never,
+    },
+    'src/features/feature-3/pages/index.vue': {
+      routes: '/feature-3/',
+      views: never,
+    },
+    'src/features/feature-3/pages/about.vue': {
+      routes: '/feature-3/about',
+      views: never,
+    },
+    'src/pages/file(ignored-parentheses).vue': {
+      routes: '/file(ignored-parentheses)',
+      views: never,
+    },
+    'src/pages/index.vue': {
+      routes: '/from-root',
+      views: never,
+    },
+    'src/pages/group/(thing).vue': {
+      routes: '/group/(thing)',
+      views: never,
+    },
+    'src/pages/custom-name-and-path.vue': {
+      routes: 'the most rebel',
+      views: never,
+    },
+    'src/pages/multiple-[a]-[b]-params.vue': {
+      routes: '/multiple-[a]-[b]-params',
+      views: never,
+    },
+    'src/pages/my-optional-[[slug]].vue': {
+      routes: '/my-optional-[[slug]]',
+      views: never,
+    },
+    'src/pages/n-[[n]]/index.vue': {
+      routes: '/n-[[n]]/',
+      views: never,
+    },
+    'src/pages/n-[[n]]/[[more]]+/index.vue': {
+      routes: '/n-[[n]]/[[more]]+/',
+      views: never,
+    },
+    'src/pages/n-[[n]]/[[more]]+/[final].vue': {
+      routes: '/n-[[n]]/[[more]]+/[final]',
+      views: never,
+    },
+    'src/pages/named-views/parent.vue': {
+      routes: '/named-views/parent' | '/named-views/parent/',
+      views: 'default' | 'a' | 'b',
+    },
+    'src/pages/named-views/parent/index.vue': {
+      routes: '/named-views/parent/',
+      views: never,
+    },
+    'src/pages/named-views/parent/index@a.vue': {
+      routes: '/named-views/parent/',
+      views: never,
+    },
+    'src/pages/named-views/parent/index@b.vue': {
+      routes: '/named-views/parent/',
+      views: never,
+    },
+    'src/pages/nested-group/(group).vue': {
+      routes: '/nested-group/(group)',
+      views: never,
+    },
+    'src/pages/nested-group/(nested-group-first-level)/(nested-group-deep)/nested-group-deep-child.vue': {
+      routes: '/nested-group/(nested-group-first-level)/(nested-group-deep)/nested-group-deep-child',
+      views: never,
+    },
+    'src/pages/nested-group/(nested-group-first-level)/nested-group-first-level-child.vue': {
+      routes: '/nested-group/(nested-group-first-level)/nested-group-first-level-child',
+      views: never,
+    },
+    'src/pages/partial-[name].vue': {
+      routes: '/partial-[name]',
+      views: never,
+    },
+    'src/pages/custom-path.vue': {
+      routes: '/custom-path',
+      views: never,
+    },
+    'src/pages/test-[a-id].vue': {
+      routes: '/test-[a-id]',
+      views: never,
+    },
+    'src/pages/todos/index.vue': {
+      routes: '/todos/',
+      views: never,
+    },
+    'src/pages/users/index.vue': {
+      routes: '/users/',
+      views: never,
+    },
+    'src/pages/users/[id].vue': {
+      routes: '/users/[id]',
+      views: never,
+    },
+    'src/pages/users/[id].edit.vue': {
+      routes: '/users/[id].edit',
+      views: never,
+    },
+    'src/pages/users/colada-loader.[id].vue': {
+      routes: '/users/colada-loader.[id]',
+      views: never,
+    },
+    'src/pages/users/nested.route.deep.vue': {
+      routes: '/users/nested.route.deep',
+      views: never,
+    },
+    'src/pages/users/pinia-colada.[id].vue': {
+      routes: '/users/pinia-colada.[id]',
+      views: never,
+    },
+    'src/pages/users/query.[id].vue': {
+      routes: '/users/query.[id]',
+      views: never,
+    },
+    'src/pages/users/tq-query.[id].vue': {
+      routes: '/users/tq-query.[id]',
+      views: never,
+    },
+    'src/pages/vuefire-tests/get-doc.vue': {
+      routes: '/vuefire-tests/get-doc',
+      views: never,
+    },
+    'src/pages/with-extension.page.vue': {
+      routes: '/with-extension',
+      views: never,
+    },
   }
 
   /**
-   * Get a route's name by file path
+   * Get a union of possible route names in a certain route component file
    */
-  export type GetRouteNameByPath<T extends string> = T extends keyof FilePathToRouteNamesMap
-    ? FilePathToRouteNamesMap[T]
+  export type GetPossibleRouteNamesByFilePath<T extends string> = T extends keyof RouteFileInfoMap
+    ? RouteFileInfoMap[T]['routes']
     : keyof import('vue-router/auto-routes').RouteNamedMap
 }
