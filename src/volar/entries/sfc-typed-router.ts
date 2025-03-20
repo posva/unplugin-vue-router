@@ -3,6 +3,15 @@ import type { VueLanguagePlugin } from '@vue/language-core'
 import { replaceAll, toString } from 'muggle-string'
 import { augmentVlsCtx } from '../utils/augment-vls-ctx'
 
+/*
+  Future ideas:
+  - Enhance typing of `useRouter().currentRoute` and `$router.currentRoute`
+  - Enhance typing of `to` route in `beforeEnter` route guards defined in `definePage`
+  - Enhance typing of `<RouterView>`
+    - Typed `name` attribute for named views
+    - Typed `route` slot prop when using `<RouterView v-slot="{route}">`
+*/
+
 const plugin: VueLanguagePlugin = (ctx) => {
   const RE = {
     USE_ROUTE: {
