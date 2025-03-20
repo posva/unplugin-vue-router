@@ -33,8 +33,8 @@ const plugin: VueLanguagePlugin = (ctx) => {
 
   return {
     version: 2.1,
-    resolveEmbeddedCode(fileName, _sfc, embeddedFile) {
-      if (!embeddedFile.id.startsWith('script_')) {
+    resolveEmbeddedCode(fileName, _sfc, embeddedCode) {
+      if (!embeddedCode.id.startsWith('script_')) {
         return
       }
 
@@ -44,37 +44,48 @@ const plugin: VueLanguagePlugin = (ctx) => {
         ? relative(ctx.compilerOptions.baseUrl, fileName)
         : fileName
 
-      const routeNameGetter = `import('vue-router/auto-routes').GetRouteNameByPath<'${relativeFilePath}'>`
+      const routeNameGetter = `import('vue-router/auto-routes').GetPossibleRouteNamesByFilePath<'${relativeFilePath}'>`
       const routeNameGetterGeneric = `<${routeNameGetter}>`
       const typedCall = `useRoute${routeNameGetterGeneric}`
 
-      if (embeddedFile.id.startsWith('script_ts')) {
+      if (embeddedCode.id.startsWith('script_ts')) {
         // Inserts generic into `useRoute()` calls.
         // We only apply this mutation on <script setup> blocks with lang="ts".
         replaceAll(
-          embeddedFile.content,
+          embeddedCode.content,
           RE.USE_ROUTE.BEFORE_PARENTHESES,
           routeNameGetterGeneric
         )
-      } else if (embeddedFile.id.startsWith('script_js')) {
+      } else if (embeddedCode.id.startsWith('script_js')) {
         // Typecasts `useRoute()` calls.
         // We only apply this mutation on plain JS <script setup> blocks.
-        replaceAll(embeddedFile.content, RE.USE_ROUTE.BEFORE, `(`)
+        replaceAll(embeddedCode.content, RE.USE_ROUTE.BEFORE, `(`)
         replaceAll(
-          embeddedFile.content,
+          embeddedCode.content,
           RE.USE_ROUTE.AFTER,
           ` as ReturnType<typeof ${typedCall}>)`
         )
       }
 
-      const contentStr = toString(embeddedFile.content)
+      const contentStr = toString(embeddedCode.content)
+
+      const vlsCtxAugmentations: string[] = []
 
       // Augment `__VLS_ctx.$route` to override the typings of `$route` in template blocks
       if (contentStr.match(RE.DOLLAR_ROUTE.VLS_CTX)) {
+        vlsCtxAugmentations.push(`$route: ReturnType<typeof ${typedCall}>;`)
+      }
+
+      // We can try augmenting the types for `RouterView` below.
+      // if (contentStr.includes(`__VLS_WithComponent<'RouterView', __VLS_LocalComponents`)) {
+      //   vlsCtxAugmentations.push(`RouterView: 'test';`)
+      // }
+
+      if (vlsCtxAugmentations.length > 0) {
         augmentVlsCtx(
-          embeddedFile.content,
+          embeddedCode.content,
           () => ` & {
-  $route: ReturnType<typeof ${typedCall}>;
+  ${vlsCtxAugmentations.join('\n  ')}
 }`
         )
       }
