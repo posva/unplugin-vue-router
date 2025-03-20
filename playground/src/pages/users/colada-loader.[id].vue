@@ -9,7 +9,7 @@ definePage({
   },
 })
 
-const route = useRoute('/users/colada-loader.[id]')
+const route = useRoute()
 
 const pinia = getActivePinia()!
 function copy() {

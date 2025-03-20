@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { Alias } from 'vite'
-const route = useRoute('/@[profileId]')
+const route = useRoute()
 
 const route2 = definePage<{ thing: string; alias: Alias }>({
   meta: {
