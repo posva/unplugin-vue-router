@@ -47,8 +47,15 @@ const plugin: VueLanguagePlugin = () => {
 
         if (embeddedCode.lang === 'json') {
           const contentStr = toString(embeddedCode.content)
-          if (contentStr.trim().startsWith('{') && !contentStr.includes('$schema')) {
-            replace(embeddedCode.content, '{', '{\n  "$schema": "https://raw.githubusercontent.com/posva/unplugin-vue-router/main/route.schema.json",')
+          if (
+            contentStr.trim().startsWith('{') &&
+            !contentStr.includes('$schema')
+          ) {
+            replace(
+              embeddedCode.content,
+              '{',
+              '{\n  "$schema": "https://raw.githubusercontent.com/posva/unplugin-vue-router/main/route.schema.json",'
+            )
           }
         }
       }
