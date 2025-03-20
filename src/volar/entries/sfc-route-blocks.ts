@@ -1,4 +1,5 @@
 import { allCodeFeatures, type VueLanguagePlugin } from '@vue/language-core'
+import { replace, toString } from 'muggle-string'
 
 const plugin: VueLanguagePlugin = () => {
   const routeBlockIdPrefix = 'route_'
@@ -43,6 +44,13 @@ const plugin: VueLanguagePlugin = () => {
           0,
           allCodeFeatures,
         ])
+
+        if (embeddedCode.lang === 'json') {
+          const contentStr = toString(embeddedCode.content)
+          if (contentStr.trim().startsWith('{') && !contentStr.includes('$schema')) {
+            replace(embeddedCode.content, '{', '{\n  "$schema": "https://raw.githubusercontent.com/posva/unplugin-vue-router/main/route.schema.json",')
+          }
+        }
       }
     },
   }
