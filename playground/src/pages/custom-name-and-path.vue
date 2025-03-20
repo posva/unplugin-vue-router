@@ -10,5 +10,8 @@
 
 <template>
   custom names
-  {{ $route.name satisfies 'the most rebel' }}
 </template>
+
+<script setup lang="ts">
+useRoute().name satisfies 'the most rebel'
+</script>
