@@ -69,7 +69,8 @@ function generateRouteFileInfoEntry(
   data: GenerateRouteFileInfoEntryData,
   options: GenerateRouteFileInfoMapOptions
 ): string {
-  const relativeFilePath = (file: string) => relative(options.root, file).replaceAll('\\', '/')
+  const relativeFilePath = (file: string) =>
+    relative(options.root, file).replaceAll('\\', '/')
 
   // TODO: check 'views' implementation
   return `  '${relativeFilePath(file)}': {
