@@ -14,12 +14,12 @@ function normalizeLines(code: string) {
 export function generateDTS({
   routesModule,
   routeNamedMap,
-  filePathToRouteNamesMap,
+  routeFileInfoMap,
 }: {
   vueRouterModule: string
   routesModule: string
   routeNamedMap: string
-  filePathToRouteNamesMap: string
+  routeFileInfoMap: string
 }) {
   return ts`
 /* eslint-disable */
@@ -46,14 +46,14 @@ ${normalizeLines(routeNamedMap)}
   /**
    * File path to route names map by unplugin-vue-router
    */
-${normalizeLines(filePathToRouteNamesMap)}
+${normalizeLines(routeFileInfoMap)}
 
   /**
-   * Get a route's name by file path
+   * Get a union of possible route names in a certain route component file
    */
-  export type GetRouteNameByPath<T extends string> = T extends keyof FilePathToRouteNamesMap
-    ? FilePathToRouteNamesMap[T]
-    : keyof import('vue-router/auto-routes').RouteNamedMap
+  export type GetPossibleRouteNamesByFilePath<T extends string> = T extends keyof RouteFileInfoMap
+    ? RouteFileInfoMap[T]['routes']
+    : keyof import('${routesModule}').RouteNamedMap
 }
 `.trimStart()
 }
