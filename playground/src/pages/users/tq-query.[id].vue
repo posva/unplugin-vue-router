@@ -118,8 +118,24 @@ const {
   networkMode: 'always',
   onMutate(vars) {},
   mutationFn: async (id: number) => {
-    await delay(5000)
+    if (simulateError.value) {
+      throw new Error('Simulated Error')
+    }
+    await delay(1000)
+    if (simulateError.value) {
+      throw new Error('Simulated Error')
+    }
     return 'hey'
+  },
+  onSettled(data, error, vars) {
+    console.log('onSettled', data, error, vars)
+  },
+  onError(err, vars) {
+    console.log('onError', err, vars)
+    return { hoho: true }
+  },
+  onSuccess(data, vars) {
+    console.log('onSuccess', data, vars)
   },
   // gcTime: 5_000,
 })
