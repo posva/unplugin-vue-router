@@ -1,13 +1,11 @@
 <template>
   <main>
     <h1>Not Found</h1>
-    <p>
-      {{ $route.name === '/[...path]' && $route.params.path }} does not exist.
-    </p>
+    <p>{{ $route.params.path }} does not exist.</p>
   </main>
 </template>
 
-<route>
+<route lang="json">
 {
   "props": true
 }
