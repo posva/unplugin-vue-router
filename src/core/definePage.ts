@@ -47,7 +47,18 @@ function getCodeAst(code: string, id: string) {
   } else if (/[jt]sx?$/.test(lang)) {
     ast = babelParse(code, lang)
   }
-  return { ast, offset }
+
+  const definePageNodes: CallExpression[] = (ast?.body || [])
+    .map((node) => {
+      const definePageCallNode =
+        node.type === 'ExpressionStatement' ? node.expression : node
+      return isCallOf(definePageCallNode, MACRO_DEFINE_PAGE)
+        ? definePageCallNode
+        : null
+    })
+    .filter((node) => !!node)
+
+  return { ast, offset, definePageNodes }
 }
 
 export function definePageTransform({
@@ -66,18 +77,8 @@ export function definePageTransform({
     return isExtractingDefinePage ? 'export default {}' : undefined
   }
 
-  const { ast, offset } = getCodeAst(code, id)
+  const { ast, offset, definePageNodes } = getCodeAst(code, id)
   if (!ast) return
-
-  const definePageNodes: CallExpression[] = (ast.body || [])
-    .map((node) => {
-      const definePageCallNode =
-        node.type === 'ExpressionStatement' ? node.expression : node
-      return isCallOf(definePageCallNode, MACRO_DEFINE_PAGE)
-        ? definePageCallNode
-        : null
-    })
-    .filter((node) => !!node)
 
   if (!definePageNodes.length) {
     return isExtractingDefinePage
@@ -191,15 +192,8 @@ export function extractDefinePageNameAndPath(
 ): { name?: string; path?: string } | null | undefined {
   if (!sfcCode.includes(MACRO_DEFINE_PAGE)) return
 
-  const { ast } = getCodeAst(sfcCode, id)
+  const { ast, definePageNodes } = getCodeAst(sfcCode, id)
   if (!ast) return
-
-  const definePageNodes = ((ast.body ?? []) as Node[])
-    .map((node) => {
-      if (node.type === 'ExpressionStatement') node = node.expression
-      return isCallOf(node, MACRO_DEFINE_PAGE) ? node : null
-    })
-    .filter((node): node is CallExpression => !!node)
 
   if (!definePageNodes.length) {
     return
