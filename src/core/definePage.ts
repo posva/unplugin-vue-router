@@ -28,7 +28,10 @@ function isStringLiteral(node: Node | null | undefined): node is StringLiteral {
   return node?.type === 'StringLiteral'
 }
 
-function getAst(code: string, id: string) {
+/**
+ * Generate the ast from a code string and an id. Works with SFC and non-SFC files.
+ */
+function getCodeAst(code: string, id: string) {
   let offset = 0
   let ast: Program | undefined
   const lang = getLang(id.split(MACRO_DEFINE_PAGE_QUERY)[0]!)
@@ -63,15 +66,18 @@ export function definePageTransform({
     return isExtractingDefinePage ? 'export default {}' : undefined
   }
 
-  const { ast, offset } = getAst(code, id)
+  const { ast, offset } = getCodeAst(code, id)
   if (!ast) return
 
-  const definePageNodes = ((ast.body || []) as Node[])
+  const definePageNodes: CallExpression[] = (ast.body || [])
     .map((node) => {
-      if (node.type === 'ExpressionStatement') node = node.expression
-      return isCallOf(node, MACRO_DEFINE_PAGE) ? node : null
+      const definePageCallNode =
+        node.type === 'ExpressionStatement' ? node.expression : node
+      return isCallOf(definePageCallNode, MACRO_DEFINE_PAGE)
+        ? definePageCallNode
+        : null
     })
-    .filter((node): node is CallExpression => !!node)
+    .filter((node) => !!node)
 
   if (!definePageNodes.length) {
     return isExtractingDefinePage
@@ -185,7 +191,7 @@ export function extractDefinePageNameAndPath(
 ): { name?: string; path?: string } | null | undefined {
   if (!sfcCode.includes(MACRO_DEFINE_PAGE)) return
 
-  const { ast } = getAst(sfcCode, id)
+  const { ast } = getCodeAst(sfcCode, id)
   if (!ast) return
 
   const definePageNodes = ((ast.body ?? []) as Node[])
