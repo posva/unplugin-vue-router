@@ -4,12 +4,15 @@ import {
   parseSFC,
   MagicString,
   checkInvalidScopeReference,
+  babelParse,
+  getLang,
 } from '@vue-macros/common'
 import type { Thenable, TransformResult } from 'unplugin'
 import type {
   CallExpression,
   Node,
   ObjectProperty,
+  Program,
   Statement,
   StringLiteral,
 } from '@babel/types'
@@ -23,6 +26,39 @@ export const MACRO_DEFINE_PAGE_QUERY = /[?&]definePage\b/
 
 function isStringLiteral(node: Node | null | undefined): node is StringLiteral {
   return node?.type === 'StringLiteral'
+}
+
+/**
+ * Generate the ast from a code string and an id. Works with SFC and non-SFC files.
+ */
+function getCodeAst(code: string, id: string) {
+  let offset = 0
+  let ast: Program | undefined
+  const lang = getLang(id.split(MACRO_DEFINE_PAGE_QUERY)[0]!)
+  if (lang === 'vue') {
+    const sfc = parseSFC(code, id)
+    if (sfc.scriptSetup) {
+      ast = sfc.getSetupAst()
+      offset = sfc.scriptSetup.loc.start.offset
+    } else if (sfc.script) {
+      ast = sfc.getScriptAst()
+      offset = sfc.script.loc.start.offset
+    }
+  } else if (/[jt]sx?$/.test(lang)) {
+    ast = babelParse(code, lang)
+  }
+
+  const definePageNodes: CallExpression[] = (ast?.body || [])
+    .map((node) => {
+      const definePageCallNode =
+        node.type === 'ExpressionStatement' ? node.expression : node
+      return isCallOf(definePageCallNode, MACRO_DEFINE_PAGE)
+        ? definePageCallNode
+        : null
+    })
+    .filter((node) => !!node)
+
+  return { ast, offset, definePageNodes }
 }
 
 export function definePageTransform({
@@ -41,20 +77,8 @@ export function definePageTransform({
     return isExtractingDefinePage ? 'export default {}' : undefined
   }
 
-  // TODO: handle also non SFC
-
-  const sfc = parseSFC(code, id)
-  if (!sfc.scriptSetup) return
-
-  const { scriptSetup, getSetupAst } = sfc
-  const setupAst = getSetupAst()
-
-  const definePageNodes = (setupAst?.body || ([] as Node[]))
-    .map((node) => {
-      if (node.type === 'ExpressionStatement') node = node.expression
-      return isCallOf(node, MACRO_DEFINE_PAGE) ? node : null
-    })
-    .filter((node): node is CallExpression => !!node)
+  const { ast, offset, definePageNodes } = getCodeAst(code, id)
+  if (!ast) return
 
   if (!definePageNodes.length) {
     return isExtractingDefinePage
@@ -67,7 +91,6 @@ export function definePageTransform({
   }
 
   const definePageNode = definePageNodes[0]!
-  const setupOffset = scriptSetup.loc.start.offset
 
   // we only want the page info
   if (isExtractingDefinePage) {
@@ -82,13 +105,13 @@ export function definePageTransform({
       )
     }
 
-    const scriptBindings = setupAst?.body ? getIdentifiers(setupAst.body) : []
+    const scriptBindings = ast.body ? getIdentifiers(ast.body) : []
 
     // this will throw if a property from the script setup is used in definePage
     checkInvalidScopeReference(routeRecord, MACRO_DEFINE_PAGE, scriptBindings)
 
-    s.remove(setupOffset + routeRecord.end!, code.length)
-    s.remove(0, setupOffset + routeRecord.start!)
+    s.remove(offset + routeRecord.end!, code.length)
+    s.remove(0, offset + routeRecord.start!)
     s.prepend(`export default `)
 
     // find all static imports and filter out the ones that are not used
@@ -156,11 +179,8 @@ export function definePageTransform({
 
     const s = new MagicString(code)
 
-    // s.removeNode(definePageNode, { offset: setupOffset })
-    s.remove(
-      setupOffset + definePageNode.start!,
-      setupOffset + definePageNode.end!
-    )
+    // s.removeNode(definePageNode, { offset })
+    s.remove(offset + definePageNode.start!, offset + definePageNode.end!)
 
     return generateTransform(s, id)
   }
@@ -172,19 +192,8 @@ export function extractDefinePageNameAndPath(
 ): { name?: string; path?: string } | null | undefined {
   if (!sfcCode.includes(MACRO_DEFINE_PAGE)) return
 
-  const sfc = parseSFC(sfcCode, id)
-
-  if (!sfc.scriptSetup) return
-
-  const { getSetupAst } = sfc
-  const setupAst = getSetupAst()
-
-  const definePageNodes = (setupAst?.body ?? ([] as Node[]))
-    .map((node) => {
-      if (node.type === 'ExpressionStatement') node = node.expression
-      return isCallOf(node, MACRO_DEFINE_PAGE) ? node : null
-    })
-    .filter((node): node is CallExpression => !!node)
+  const { ast, definePageNodes } = getCodeAst(sfcCode, id)
+  if (!ast) return
 
   if (!definePageNodes.length) {
     return

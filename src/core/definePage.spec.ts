@@ -135,7 +135,7 @@ definePage({
     })
   })
 
-  it.todo('works with jsx', async () => {
+  it('works with jsx', async () => {
     const code = `
     const a = 1
     definePage({
@@ -146,11 +146,11 @@ definePage({
     `,
       result = (await definePageTransform({
         code,
-        id: 'src/pages/basic.vue?definePage&jsx',
+        id: 'src/pages/basic.jsx?definePage&lang.jsx',
       })) as Exclude<TransformResult, string>
     expect(result).toBeDefined()
     expect(result).toHaveProperty('code')
-    expect(result?.code).toMatchInlineSnapshot()
+    expect(result?.code).toMatchSnapshot()
   })
 
   it('throws if definePage uses a variable from the setup', async () => {
