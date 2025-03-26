@@ -17,9 +17,6 @@ importers:
       chokidar:
         specifier: ^4.0.3
         version: 4.0.3
-      fast-glob:
-        specifier: ^3.3.3
-        version: 3.3.3
       json5:
         specifier: ^2.2.3
         version: 2.2.3
@@ -41,15 +38,9 @@ importers:
       scule:
         specifier: ^1.3.0
         version: 1.3.0
-      unplugin:
-        specifier: ^2.3.2
-        version: 2.3.2
-      unplugin-utils:
-        specifier: ^0.2.4
-        version: 0.2.4
-      yaml:
-        specifier: ^2.7.1
-        version: 2.7.1
+      tinyglobby:
+        specifier: ^0.2.12
+        version: 0.2.12
     devDependencies:
       '@babel/types':
         specifier: ^7.27.0
