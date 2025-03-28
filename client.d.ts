@@ -11,7 +11,8 @@ declare module 'vue-router/auto-routes' {
   /**
    * Creates a router instance.
    * @param options - The router options
-   * @param hotUpdateCallback - Callback to be called after replacing the routes and before the navigation (Invalid setting when import.meta.hot is not supported).
+   * @param hotUpdateCallback - Callback to be called after replacing the routes and before the navigation.
+   *  (If `import.meta.hot` is not supported, it will only be executed once during initialization.)
    * @example Common usage
    * ```ts
    * import { createRouter, createWebHistory } from 'vue-router'

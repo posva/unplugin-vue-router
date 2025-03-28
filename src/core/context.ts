@@ -196,6 +196,8 @@ export function createRouter(options, _hotUpdateCallback) {
   if (import.meta.hot) {
     import.meta.hot.data.router = _router
     import.meta.hot.data.router_hotUpdateCallback = _hotUpdateCallback
+  } else if (typeof _hotUpdateCallback === 'function') {
+    _hotUpdateCallback(_router.getRoutes())
   }
 
   return _router
