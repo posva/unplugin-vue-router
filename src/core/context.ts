@@ -188,11 +188,17 @@ export function createRoutesContext(options: ResolvedOptions) {
     )}\n`
 
     let hmr = ts`
-export function handleHotUpdate(_router, _hotUpdateCallback) {
+import { createRouter as createVueRouter } from 'vue-router'
+
+export function createRouter(options, _hotUpdateCallback) {
+  const _router = createVueRouter(options || {})
+
   if (import.meta.hot) {
     import.meta.hot.data.router = _router
     import.meta.hot.data.router_hotUpdateCallback = _hotUpdateCallback
   }
+
+  return _router
 }
 
 if (import.meta.hot) {
