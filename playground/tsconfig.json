@@ -35,7 +35,8 @@
   },
   "vueCompilerOptions": {
     "plugins": [
-      "../volar/index.cjs"
+      "unplugin-vue-router/volar/sfc-route-blocks",
+      "unplugin-vue-router/volar/sfc-typed-router"
     ]
   },
   "references": [

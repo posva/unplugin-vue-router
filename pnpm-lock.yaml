@@ -11,6 +11,9 @@ importers:
       '@vue-macros/common':
         specifier: ^1.16.1
         version: 1.16.1(vue@3.5.13(typescript@5.7.3))
+      '@vue/language-core':
+        specifier: ^2.2.4
+        version: 2.2.4(typescript@5.7.3)
       ast-walker-scope:
         specifier: ^0.6.2
         version: 0.6.2
@@ -32,6 +35,9 @@ importers:
       mlly:
         specifier: ^1.7.4
         version: 1.7.4
+      muggle-string:
+        specifier: ^0.4.1
+        version: 0.4.1
       pathe:
         specifier: ^2.0.2
         version: 2.0.2
@@ -78,9 +84,6 @@ importers:
       '@vitest/ui':
         specifier: ^3.0.5
         version: 3.0.5(vitest@3.0.5)
-      '@vue/language-core':
-        specifier: ^2.2.4
-        version: 2.2.4(typescript@5.7.3)
       '@vue/test-utils':
         specifier: ^2.4.6
         version: 2.4.6
@@ -8711,7 +8714,7 @@ snapshots:
       '@vue/shared': 3.5.13
       estree-walker: 2.0.2
       magic-string: 0.30.17
-      postcss: 8.5.1
+      postcss: 8.5.3
       source-map-js: 1.2.1
 
   '@vue/compiler-ssr@3.5.13':
