@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useRoute } from 'vue-router'
 
-const route = useRoute('/[...path]+')
+const route = useRoute()
 </script>
 
 <template>
@@ -11,7 +11,7 @@ const route = useRoute('/[...path]+')
   </main>
 </template>
 
-<route>
+<route lang="json">
 {
   "props": true
 }

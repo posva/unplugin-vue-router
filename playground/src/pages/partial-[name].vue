@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const route = useRoute('/partial-[name]')
+const route = useRoute()
 </script>
 
 <template>
