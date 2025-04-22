@@ -1,6 +1,11 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import { MutationCache, QueryCache, VueQueryPlugin } from '@tanstack/vue-query'
+import {
+  MutationCache,
+  QueryCache,
+  VueQueryPlugin,
+  type VueQueryPluginOptions,
+} from '@tanstack/vue-query'
 import { createPinia } from 'pinia'
 import { PiniaColada } from '@pinia/colada'
 import { router } from './router'
@@ -12,6 +17,11 @@ app.use(createPinia())
 app.use(PiniaColada, {})
 app.use(VueQueryPlugin, {
   queryClientConfig: {
+    defaultOptions: {
+      queries: {
+        gcTime: 5000,
+      },
+    },
     mutationCache: new MutationCache({
       onSuccess(data, vars, context, mutation) {
         // debugger
@@ -26,7 +36,7 @@ app.use(VueQueryPlugin, {
       },
     }),
   },
-})
+} satisfies VueQueryPluginOptions)
 app.use(DataLoaderPlugin, { router })
 app.use(router)
 

@@ -22,6 +22,12 @@ const simulateError = ref(false)
 const enabled = ref(true)
 const queryClient = useQueryClient()
 window.qc = queryClient
+
+// queryClient.setQueryData(['user-id', 1], {
+//   id: 1,
+//   name: 'Edu',
+//   when: new Date().toUTCString(),
+// })
 // queryClient.prefetchQuery({
 //   queryKey: ['user-id', computed(() => route.params.id)],
 //   // queryFn: async () => {
