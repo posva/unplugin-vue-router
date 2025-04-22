@@ -1,7 +1,7 @@
 /**
  * @vitest-environment happy-dom
  */
-import { App, defineComponent, markRaw, nextTick } from 'vue'
+import { App, defineComponent, nextTick } from 'vue'
 import { defineColadaLoader } from './defineColadaLoader'
 import {
   describe,
@@ -24,7 +24,12 @@ import { getRouter } from 'vue-router-mock'
 import { enableAutoUnmount, mount } from '@vue/test-utils'
 import RouterViewMock from '../../tests/data-loaders/RouterViewMock.vue'
 import { setActivePinia, createPinia, getActivePinia } from 'pinia'
-import { PiniaColada, useQueryCache, reviveTreeMap } from '@pinia/colada'
+import {
+  PiniaColada,
+  useQueryCache,
+  serializeTreeMap,
+  hydrateQueryCache,
+} from '@pinia/colada'
 import { RouteLocationNormalizedLoaded } from 'vue-router'
 
 describe(
@@ -242,27 +247,32 @@ describe(
 
       // sets up the cache
       const pinia = createPinia()
-      const treeMap = reviveTreeMap([
-        // entry with successful data for id
-        ['id', ['data', null, Date.now()], undefined],
-      ])
-      pinia.state.value[useQueryCache.$id] = { caches: markRaw(treeMap) }
 
-      mount(RouterViewMock, {
+      const wrapper = mount(RouterViewMock, {
         global: {
           plugins: [[DataLoaderPlugin, { router }], pinia, PiniaColada],
         },
       })
 
+      const serializedCache = [
+        // entry with successful data for id
+        ['id', ['data', null, Date.now()], undefined],
+      ] satisfies ReturnType<typeof serializeTreeMap>
+
+      wrapper.vm.$.appContext.app.runWithContext(() => {
+        hydrateQueryCache(useQueryCache(pinia), serializedCache)
+      })
+
       await router.push('/fetch')
       expect(query).toHaveBeenCalledTimes(0)
 
-      await expect(async () => useDataResult!.reload()).not.toThrow()
+      await expect(useDataResult!.reload()).resolves.toBeUndefined()
       expect(query).toHaveBeenCalledTimes(1)
     })
 
     // NOTE: this test should fail if the `setCurrentContext(currentContext)` is not called in the `if (isInitial)` branch
-    it.todo('restores the context after using a loader', async () => {
+    // Shouldn't this be directly in tester?
+    it('restores the context after using a loader', async () => {
       const query = vi.fn().mockResolvedValue('data')
 
       const useData = defineColadaLoader({
@@ -294,15 +304,18 @@ describe(
 
       const pinia = createPinia()
 
-      const treeMap = reviveTreeMap([
-        ['id', ['data', null, Date.now()], undefined],
-      ])
-      pinia.state.value[useQueryCache.$id] = { caches: markRaw(treeMap) }
-
-      mount(RouterViewMock, {
+      const wrapper = mount(RouterViewMock, {
         global: {
           plugins: [[DataLoaderPlugin, { router }], pinia, PiniaColada],
         },
+      })
+
+      const serializedCache = [
+        ['id', ['data', null, Date.now()], undefined],
+      ] satisfies ReturnType<typeof serializeTreeMap>
+
+      wrapper.vm.$.appContext.app.runWithContext(() => {
+        hydrateQueryCache(useQueryCache(pinia), serializedCache)
       })
 
       await router.push('/fetch')
@@ -310,6 +323,64 @@ describe(
       expect(useDataResult?.data.value).toBe('data')
 
       expect(getCurrentContext()).toEqual([])
+    })
+
+    it('can refetch nested loaders on invalidation', async () => {
+      const nestedQuery = vi.fn(async () => [{ id: 0 }, { id: 1 }])
+      const useListData = defineColadaLoader({
+        query: nestedQuery,
+        key: () => ['items'],
+      })
+
+      const useDetailData = defineColadaLoader({
+        key: (to) => ['items', to.params.id as string],
+        async query(to) {
+          const list = await useListData()
+          const item = list.find(
+            (item) => String(item.id) === (to.params.id as string)
+          )
+          if (!item) {
+            throw new Error('Not Found')
+          }
+          return { ...item, when: Date.now() }
+        },
+      })
+
+      const component = defineComponent({
+        setup() {
+          return { ...useDetailData() }
+        },
+        template: `<p/>`,
+      })
+
+      const router = getRouter()
+      router.addRoute({
+        name: 'item-id',
+        path: '/items/:id',
+        meta: { loaders: [useDetailData] },
+        component,
+      })
+
+      const pinia = createPinia()
+
+      mount(RouterViewMock, {
+        global: {
+          plugins: [[DataLoaderPlugin, { router }], pinia, PiniaColada],
+        },
+      })
+
+      await router.push('/items/0')
+      const queryCache = useQueryCache(pinia)
+
+      expect(nestedQuery).toHaveBeenCalledTimes(1)
+      await expect(
+        queryCache.invalidateQueries({ key: ['items'] })
+      ).resolves.toBeDefined()
+      expect(nestedQuery).toHaveBeenCalledTimes(2)
+
+      await router.push('/items/1')
+      // FIXME:
+      // expect(nestedQuery).toHaveBeenCalledTimes(2)
     })
   }
 )

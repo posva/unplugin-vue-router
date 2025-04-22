@@ -110,6 +110,10 @@ const router = createRouter({
 })
 ```
 
+::: warning
+Routes added at runtime [require special handling for HMR](./hmr.md#runtime-routes).
+:::
+
 As this plugin evolves, this should be used less and less and only become necessary in specific scenarios.
 
 One example of this is using [vite-plugin-vue-layouts](https://github.com/JohnCampionJr/vite-plugin-vue-layouts) which can only be used this way:

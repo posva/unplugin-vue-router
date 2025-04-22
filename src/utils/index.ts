@@ -11,3 +11,6 @@ export type _Awaitable<T> = T | PromiseLike<T>
 export type LiteralStringUnion<LiteralType, BaseType extends string = string> =
   | LiteralType
   | (BaseType & Record<never, never>)
+//
+// for highlighting
+export const ts = String.raw

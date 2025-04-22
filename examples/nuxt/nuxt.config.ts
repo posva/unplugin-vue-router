@@ -1,7 +1,7 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
 
-  modules: ['@pinia/nuxt'],
+  modules: ['@pinia/nuxt', '@pinia/colada-nuxt'],
 
   experimental: {
     typedPages: true,

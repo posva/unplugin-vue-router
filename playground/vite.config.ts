@@ -1,18 +1,13 @@
 import { fileURLToPath, URL } from 'url'
 import { defineConfig } from 'vite'
 import { join } from 'node:path'
-import Inspect from 'vite-plugin-inspect'
 import Markdown from 'unplugin-vue-markdown/vite'
 // @ts-ignore: the plugin should not be checked in the playground
 import VueRouter from '../src/vite'
-import {
-  getFileBasedRouteName,
-  getPascalCaseRouteName,
-  VueRouterAutoImports,
-} from '../src'
+import { VueRouterAutoImports } from '../src'
 import Vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
-import VueDevtools from 'vite-plugin-vue-devtools'
+import Inspect from 'vite-plugin-inspect'
 
 export default defineConfig({
   clearScreen: false,
@@ -55,7 +50,7 @@ export default defineConfig({
         autoExportsDataLoaders: ['src/loaders/**/*', '@/loaders/**/*'],
       },
       extendRoute(route) {
-        route.params.forEach((param, i) => {
+        route.params.forEach((param) => {
           // transform kebab-case to camelCase
           param.paramName = param.paramName.replace(/-([a-z])/g, (g) =>
             g[1].toUpperCase()
@@ -162,7 +157,9 @@ export default defineConfig({
         },
       ],
     }),
-    VueDevtools(),
+    // currently the devtools use 0.8.8 but we care more about
+    // inspecting virtual files
+    // VueDevtools(),
     Inspect(),
   ],
 })

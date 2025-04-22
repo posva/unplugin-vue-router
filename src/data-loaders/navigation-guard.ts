@@ -1,5 +1,13 @@
 import { isNavigationFailure } from 'vue-router'
-import { effectScope, type App, type EffectScope } from 'vue'
+import {
+  effectScope,
+  inject,
+  shallowRef,
+  type InjectionKey,
+  type ShallowRef,
+  type App,
+  type EffectScope,
+} from 'vue'
 import {
   ABORT_CONTROLLER_KEY,
   APP_KEY,
@@ -20,6 +28,12 @@ import { type _Awaitable } from '../utils'
 import { toLazyValue, type UseDataLoader } from './createDataLoader'
 
 /**
+ * Key to inject the global loading state for loaders used in `useIsDataLoading`.
+ * @internal
+ */
+export const IS_DATA_LOADING_KEY = Symbol() as InjectionKey<ShallowRef<boolean>>
+
+/**
  * TODO: export functions that allow preloading outside of a navigation guard
  */
 
@@ -34,7 +48,7 @@ import { toLazyValue, type UseDataLoader } from './createDataLoader'
 export function setupLoaderGuard({
   router,
   app,
-  effect,
+  effect: scope,
   isSSR,
   errors: globalErrors = [],
   selectNavigationResult = (results) => results[0]!.value,
@@ -63,6 +77,10 @@ export function setupLoaderGuard({
   router[APP_KEY] = app
 
   router[IS_SSR_KEY] = !!isSSR
+
+  // global loading state for loaders used in `useIsDataLoading`
+  const isDataLoading = scope.run(() => shallowRef(false))!
+  app.provide(IS_DATA_LOADING_KEY, isDataLoading)
 
   // guard to add the loaders to the meta property
   const removeLoaderGuard = router.beforeEach((to) => {
@@ -156,6 +174,9 @@ export function setupLoaderGuard({
 
     // unset the context so all loaders are executed as root loaders
     setCurrentContext([])
+
+    isDataLoading.value = true
+
     return Promise.all(
       loaders.map((loader) => {
         const { server, lazy, errors } = loader._.options
@@ -164,7 +185,7 @@ export function setupLoaderGuard({
           return
         }
         // keep track of loaders that should be committed after all loaders are done
-        const ret = effect.run(() =>
+        const ret = scope.run(() =>
           app
             // allows inject and provide APIs
             .runWithContext(() =>
@@ -178,24 +199,28 @@ export function setupLoaderGuard({
           ? undefined
           : // return the non-lazy loader to commit changes after all loaders are done
             ret.catch((reason) => {
-              // use local error option if it exists first and then the global one
-              if (
-                errors &&
-                (Array.isArray(errors)
-                  ? errors.some((Err) => reason instanceof Err)
-                  : errors(reason))
-              ) {
-                return // avoid any navigation failure
-              }
+              // errors: false, always abort the navigation
+              if (!errors) throw reason
 
-              // is the error a globally expected error
-              return (
-                Array.isArray(globalErrors)
-                  ? globalErrors.some((Err) => reason instanceof Err)
-                  : globalErrors(reason)
-              )
-                ? undefined
-                : Promise.reject(reason)
+              // errors: true, accept globally defined errors
+              if (errors === true) {
+                // is the error a globally expected error
+                if (
+                  Array.isArray(globalErrors)
+                    ? globalErrors.some((Err) => reason instanceof Err)
+                    : globalErrors(reason)
+                )
+                  return
+              } else if (
+                // use local error option if it exists first and then the global one
+                Array.isArray(errors)
+                  ? errors.some((Err) => reason instanceof Err)
+                  : errors(reason)
+              ) {
+                return
+              }
+              // by default, the error is not handled
+              throw reason
             })
       })
     ) // let the navigation go through by returning true or void
@@ -217,6 +242,12 @@ export function setupLoaderGuard({
             // will not be valid from the navigation guard's perspective
             Promise.reject<never>(error)
       )
+      .finally(() => {
+        // unset the context so mounting happens without an active context
+        // and loaders do not believe they are being called as nested when they are not
+        setCurrentContext([])
+        isDataLoading.value = false
+      })
   })
 
   // listen to duplicated navigation failures to reset the pendingTo and pendingLoad
@@ -404,4 +435,12 @@ export interface DataLoaderPluginOptions {
    * constructors that can be checked with `instanceof` or a custom function that returns `true` for expected errors.
    */
   errors?: Array<new (...args: any) => any> | ((reason?: unknown) => boolean)
+}
+
+/**
+ * Return a ref that reflects the global loading state of all loaders within a navigation.
+ * This state doesn't update if `refresh()` is manually called.
+ */
+export function useIsDataLoading() {
+  return inject(IS_DATA_LOADING_KEY)!
 }

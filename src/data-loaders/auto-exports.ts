@@ -1,4 +1,4 @@
-import { createFilter } from '@rollup/pluginutils'
+import { createFilter } from 'unplugin-utils'
 import type { Plugin } from 'vite'
 import MagicString from 'magic-string'
 import { findStaticImports, parseStaticImport } from 'mlly'
@@ -41,7 +41,7 @@ const PLUGIN_NAME = 'unplugin-vue-router:data-loaders-auto-export'
  */
 export interface AutoExportLoadersOptions {
   /**
-   * Filter page components to apply the auto-export (defined with `createFilter()` from `@rollup/pluginutils`) or array
+   * Filter page components to apply the auto-export (defined with `createFilter()` from `unplugin-utils`) or array
    * of globs.
    */
   filterPageComponents: ((id: string) => boolean) | string[]
@@ -69,7 +69,7 @@ export function AutoExportLoaders({
   filterPageComponents: filterPagesOrGlobs,
   loadersPathsGlobs,
   root = process.cwd(),
-}: AutoExportLoadersOptions) {
+}: AutoExportLoadersOptions): Plugin {
   const filterPaths = createFilter(loadersPathsGlobs)
   const filterPageComponents =
     typeof filterPagesOrGlobs === 'function'
@@ -103,12 +103,14 @@ export function AutoExportLoaders({
         }
       },
     },
-  } satisfies Plugin
+  }
 }
 
-export function createAutoExportPlugin(options: AutoExportLoadersOptions) {
+export function createAutoExportPlugin(
+  options: AutoExportLoadersOptions
+): UnpluginOptions {
   return {
     name: PLUGIN_NAME,
     vite: AutoExportLoaders(options),
-  } satisfies UnpluginOptions
+  }
 }

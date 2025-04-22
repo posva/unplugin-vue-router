@@ -1,20 +1,22 @@
 {
   "name": "unplugin-vue-router",
-  "version": "0.10.8",
+  "version": "0.12.0",
   "type": "module",
-  "packageManager": "pnpm@9.9.0",
+  "packageManager": "pnpm@10.9.0",
   "description": "File based typed routing for Vue Router",
   "keywords": [
+    "unplugin",
+    "vite",
+    "webpack",
+    "rollup",
     "vue-router",
     "pages",
     "filesystem",
     "types",
     "typed",
-    "router",
-    "unplugin",
-    "vite",
-    "webpack",
-    "rollup"
+    "vue",
+    "nuxt",
+    "router"
   ],
   "homepage": "https://github.com/posva/unplugin-vue-router#readme",
   "bugs": {
@@ -30,92 +32,50 @@
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "types": {
-        "require": "./dist/index.d.cts",
-        "import": "./dist/index.d.ts"
-      },
-      "require": "./dist/index.cjs",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     },
     "./vite": {
-      "types": {
-        "require": "./dist/vite.d.cts",
-        "import": "./dist/vite.d.ts"
-      },
-      "require": "./dist/vite.cjs",
-      "import": "./dist/vite.js"
+      "import": "./dist/vite.js",
+      "require": "./dist/vite.cjs"
     },
     "./webpack": {
-      "types": {
-        "require": "./dist/webpack.d.cts",
-        "import": "./dist/webpack.d.ts"
-      },
-      "require": "./dist/webpack.cjs",
-      "import": "./dist/webpack.js"
+      "import": "./dist/webpack.js",
+      "require": "./dist/webpack.cjs"
     },
     "./rollup": {
-      "types": {
-        "require": "./dist/rollup.d.cts",
-        "import": "./dist/rollup.d.ts"
-      },
-      "require": "./dist/rollup.cjs",
-      "import": "./dist/rollup.js"
+      "import": "./dist/rollup.js",
+      "require": "./dist/rollup.cjs"
     },
     "./esbuild": {
-      "types": {
-        "require": "./dist/esbuild.d.cts",
-        "import": "./dist/esbuild.d.ts"
-      },
-      "require": "./dist/esbuild.cjs",
-      "import": "./dist/esbuild.js"
+      "import": "./dist/esbuild.js",
+      "require": "./dist/esbuild.cjs"
     },
     "./options": {
-      "types": {
-        "require": "./dist/options.d.cts",
-        "import": "./dist/options.d.ts"
-      },
-      "require": "./dist/options.cjs",
-      "import": "./dist/options.js"
+      "import": "./dist/options.js",
+      "require": "./dist/options.cjs"
     },
     "./runtime": {
-      "types": {
-        "require": "./dist/runtime.d.cts",
-        "import": "./dist/runtime.d.ts"
-      },
-      "require": "./dist/runtime.cjs",
-      "import": "./dist/runtime.js"
+      "import": "./dist/runtime.js",
+      "require": "./dist/runtime.cjs"
     },
     "./types": {
       "types": {
-        "require": "./dist/types.d.cts",
-        "import": "./dist/types.d.ts"
-      },
-      "require": "./dist/types.cjs",
-      "import": "./dist/types.js"
+        "import": "./dist/types.d.ts",
+        "require": "./dist/types.d.cts"
+      }
     },
     "./data-loaders": {
-      "types": {
-        "require": "./dist/data-loaders/index.d.cts",
-        "import": "./dist/data-loaders/index.d.ts"
-      },
-      "require": "./dist/data-loaders/index.cjs",
-      "import": "./dist/data-loaders/index.js"
+      "import": "./dist/data-loaders/index.js",
+      "require": "./dist/data-loaders/index.cjs"
     },
     "./data-loaders/basic": {
-      "types": {
-        "require": "./dist/data-loaders/basic.d.cts",
-        "import": "./dist/data-loaders/basic.d.ts"
-      },
-      "require": "./dist/data-loaders/basic.cjs",
-      "import": "./dist/data-loaders/basic.js"
+      "import": "./dist/data-loaders/basic.js",
+      "require": "./dist/data-loaders/basic.cjs"
     },
     "./data-loaders/pinia-colada": {
-      "types": {
-        "require": "./dist/data-loaders/pinia-colada.d.cts",
-        "import": "./dist/data-loaders/pinia-colada.d.ts"
-      },
-      "require": "./dist/data-loaders/pinia-colada.cjs",
-      "import": "./dist/data-loaders/pinia-colada.js"
+      "import": "./dist/data-loaders/pinia-colada.js",
+      "require": "./dist/data-loaders/pinia-colada.cjs"
     },
     "./client": {
       "types": "./client.d.ts"
@@ -123,8 +83,14 @@
   },
   "typesVersions": {
     "*": {
-      "./client": [
-        "./client.d.ts"
+      "data-loaders": [
+        "./dist/data-loaders/index.d.ts"
+      ],
+      "data-loaders/basic": [
+        "./dist/data-loaders/basic.d.ts"
+      ],
+      "data-loaders/pinia-colada": [
+        "./dist/data-loaders/pinia-colada.d.ts"
       ],
       "*": [
         "./dist/*",
@@ -141,7 +107,8 @@
     "build": "pnpm run build:core && pnpm run build:runtime",
     "build:core": "tsup",
     "build:runtime": "tsup --config tsup-runtime.config.ts",
-    "dev": "pnpm run test --ui",
+    "dev": "pnpm run vitest --ui",
+    "vitest": "vitest --typecheck",
     "docs": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "lint": "prettier -c '{src,test,e2e,examples,playground}/**/*.{ts,vue}'",
@@ -149,7 +116,8 @@
     "play:build": "npm -C playground run build",
     "release": "node scripts/release.mjs",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 1",
-    "test": "vitest --typecheck"
+    "pretest": "pnpm run lint",
+    "test": "pnpm run build && vitest --typecheck --coverage run && pnpm run docs:build"
   },
   "gitHooks": {
     "pre-commit": "lint-staged",
@@ -164,20 +132,20 @@
     ]
   },
   "dependencies": {
-    "@babel/types": "^7.25.6",
-    "@rollup/pluginutils": "^5.1.0",
-    "@vue-macros/common": "^1.12.3",
+    "@vue-macros/common": "^1.16.1",
     "ast-walker-scope": "^0.6.2",
-    "chokidar": "^3.6.0",
-    "fast-glob": "^3.3.2",
+    "chokidar": "^4.0.3",
+    "fast-glob": "^3.3.3",
     "json5": "^2.2.3",
-    "local-pkg": "^0.5.0",
-    "magic-string": "^0.30.11",
-    "mlly": "^1.7.1",
-    "pathe": "^1.1.2",
+    "local-pkg": "^1.0.0",
+    "magic-string": "^0.30.17",
+    "mlly": "^1.7.4",
+    "pathe": "^2.0.2",
+    "picomatch": "^4.0.2",
     "scule": "^1.3.0",
-    "unplugin": "^1.14.0",
-    "yaml": "^2.5.1"
+    "unplugin": "^2.2.0",
+    "unplugin-utils": "^0.2.3",
+    "yaml": "^2.7.0"
   },
   "peerDependencies": {
     "vue-router": "^4.4.0"
@@ -188,45 +156,47 @@
     }
   },
   "devDependencies": {
-    "@pinia/colada": "^0.9.0",
-    "@shikijs/vitepress-twoslash": "1.16.3",
-    "@tanstack/vue-query": "^5.55.4",
-    "@types/node": "^20.16.1",
-    "@vitest/coverage-v8": "^2.0.5",
-    "@vitest/ui": "^2.0.5",
-    "@volar/vue-language-core": "^1.6.5",
+    "@babel/types": "^7.26.8",
+    "@pinia/colada": "^0.14.0",
+    "@posva/prompts": "^2.4.4",
+    "@shikijs/vitepress-twoslash": "3.0.0",
+    "@tanstack/vue-query": "^5.66.0",
+    "@types/node": "^22.13.1",
+    "@types/picomatch": "^4.0.0",
+    "@vitest/coverage-v8": "^3.0.5",
+    "@vitest/ui": "^3.0.5",
+    "@vue/language-core": "^2.2.4",
     "@vue/test-utils": "^2.4.6",
-    "chalk": "^5.3.0",
+    "chalk": "^5.4.1",
     "conventional-changelog-cli": "^5.0.0",
-    "enquirer": "^2.4.1",
-    "execa": "^9.3.1",
-    "firebase": "^10.13.1",
-    "happy-dom": "^15.7.3",
-    "lint-staged": "^15.2.10",
+    "execa": "^9.5.2",
+    "firebase": "^11.3.0",
+    "happy-dom": "^17.0.2",
+    "lint-staged": "^15.4.3",
     "minimist": "^1.2.8",
-    "nodemon": "^3.1.4",
+    "nodemon": "^3.1.9",
     "p-series": "^3.0.0",
-    "pinia": "^2.2.2",
-    "prettier": "^3.3.3",
+    "pinia": "^3.0.1",
+    "prettier": "^3.5.0",
     "rimraf": "^6.0.1",
-    "rollup": "^4.21.2",
-    "semver": "^7.6.3",
+    "rollup": "^4.34.6",
+    "semver": "^7.7.1",
     "ts-expect": "^1.3.0",
-    "tsup": "^8.2.4",
-    "typescript": "^5.6.2",
-    "unplugin-auto-import": "^0.18.2",
-    "unplugin-vue-markdown": "^0.26.2",
+    "tsup": "^8.3.6",
+    "typescript": "^5.7.3",
+    "unplugin-auto-import": "^19.0.0",
+    "unplugin-vue-markdown": "^28.3.0",
     "unplugin-vue-router": "workspace:*",
-    "vite": "^5.4.3",
-    "vite-plugin-vue-devtools": "^7.4.4",
-    "vitepress": "1.3.4",
-    "vitest": "^2.0.5",
-    "vue": "^3.5.3",
-    "vue-router": "^4.4.3",
+    "vite": "^6.1.0",
+    "vite-plugin-vue-devtools": "^7.7.1",
+    "vitepress": "1.6.3",
+    "vitest": "^3.0.4",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0",
     "vue-router-mock": "^1.1.0",
-    "vue-tsc": "^2.1.6",
-    "vuefire": "^3.2.0",
-    "webpack": "^5.94.0",
+    "vue-tsc": "^2.2.8",
+    "vuefire": "^3.2.1",
+    "webpack": "^5.97.1",
     "yorkie": "^2.0.0"
   }
 }

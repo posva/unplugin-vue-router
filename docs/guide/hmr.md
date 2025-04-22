@@ -21,3 +21,36 @@ if (import.meta.hot) { // [!code ++]
   handleHotUpdate(router) // [!code ++]
 } // [!code ++]
 ```
+
+## Runtime routes
+
+If you add routes at runtime, you will have to add them within a callback to ensure they are added during development.
+
+```ts{16-23} [src/router.ts]
+import { createRouter, createWebHistory } from 'vue-router'
+import { routes, handleHotUpdate } from 'vue-router/auto-routes'
+
+export const router = createRouter({
+  history: createWebHistory(),
+  routes,
+})
+
+function addRedirects() {
+  router.addRoute({
+    path: '/new-about',
+    redirect: '/about?from=/new-about',
+  })
+}
+
+if (import.meta.hot) {
+  handleHotUpdate(router, (newRoutes) => {
+    addRedirects()
+  })
+} else {
+  // production
+  addRedirects()
+}
+```
+
+
+This is **optional**, you can also just reload the page.

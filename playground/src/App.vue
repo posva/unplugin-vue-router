@@ -5,10 +5,21 @@ import type {
   RouteLocationResolved,
   RouteLocation,
 } from 'vue-router'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { routes } from 'vue-router/auto-routes'
+import { useMutationState, useQueryClient } from '@tanstack/vue-query'
 
 console.log(`We have ${routes.length} routes.`)
+
+const queryClient = useQueryClient()
+// const states = useMutationState({ filters: { mutationKey: ['hey'] } })
+const states = useMutationState()
+watch(states, () => {
+  window.ss = states
+})
+function clearMutationsCache() {
+  queryClient.getMutationCache().clear()
+}
 
 const router = useRouter()
 const route = useRoute()
@@ -43,11 +54,16 @@ function _test() {
 
 <template>
   <header>
+    <pre>{{ states.length }}</pre>
+    <button @click="clearMutationsCache()">Clear mutations</button>
     <div class="wrapper">
       <nav>
         <ul>
           <li>
             <RouterLink to="/">Home</RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/group">Group (thing.vue)</RouterLink>
           </li>
           <li>
             <RouterLink to="/users/2" v-slot="{ href }">{{ href }}</RouterLink>

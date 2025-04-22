@@ -148,6 +148,22 @@ describe('generateRouteNamedMap', () => {
     `)
   })
 
+  it('nested index routes', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+    tree.insert('a', 'a.vue')
+    tree.insert('a/index', 'a/index.vue')
+    tree.insert('a/[id]', 'a/[id].vue')
+    tree.insert('a/[id]/index', 'a/[id]/index.vue')
+    expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
+      "export interface RouteNamedMap {
+        '/a': RouteRecordInfo<'/a', '/a', Record<never, never>, Record<never, never>>,
+        '/a/': RouteRecordInfo<'/a/', '/a', Record<never, never>, Record<never, never>>,
+        '/a/[id]': RouteRecordInfo<'/a/[id]', '/a/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
+        '/a/[id]/': RouteRecordInfo<'/a/[id]/', '/a/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
+      }"
+    `)
+  })
+
   it('keeps parent path overrides', () => {
     const tree = new PrefixTree(DEFAULT_OPTIONS)
     const parent = tree.insert('parent', 'parent.vue')
@@ -181,6 +197,42 @@ describe('generateRouteNamedMap', () => {
       }"
     `)
   })
+
+  it('ignores folder names in parentheses', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+
+    tree.insert('(group)/a', 'a.vue')
+
+    expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
+    "export interface RouteNamedMap {
+      '/(group)/a': RouteRecordInfo<'/(group)/a', '/a', Record<never, never>, Record<never, never>>,
+    }"
+  `)
+  })
+
+  it('ignores nested folder names in parentheses', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+
+    tree.insert('(group)/(subgroup)/c', 'c.vue')
+
+    expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
+    "export interface RouteNamedMap {
+      '/(group)/(subgroup)/c': RouteRecordInfo<'/(group)/(subgroup)/c', '/c', Record<never, never>, Record<never, never>>,
+    }"
+  `)
+  })
+
+  it('treats files named with parentheses as index inside static folder', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+
+    tree.insert('folder/(group)', 'folder/(group).vue')
+
+    expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
+    "export interface RouteNamedMap {
+      '/folder/(group)': RouteRecordInfo<'/folder/(group)', '/folder', Record<never, never>, Record<never, never>>,
+    }"
+  `)
+  })
 })
 
 /**
@@ -193,4 +245,8 @@ describe('generateRouteNamedMap', () => {
  * /static/...[param].vue -> /static/:param+
  * /static/...[[param]].vue -> /static/:param*
  * /static/...[[...param]].vue -> /static/:param(.*)*
+ * /(group)/a.vue -> /a
+ * /(group)/(subgroup)/c.vue -> /c
+ * /folder/(group).vue -> /folder
+ * /(home).vue -> /
  */
