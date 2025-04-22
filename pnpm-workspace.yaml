@@ -1,3 +1,6 @@
 packages:
   - playground
-  - 'examples/*'
+  - examples/*
+
+onlyBuiltDependencies:
+  - esbuild
