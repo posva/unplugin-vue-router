@@ -19,7 +19,7 @@ import {
   NavigationResult,
   type DataLoaderPluginOptions,
   type DataLoaderContextBase,
-  type DefineDataLoaderOptionsBase,
+  type DefineDataLoaderOptionsBase_LaxData,
   type UseDataLoader,
 } from 'unplugin-vue-router/data-loaders'
 import { mockPromise } from '../utils'
@@ -36,7 +36,7 @@ export function testDefineLoader<Context = void>(
         to: RouteLocationNormalizedLoaded,
         context: DataLoaderContextBase
       ) => Promise<unknown>
-    } & DefineDataLoaderOptionsBase & { key?: string }
+    } & DefineDataLoaderOptionsBase_LaxData & { key?: string }
   ) => UseDataLoader,
   {
     plugins,
@@ -52,7 +52,7 @@ export function testDefineLoader<Context = void>(
 
   function mockedLoader<T = string | NavigationResult>(
     // boolean is easier to handle for router mock
-    options?: DefineDataLoaderOptionsBase & { key?: string }
+    options?: DefineDataLoaderOptionsBase_LaxData & { key?: string }
   ) {
     const [spy, resolve, reject] = mockPromise<T, unknown>(
       // not correct as T could be something else
@@ -1145,7 +1145,6 @@ export function testDefineLoader<Context = void>(
     l1.spy.mockResolvedValue('ok')
 
     const isVisible = ref(true)
-
 
     const wrapper = mount(
       () => (isVisible.value ? h(RouterViewMock) : h('p', ['hidden'])),
