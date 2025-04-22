@@ -25,7 +25,7 @@ import {
   IS_SSR_KEY,
 } from 'unplugin-vue-router/data-loaders'
 
-import { shallowRef } from 'vue'
+import { getCurrentInstance, shallowRef } from 'vue'
 import {
   DefineDataLoaderOptionsBase_DefinedData,
   toLazyValue,
@@ -336,6 +336,16 @@ export function defineBasicLoader<Data>(
     // console.log('entryLatestLoad', entry?.pendingTo?.fullPath)
     // console.log('is same route', entry?.pendingTo === route)
     // console.log('-- END --')
+
+    if (process.env.NODE_ENV !== 'production') {
+      const isNavigating = !!router[PENDING_LOCATION_KEY]
+      const componentInstance = getCurrentInstance()
+      if (!isNavigating && !entry && !options.lazy && componentInstance) {
+        console.warn(
+          `[unplugin-vue-router] The "${options.key ?? '<unnamed>'}" loader is not lazy and is not exposed by a route. Either make it lazy or export it from the page.\nLearn more at https://uvr.esm.is/data-loaders/defining-loaders.html#connecting-a-loader-to-a-page`
+        )
+      }
+    }
 
     if (
       // if the entry doesn't exist, create it with load and ensure it's loading

@@ -466,6 +466,42 @@ export function testDefineLoader<Context = void>(
     }
   )
 
+  it('warns if a non lazy loader is used in a component but was not exposed by the page', async () => {
+    const l1 = mockedLoader({ lazy: false, key: 'l1' })
+    const router = getRouter()
+    router.addRoute({
+      name: 'a',
+      path: '/a',
+      component: defineComponent({
+        setup() {
+          const { data } = l1.loader()
+          return { data }
+        },
+        template: `<p>{{ data }}</p>`,
+      }),
+      // no loaders
+      meta: { loaders: [] },
+    })
+
+    l1.spy.mockResolvedValue('ok')
+
+    mount(() => h(RouterViewMock), {
+      global: {
+        plugins: [
+          [DataLoaderPlugin, { router }],
+          ...(plugins?.(customContext!) || []),
+        ],
+      },
+    })
+
+    await router.push('/a')
+    await flushPromises()
+
+    expect(
+      `https://uvr.esm.is/data-loaders/defining-loaders.html#connecting-a-loader-to-a-page`
+    ).toHaveBeenWarned()
+  })
+
   it('passes a signal to the loader', async () => {
     const spy =
       vi.fn<

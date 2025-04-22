@@ -31,8 +31,7 @@ import {
   trackRoute,
   IS_SSR_KEY,
 } from 'unplugin-vue-router/data-loaders'
-import {} from './utils'
-import { type ShallowRef, shallowRef, watch } from 'vue'
+import { getCurrentInstance, type ShallowRef, shallowRef, watch } from 'vue'
 import {
   type EntryKey,
   type UseQueryOptions,
@@ -395,6 +394,16 @@ export function defineColadaLoader<Data>(
     let entry = entries.get(loader) as
       | DataLoaderColadaEntry<Data, ErrorDefault>
       | undefined
+
+    if (process.env.NODE_ENV !== 'production') {
+      const isNavigating = !!router[PENDING_LOCATION_KEY]
+      const componentInstance = getCurrentInstance()
+      if (!isNavigating && !entry && !options.lazy && componentInstance) {
+        console.warn(
+          `[unplugin-vue-router] The "${options.key ?? '<unnamed>'}" loader is not lazy and is not exposed by a route. Either make it lazy or export it from the page.\nLearn more at https://uvr.esm.is/data-loaders/defining-loaders.html#connecting-a-loader-to-a-page`
+        )
+      }
+    }
 
     if (
       // if the entry doesn't exist, create it with load and ensure it's loading
