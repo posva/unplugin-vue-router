@@ -132,7 +132,7 @@
     ]
   },
   "dependencies": {
-    "@vue-macros/common": "^1.16.1",
+    "@vue-macros/common": "3.0.0-beta.8",
     "ast-walker-scope": "^0.7.1",
     "chokidar": "^4.0.3",
     "fast-glob": "^3.3.3",

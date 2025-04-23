@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@vue-macros/common':
-        specifier: ^1.16.1
-        version: 1.16.1(vue@3.5.13(typescript@5.8.3))
+        specifier: 3.0.0-beta.8
+        version: 3.0.0-beta.8(vue@3.5.13(typescript@5.8.3))
       ast-walker-scope:
         specifier: ^0.7.1
         version: 0.7.1
@@ -2049,6 +2049,15 @@ packages:
   '@vue-macros/common@1.16.1':
     resolution: {integrity: sha512-Pn/AWMTjoMYuquepLZP813BIcq8DTZiNCoaceuNlvaYuOTd8DqBZWc5u0uOMQZMInwME1mdSmmBAcTluiV9Jtg==}
     engines: {node: '>=16.14.0'}
+    peerDependencies:
+      vue: ^2.7.0 || ^3.2.25
+    peerDependenciesMeta:
+      vue:
+        optional: true
+
+  '@vue-macros/common@3.0.0-beta.8':
+    resolution: {integrity: sha512-fPb66TmAs7vVmz9qaW/d6bFbBNk/vsOx1o4EaurYmMwysubfWwh9Lgp4BPQzz5Dw8f8Yh9HfhmGbt6TYkb8qXg==}
+    engines: {node: '>=20.18.0'}
     peerDependencies:
       vue: ^2.7.0 || ^3.2.25
     peerDependenciesMeta:
@@ -4164,6 +4173,10 @@ packages:
   magic-string-ast@0.7.0:
     resolution: {integrity: sha512-686fgAHaJY7wLTFEq7nnKqeQrhqmXB19d1HnqT35Ci7BN6hbAYLZUezTQ062uUHM7ggZEQlqJ94Ftls+KDXU8Q==}
     engines: {node: '>=16.14.0'}
+
+  magic-string-ast@0.9.1:
+    resolution: {integrity: sha512-18dv2ZlSSgJ/jDWlZGKfnDJx56ilNlYq9F7NnwuWTErsmYmqJ2TWE4l1o2zlUHBYUGBy3tIhPCC1gxq8M5HkMA==}
+    engines: {node: '>=20.18.0'}
 
   magic-string@0.30.17:
     resolution: {integrity: sha512-sNPKHvyjVf7gyjwS4xGTaW/mCnF8wnjtifKBEhxfZ7E/S8tQ0rssrwGNn6q8JH/ohItJfSQp9mBtQYuTlH5QnA==}
@@ -8594,6 +8607,16 @@ snapshots:
     optionalDependencies:
       vue: 3.5.13(typescript@5.8.3)
 
+  '@vue-macros/common@3.0.0-beta.8(vue@3.5.13(typescript@5.8.3))':
+    dependencies:
+      '@vue/compiler-sfc': 3.5.13
+      ast-kit: 1.4.2
+      local-pkg: 1.1.1
+      magic-string-ast: 0.9.1
+      unplugin-utils: 0.2.4
+    optionalDependencies:
+      vue: 3.5.13(typescript@5.8.3)
+
   '@vue/babel-helper-vue-transform-on@1.4.0': {}
 
   '@vue/babel-plugin-jsx@1.4.0(@babel/core@7.26.10)':
@@ -10961,6 +10984,10 @@ snapshots:
   luxon@3.6.1: {}
 
   magic-string-ast@0.7.0:
+    dependencies:
+      magic-string: 0.30.17
+
+  magic-string-ast@0.9.1:
     dependencies:
       magic-string: 0.30.17
 
