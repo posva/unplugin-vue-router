@@ -115,6 +115,7 @@ export function createRoutesContext(options: ResolvedOptions) {
     const routeBlock = getRouteBlock(filePath, content, options)
     // TODO: should warn if hasDefinePage and customRouteBlock
     // if (routeBlock) logger.log(routeBlock)
+
     node.setCustomRouteBlock(filePath, {
       ...routeBlock,
       ...definedPageNameAndPath,

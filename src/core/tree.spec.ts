@@ -22,7 +22,7 @@ describe('Tree', () => {
     expect(child).toBeDefined()
     expect(child.value).toMatchObject({
       rawSegment: 'foo',
-      path: '/foo',
+      fullPath: '/foo',
       _type: TreeNodeType.static,
     })
     expect(child.children.size).toBe(0)
@@ -37,7 +37,7 @@ describe('Tree', () => {
     expect(child.value).toMatchObject({
       rawSegment: '[id]',
       params: [{ paramName: 'id' }],
-      path: '/:id',
+      fullPath: '/:id',
       _type: TreeNodeType.param,
     })
     expect(child.children.size).toBe(0)
@@ -50,14 +50,14 @@ describe('Tree', () => {
     expect(tree.children.get('[id]_a')!.value).toMatchObject({
       rawSegment: '[id]_a',
       params: [{ paramName: 'id' }],
-      path: '/:id()_a',
+      fullPath: '/:id()_a',
       _type: TreeNodeType.param,
     })
 
     expect(tree.children.get('[a]e[b]f')!.value).toMatchObject({
       rawSegment: '[a]e[b]f',
       params: [{ paramName: 'a' }, { paramName: 'b' }],
-      path: '/:a()e:b()f',
+      fullPath: '/:a()e:b()f',
       _type: TreeNodeType.param,
     })
   })
@@ -155,7 +155,7 @@ describe('Tree', () => {
           modifier: '+',
         },
       ],
-      path: '/:id+',
+      fullPath: '/:id+',
       _type: TreeNodeType.param,
     })
   })
@@ -173,7 +173,7 @@ describe('Tree', () => {
           modifier: '*',
         },
       ],
-      path: '/:id*',
+      fullPath: '/:id*',
       _type: TreeNodeType.param,
     })
   })
@@ -191,7 +191,7 @@ describe('Tree', () => {
           modifier: '?',
         },
       ],
-      path: '/:id?',
+      fullPath: '/:id?',
       _type: TreeNodeType.param,
     })
   })
@@ -292,7 +292,7 @@ describe('Tree', () => {
     expect(index.value).toMatchObject({
       rawSegment: 'index',
       // the root should have a '/' instead of '' for the autocompletion
-      path: '/',
+      fullPath: '/',
     })
     expect(index).toBeDefined()
     const a = tree.children.get('a')!
@@ -300,7 +300,7 @@ describe('Tree', () => {
     expect(a.value.components.get('default')).toBeUndefined()
     expect(a.value).toMatchObject({
       rawSegment: 'a',
-      path: '/a',
+      fullPath: '/a',
     })
     expect(Array.from(a.children.keys())).toEqual(['index', 'b'])
     const aIndex = a.children.get('index')!
@@ -308,14 +308,14 @@ describe('Tree', () => {
     expect(Array.from(aIndex.children.keys())).toEqual([])
     expect(aIndex.value).toMatchObject({
       rawSegment: 'index',
-      path: '/a',
+      fullPath: '/a',
     })
 
     tree.insert('a', 'a.vue')
     expect(a.value.components.get('default')).toBe('a.vue')
     expect(a.value).toMatchObject({
       rawSegment: 'a',
-      path: '/a',
+      fullPath: '/a',
     })
   })
 
@@ -328,7 +328,7 @@ describe('Tree', () => {
     expect(child.value).toMatchObject({
       rawSegment: '[id]+',
       params: [{ paramName: 'id', modifier: '+' }],
-      path: '/:id+',
+      fullPath: '/:id+',
       pathSegment: ':id+',
       _type: TreeNodeType.param,
     })
@@ -346,7 +346,7 @@ describe('Tree', () => {
     expect(child.value).toMatchObject({
       rawSegment: '[id]',
       params: [{ paramName: 'id' }],
-      path: '/:id',
+      fullPath: '/:id',
       pathSegment: ':id',
     })
     expect(child.children.size).toBe(0)
@@ -543,7 +543,7 @@ describe('Tree', () => {
       expect(users.value).toMatchObject({
         rawSegment: 'users.new',
         pathSegment: 'users/new',
-        path: '/users/new',
+        fullPath: '/users/new',
         _type: TreeNodeType.static,
       })
     })
@@ -562,7 +562,7 @@ describe('Tree', () => {
       expect(lesson.value).toMatchObject({
         rawSegment: '1.2.3-lesson',
         pathSegment: '1.2.3-lesson',
-        path: '/1.2.3-lesson',
+        fullPath: '/1.2.3-lesson',
         _type: TreeNodeType.static,
       })
     })
