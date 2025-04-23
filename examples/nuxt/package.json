@@ -7,13 +7,13 @@
     "preview": "nuxt preview"
   },
   "devDependencies": {
-    "@pinia/colada-nuxt": "0.1.0",
-    "@pinia/nuxt": "^0.10.1",
-    "nuxt": "^3.16.0",
+    "@pinia/colada-nuxt": "0.1.2",
+    "@pinia/nuxt": "^0.11.0",
+    "nuxt": "^3.16.2",
     "unplugin-vue-router": "workspace:*"
   },
   "dependencies": {
-    "@pinia/colada": "^0.14.0",
-    "pinia": "^3.0.1"
+    "@pinia/colada": "^0.15.0",
+    "pinia": "^3.0.2"
   }
 }
