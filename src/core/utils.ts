@@ -116,7 +116,7 @@ export function joinPath(...paths: string[]): string {
       // check path to avoid adding a trailing slash when joining an empty string
       (path && '/' + path.replace(LEADING_SLASH_RE, ''))
   }
-  return result
+  return result || '/'
 }
 
 function paramToName({ paramName, modifier, isSplat }: TreeRouteParam) {

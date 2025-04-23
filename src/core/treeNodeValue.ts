@@ -68,20 +68,24 @@ class _TreeNodeValueBase {
   }
 
   /**
-   * fullPath of the node based on parent nodes
+   * Path of the node. Can be absolute or not. If it has been overridden, it
+   * will return the overridden path.
    */
   get path(): string {
-    if (this.overrides.path?.startsWith('/')) {
-      return this.overrides.path
+    return this.overrides.path ?? this.pathSegment
+  }
+
+  /**
+   * Full path of the node including parent nodes.
+   */
+  get fullPath(): string {
+    const pathSegment = this.path
+    // if the path is absolute, we don't need to join it with the parent
+    if (pathSegment.startsWith('/')) {
+      return pathSegment
     }
 
-    // both the root record and the index record have a path of /
-    const pathSegment = this.overrides.path ?? this.pathSegment
-    const parentPath = this.parent?.path
-
-    return (!parentPath || parentPath === '/') && pathSegment === ''
-      ? '/'
-      : joinPath(parentPath || '', pathSegment)
+    return joinPath(this.parent?.fullPath ?? '', pathSegment)
   }
 
   toString(): string {

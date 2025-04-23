@@ -1,7 +1,6 @@
 import { RouteMeta } from 'vue-router'
 import { CustomRouteBlock } from './customBlock'
 import { type TreeNode } from './tree'
-import { warn } from './utils'
 
 /**
  * A route node that can be modified by the user. The tree can be iterated to be traversed.
@@ -142,14 +141,13 @@ export class EditableTreeNode {
    * Override the path of the route. You must ensure `params` match with the existing path.
    */
   set path(path: string) {
+    // automatically prefix the path with `/` if the route is at the root of the tree
+    // that matches the behavior of node.insert('path', 'file.vue') that also adds it
     if (
       (!this.node.parent || this.node.parent.isRoot()) &&
       !path.startsWith('/')
     ) {
-      warn(
-        `Only absolute paths are supported at the root of the route tree. Make sure that "${path}" starts with a slash "/".`
-      )
-      return
+      path = '/' + path
     }
     this.node.value.addEditOverride({ path })
   }

@@ -1,9 +1,14 @@
-import { expect, describe, it } from 'vitest'
+import { expect, describe, it, beforeAll } from 'vitest'
 import { PrefixTree } from './tree'
 import { DEFAULT_OPTIONS, resolveOptions } from '../options'
 import { EditableTreeNode } from './extendRoutes'
+import { mockWarn } from '../../tests/vitest-mock-warn'
 
 describe('EditableTreeNode', () => {
+  beforeAll(() => {
+    mockWarn()
+  })
+
   const RESOLVED_OPTIONS = resolveOptions(DEFAULT_OPTIONS)
   it('creates an editable tree node', () => {
     const tree = new PrefixTree(RESOLVED_OPTIONS)
@@ -252,7 +257,7 @@ describe('EditableTreeNode', () => {
     ])
   })
 
-  it('can override the path', () => {
+  it('can override children path with relative ones', () => {
     const tree = new PrefixTree(RESOLVED_OPTIONS)
     const editable = new EditableTreeNode(tree)
     const parent = editable.insert('parent', 'file.vue')
@@ -260,14 +265,37 @@ describe('EditableTreeNode', () => {
     const grandChild = child.insert('grandchild', 'file.vue')
 
     child.path = 'relative'
-    parent.path = 'relative'
-    expect(parent.path).toBe('/parent')
     expect(child.path).toBe('relative')
     expect(child.fullPath).toBe('/parent/relative')
     expect(grandChild.fullPath).toBe('/parent/relative/grandchild')
+
     child.path = '/absolute'
     expect(child.path).toBe('/absolute')
     expect(child.fullPath).toBe('/absolute')
     expect(grandChild.fullPath).toBe('/absolute/grandchild')
+  })
+
+  it('can override paths at tho root', () => {
+    const tree = new PrefixTree(RESOLVED_OPTIONS)
+    const editable = new EditableTreeNode(tree)
+    const parent = editable.insert('parent', 'file.vue')
+    const child = parent.insert('child', 'child.vue')
+
+    parent.path = '/p'
+    expect(parent.path).toBe('/p')
+    expect(parent.fullPath).toBe('/p')
+    expect(child.fullPath).toBe('/p/child')
+  })
+
+  it('still creates valid paths if the path misses a leading slash', () => {
+    const tree = new PrefixTree(RESOLVED_OPTIONS)
+    const editable = new EditableTreeNode(tree)
+    const parent = editable.insert('parent', 'file.vue')
+    const child = parent.insert('child', 'file.vue')
+
+    parent.path = 'bar'
+    expect(parent.path).toBe('/bar')
+    expect(parent.fullPath).toBe('/bar')
+    expect(child.fullPath).toBe('/bar/child')
   })
 })
