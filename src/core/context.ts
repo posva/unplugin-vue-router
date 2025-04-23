@@ -116,12 +116,10 @@ export function createRoutesContext(options: ResolvedOptions) {
     // TODO: should warn if hasDefinePage and customRouteBlock
     // if (routeBlock) logger.log(routeBlock)
 
-    const routeOverrides = {
+    node.setCustomRouteBlock(filePath, {
       ...routeBlock,
       ...definedPageNameAndPath,
-    }
-
-    node.setCustomRouteBlock(filePath, routeOverrides)
+    })
   }
 
   async function addPage(
