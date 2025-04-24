@@ -28,7 +28,16 @@ export function generateRouteRecordInfo(node: TreeNode) {
           .join(' | ')
       : 'never'
 
-  return `RouteRecordInfo<'${node.name}', '${
-    node.fullPath
-  }', ${generateRouteParams(node, true)}, ${generateRouteParams(node, false)}, RouteMeta, ${childrenRouteNamesGeneric}>`
+  const typeParams = [
+    `'${node.name}'`,
+    `'${node.fullPath}'`,
+    generateRouteParams(node, true),
+    generateRouteParams(node, false),
+  ]
+
+  if (childrenRouteNamesGeneric !== 'never') {
+    typeParams.push('RouteMeta', childrenRouteNamesGeneric)
+  }
+
+  return `RouteRecordInfo<${typeParams.join(', ')}>`
 }
