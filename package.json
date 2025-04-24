@@ -193,7 +193,7 @@
     "vitepress": "1.6.3",
     "vitest": "^3.1.2",
     "vue": "^3.5.13",
-    "vue-router": "^4.5.0",
+    "vue-router": "https://pkg.pr.new/vue-router@2475",
     "vue-router-mock": "^1.1.0",
     "vue-tsc": "^2.2.10",
     "vuefire": "^3.2.1",
@@ -207,9 +207,6 @@
       "protobufjs",
       "vue-demi",
       "yorkie"
-    ],
-    "patchedDependencies": {
-      "vue-router": "patches/vue-router.patch"
-    }
+    ]
   }
 }
