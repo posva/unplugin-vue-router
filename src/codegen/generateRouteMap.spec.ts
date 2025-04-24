@@ -183,12 +183,17 @@ describe('generateRouteNamedMap', () => {
     tree.insert('parent', 'parent.vue')
     tree.insert('parent/child', 'parent/child.vue')
     tree.insert('parent/child/subchild', 'parent/child/subchild.vue')
+    tree.insert(
+      'parent/child/subchild/grandchild',
+      'parent/child/subchild/grandchild.vue'
+    )
     tree.insert('parent/other-child', 'parent/other-child.vue')
     expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
       "export interface RouteNamedMap {
-        '/parent': RouteRecordInfo<'/parent', '/parent', Record<never, never>, Record<never, never>, RouteMeta, '/parent/child' | '/parent/other-child' | '/parent/child/subchild'>,
-        '/parent/child': RouteRecordInfo<'/parent/child', '/parent/child', Record<never, never>, Record<never, never>, RouteMeta, '/parent/child/subchild'>,
-        '/parent/child/subchild': RouteRecordInfo<'/parent/child/subchild', '/parent/child/subchild', Record<never, never>, Record<never, never>>,
+        '/parent': RouteRecordInfo<'/parent', '/parent', Record<never, never>, Record<never, never>, RouteMeta, '/parent/child' | '/parent/child/subchild/grandchild' | '/parent/other-child' | '/parent/child/subchild'>,
+        '/parent/child': RouteRecordInfo<'/parent/child', '/parent/child', Record<never, never>, Record<never, never>, RouteMeta, '/parent/child/subchild/grandchild' | '/parent/child/subchild'>,
+        '/parent/child/subchild': RouteRecordInfo<'/parent/child/subchild', '/parent/child/subchild', Record<never, never>, Record<never, never>, RouteMeta, '/parent/child/subchild/grandchild'>,
+        '/parent/child/subchild/grandchild': RouteRecordInfo<'/parent/child/subchild/grandchild', '/parent/child/subchild/grandchild', Record<never, never>, Record<never, never>>,
         '/parent/other-child': RouteRecordInfo<'/parent/other-child', '/parent/other-child', Record<never, never>, Record<never, never>>,
       }"
     `)
