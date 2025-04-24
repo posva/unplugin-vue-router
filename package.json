@@ -208,9 +208,6 @@
       "protobufjs",
       "vue-demi",
       "yorkie"
-    ],
-    "patchedDependencies": {
-      "vue-router": "patches/vue-router.patch"
-    }
+    ]
   }
 }
