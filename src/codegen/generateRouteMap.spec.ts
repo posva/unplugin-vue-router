@@ -211,6 +211,36 @@ describe('generateRouteNamedMap', () => {
     `)
   })
 
+  it('skips the children in the index route', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+    tree.insert('parent/index', 'parent/index.vue')
+    tree.insert('parent/child', 'parent/child.vue')
+    expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
+      "export interface RouteNamedMap {
+        '/parent/': RouteRecordInfo<'/parent/', '/parent', Record<never, never>, Record<never, never>>,
+        '/parent/child': RouteRecordInfo<'/parent/child', '/parent/child', Record<never, never>, Record<never, never>>,
+      }"
+    `)
+  })
+
+  it('does not mix children of an adjacent route', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+    tree.insert('parent/index', 'parent/index.vue')
+    tree.insert('parent/a/index', 'parent/a/index.vue')
+    tree.insert('parent/a/b', 'parent/a/b.vue')
+    tree.insert('parent/a/b/index', 'parent/a/b/index.vue')
+    tree.insert('parent/a/b/c', 'parent/a/b/c.vue')
+    expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
+      "export interface RouteNamedMap {
+        '/parent/': RouteRecordInfo<'/parent/', '/parent', Record<never, never>, Record<never, never>>,
+        '/parent/a/': RouteRecordInfo<'/parent/a/', '/parent/a', Record<never, never>, Record<never, never>>,
+        '/parent/a/b': RouteRecordInfo<'/parent/a/b', '/parent/a/b', Record<never, never>, Record<never, never>, RouteMeta, '/parent/a/b/' | '/parent/a/b/c'>,
+        '/parent/a/b/': RouteRecordInfo<'/parent/a/b/', '/parent/a/b', Record<never, never>, Record<never, never>>,
+        '/parent/a/b/c': RouteRecordInfo<'/parent/a/b/c', '/parent/a/b/c', Record<never, never>, Record<never, never>>,
+      }"
+    `)
+  })
+
   it('adds params from the path option', () => {
     const tree = new PrefixTree(
       resolveOptions({
