@@ -130,10 +130,16 @@ export class TreeNode {
     this.value.setOverride(filePath, routeBlock)
   }
 
-  getSortedChildren() {
+  getSortedChildren(): TreeNode[] {
     return Array.from(this.children.values()).sort((a, b) =>
       a.path.localeCompare(b.path)
     )
+  }
+
+  getSortedChildrenDeep(): TreeNode[] {
+    return Array.from(this.children.values())
+      .flatMap((child) => [child, ...child.getSortedChildrenDeep()])
+      .sort((a, b) => a.path.localeCompare(b.path))
   }
 
   /**

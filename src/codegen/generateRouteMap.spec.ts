@@ -186,10 +186,22 @@ describe('generateRouteNamedMap', () => {
     tree.insert('parent/other-child', 'parent/other-child.vue')
     expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
       "export interface RouteNamedMap {
-        '/parent': RouteRecordInfo<'/parent', '/parent', Record<never, never>, Record<never, never>, RouteMeta, '/parent/child' | '/parent/other-child'>,
+        '/parent': RouteRecordInfo<'/parent', '/parent', Record<never, never>, Record<never, never>, RouteMeta, '/parent/child' | '/parent/other-child' | '/parent/child/subchild'>,
         '/parent/child': RouteRecordInfo<'/parent/child', '/parent/child', Record<never, never>, Record<never, never>, RouteMeta, '/parent/child/subchild'>,
         '/parent/child/subchild': RouteRecordInfo<'/parent/child/subchild', '/parent/child/subchild', Record<never, never>, Record<never, never>>,
         '/parent/other-child': RouteRecordInfo<'/parent/other-child', '/parent/other-child', Record<never, never>, Record<never, never>>,
+      }"
+    `)
+  })
+
+  it('skips children without components', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+    tree.insert('parent', 'parent.vue')
+    tree.insert('parent/child/a/b/c', 'parent/child/a/b/c.vue')
+    expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
+      "export interface RouteNamedMap {
+        '/parent': RouteRecordInfo<'/parent', '/parent', Record<never, never>, Record<never, never>, RouteMeta, '/parent/child/a/b/c'>,
+        '/parent/child/a/b/c': RouteRecordInfo<'/parent/child/a/b/c', '/parent/child/a/b/c', Record<never, never>, Record<never, never>>,
       }"
     `)
   })
