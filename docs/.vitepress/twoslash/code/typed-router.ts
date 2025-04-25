@@ -5,7 +5,6 @@ declare module 'vue-router/auto-routes' {
     ParamValueOneOrMore,
     ParamValueZeroOrMore,
     ParamValueZeroOrOne,
-    RouteMeta,
   } from 'vue-router'
 
   export interface RouteNamedMap {
@@ -14,7 +13,6 @@ declare module 'vue-router/auto-routes' {
       '/',
       Record<never, never>,
       Record<never, never>,
-      RouteMeta,
       never
     >
     '/users': RouteRecordInfo<
@@ -22,7 +20,6 @@ declare module 'vue-router/auto-routes' {
       '/users',
       Record<never, never>,
       Record<never, never>,
-      RouteMeta,
       never
     >
     '/users/[id]': RouteRecordInfo<
@@ -30,7 +27,6 @@ declare module 'vue-router/auto-routes' {
       '/users/:id',
       { id: ParamValue<true> },
       { id: ParamValue<false> },
-      RouteMeta,
       '/users/[id]/edit'
     >
     '/users/[id]/edit': RouteRecordInfo<
@@ -38,7 +34,6 @@ declare module 'vue-router/auto-routes' {
       '/users/:id/edit',
       { id: ParamValue<true> },
       { id: ParamValue<false> },
-      RouteMeta,
       never
     >
   }
