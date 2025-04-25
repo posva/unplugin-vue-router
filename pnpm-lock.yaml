@@ -160,11 +160,11 @@ importers:
         specifier: ^3.5.13
         version: 3.5.13(typescript@5.8.3)
       vue-router:
-        specifier: https://pkg.pr.new/vue-router@2475
-        version: https://pkg.pr.new/vue-router@2475(vue@3.5.13(typescript@5.8.3))
+        specifier: ^4.5.1
+        version: 4.5.1(vue@3.5.13(typescript@5.8.3))
       vue-router-mock:
         specifier: ^1.1.0
-        version: 1.1.0(vue-router@https://pkg.pr.new/vue-router@2475(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3))
+        version: 1.1.0(vue-router@4.5.1(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3))
       vue-tsc:
         specifier: ^2.2.10
         version: 2.2.10(typescript@5.8.3)
@@ -215,8 +215,8 @@ importers:
         specifier: ^3.5.13
         version: 3.5.13(typescript@5.8.3)
       vue-router:
-        specifier: ^4.5.0
-        version: 4.5.0(vue@3.5.13(typescript@5.8.3))
+        specifier: ^4.5.1
+        version: 4.5.1(vue@3.5.13(typescript@5.8.3))
     devDependencies:
       '@tanstack/vue-query-devtools':
         specifier: ^5.74.6
@@ -6235,7 +6235,6 @@ packages:
 
   vue-router-mock@1.1.0:
     resolution: {integrity: sha512-RhKhxkiZh2zB2eRkzfcCILQQ0ZUc0tk7CE2ZC1PGJYi5GOU+2QQAGHtTCgb8V4B/OPm9ws+X5Q9SQB5vyTXxBQ==}
-    version: 1.1.0
     peerDependencies:
       vue: ^3.2.23
       vue-router: ^4.0.12
@@ -6245,9 +6244,8 @@ packages:
     peerDependencies:
       vue: ^3.2.0
 
-  vue-router@https://pkg.pr.new/vue-router@2475:
-    resolution: {tarball: https://pkg.pr.new/vue-router@2475}
-    version: 4.5.0
+  vue-router@4.5.1:
+    resolution: {integrity: sha512-ogAF3P97NPm8fJsE4by9dwSYtDwXIY1nFY9T6DyQnGHd1E2Da94w9JIolpe42LJGIl0DwOHBi8TcRPlPGwbTtw==}
     peerDependencies:
       vue: ^3.2.0
 
@@ -13346,17 +13344,17 @@ snapshots:
     dependencies:
       vue: 3.5.13(typescript@5.8.3)
 
-  vue-router-mock@1.1.0(vue-router@https://pkg.pr.new/vue-router@2475(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3)):
+  vue-router-mock@1.1.0(vue-router@4.5.1(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3)):
     dependencies:
       vue: 3.5.13(typescript@5.8.3)
-      vue-router: https://pkg.pr.new/vue-router@2475(vue@3.5.13(typescript@5.8.3))
+      vue-router: 4.5.1(vue@3.5.13(typescript@5.8.3))
 
   vue-router@4.5.0(vue@3.5.13(typescript@5.8.3)):
     dependencies:
       '@vue/devtools-api': 6.6.4
       vue: 3.5.13(typescript@5.8.3)
 
-  vue-router@https://pkg.pr.new/vue-router@2475(vue@3.5.13(typescript@5.8.3)):
+  vue-router@4.5.1(vue@3.5.13(typescript@5.8.3)):
     dependencies:
       '@vue/devtools-api': 6.6.4
       vue: 3.5.13(typescript@5.8.3)

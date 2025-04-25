@@ -50,7 +50,6 @@ import type {
   ParamValueOneOrMore,
   ParamValueZeroOrMore,
   ParamValueZeroOrOne,
-  RouteMeta,
 } from 'vue-router'
 declare module 'vue-router/auto-routes' {
   export interface RouteNamedMap {
@@ -62,8 +61,6 @@ declare module 'vue-router/auto-routes' {
       { path: ParamValue<true> },
       // these are the normalized params as found in useRoute().params
       { path: ParamValue<false> },
-      // these are the `meta` fields
-      RouteMeta,
       // this is a union of all children route names
       // if the route does not have nested routes, pass `never` or omit this generic entirely
       'custom-dynamic-child-name'
@@ -73,7 +70,6 @@ declare module 'vue-router/auto-routes' {
       '/added-during-runtime/[...path]/child',
       { path: ParamValue<true> },
       { path: ParamValue<false> },
-      RouteMeta,
       never
     >
   }
@@ -96,7 +92,8 @@ import { useRoute, type RouteLocationNormalizedLoaded } from 'vue-router'
 // of `/users/[id]` in this example.
 
 // Not recommended, since this leaves out any child routes' typings.
-const userRouteWithIdCasted = useRoute() as RouteLocationNormalizedLoaded<'/users/[id]'>
+const userRouteWithIdCasted =
+  useRoute() as RouteLocationNormalizedLoaded<'/users/[id]'>
 userRouteWithIdCasted.params.id
 // Better way, but no autocompletion.
 const userRouteWithIdTypeParam = useRoute<'/users/[id]'>()

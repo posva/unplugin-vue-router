@@ -37,7 +37,7 @@ export function generateRouteRecordInfo(node: TreeNode) {
       .map((childRoute) => `'${childRoute.name}'`)
 
     if (deepNamedChildren.length > 0) {
-      typeParams.push('RouteMeta', deepNamedChildren.join(' | '))
+      typeParams.push(deepNamedChildren.join(' | '))
     }
   }
 

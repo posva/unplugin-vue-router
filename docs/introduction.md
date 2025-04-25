@@ -109,7 +109,6 @@ declare module 'vue-router/auto-routes' {
     ParamValueOneOrMore,
     ParamValueZeroOrMore,
     ParamValueZeroOrOne,
-    RouteMeta,
   } from 'vue-router'
 
   /**
@@ -121,7 +120,6 @@ declare module 'vue-router/auto-routes' {
       '/',
       Record<never, never>,
       Record<never, never>,
-      RouteMeta,
       never
     >
     '/about': RouteRecordInfo<
@@ -129,7 +127,6 @@ declare module 'vue-router/auto-routes' {
       '/about',
       Record<never, never>,
       Record<never, never>,
-      RouteMeta,
       never
     >
     '/users/[id]': RouteRecordInfo<
@@ -137,7 +134,6 @@ declare module 'vue-router/auto-routes' {
       '/users/:id',
       { id: ParamValue<true> },
       { id: ParamValue<false> },
-      RouteMeta,
       never
     >
   }
