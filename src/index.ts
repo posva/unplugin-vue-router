@@ -8,6 +8,7 @@ import {
   routeBlockQueryRE,
   ROUTE_BLOCK_ID,
   ROUTES_LAST_LOAD_TIME,
+  VIRTUAL_PREFIX,
 } from './core/moduleConstants'
 import {
   Options,
@@ -50,15 +51,18 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
     mergeAllExtensions(options)
   )
 
+  const IDS_TO_INCLUDE = options.routesFolder.flatMap((routeOption) =>
+    pageFilePattern.map((pattern) => join(routeOption.src, pattern))
+  )
+  const DEFINE_PAGE_QUERY_RE = /\?.*\bdefinePage\&vue\b/
+
   // this is a larger filter that includes a bit too many files
   // the RouteFolderWatcher will filter it down to the actual files
   const filterPageComponents = createFilter(
     [
-      ...options.routesFolder.flatMap((routeOption) =>
-        pageFilePattern.map((pattern) => join(routeOption.src, pattern))
-      ),
+      ...IDS_TO_INCLUDE,
       // importing the definePage block
-      /\?.*\bdefinePage\&vue\b/,
+      DEFINE_PAGE_QUERY_RE,
     ],
     options.exclude
   )
@@ -68,25 +72,36 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
       name: 'unplugin-vue-router',
       enforce: 'pre',
 
-      resolveId(id) {
-        if (
-          // vue-router/auto-routes
-          id === MODULE_ROUTES_PATH ||
-          // NOTE: it wasn't possible to override or add new exports to vue-router
-          // so we need to override it with a different package name
-          id === MODULE_VUE_ROUTER_AUTO
-        ) {
-          // virtual module
-          return asVirtualId(id)
-        }
+      resolveId: {
+        filter: {
+          id: {
+            include: [
+              MODULE_ROUTES_PATH,
+              MODULE_VUE_ROUTER_AUTO,
+              routeBlockQueryRE,
+            ],
+          },
+        },
+        handler(id) {
+          if (
+            // vue-router/auto-routes
+            id === MODULE_ROUTES_PATH ||
+            // NOTE: it wasn't possible to override or add new exports to vue-router
+            // so we need to override it with a different package name
+            id === MODULE_VUE_ROUTER_AUTO
+          ) {
+            // virtual module
+            return asVirtualId(id)
+          }
 
-        // this allows us to skip the route block module as a whole since we already parse it
-        if (routeBlockQueryRE.test(id)) {
-          return ROUTE_BLOCK_ID
-        }
+          // this allows us to skip the route block module as a whole since we already parse it
+          if (routeBlockQueryRE.test(id)) {
+            return ROUTE_BLOCK_ID
+          }
 
-        // nothing to do, just for TS
-        return
+          // nothing to do, just for TS
+          return
+        },
       },
 
       buildStart() {
@@ -103,10 +118,17 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
         return filterPageComponents(id)
       },
 
-      transform(code, id) {
-        // console.log('👋  Transforming', id)
-        // remove the `definePage()` from the file or isolate it
-        return ctx.definePageTransform(code, id)
+      transform: {
+        filter: {
+          id: {
+            include: [...IDS_TO_INCLUDE, DEFINE_PAGE_QUERY_RE],
+          },
+        },
+        handler(code, id) {
+          // console.log('👋  Transforming', id)
+          // remove the `definePage()` from the file or isolate it
+          return ctx.definePageTransform(code, id)
+        },
       },
 
       // loadInclude is necessary for webpack
@@ -119,32 +141,45 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
         )
       },
 
-      load(id) {
-        // remove the <route> block as it's parsed by the plugin
-        // stub it with an empty module
-        if (id === ROUTE_BLOCK_ID) {
-          return {
-            code: `export default {}`,
-            map: null,
+      load: {
+        filter: {
+          id: {
+            include: [
+              ROUTE_BLOCK_ID,
+              MODULE_ROUTES_PATH,
+              MODULE_VUE_ROUTER_AUTO,
+              VIRTUAL_PREFIX + MODULE_ROUTES_PATH,
+              VIRTUAL_PREFIX + MODULE_VUE_ROUTER_AUTO,
+            ],
+          },
+        },
+        handler(id) {
+          // remove the <route> block as it's parsed by the plugin
+          // stub it with an empty module
+          if (id === ROUTE_BLOCK_ID) {
+            return {
+              code: `export default {}`,
+              map: null,
+            }
           }
-        }
 
-        // we need to use a virtual module so that vite resolves the vue-router/auto-routes
-        // dependency correctly
-        const resolvedId = getVirtualId(id)
+          // we need to use a virtual module so that vite resolves the vue-router/auto-routes
+          // dependency correctly
+          const resolvedId = getVirtualId(id)
 
-        // vue-router/auto-routes
-        if (resolvedId === MODULE_ROUTES_PATH) {
-          ROUTES_LAST_LOAD_TIME.update()
-          return ctx.generateRoutes()
-        }
+          // vue-router/auto-routes
+          if (resolvedId === MODULE_ROUTES_PATH) {
+            ROUTES_LAST_LOAD_TIME.update()
+            return ctx.generateRoutes()
+          }
 
-        // vue-router/auto
-        if (resolvedId === MODULE_VUE_ROUTER_AUTO) {
-          return ctx.generateVueRouterProxy()
-        }
+          // vue-router/auto
+          if (resolvedId === MODULE_VUE_ROUTER_AUTO) {
+            return ctx.generateVueRouterProxy()
+          }
 
-        return // ok TS...
+          return // ok TS...
+        },
       },
 
       // improves DX
