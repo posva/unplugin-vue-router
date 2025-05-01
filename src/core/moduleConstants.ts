@@ -7,7 +7,6 @@ export const MODULE_VUE_ROUTER_AUTO_RE = /vue-router\/auto/
 export const MODULE_ROUTES_PATH = `${MODULE_VUE_ROUTER_AUTO}-routes`
 export const MODULE_ROUTES_PATH_RE = new RegExp(MODULE_ROUTES_PATH + '-routes')
 
-
 // NOTE: not sure if needed. Used for HMR the virtual routes
 let time = Date.now()
 /**
