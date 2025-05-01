@@ -2,10 +2,8 @@
  * @deprecated should be removed in favor of just vue-router
  */
 export const MODULE_VUE_ROUTER_AUTO = 'vue-router/auto'
-export const MODULE_VUE_ROUTER_AUTO_RE = /vue-router\/auto/
 // vue-router/auto/routes was more natural but didn't work well with TS
 export const MODULE_ROUTES_PATH = `${MODULE_VUE_ROUTER_AUTO}-routes`
-export const MODULE_ROUTES_PATH_RE = new RegExp(MODULE_ROUTES_PATH + '-routes')
 
 // NOTE: not sure if needed. Used for HMR the virtual routes
 let time = Date.now()
@@ -39,4 +37,14 @@ export const routeBlockQueryRE = /\?vue&type=route/
 
 export function asVirtualId(id: string) {
   return VIRTUAL_PREFIX + id
+}
+
+// from https://github.com/vitejs/vite-plugin-vue/pull/582/files#diff-6e789a0a69ac40966dc0c6cf31b4603231ed60412915af87f0b0b8611765efa1R1
+export function exactRegex(input: string): RegExp {
+  return new RegExp(`^${escapeRegex(input)}$`)
+}
+
+const escapeRegexRE = /[-/\\^$*+?.()|[\]{}]/g
+function escapeRegex(str: string): string {
+  return str.replace(escapeRegexRE, '\\$&')
 }
