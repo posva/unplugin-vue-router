@@ -52,11 +52,11 @@ importers:
         version: 2.7.1
     devDependencies:
       '@babel/types':
-        specifier: ^7.27.0
+        specifier: ^7.27.1
         version: 7.27.1
       '@pinia/colada':
-        specifier: ^0.15.1
-        version: 0.15.1(pinia@3.0.2(typescript@5.8.3)(vue@3.5.13(typescript@5.8.3)))
+        specifier: ^0.15.2
+        version: 0.15.2(pinia@3.0.2(typescript@5.8.3)(vue@3.5.13(typescript@5.8.3)))
       '@posva/prompts':
         specifier: ^2.4.4
         version: 2.4.4
@@ -64,8 +64,8 @@ importers:
         specifier: 3.3.0
         version: 3.3.0(@nuxt/kit@3.17.1(magicast@0.3.5))(typescript@5.8.3)
       '@tanstack/vue-query':
-        specifier: ^5.74.7
-        version: 5.74.9(vue@3.5.13(typescript@5.8.3))
+        specifier: ^5.75.1
+        version: 5.75.1(vue@3.5.13(typescript@5.8.3))
       '@types/node':
         specifier: ^22.15.3
         version: 22.15.3
@@ -97,7 +97,7 @@ importers:
         specifier: ^11.6.1
         version: 11.6.1
       happy-dom:
-        specifier: ^17.4.4
+        specifier: ^17.4.6
         version: 17.4.6
       lint-staged:
         specifier: ^15.5.1
@@ -145,7 +145,7 @@ importers:
         specifier: workspace:*
         version: 'link:'
       vite:
-        specifier: ^6.3.3
+        specifier: ^6.3.4
         version: 6.3.4(@types/node@22.15.3)(jiti@2.4.2)(terser@5.39.0)(yaml@2.7.1)
       vite-plugin-vue-devtools:
         specifier: ^7.7.6
@@ -182,14 +182,14 @@ importers:
     dependencies:
       '@pinia/colada':
         specifier: ^0.15.1
-        version: 0.15.1(pinia@3.0.2(typescript@5.8.3)(vue@3.5.13(typescript@5.8.3)))
+        version: 0.15.2(pinia@3.0.2(typescript@5.8.3)(vue@3.5.13(typescript@5.8.3)))
       pinia:
         specifier: ^3.0.2
         version: 3.0.2(typescript@5.8.3)(vue@3.5.13(typescript@5.8.3))
     devDependencies:
       '@pinia/colada-nuxt':
         specifier: 0.1.2
-        version: 0.1.2(@pinia/colada@0.15.1(pinia@3.0.2(typescript@5.8.3)(vue@3.5.13(typescript@5.8.3))))(magicast@0.3.5)
+        version: 0.1.2(@pinia/colada@0.15.2(pinia@3.0.2(typescript@5.8.3)(vue@3.5.13(typescript@5.8.3))))(magicast@0.3.5)
       '@pinia/nuxt':
         specifier: ^0.11.0
         version: 0.11.0(magicast@0.3.5)(pinia@3.0.2(typescript@5.8.3)(vue@3.5.13(typescript@5.8.3)))
@@ -203,8 +203,8 @@ importers:
   playground:
     dependencies:
       '@tanstack/vue-query':
-        specifier: ^5.74.7
-        version: 5.74.9(vue@3.5.13(typescript@5.8.3))
+        specifier: ^5.75.1
+        version: 5.75.1(vue@3.5.13(typescript@5.8.3))
       mande:
         specifier: ^2.0.9
         version: 2.0.9
@@ -219,8 +219,8 @@ importers:
         version: 4.5.1(vue@3.5.13(typescript@5.8.3))
     devDependencies:
       '@tanstack/vue-query-devtools':
-        specifier: ^5.74.7
-        version: 5.74.9(@tanstack/vue-query@5.74.9(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3))
+        specifier: ^5.75.1
+        version: 5.75.1(@tanstack/vue-query@5.75.1(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3))
       '@vitejs/plugin-vue':
         specifier: ^5.2.3
         version: 5.2.3(vite@6.3.4(@types/node@22.15.3)(jiti@2.4.2)(terser@5.39.0)(yaml@2.7.1))(vue@3.5.13(typescript@5.8.3))
@@ -237,7 +237,7 @@ importers:
         specifier: workspace:*
         version: link:..
       vite:
-        specifier: ^6.3.3
+        specifier: ^6.3.4
         version: 6.3.4(@types/node@22.15.3)(jiti@2.4.2)(terser@5.39.0)(yaml@2.7.1)
       vite-plugin-inspect:
         specifier: ^11.0.1
@@ -1604,8 +1604,8 @@ packages:
     peerDependencies:
       '@pinia/colada': ^0.15.0
 
-  '@pinia/colada@0.15.1':
-    resolution: {integrity: sha512-9RXHTAY2IDqMUYwEJ8mCMQOxZ0mVykjLr8my4diepGBwFek8GxmAXOeX5oQHp1oBgMP7chij8e4U3/Y3lYYxUQ==}
+  '@pinia/colada@0.15.2':
+    resolution: {integrity: sha512-bJhIjXCMBrvBWVQP6rIh8jsbBqs3HskCNE3d5iEk/d2Ljqlljn7+z8H/j8YTa2KwXzjpn9HLCHzUp5lpzPRteQ==}
     peerDependencies:
       pinia: ^2.2.6 || ^3.0.0
 
@@ -1922,20 +1922,20 @@ packages:
     resolution: {integrity: sha512-Wo1iKt2b9OT7d+YGhvEPD3DXvPv2etTusIMhMUoG7fbhmxcXCtIjJDEygy91Y2JFlwGyjqiBPRozme7UD8hoqg==}
     engines: {node: '>=12'}
 
-  '@tanstack/query-core@5.74.9':
-    resolution: {integrity: sha512-qmjXpWyigDw4SfqdSBy24FzRvpBPXlaSbl92N77lcrL+yvVQLQkf0T6bQNbTxl9IEB/SvVFhhVZoIlQvFnNuuw==}
+  '@tanstack/query-core@5.75.0':
+    resolution: {integrity: sha512-rk8KQuCdhoRkzjRVF3QxLgAfFUyS0k7+GCQjlGEpEGco+qazJ0eMH6aO1DjDjibH7/ik383nnztua3BG+lOnwg==}
 
   '@tanstack/query-devtools@5.74.7':
     resolution: {integrity: sha512-nSNlfuGdnHf4yB0S+BoNYOE1o3oAH093weAYZolIHfS2stulyA/gWfSk/9H4ZFk5mAAHb5vNqAeJOmbdcGPEQw==}
 
-  '@tanstack/vue-query-devtools@5.74.9':
-    resolution: {integrity: sha512-d1vWtcWC4L/juTovph6Mff9W+omtEgKmf0yhAbrUZM94HyO1YV5eIUdoTMn6TJclbaEWcpN8o/wBGZSP/AfjHg==}
+  '@tanstack/vue-query-devtools@5.75.1':
+    resolution: {integrity: sha512-+9BSdKjM5cKQ37cm7S/iUWzJXuQryVaBrnTygkfO9VPFblVzxTDuszRb/Z4dT1wspxPQEC/dpGse5iPpbGFS4Q==}
     peerDependencies:
-      '@tanstack/vue-query': ^5.74.9
+      '@tanstack/vue-query': ^5.75.1
       vue: ^3.3.0
 
-  '@tanstack/vue-query@5.74.9':
-    resolution: {integrity: sha512-iMZxrKfIiDdX9uNH8WusBZXq87lBL8v2UXhifYiBNH+BUPCaezP7gNv4TN7WAlHVSfAx0fsnMKLB5+D3GAspbA==}
+  '@tanstack/vue-query@5.75.1':
+    resolution: {integrity: sha512-EkzTAd3fIOE//lPhDI6y2s2DtJt9HrOCkK0W6ZzQ1QxhLG++r2saCyxPdsddp7skzv2Po9sJZXRV9JYzHSQ/XA==}
     peerDependencies:
       '@vue/composition-api': ^1.1.2
       vue: ^2.6.0 || ^3.3.0
@@ -8188,14 +8188,14 @@ snapshots:
       '@parcel/watcher-win32-ia32': 2.5.1
       '@parcel/watcher-win32-x64': 2.5.1
 
-  '@pinia/colada-nuxt@0.1.2(@pinia/colada@0.15.1(pinia@3.0.2(typescript@5.8.3)(vue@3.5.13(typescript@5.8.3))))(magicast@0.3.5)':
+  '@pinia/colada-nuxt@0.1.2(@pinia/colada@0.15.2(pinia@3.0.2(typescript@5.8.3)(vue@3.5.13(typescript@5.8.3))))(magicast@0.3.5)':
     dependencies:
       '@nuxt/kit': 3.16.2(magicast@0.3.5)
-      '@pinia/colada': 0.15.1(pinia@3.0.2(typescript@5.8.3)(vue@3.5.13(typescript@5.8.3)))
+      '@pinia/colada': 0.15.2(pinia@3.0.2(typescript@5.8.3)(vue@3.5.13(typescript@5.8.3)))
     transitivePeerDependencies:
       - magicast
 
-  '@pinia/colada@0.15.1(pinia@3.0.2(typescript@5.8.3)(vue@3.5.13(typescript@5.8.3)))':
+  '@pinia/colada@0.15.2(pinia@3.0.2(typescript@5.8.3)(vue@3.5.13(typescript@5.8.3)))':
     dependencies:
       '@vue/devtools-api': 7.7.5
       pinia: 3.0.2(typescript@5.8.3)(vue@3.5.13(typescript@5.8.3))
@@ -8510,20 +8510,20 @@ snapshots:
     dependencies:
       remove-accents: 0.5.0
 
-  '@tanstack/query-core@5.74.9': {}
+  '@tanstack/query-core@5.75.0': {}
 
   '@tanstack/query-devtools@5.74.7': {}
 
-  '@tanstack/vue-query-devtools@5.74.9(@tanstack/vue-query@5.74.9(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3))':
+  '@tanstack/vue-query-devtools@5.75.1(@tanstack/vue-query@5.75.1(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3))':
     dependencies:
       '@tanstack/query-devtools': 5.74.7
-      '@tanstack/vue-query': 5.74.9(vue@3.5.13(typescript@5.8.3))
+      '@tanstack/vue-query': 5.75.1(vue@3.5.13(typescript@5.8.3))
       vue: 3.5.13(typescript@5.8.3)
 
-  '@tanstack/vue-query@5.74.9(vue@3.5.13(typescript@5.8.3))':
+  '@tanstack/vue-query@5.75.1(vue@3.5.13(typescript@5.8.3))':
     dependencies:
       '@tanstack/match-sorter-utils': 8.19.4
-      '@tanstack/query-core': 5.74.9
+      '@tanstack/query-core': 5.75.0
       '@vue/devtools-api': 6.6.4
       vue: 3.5.13(typescript@5.8.3)
       vue-demi: 0.14.10(vue@3.5.13(typescript@5.8.3))
