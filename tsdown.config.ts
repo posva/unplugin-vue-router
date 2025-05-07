@@ -1,9 +1,7 @@
-import { defineConfig, type Options } from 'tsup'
+import { defineConfig, type Options } from 'tsdown'
 
 export const commonOptions = {
-  clean: true,
   format: ['cjs', 'esm'],
-  dts: true,
   external: [
     '@vue/compiler-sfc',
     'vue',
@@ -12,8 +10,6 @@ export const commonOptions = {
     '@pinia/colada',
     'pinia',
   ],
-  cjsInterop: true,
-  splitting: true,
 } satisfies Options
 
 export default defineConfig([
