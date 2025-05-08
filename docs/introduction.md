@@ -188,8 +188,9 @@ Given the following route configuration:
 ::: code-group
 
 ```ts [src/router.ts]
-import { createRouter, createWebHistory } from 'vue-router'
-import { routes, handleHotUpdate } from 'vue-router/auto-routes' // [!code ++]
+import { createRouter, createWebHistory } from 'vue-router' // [!code --]
+import { createWebHistory } from 'vue-router/auto-routes' // [!code ++]
+import { routes, createRouter } from 'vue-router/auto-routes' // [!code ++]
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -209,11 +210,6 @@ export const router = createRouter({
   ] // [!code --]
   routes, // [!code ++]
 })
-
-// This will update routes at runtime without reloading the page
-if (import.meta.hot) { // [!code ++]
-  handleHotUpdate(router) // [!code ++]
-} // [!code ++]
 ```
 
 ```ts{2,5} [main.ts]
