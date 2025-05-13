@@ -9,7 +9,6 @@ import {
   ROUTE_BLOCK_ID,
   ROUTES_LAST_LOAD_TIME,
   VIRTUAL_PREFIX,
-  exactRegex,
   DEFINE_PAGE_QUERY_RE,
 } from './core/moduleConstants'
 import {
@@ -110,11 +109,10 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
         filter: {
           id: {
             include: [
-              exactRegex(ROUTE_BLOCK_ID),
-              exactRegex(MODULE_ROUTES_PATH),
-              exactRegex(MODULE_VUE_ROUTER_AUTO),
-              exactRegex(`${VIRTUAL_PREFIX}${MODULE_ROUTES_PATH}`),
-              exactRegex(`${VIRTUAL_PREFIX}${MODULE_VUE_ROUTER_AUTO}`),
+              // virtualized ids only
+              new RegExp(`^${ROUTE_BLOCK_ID}$`),
+              new RegExp(`^${VIRTUAL_PREFIX}${MODULE_VUE_ROUTER_AUTO}$`),
+              new RegExp(`^${VIRTUAL_PREFIX}${MODULE_ROUTES_PATH}$`),
             ],
           },
         },

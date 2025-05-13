@@ -71,8 +71,6 @@ export function AutoExportLoaders({
 }: AutoExportLoadersOptions): Plugin {
   const filterPaths = createFilter(loadersPathsGlobs)
 
-  console.log(transformFilter)
-
   return {
     name: PLUGIN_NAME,
     transform: {
