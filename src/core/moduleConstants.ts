@@ -1,3 +1,6 @@
+/**
+ * @deprecated should be removed in favor of just vue-router
+ */
 export const MODULE_VUE_ROUTER_AUTO = 'vue-router/auto'
 // vue-router/auto/routes was more natural but didn't work well with TS
 export const MODULE_ROUTES_PATH = `${MODULE_VUE_ROUTER_AUTO}-routes`
