@@ -39,14 +39,4 @@ export function asVirtualId(id: string) {
   return VIRTUAL_PREFIX + id
 }
 
-// from https://github.com/vitejs/vite-plugin-vue/pull/582/files#diff-6e789a0a69ac40966dc0c6cf31b4603231ed60412915af87f0b0b8611765efa1R1
-export function exactRegex(input: string): RegExp {
-  return new RegExp(`^${escapeRegex(input)}$`)
-}
-
-const escapeRegexRE = /[-/\\^$*+?.()|[\]{}]/g
-function escapeRegex(str: string): string {
-  return str.replace(escapeRegexRE, '\\$&')
-}
-
 export const DEFINE_PAGE_QUERY_RE = /\?.*\bdefinePage\&vue\b/
