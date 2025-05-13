@@ -8,6 +8,7 @@ import { VueRouterAutoImports } from '../src'
 import Vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
 import Inspect from 'vite-plugin-inspect'
+import VueDevtools from 'vite-plugin-vue-devtools'
 
 export default defineConfig({
   clearScreen: false,
@@ -46,6 +47,8 @@ export default defineConfig({
     VueRouter({
       extensions: ['.page.vue', '.vue'],
       importMode: 'async',
+      logs: false,
+      // getRouteName: getPascalCaseRouteName,
       experimental: {
         autoExportsDataLoaders: ['src/loaders/**/*', '@/loaders/**/*'],
       },
@@ -125,8 +128,6 @@ export default defineConfig({
           },
         },
       ],
-      logs: true,
-      // getRouteName: getPascalCaseRouteName,
       exclude: [
         '**/ignored/**',
         // '**/ignored/**/*',
@@ -159,7 +160,7 @@ export default defineConfig({
     }),
     // currently the devtools use 0.8.8 but we care more about
     // inspecting virtual files
-    // VueDevtools(),
+    VueDevtools(),
     Inspect(),
   ],
 })
