@@ -19,7 +19,6 @@ import {
   mergeAllExtensions,
 } from './options'
 import { createViteContext } from './core/vite'
-import { createFilter } from 'unplugin-utils'
 import { join } from 'pathe'
 import { appendExtensionListToPattern } from './core/utils'
 import { MACRO_DEFINE_PAGE_QUERY } from './core/definePage'
@@ -55,17 +54,6 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
 
   const IDS_TO_INCLUDE = options.routesFolder.flatMap((routeOption) =>
     pageFilePattern.map((pattern) => join(routeOption.src, pattern))
-  )
-
-  // this is a larger filter that includes a bit too many files
-  // the RouteFolderWatcher will filter it down to the actual files
-  const filterPageComponents = createFilter(
-    [
-      ...IDS_TO_INCLUDE,
-      // importing the definePage block
-      DEFINE_PAGE_QUERY_RE,
-    ],
-    options.exclude
   )
 
   const plugins: UnpluginOptions[] = [
@@ -207,7 +195,12 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
   if (options.experimental.autoExportsDataLoaders) {
     plugins.push(
       createAutoExportPlugin({
-        filterPageComponents,
+        // TODO:
+        // strip query to also match .vue?vue&lang=ts etc
+        transformFilter: {
+          include: IDS_TO_INCLUDE,
+          exclude: options.exclude,
+        },
         loadersPathsGlobs: options.experimental.autoExportsDataLoaders,
         root: options.root,
       })

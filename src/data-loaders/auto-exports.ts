@@ -41,10 +41,9 @@ const PLUGIN_NAME = 'unplugin-vue-router:data-loaders-auto-export'
  */
 export interface AutoExportLoadersOptions {
   /**
-   * Filter page components to apply the auto-export (defined with `createFilter()` from `unplugin-utils`) or array
-   * of globs.
+   * Filter page components to apply the auto-export. Passed to `transform.filter.id`.
    */
-  filterPageComponents: ((id: string) => boolean) | string[]
+  transformFilter: StringFilter
 
   /**
    * Globs to match the paths of the loaders.
@@ -66,28 +65,23 @@ export interface AutoExportLoadersOptions {
 
  */
 export function AutoExportLoaders({
-  filterPageComponents: filterPagesOrGlobs,
+  transformFilter,
   loadersPathsGlobs,
   root = process.cwd(),
 }: AutoExportLoadersOptions): Plugin {
   const filterPaths = createFilter(loadersPathsGlobs)
-  const filterPageComponents =
-    typeof filterPagesOrGlobs === 'function'
-      ? filterPagesOrGlobs
-      : createFilter(filterPagesOrGlobs)
+
+  console.log(transformFilter)
 
   return {
     name: PLUGIN_NAME,
     transform: {
       order: 'post',
-      handler(code, id) {
-        // strip query to also match .vue?vue&lang=ts etc
-        const queryIndex = id.indexOf('?')
-        const idWithoutQuery = queryIndex >= 0 ? id.slice(0, queryIndex) : id
-        if (!filterPageComponents(idWithoutQuery)) {
-          return
-        }
+      filter: {
+        id: transformFilter,
+      },
 
+      handler(code) {
         const loadersToExports = extractLoadersToExport(code, filterPaths, root)
 
         if (loadersToExports.length <= 0) return
