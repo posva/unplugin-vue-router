@@ -193,8 +193,6 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
   if (options.experimental.autoExportsDataLoaders) {
     plugins.push(
       createAutoExportPlugin({
-        // TODO:
-        // strip query to also match .vue?vue&lang=ts etc
         transformFilter: {
           include: IDS_TO_INCLUDE,
           exclude: options.exclude,
