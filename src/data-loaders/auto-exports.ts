@@ -3,7 +3,7 @@ import type { Plugin } from 'vite'
 import MagicString from 'magic-string'
 import { findStaticImports, parseStaticImport } from 'mlly'
 import { resolve } from 'pathe'
-import { type UnpluginOptions } from 'unplugin'
+import { StringFilter, type UnpluginOptions } from 'unplugin'
 
 export function extractLoadersToExport(
   code: string,

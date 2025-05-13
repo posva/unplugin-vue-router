@@ -10,6 +10,7 @@ import {
   ROUTES_LAST_LOAD_TIME,
   VIRTUAL_PREFIX,
   exactRegex,
+  DEFINE_PAGE_QUERY_RE,
 } from './core/moduleConstants'
 import {
   Options,
@@ -55,7 +56,6 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
   const IDS_TO_INCLUDE = options.routesFolder.flatMap((routeOption) =>
     pageFilePattern.map((pattern) => join(routeOption.src, pattern))
   )
-  const DEFINE_PAGE_QUERY_RE = /\?.*\bdefinePage\&vue\b/
 
   // this is a larger filter that includes a bit too many files
   // the RouteFolderWatcher will filter it down to the actual files
@@ -77,31 +77,23 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
         filter: {
           id: {
             include: [
-              exactRegex(MODULE_ROUTES_PATH),
-              exactRegex(MODULE_VUE_ROUTER_AUTO),
+              new RegExp(`^${MODULE_VUE_ROUTER_AUTO}$`),
+              new RegExp(`^${MODULE_ROUTES_PATH}$`),
               routeBlockQueryRE,
             ],
           },
         },
         handler(id) {
-          if (
-            // vue-router/auto-routes
-            id === MODULE_ROUTES_PATH ||
-            // NOTE: it wasn't possible to override or add new exports to vue-router
-            // so we need to override it with a different package name
-            id === MODULE_VUE_ROUTER_AUTO
-          ) {
-            // virtual module
+          // vue-router/auto
+          // vue-router/auto-routes
+          if (id === MODULE_ROUTES_PATH || id === MODULE_VUE_ROUTER_AUTO) {
+            // must be a virtual module
             return asVirtualId(id)
           }
 
+          // otherwisse we know it matched the routeBlockQueryRE
           // this allows us to skip the route block module as a whole since we already parse it
-          if (routeBlockQueryRE.test(id)) {
-            return ROUTE_BLOCK_ID
-          }
-
-          // nothing to do, just for TS
-          return
+          return ROUTE_BLOCK_ID
         },
       },
 
@@ -113,33 +105,17 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
         ctx.stopWatcher()
       },
 
-      // we only need to transform page components
-      transformInclude(id) {
-        // console.log('filtering ' + id, filterPageComponents(id) ? '✅' : '❌')
-        return filterPageComponents(id)
-      },
-
       transform: {
         filter: {
           id: {
             include: [...IDS_TO_INCLUDE, DEFINE_PAGE_QUERY_RE],
+            exclude: options.exclude,
           },
         },
         handler(code, id) {
-          // console.log('👋  Transforming', id)
           // remove the `definePage()` from the file or isolate it
           return ctx.definePageTransform(code, id)
         },
-      },
-
-      // loadInclude is necessary for webpack
-      loadInclude(id) {
-        if (id === ROUTE_BLOCK_ID) return true
-        const resolvedId = getVirtualId(id)
-        return (
-          resolvedId === MODULE_ROUTES_PATH ||
-          resolvedId === MODULE_VUE_ROUTER_AUTO
-        )
       },
 
       load: {

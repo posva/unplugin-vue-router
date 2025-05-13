@@ -45,3 +45,5 @@ const escapeRegexRE = /[-/\\^$*+?.()|[\]{}]/g
 function escapeRegex(str: string): string {
   return str.replace(escapeRegexRE, '\\$&')
 }
+
+export const DEFINE_PAGE_QUERY_RE = /\?.*\bdefinePage\&vue\b/
