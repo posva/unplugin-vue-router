@@ -1,6 +1,7 @@
 import { DefaultTheme, defineConfig } from 'vitepress'
 import { transformerTwoslash } from '@shikijs/vitepress-twoslash'
-import { version } from '../../package.json'
+import { ModuleResolutionKind } from 'typescript'
+import llmstxt from 'vitepress-plugin-llms'
 import {
   headTitle,
   headDescription,
@@ -9,11 +10,37 @@ import {
   releases,
   discord,
 } from './meta'
+import { version } from '../../package.json'
 import { typedRouterFile, typedRouterFileAsModule } from './twoslash-files'
 import { extraFiles } from './twoslash/files'
-import { ModuleResolutionKind } from 'typescript'
 
 export default defineConfig({
+  title: headTitle,
+  description: headDescription,
+
+  vite: {
+    plugins: [
+      llmstxt({
+        description: 'The official Router for Vue.js',
+        details: `
+- Type Safe routes
+- File based routing
+- Data Loaders for efficient data fetching
+`.trim(),
+        ignoreFiles: [
+          //
+          // path.join(__dirname, '../'),
+          // path.join(__dirname, '../../public/'),
+          // path.join(__dirname, '../../api/**/*'),
+          // path.join(__dirname, '../../index.md'),
+          'index.md',
+          // 'api/*',
+          'api/**/*',
+        ],
+      }),
+    ],
+  },
+
   markdown: {
     codeTransformers: [
       transformerTwoslash({
@@ -30,9 +57,6 @@ export default defineConfig({
       }),
     ],
   },
-
-  title: headTitle,
-  description: headDescription,
 
   head: [
     // ['meta', { name: 'theme-color', content: '#ffca28' }],
