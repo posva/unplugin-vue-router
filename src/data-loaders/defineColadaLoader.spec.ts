@@ -27,7 +27,7 @@ import { setActivePinia, createPinia, getActivePinia } from 'pinia'
 import {
   PiniaColada,
   useQueryCache,
-  serializeTreeMap,
+  serializeQueryCache,
   hydrateQueryCache,
 } from '@pinia/colada'
 import { RouteLocationNormalizedLoaded } from 'vue-router'
@@ -254,10 +254,10 @@ describe(
         },
       })
 
-      const serializedCache = [
+      const serializedCache = {
         // entry with successful data for id
-        ['id', ['data', null, Date.now()], undefined],
-      ] satisfies ReturnType<typeof serializeTreeMap>
+        '["id"]': ['data', null, 0],
+      } satisfies ReturnType<typeof serializeQueryCache>
 
       wrapper.vm.$.appContext.app.runWithContext(() => {
         hydrateQueryCache(useQueryCache(pinia), serializedCache)
@@ -310,9 +310,10 @@ describe(
         },
       })
 
-      const serializedCache = [
-        ['id', ['data', null, Date.now()], undefined],
-      ] satisfies ReturnType<typeof serializeTreeMap>
+      const serializedCache = {
+        // entry with successful data for id
+        '["id"]': ['data', null, 0],
+      } satisfies ReturnType<typeof serializeQueryCache>
 
       wrapper.vm.$.appContext.app.runWithContext(() => {
         hydrateQueryCache(useQueryCache(pinia), serializedCache)

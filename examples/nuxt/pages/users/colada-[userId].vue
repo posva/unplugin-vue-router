@@ -6,13 +6,13 @@ export const useUserData = defineColadaLoader('users-colada-userId', {
   key: (to) => ['user', to.params.userId],
   async query(to) {
     console.log('fetching user...')
-    await delay(1000)
     const user = {
       id: to.params.userId,
       when: Date.now(),
       n: Math.round(Math.random() * 10000),
       name: 'John Doe',
     }
+    await delay(1000)
     console.table(user)
     return user
   },

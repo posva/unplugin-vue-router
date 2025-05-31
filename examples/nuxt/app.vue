@@ -14,6 +14,14 @@ const state = useState('custom-date', () => new Date().toUTCString())
     <NuxtLink to="/users/colada-24" v-slot="{ route }">{{
       route.href
     }}</NuxtLink>
+    |
+    <NuxtLink to="/users/colada-25" v-slot="{ route }">{{
+      route.href
+    }}</NuxtLink>
+    |
+    <NuxtLink to="/users/colada-26" v-slot="{ route }">{{
+      route.href
+    }}</NuxtLink>
   </nav>
   <NuxtPage />
 </template>
