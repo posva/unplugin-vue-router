@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { routes, handleHotUpdate } from 'vue-router/auto-routes'
-import type { RouteRecordInfo, ParamValue, RouteMeta } from 'vue-router'
+import type { RouteRecordInfo, ParamValue } from 'vue-router'
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -32,7 +32,6 @@ declare module 'vue-router/auto-routes' {
       '/added-during-runtime/[...path]',
       { path: ParamValue<true> },
       { path: ParamValue<false> },
-      RouteMeta,
       'custom-dynamic-child-name'
     >
     'custom-dynamic-child-name': RouteRecordInfo<
@@ -40,7 +39,6 @@ declare module 'vue-router/auto-routes' {
       '/added-during-runtime/[...path]/child',
       { path: ParamValue<true> },
       { path: ParamValue<false> },
-      RouteMeta,
       never
     >
   }
