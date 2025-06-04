@@ -12,7 +12,6 @@ declare module 'vue-router/auto-routes' {
     ParamValueOneOrMore,
     ParamValueZeroOrMore,
     ParamValueZeroOrOne,
-    RouteMeta,
   } from 'vue-router'
 
   /**
