@@ -156,9 +156,9 @@ describe('generateRouteNamedMap', () => {
     tree.insert('a/[id]/index', 'a/[id]/index.vue')
     expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
       "export interface RouteNamedMap {
-        '/a': RouteRecordInfo<'/a', '/a', Record<never, never>, Record<never, never>>,
+        '/a': RouteRecordInfo<'/a', '/a', Record<never, never>, Record<never, never>, '/a/' | '/a/[id]/' | '/a/[id]'>,
         '/a/': RouteRecordInfo<'/a/', '/a', Record<never, never>, Record<never, never>>,
-        '/a/[id]': RouteRecordInfo<'/a/[id]', '/a/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
+        '/a/[id]': RouteRecordInfo<'/a/[id]', '/a/:id', { id: ParamValue<true> }, { id: ParamValue<false> }, '/a/[id]/'>,
         '/a/[id]/': RouteRecordInfo<'/a/[id]/', '/a/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
       }"
     `)
