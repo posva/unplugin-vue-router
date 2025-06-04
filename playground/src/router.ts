@@ -31,7 +31,15 @@ declare module 'vue-router/auto-routes' {
       'custom-dynamic-name',
       '/added-during-runtime/[...path]',
       { path: ParamValue<true> },
-      { path: ParamValue<false> }
+      { path: ParamValue<false> },
+      'custom-dynamic-child-name'
+    >
+    'custom-dynamic-child-name': RouteRecordInfo<
+      'custom-dynamic-child-name',
+      '/added-during-runtime/[...path]/child',
+      { path: ParamValue<true> },
+      { path: ParamValue<false> },
+      never
     >
   }
 }
