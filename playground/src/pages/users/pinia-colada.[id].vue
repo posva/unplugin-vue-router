@@ -4,7 +4,7 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { useQuery, serializeTreeMap } from '@pinia/colada'
+import { serializeQueryCache, useQuery, useQueryCache } from '@pinia/colada'
 import { getActivePinia } from 'pinia'
 
 const route = useRoute('/users/[id]')
@@ -14,11 +14,7 @@ const simulateError = ref(false)
 const pinia = getActivePinia()!
 function copy() {
   console.log(
-    JSON.parse(
-      JSON.stringify(
-        serializeTreeMap(pinia.state.value._pc_query.entryRegistry)
-      )
-    )
+    JSON.parse(JSON.stringify(serializeQueryCache(useQueryCache(pinia))))
   )
 }
 
