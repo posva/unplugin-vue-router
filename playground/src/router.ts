@@ -1,11 +1,16 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import { routes, handleHotUpdate } from 'vue-router/auto-routes'
+import { createWebHistory } from 'vue-router'
+import { routes, createRouter } from 'vue-router/auto-routes'
 import type { RouteRecordInfo, ParamValue } from 'vue-router'
 
-export const router = createRouter({
-  history: createWebHistory(),
-  routes,
-})
+export const router = createRouter(
+  {
+    history: createWebHistory(),
+    routes,
+  },
+  (routes) => {
+    console.log('🔥 HMR', routes)
+  }
+)
 
 function addRedirects() {
   router.addRoute({
@@ -14,15 +19,7 @@ function addRedirects() {
   })
 }
 
-if (import.meta.hot) {
-  handleHotUpdate(router, (routes) => {
-    console.log('🔥 HMR with', routes)
-    addRedirects()
-  })
-} else {
-  // production
-  addRedirects()
-}
+addRedirects()
 
 // manual extension of route types
 declare module 'vue-router/auto-routes' {
