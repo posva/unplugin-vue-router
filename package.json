@@ -149,6 +149,7 @@
     "yaml": "^2.8.0"
   },
   "peerDependencies": {
+    "@vue/compiler-sfc": "^3.5.16",
     "vue-router": "^4.5.1"
   },
   "peerDependenciesMeta": {
