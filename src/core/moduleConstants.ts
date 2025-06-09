@@ -38,3 +38,5 @@ export const routeBlockQueryRE = /\?vue&type=route/
 export function asVirtualId(id: string) {
   return VIRTUAL_PREFIX + id
 }
+
+export const DEFINE_PAGE_QUERY_RE = /\?.*\bdefinePage\&vue\b/
