@@ -53,9 +53,7 @@ export function createAutoHmrPlugin({ modulePath }: AutoHmrPluginOptions): Unplu
       let routerName: string | undefined
       let routerDeclaration: VariableDeclarator | undefined
 
-      for (const node of ast.body as any[]) {
-          // …rest of loop body…
-      }
+      // @ts-expect-error
       for (const node of ast.body) {
         if (
           node.type === 'ExportNamedDeclaration' ||
