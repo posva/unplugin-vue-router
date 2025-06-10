@@ -1,5 +1,6 @@
 import type { UnpluginOptions } from 'unplugin'
 import type { VariableDeclarator, ImportDeclaration } from 'estree'
+import type { AstNode } from 'rollup'
 
 function nameFromDeclaration(node?: VariableDeclarator) {
   return node?.id.type === 'Identifier' ? node.id.name : ''
@@ -27,13 +28,54 @@ function getHandleHotUpdateDeclaration(node?: ImportDeclaration, modulePath?: st
   )
 }
 
+function hasHandleHotUpdateCall(ast: AstNode) {
+  function traverse(node: any) {
+    if (!node) return false;
+
+    if (
+      node.type === 'CallExpression' &&
+      node.callee.type === 'Identifier' &&
+      node.callee.name === 'handleHotUpdate'
+    ) {
+      return true;
+    }
+
+    // e.g.: autoRouter.handleHotUpdate()
+    if (
+      node.type === 'CallExpression' &&
+      node.callee.type === 'MemberExpression' &&
+      node.callee.property.type === 'Identifier' &&
+      node.callee.property.name === 'handleHotUpdate'
+    ) {
+      return true;
+    }
+
+    if (typeof node !== 'object') return false;
+
+    for (const key in node) {
+      if (key === 'type' || key === 'loc' || key === 'range') continue;
+
+      const child = node[key];
+      if (Array.isArray(child)) {
+        for (const item of child) {
+          if (traverse(item)) return true;
+        }
+      } else if (typeof child === 'object' && child !== null) {
+        if (traverse(child)) return true;
+      }
+    }
+
+    return false;
+  }
+
+  return traverse(ast);
+}
+
 interface AutoHmrPluginOptions {
   modulePath: string
 }
 
 export function createAutoHmrPlugin({ modulePath }: AutoHmrPluginOptions): UnpluginOptions {
-  const handleHotUpdateCallRegex = /handleHotUpdate\([\s\S]*?\)/
-
   return {
     name: 'unplugin-vue-router-auto-hmr',
     enforce: 'post',
@@ -49,7 +91,7 @@ export function createAutoHmrPlugin({ modulePath }: AutoHmrPluginOptions): Unplu
 
       const ast = this.parse(code)
 
-      let isImported: boolean = false
+      let isImported = false
       let routerName: string | undefined
       let routerDeclaration: VariableDeclarator | undefined
 
@@ -74,7 +116,7 @@ export function createAutoHmrPlugin({ modulePath }: AutoHmrPluginOptions): Unplu
       }
 
       if (routerName) {
-        const isHandleHotUpdateCalled = handleHotUpdateCallRegex.test(code)
+        const isCalledHandleHotUpdate = hasHandleHotUpdateCall(ast)
 
         const handleHotUpdateCode = [code]
 
@@ -86,7 +128,7 @@ export function createAutoHmrPlugin({ modulePath }: AutoHmrPluginOptions): Unplu
         }
 
         // add handleHotUpdate call if not called
-        if (!isHandleHotUpdateCalled) {
+        if (!isCalledHandleHotUpdate) {
           handleHotUpdateCode.push(`handleHotUpdate(${routerName})`)
         }
 
