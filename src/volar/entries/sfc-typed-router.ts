@@ -1,4 +1,4 @@
-import { relative } from 'node:path'
+import { relative } from 'pathe'
 import type { VueLanguagePlugin } from '@vue/language-core'
 import { replaceAll, toString } from 'muggle-string'
 import { augmentVlsCtx } from '../utils/augment-vls-ctx'
@@ -15,13 +15,18 @@ import { augmentVlsCtx } from '../utils/augment-vls-ctx'
 const plugin: VueLanguagePlugin = (ctx) => {
   const RE = {
     USE_ROUTE: {
-      /** Targets the spot between `useRoute` and `()` */
+      /**
+       * Targets the spot between `useRoute` and `()`
+       */
       BEFORE_PARENTHESES: /(?<=useRoute)(\s*)(?=\(\))/g,
-      /** Targets the spot right before `useRoute()` */
+      /**
+       * Targets the spot right before `useRoute()`
+       */
       BEFORE: /(?=useRoute(\s*)\(\))/g,
       /** Targets the spot right after `useRoute()` */
       AFTER: /(?<=useRoute(\s*)\(\))/g,
     },
+
     DOLLAR_ROUTE: {
       /**
        * When using `$route` in a template, it is referred
