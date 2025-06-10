@@ -47,7 +47,7 @@ const plugin: VueLanguagePlugin = (ctx) => {
       // TODO: Do we want to apply this to EVERY .vue file or only to components that the user wrote themselves?
 
       const relativeFilePath = ctx.compilerOptions.baseUrl
-        ? relative(ctx.compilerOptions.baseUrl, fileName).replaceAll('\\', '/')
+        ? relative(ctx.compilerOptions.baseUrl, fileName)
         : fileName
 
       const useRouteNameType = `import('vue-router/auto-routes')._RouteNamesForFilePath<'${relativeFilePath}'>`
