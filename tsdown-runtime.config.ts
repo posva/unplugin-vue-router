@@ -8,6 +8,7 @@ export default defineConfig([
     entry: ['./src/runtime.ts'],
     external: [...commonOptions.external, 'unplugin-vue-router/types'],
   },
+
   {
     ...commonOptions,
     clean: false,
@@ -21,7 +22,8 @@ export default defineConfig([
       'unplugin-vue-router/data-loaders',
     ],
   },
-  // TODO: place here or somewhere else?
+
+  // volar plugin is CJS
   {
     ...commonOptions,
     clean: false,
