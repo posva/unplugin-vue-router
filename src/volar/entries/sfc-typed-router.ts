@@ -5,11 +5,12 @@ import { augmentVlsCtx } from '../utils/augment-vls-ctx'
 
 /*
   Future ideas:
-  - Enhance typing of `useRouter().currentRoute` and `$router.currentRoute`
-  - Enhance typing of `to` route in `beforeEnter` route guards defined in `definePage`
+  - Enhance typing of `onBeforeRouteUpdate() to and from parameters
+  - Enhance typing of `onBeforeRouteLeave() from parameter
   - Enhance typing of `<RouterView>`
     - Typed `name` attribute for named views
     - Typed `route` slot prop when using `<RouterView v-slot="{route}">`
+  - (low priority) Enhance typing of `to` route in `beforeEnter` route guards defined in `definePage`
 */
 
 const plugin: VueLanguagePlugin = (ctx) => {
