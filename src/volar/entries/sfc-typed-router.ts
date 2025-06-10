@@ -46,6 +46,7 @@ const plugin: VueLanguagePlugin = (ctx) => {
 
       // TODO: Do we want to apply this to EVERY .vue file or only to components that the user wrote themselves?
 
+      // NOTE: this might not work if different from the root passed to VueRouter unplugin
       const relativeFilePath = ctx.compilerOptions.baseUrl
         ? relative(ctx.compilerOptions.baseUrl, fileName)
         : fileName
