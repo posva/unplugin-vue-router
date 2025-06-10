@@ -21,7 +21,7 @@ describe('generateRouteFileInfoMap', () => {
     tree.insert('c', 'src/pages/c.vue')
     expect(formatExports(generateRouteFileInfoMap(tree, { root: '' })))
       .toMatchInlineSnapshot(`
-        "export interface RouteFileInfoMap {
+        "export interface _RouteFileInfoMap {
           'src/pages/index.vue': {
             routes: '/'
             views: never
@@ -48,7 +48,7 @@ describe('generateRouteFileInfoMap', () => {
     tree.insert('parent/child', 'src/pages/parent/child.vue')
     expect(formatExports(generateRouteFileInfoMap(tree, { root: '' })))
       .toMatchInlineSnapshot(`
-        "export interface RouteFileInfoMap {
+        "export interface _RouteFileInfoMap {
           'src/pages/parent.vue': {
             routes: '/parent' | '/parent/child'
             views: 'default'
@@ -68,7 +68,7 @@ describe('generateRouteFileInfoMap', () => {
     tree.insert('parent/child@test', 'src/pages/parent/child@test.vue')
     expect(formatExports(generateRouteFileInfoMap(tree, { root: '' })))
       .toMatchInlineSnapshot(`
-        "export interface RouteFileInfoMap {
+        "export interface _RouteFileInfoMap {
           'src/pages/parent.vue': {
             routes: '/parent' | '/parent/child'
             views: 'default' | 'test'
@@ -96,7 +96,7 @@ describe('generateRouteFileInfoMap', () => {
 
     expect(formatExports(generateRouteFileInfoMap(tree, { root: '' })))
       .toMatchInlineSnapshot(`
-        "export interface RouteFileInfoMap {
+        "export interface _RouteFileInfoMap {
           'index.vue': {
             routes: '/' | '/home'
             views: never
