@@ -23,21 +23,21 @@ describe('generateRouteFileInfoMap', () => {
       .toMatchInlineSnapshot(`
       "export interface RouteFileInfoMap {
         'src/pages/index.vue': {
-          routes: '/',
-          views: never,
-        },
+          routes: '/'
+          views: never
+        }
         'src/pages/a.vue': {
-          routes: '/a',
-          views: never,
-        },
+          routes: '/a'
+          views: never
+        }
         'src/pages/b.vue': {
-          routes: '/b',
-          views: never,
-        },
+          routes: '/b'
+          views: never
+        }
         'src/pages/c.vue': {
-          routes: '/c',
-          views: never,
-        },
+          routes: '/c'
+          views: never
+        }
       }"
     `)
   })
@@ -50,13 +50,13 @@ describe('generateRouteFileInfoMap', () => {
       .toMatchInlineSnapshot(`
       "export interface RouteFileInfoMap {
         'src/pages/parent.vue': {
-          routes: '/parent' | '/parent/child',
-          views: 'default',
-        },
+          routes: '/parent' | '/parent/child'
+          views: 'default'
+        }
         'src/pages/parent/child.vue': {
-          routes: '/parent/child',
-          views: never,
-        },
+          routes: '/parent/child'
+          views: never
+        }
       }"
     `)
   })
@@ -70,17 +70,17 @@ describe('generateRouteFileInfoMap', () => {
       .toMatchInlineSnapshot(`
       "export interface RouteFileInfoMap {
         'src/pages/parent.vue': {
-          routes: '/parent' | '/parent/child',
-          views: 'default' | 'test',
-        },
+          routes: '/parent' | '/parent/child'
+          views: 'default' | 'test'
+        }
         'src/pages/parent/child.vue': {
-          routes: '/parent/child',
-          views: never,
-        },
+          routes: '/parent/child'
+          views: never
+        }
         'src/pages/parent/child@test.vue': {
-          routes: '/parent/child',
-          views: never,
-        },
+          routes: '/parent/child'
+          views: never
+        }
       }"
     `)
   })
