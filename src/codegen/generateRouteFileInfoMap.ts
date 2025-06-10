@@ -48,7 +48,7 @@ export function generateRouteFileInfoMap(
     )
     .join('\n')
 
-  return `export interface RouteFileInfoMap {
+  return `export interface _RouteFileInfoMap {
 ${code}
 }`
 }

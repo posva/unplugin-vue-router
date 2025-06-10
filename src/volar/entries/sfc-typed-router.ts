@@ -44,17 +44,17 @@ const plugin: VueLanguagePlugin = (ctx) => {
         ? relative(ctx.compilerOptions.baseUrl, fileName).replaceAll('\\', '/')
         : fileName
 
-      const routeNameGetter = `import('vue-router/auto-routes').GetPossibleRouteNamesByFilePath<'${relativeFilePath}'>`
-      const routeNameGetterGeneric = `<${routeNameGetter}>`
-      const typedCall = `useRoute${routeNameGetterGeneric}`
+      const useRouteNameType = `import('vue-router/auto-routes')._RouteNamesForFilePath<'${relativeFilePath}'>`
+      const useRouteNameTypeParam = `<${useRouteNameType}>`
+      const typedCall = `useRoute${useRouteNameTypeParam}`
 
       if (embeddedCode.id.startsWith('script_ts')) {
-        // Inserts generic into `useRoute()` calls.
+        // Inserts type param into `useRoute()` calls.
         // We only apply this mutation on <script setup> blocks with lang="ts".
         replaceAll(
           embeddedCode.content,
           RE.USE_ROUTE.BEFORE_PARENTHESES,
-          routeNameGetterGeneric
+          useRouteNameTypeParam
         )
       } else if (embeddedCode.id.startsWith('script_js')) {
         // Typecasts `useRoute()` calls.
