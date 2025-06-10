@@ -55,12 +55,6 @@ function generateRouteFileInfoLines(node: TreeNode, rootDir: string): string {
     // to form a union of all route names later
     .map((child) => `'${child.name}'`)
 
-  console.log('me', node.name)
-  console.log(
-    'children',
-    children?.map((c) => c.name)
-  )
-
   // Most of the time we only have one view, but with named views we can have multiple.
   const currentRouteInfo =
     routeNames.length === 0
@@ -73,8 +67,6 @@ function generateRouteFileInfoLines(node: TreeNode, rootDir: string): string {
             rootDir
           )
         )
-
-  console.log('👀 Generated', node.name)
 
   const childrenRouteInfo = node
     // if we recurse all children, we end up with duplicated entries
