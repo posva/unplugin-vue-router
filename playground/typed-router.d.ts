@@ -92,7 +92,7 @@ declare module 'vue-router/auto-routes' {
       views: never
     }
     'src/pages/index.vue': {
-      routes: 'home'
+      routes: 'home' | '/from-root'
       views: never
     }
     'src/pages/index@named.vue': {
@@ -148,15 +148,11 @@ declare module 'vue-router/auto-routes' {
       views: never
     }
     'src/pages/deep/nesting/works/too.vue': {
-      routes: '/custom/page'
+      routes: '/custom/page' | '/deep/nesting/works/at-root-but-from-nested'
       views: never
     }
     'src/pages/deep/nesting/works/[[files]]+.vue': {
       routes: '/deep/nesting/works/[[files]]+'
-      views: never
-    }
-    'src/pages/deep/nesting/works/too.vue': {
-      routes: '/deep/nesting/works/at-root-but-from-nested'
       views: never
     }
     'src/pages/deep/nesting/works/custom-name-and-path.vue': {
@@ -201,10 +197,6 @@ declare module 'vue-router/auto-routes' {
     }
     'src/pages/file(ignored-parentheses).vue': {
       routes: '/file(ignored-parentheses)'
-      views: never
-    }
-    'src/pages/index.vue': {
-      routes: '/from-root'
       views: never
     }
     'src/pages/group/(thing).vue': {
