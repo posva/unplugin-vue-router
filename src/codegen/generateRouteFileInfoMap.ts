@@ -44,8 +44,7 @@ export function generateRouteFileInfoMap(
   '${file}': {
     routes: ${routes.map((name) => `'${name}'`).join(' | ')}
     views: ${views.length > 0 ? views.map((view) => `'${view}'`).join(' | ') : 'never'}
-  }
-`
+  }`
     )
     .join('\n')
 
