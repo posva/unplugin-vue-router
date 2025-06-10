@@ -214,6 +214,12 @@ export interface Options {
   watch?: boolean
 
   /**
+   * Whether to enable auto HMR for Vue Router.
+   * @default `false`
+   */
+  autoHmr?: boolean
+
+  /**
    * Experimental options. **Warning**: these can change or be removed at any time, even it patch releases. Keep an eye
    * on the Changelog.
    */
