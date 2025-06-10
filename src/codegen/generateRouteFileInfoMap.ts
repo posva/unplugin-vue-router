@@ -1,31 +1,42 @@
 import { relative } from 'node:path'
 import type { PrefixTree, TreeNode } from '../core/tree'
 
-export type GenerateRouteFileInfoMapOptions = {
-  root: string
-}
-
 export function generateRouteFileInfoMap(
   node: PrefixTree,
-  options: GenerateRouteFileInfoMapOptions
+  {
+    root,
+  }: {
+    root: string
+  }
 ): string {
   if (!node.isRoot()) {
     throw new Error('The provided node is not a root node')
   }
 
+  // FIXME: move the isRoot check
+
   return `export interface RouteFileInfoMap {
-${generateRouteFileInfoLines(node, options)}}`
+${generateRouteFileInfoLines(node, root)
+  // pad the lines for indentation
+  .split('\n')
+  .map((line) => line && '  ' + line)
+  .join('\n')}
+}`
 }
 
-function generateRouteFileInfoLines(
-  node: TreeNode,
-  options: GenerateRouteFileInfoMapOptions
-): string {
-  const children = node.children.size > 0 ? node.getSortedChildren() : null
+/**
+ * Generate the route file info for a non-root node.
+ */
+function generateRouteFileInfoLines(node: TreeNode, rootDir: string): string {
+  // FIXME: remove check and call the function correctly
+  if (node.isRoot()) {
+    return node
+      .getSortedChildren()
+      .map((child) => generateRouteFileInfoLines(child, rootDir))
+      .join('\n')
+  }
 
-  const routeNamesUnion = recursiveGetRouteNames(node)
-    .map((name) => `'${name}'`)
-    .join(' | ')
+  const children = node.children.size > 0 ? node.getSortedChildrenDeep() : null
 
   const childrenNamedViewsUnion = children
     ? Array.from(
@@ -34,57 +45,62 @@ function generateRouteFileInfoLines(
             .map((child) => Array.from(child.value.components.keys()))
             .flat()
         )
-      )
-        .map((name) => `'${name}'`)
-        .join(' | ')
+      ).map((name) => `'${name}'`)
     : null
 
-  return (
-    // if the node has a filePath, it's a component, it has a routeName and it should be
-    // referenced in the RouteFileInfoMap otherwise it should be skipped
-    // TODO: can we use `RouteNameWithChildren` from https://github.com/vuejs/router/pull/2475 here if merged?
-    Array.from(node.value.components.values())
-      .map((file) =>
-        generateRouteFileInfoEntry(
-          file,
-          { routes: routeNamesUnion, namedViews: childrenNamedViewsUnion },
-          options
-        )
-      )
-      .join('') +
-    (children
-      ?.map((child) => generateRouteFileInfoLines(child, options))
-      .join('\n') ?? '')
-  )
-}
+  // FIXME: inline to avoid unnamed routes to compute it
+  const routeNames = [node, ...node.getSortedChildrenDeep()]
+    // an unnamed route cannot be accessed in types
+    .filter((node) => node.name)
+    // to form a union of all route names later
+    .map((child) => `'${child.name}'`)
 
-type GenerateRouteFileInfoEntryData = {
-  /** A union of possible route names in the route component file  */
-  routes: string
-  namedViews: string | null
+  console.log('me', node.name)
+  console.log(
+    'children',
+    children?.map((c) => c.name)
+  )
+
+  // Most of the time we only have one view, but with named views we can have multiple.
+  const currentRouteInfo =
+    routeNames.length === 0
+      ? []
+      : Array.from(node.value.components.values()).map((file) =>
+          generateRouteFileInfoEntry(
+            file,
+            routeNames,
+            childrenNamedViewsUnion,
+            rootDir
+          )
+        )
+
+  console.log('👀 Generated', node.name)
+
+  const childrenRouteInfo = node
+    // if we recurse all children, we end up with duplicated entries
+    // so we must go only with direct children
+    .getSortedChildren()
+    .map((child) => generateRouteFileInfoLines(child, rootDir))
+
+  return currentRouteInfo.concat(childrenRouteInfo).join('\n')
 }
 
 function generateRouteFileInfoEntry(
   file: string,
-  data: GenerateRouteFileInfoEntryData,
-  options: GenerateRouteFileInfoMapOptions
+  routesNames: string[],
+  namedViews: string[] | null,
+  rootDir: string
 ): string {
+  // TODO: use correct tools
   const relativeFilePath = (file: string) =>
-    relative(options.root, file).replaceAll('\\', '/')
+    relative(rootDir, file).replaceAll('\\', '/')
 
   // TODO: check 'views' implementation
-  return `  '${relativeFilePath(file)}': {
-    routes: ${data.routes},
-    views: ${data.namedViews ?? 'never'},
-  },\n`
+  // FIXME: this
+  return `
+'${relativeFilePath(file)}': {
+  routes: ${routesNames.join(' | ')}
+  views: ${namedViews?.join(' | ') || 'never'}
 }
-
-/**
- * Gets the name of the provided node and all of its children
- */
-function recursiveGetRouteNames(node: TreeNode): TreeNode['name'][] {
-  return [
-    node.name,
-    ...node.getSortedChildren().map((child) => recursiveGetRouteNames(child)),
-  ].flat()
+`.trim()
 }
