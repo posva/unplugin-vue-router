@@ -18,7 +18,7 @@ importers:
         specifier: ^3.5.17
         version: 3.5.17
       '@vue/language-core':
-        specifier: ^2.2.4
+        specifier: ^2.2.10
         version: 2.2.10(typescript@5.8.3)
       ast-walker-scope:
         specifier: ^0.8.1
