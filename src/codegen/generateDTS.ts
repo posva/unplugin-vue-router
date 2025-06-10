@@ -4,11 +4,15 @@ import { ts } from '../utils'
  * Removes empty lines and indent by two spaces to match the rest of the file.
  */
 function normalizeLines(code: string) {
-  return code
-    .split('\n')
-    .filter((line) => line.length !== 0)
-    .map((line) => '  ' + line)
-    .join('\n')
+  return (
+    code
+      .split('\n')
+      // FIXME: the code should be cleaned up by the codegen functions. Removing empty lines here
+      // reduces readability of the route file info map.
+      .filter((line) => line.length !== 0)
+      .map((line) => line && '  ' + line)
+      .join('\n')
+  )
 }
 
 export function generateDTS({
