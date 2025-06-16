@@ -172,7 +172,7 @@
     "conventional-changelog-cli": "^5.0.0",
     "execa": "^9.6.0",
     "firebase": "^11.9.0",
-    "happy-dom": "^17.6.3",
+    "happy-dom": "^18.0.1",
     "lint-staged": "^16.1.0",
     "minimist": "^1.2.8",
     "nodemon": "^3.1.10",
