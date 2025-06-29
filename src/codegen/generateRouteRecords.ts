@@ -62,7 +62,7 @@ ${node
 ${indentStr}path: '${node.path}',
 ${indentStr}${
     node.value.components.size
-      ? `name: '${node.name}',`
+      ? node.name ? `name: '${node.name}',` : `/* no name */`
       : `/* internal name: '${node.name}' */`
   }
 ${

@@ -321,6 +321,17 @@ exports[`generateRouteRecord > names > creates single word names 1`] = `
 ]"
 `;
 
+exports[`generateRouteRecord > names > handles empty names 1`] = `
+"[
+  {
+    path: '/about',
+    /* no name */
+    component: () => import('about.vue'),
+    /* no children */
+  }
+]"
+`;
+
 exports[`generateRouteRecord > names > works with nested views 1`] = `
 "[
   {

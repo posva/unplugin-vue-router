@@ -172,6 +172,16 @@ describe('generateRouteRecord', () => {
 
       expect(generateRouteRecordSimple(tree)).toMatchSnapshot()
     })
+
+    it('handles empty names', () => {
+      const tree = new PrefixTree(DEFAULT_OPTIONS)
+      const node = tree.insert('about', 'about.vue')
+      node.setCustomRouteBlock('about', {
+        name: '',
+      })
+
+      expect(generateRouteRecordSimple(tree)).toMatchSnapshot()
+    })
   })
 
   describe('route block', () => {
