@@ -1,3 +1,14 @@
+# [0.14.0](https://github.com/posva/unplugin-vue-router/compare/v0.13.0...v0.14.0) (2025-06-29)
+
+### Bug Fixes
+
+- **data-loaders:** avoid exporting data loaders in runtime ([264f338](https://github.com/posva/unplugin-vue-router/commit/264f3389a66f1a33c6fdb0dc0c4f3ac93bef3017)), closes [#663](https://github.com/posva/unplugin-vue-router/issues/663)
+- stable order in children ([d0fc9f3](https://github.com/posva/unplugin-vue-router/commit/d0fc9f313f1b177a2e1d12e0dc7522f7c3afe6ba)), closes [#664](https://github.com/posva/unplugin-vue-router/issues/664)
+
+### BREAKING CHANGES
+
+- **data-loaders:** Data loader features must be imported from `unplugin-vue-router/data-loaders`. They were accidentally exposed through runtime but this was never documented. Your IDE might have added auto imports automatically and removing this will avoid future issues. You simply need to replace missing imports.
+
 # [0.13.0](https://github.com/posva/unplugin-vue-router/compare/v0.12.0...v0.13.0) (2025-06-29)
 
 ### Features
