@@ -271,7 +271,7 @@ export class TreeNode {
    *
    * @returns true if the node is the root node
    */
-  isRoot() {
+  isRoot(): this is PrefixTree {
     return (
       !this.parent && this.value.fullPath === '/' && !this.value.components.size
     )
