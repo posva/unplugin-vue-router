@@ -15,6 +15,10 @@ export const commonOptions = {
 export default defineConfig([
   {
     ...commonOptions,
+    outputOptions: {
+      // TODO: check if everthing works with this to remove the warning
+      // exports: 'named',
+    },
     entry: [
       './src/index.ts',
       './src/options.ts',
