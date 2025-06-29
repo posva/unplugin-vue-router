@@ -12,6 +12,8 @@ export interface TreeNodeOptions extends ResolvedOptions {
   treeNodeOptions?: TreeNodeValueOptions
 }
 
+const stringCompare = new Intl.Collator('en', {}).compare
+
 export class TreeNode {
   /**
    * value of the node
@@ -142,24 +144,26 @@ export class TreeNode {
   }
 
   /**
-   * Comparator function for sorting TreeNodes by path.
+   * Comparator function for sorting TreeNodes.
+   *
+   * @internal
    */
-  static compareByPath(a: TreeNode, b: TreeNode): number {
-    return a.path.localeCompare(b.path)
+  static compare(a: TreeNode, b: TreeNode): number {
+    return stringCompare(a.path, b.path)
   }
 
   /**
    * Get the children of this node sorted by their path.
    */
   getSortedChildren(): TreeNode[] {
-    return Array.from(this.children.values()).sort(TreeNode.compareByPath)
+    return Array.from(this.children.values()).sort(TreeNode.compare)
   }
 
   /**
    * Calls {@link getChildrenDeep} and sorts the result by path in the end.
    */
   getChildrenDeepSorted(): TreeNode[] {
-    return Array.from(this.getChildrenDeep()).sort(TreeNode.compareByPath)
+    return Array.from(this.getChildrenDeep()).sort(TreeNode.compare)
   }
 
   /**
