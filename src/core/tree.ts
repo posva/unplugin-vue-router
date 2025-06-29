@@ -142,6 +142,13 @@ export class TreeNode {
       .sort((a, b) => a.path.localeCompare(b.path))
   }
 
+  getChildrenDeep(): TreeNode[] {
+    return Array.from(this.children.values()).flatMap((child) => [
+      child,
+      ...child.getChildrenDeep(),
+    ])
+  }
+
   /**
    * Delete and detach itself from the tree.
    */

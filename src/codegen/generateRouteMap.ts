@@ -29,12 +29,13 @@ export function generateRouteRecordInfo(node: TreeNode) {
 
   if (node.children.size > 0) {
     const deepNamedChildren = node
-      .getSortedChildrenDeep()
+      .getChildrenDeep()
       // skip routes that are not added to the types
       .filter(
         (childRoute) => childRoute.value.components.size > 0 && childRoute.name
       )
       .map((childRoute) => `'${childRoute.name}'`)
+      .sort()
 
     if (deepNamedChildren.length > 0) {
       typeParams.push(deepNamedChildren.join(' | '))

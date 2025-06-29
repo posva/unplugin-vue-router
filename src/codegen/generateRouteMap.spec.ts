@@ -156,7 +156,7 @@ describe('generateRouteNamedMap', () => {
     tree.insert('a/[id]/index', 'a/[id]/index.vue')
     expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
       "export interface RouteNamedMap {
-        '/a': RouteRecordInfo<'/a', '/a', Record<never, never>, Record<never, never>, '/a/' | '/a/[id]/' | '/a/[id]'>,
+        '/a': RouteRecordInfo<'/a', '/a', Record<never, never>, Record<never, never>, '/a/' | '/a/[id]' | '/a/[id]/'>,
         '/a/': RouteRecordInfo<'/a/', '/a', Record<never, never>, Record<never, never>>,
         '/a/[id]': RouteRecordInfo<'/a/[id]', '/a/:id', { id: ParamValue<true> }, { id: ParamValue<false> }, '/a/[id]/'>,
         '/a/[id]/': RouteRecordInfo<'/a/[id]/', '/a/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
@@ -190,8 +190,8 @@ describe('generateRouteNamedMap', () => {
     tree.insert('parent/other-child', 'parent/other-child.vue')
     expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
       "export interface RouteNamedMap {
-        '/parent': RouteRecordInfo<'/parent', '/parent', Record<never, never>, Record<never, never>, '/parent/child' | '/parent/child/subchild/grandchild' | '/parent/other-child' | '/parent/child/subchild'>,
-        '/parent/child': RouteRecordInfo<'/parent/child', '/parent/child', Record<never, never>, Record<never, never>, '/parent/child/subchild/grandchild' | '/parent/child/subchild'>,
+        '/parent': RouteRecordInfo<'/parent', '/parent', Record<never, never>, Record<never, never>, '/parent/child' | '/parent/child/subchild' | '/parent/child/subchild/grandchild' | '/parent/other-child'>,
+        '/parent/child': RouteRecordInfo<'/parent/child', '/parent/child', Record<never, never>, Record<never, never>, '/parent/child/subchild' | '/parent/child/subchild/grandchild'>,
         '/parent/child/subchild': RouteRecordInfo<'/parent/child/subchild', '/parent/child/subchild', Record<never, never>, Record<never, never>, '/parent/child/subchild/grandchild'>,
         '/parent/child/subchild/grandchild': RouteRecordInfo<'/parent/child/subchild/grandchild', '/parent/child/subchild/grandchild', Record<never, never>, Record<never, never>>,
         '/parent/other-child': RouteRecordInfo<'/parent/other-child', '/parent/other-child', Record<never, never>, Record<never, never>>,
@@ -295,6 +295,39 @@ describe('generateRouteNamedMap', () => {
         '/folder/(group)': RouteRecordInfo<'/folder/(group)', '/folder', Record<never, never>, Record<never, never>>,
       }"
     `)
+  })
+
+  it('generates stable union types regardless of insertion order', () => {
+    // Test that same routes inserted in different orders produce identical union types
+    const createTree = (insertionOrder: string[]) => {
+      const tree = new PrefixTree(DEFAULT_OPTIONS)
+      tree.insert('parent', 'parent.vue')
+
+      // Insert children in the specified order
+      insertionOrder.forEach((route) => {
+        tree.insert(route, `${route}.vue`)
+      })
+
+      return formatExports(generateRouteNamedMap(tree))
+    }
+
+    // Same routes, different insertion orders
+    const order1 = ['parent/zebra', 'parent/alpha', 'parent/beta']
+    const order2 = ['parent/alpha', 'parent/zebra', 'parent/beta']
+    const order3 = ['parent/beta', 'parent/alpha', 'parent/zebra']
+
+    const result1 = createTree(order1)
+    const result2 = createTree(order2)
+    const result3 = createTree(order3)
+
+    // All should be identical due to stable sorting
+    expect(result1).toBe(result2)
+    expect(result2).toBe(result3)
+
+    // Verify the union type is alphabetically sorted
+    expect(result1).toContain(
+      "'/parent/alpha' | '/parent/beta' | '/parent/zebra'"
+    )
   })
 })
 
