@@ -1,3 +1,23 @@
+# [0.13.0](https://github.com/posva/unplugin-vue-router/compare/v0.12.0...v0.13.0) (2025-06-29)
+
+### Features
+
+- **define-page:** support JSX ([#514](https://github.com/posva/unplugin-vue-router/issues/514)) ([e34ff23](https://github.com/posva/unplugin-vue-router/commit/e34ff23471530458bbdd9404a774ff0b692b1d25))
+- **extendRoutes:** allow relative path overrides in `EditableTreeNode` ([#519](https://github.com/posva/unplugin-vue-router/issues/519)) ([93a977a](https://github.com/posva/unplugin-vue-router/commit/93a977af1cd4b9c5be5fa1324e540bacb7a6a5ba))
+- **types:** add children route names to generated `RouteNamedMap` ([#602](https://github.com/posva/unplugin-vue-router/issues/602)) ([f2fb721](https://github.com/posva/unplugin-vue-router/commit/f2fb721b2ab6086160e545cac02c87e181ee0db8))
+
+### Performance Improvements
+
+- remove @babel/types from deps ([c92fcb0](https://github.com/posva/unplugin-vue-router/commit/c92fcb03f3333462d0d1b36ec4e6194a3832b6a2))
+- use hook filters ([#631](https://github.com/posva/unplugin-vue-router/issues/631)) ([e4e21f5](https://github.com/posva/unplugin-vue-router/commit/e4e21f525b4f2b26c55c9ddb857ece99dbc9a144))
+
+### BREAKING CHANGES
+
+- **extendRoutes:** If you were relying on EditableTreeNode's `path`  
+  returning a _full path_, you must now read `fullPath` instead.  
+  Otherwise, this change should be more intuitive as it allows setting a  
+  relative path.
+
 # [0.12.0](https://github.com/posva/unplugin-vue-router/compare/v0.11.2...v0.12.0) (2025-03-04)
 
 ### Bug Fixes
@@ -324,7 +344,6 @@ For people using the file-based routing, you now need to add `unplugin-vue-route
   simplifying things by removing them.
   Here is a list of the breaking changes to simplify
   migration:
-
   - The `dataFetching` option is no longer needed.
   - Manual work needed to add loaders with `HasDataLoaderMeta` has been
     removed. It is just no longer needed. Loaders are picked up from lazy
@@ -344,7 +363,6 @@ For people using the file-based routing, you now need to add `unplugin-vue-route
 
   If you find missing information or improvements, please open a Pull
   Request to improve the `CHANGELOG.md`.
-
   - The navigation guard is replaced in favor of a Vue
     plugin:
 
