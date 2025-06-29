@@ -402,6 +402,29 @@ describe('Tree', () => {
     expect(node.name).toBe('custom-child')
   })
 
+  it('allows empty name to remove route from route map', () => {
+    const tree = new PrefixTree(RESOLVED_OPTIONS)
+    let node = tree.insert('some-route', 'some-route.vue')
+
+    // Before setting empty name, it should use the default name
+    expect(node.name).toBe('/some-route')
+
+    // Set empty name
+    node.value.setOverride('', {
+      name: '',
+    })
+    expect(node.name).toBe('')
+
+    // Test with nested route
+    node = tree.insert('nested/child', 'nested/child.vue')
+    expect(node.name).toBe('/nested/child')
+
+    node.value.setOverride('', {
+      name: '',
+    })
+    expect(node.name).toBe('')
+  })
+
   it('allows a custom path', () => {
     const tree = new PrefixTree(RESOLVED_OPTIONS)
     let node = tree.insert('[a]-[b]', '[a]-[b].vue')

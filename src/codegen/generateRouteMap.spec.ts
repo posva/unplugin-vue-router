@@ -329,6 +329,44 @@ describe('generateRouteNamedMap', () => {
       "'/parent/alpha' | '/parent/beta' | '/parent/zebra'"
     )
   })
+
+  it('excludes routes with empty names from route map', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+    tree.insert('parent', 'parent.vue')
+    tree.insert('child', 'child.vue')
+    tree.insert('parent/child', 'parent/child.vue')
+
+    // Set empty name for the parent route
+    const parentNode = tree.children.get('parent')!
+    parentNode.value.setOverride('parent', { name: '' })
+
+    expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
+      "export interface RouteNamedMap {
+        '/child': RouteRecordInfo<'/child', '/child', Record<never, never>, Record<never, never>>,
+        '/parent/child': RouteRecordInfo<'/parent/child', '/parent/child', Record<never, never>, Record<never, never>>,
+      }"
+    `)
+  })
+
+  it('excludes child routes with empty names from parent children union', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+    tree.insert('parent', 'parent.vue')
+    tree.insert('parent/child1', 'parent/child1.vue')
+    tree.insert('parent/child2', 'parent/child2.vue')
+    tree.insert('parent/child3', 'parent/child3.vue')
+
+    // Set empty name for child2
+    const child2Node = tree.children.get('parent')!.children.get('child2')!
+    child2Node.value.setOverride('parent/child2', { name: '' })
+
+    expect(formatExports(generateRouteNamedMap(tree))).toMatchInlineSnapshot(`
+      "export interface RouteNamedMap {
+        '/parent': RouteRecordInfo<'/parent', '/parent', Record<never, never>, Record<never, never>, '/parent/child1' | '/parent/child3'>,
+        '/parent/child1': RouteRecordInfo<'/parent/child1', '/parent/child1', Record<never, never>, Record<never, never>>,
+        '/parent/child3': RouteRecordInfo<'/parent/child3', '/parent/child3', Record<never, never>, Record<never, never>>,
+      }"
+    `)
+  })
 })
 
 /**
