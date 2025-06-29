@@ -228,11 +228,20 @@ export class TreeNode {
     return this.value.fullPath
   }
 
+  get components() {
+    return Object.fromEntries(this.value.components.entries())
+  }
+
   /**
    * Returns the route name of the node. If the name was overridden, it returns the override.
    */
   get name() {
-    return this.value.overrides.name || this.options.getRouteName(this)
+    const overrideName = this.value.overrides.name
+    // allows passing a null or empty name so the route is not named
+    // and isn't listed in the route map
+    return overrideName !== undefined
+      ? overrideName
+      : this.options.getRouteName(this)
   }
 
   /**

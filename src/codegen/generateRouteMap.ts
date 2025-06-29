@@ -10,7 +10,7 @@ ${node.getSortedChildren().map(generateRouteNamedMap).join('')}}`
   return (
     // if the node has a filePath, it's a component, it has a routeName and it should be referenced in the RouteNamedMap
     // otherwise it should be skipped to avoid navigating to a route that doesn't render anything
-    (node.value.components.size > 0
+    (node.value.components.size > 0 && node.name
       ? `  '${node.name}': ${generateRouteRecordInfo(node)},\n`
       : '') +
     (node.children.size > 0
