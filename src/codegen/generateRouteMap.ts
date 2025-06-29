@@ -28,8 +28,8 @@ export function generateRouteRecordInfo(node: TreeNode) {
   ]
 
   if (node.children.size > 0) {
-    const deepNamedChildren = node
-      .getChildrenDeep()
+    // TODO: remove Array.from() once Node 20 support is dropped
+    const deepNamedChildren = Array.from(node.getChildrenDeep())
       // skip routes that are not added to the types
       .filter(
         (childRoute) => childRoute.value.components.size > 0 && childRoute.name

@@ -130,23 +130,36 @@ export class TreeNode {
     this.value.setOverride(filePath, routeBlock)
   }
 
+  /**
+   * Generator that yields all descendants without sorting.
+   * Use with Array.from() for now, native .map() support in Node 22+.
+   */
+  *getChildrenDeep(): Generator<TreeNode> {
+    for (const child of this.children.values()) {
+      yield child
+      yield* child.getChildrenDeep()
+    }
+  }
+
+  /**
+   * Comparator function for sorting TreeNodes by path.
+   */
+  static compareByPath(a: TreeNode, b: TreeNode): number {
+    return a.path.localeCompare(b.path)
+  }
+
+  /**
+   * Get the children of this node sorted by their path.
+   */
   getSortedChildren(): TreeNode[] {
-    return Array.from(this.children.values()).sort((a, b) =>
-      a.path.localeCompare(b.path)
-    )
+    return Array.from(this.children.values()).sort(TreeNode.compareByPath)
   }
 
-  getSortedChildrenDeep(): TreeNode[] {
-    return Array.from(this.children.values())
-      .flatMap((child) => [child, ...child.getSortedChildrenDeep()])
-      .sort((a, b) => a.path.localeCompare(b.path))
-  }
-
-  getChildrenDeep(): TreeNode[] {
-    return Array.from(this.children.values()).flatMap((child) => [
-      child,
-      ...child.getChildrenDeep(),
-    ])
+  /**
+   * Calls {@link getChildrenDeep} and sorts the result by path in the end.
+   */
+  getChildrenDeepSorted(): TreeNode[] {
+    return Array.from(this.getChildrenDeep()).sort(TreeNode.compareByPath)
   }
 
   /**
