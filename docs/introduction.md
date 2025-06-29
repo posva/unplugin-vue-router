@@ -172,7 +172,11 @@ If you don't have an `env.d.ts` file, you can create one and add the unplugin-vu
 
 ::: warning
 
-unplugin-vue-router will add a virtual `vue-router/auto` module that exports everything from `vue-router` with some extra features from `unplugin-vue-router/runtime` and `unplugin-vue-router/data-loaders`. It's recommended to avoid using `vue-router/auto` in new projects. It's kept for compatibility with existing projects that use it and will likely be removed in the future.
+unplugin-vue-router adds a virtual `vue-router/auto` module that exports everything from `vue-router` with some extra features from `unplugin-vue-router/runtime` and `unplugin-vue-router/data-loaders`.
+
+**DO NOT use `vue-router/auto` in new projects**.
+
+It's kept for compatibility with existing projects that use it and **will be removed in the near future**.
 
 ::: tip
 You can exclude `vue-router/auto` from VSCode import suggestions by adding this setting to your `.vscode/settings.json`:
