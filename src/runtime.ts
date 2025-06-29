@@ -1,11 +1,5 @@
 import type { RouteRecordRaw } from 'vue-router'
 
-// new data fetching
-export * from './data-loaders/entries/index'
-
-// NOTE: for tests only
-// export * from './data-loaders/defineQueryLoader'
-
 /**
  * Defines properties of the route for the current page component.
  *
