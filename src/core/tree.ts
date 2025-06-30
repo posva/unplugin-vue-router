@@ -12,8 +12,6 @@ export interface TreeNodeOptions extends ResolvedOptions {
   treeNodeOptions?: TreeNodeValueOptions
 }
 
-const stringCompare = new Intl.Collator('en', {}).compare
-
 export class TreeNode {
   /**
    * value of the node
@@ -149,7 +147,9 @@ export class TreeNode {
    * @internal
    */
   static compare(a: TreeNode, b: TreeNode): number {
-    return stringCompare(a.path, b.path)
+    // for this case, ASCII, short list, it's better than Internation Collator
+    // https://stackoverflow.com/questions/77246375/why-localecompare-can-be-faster-than-collator-compare
+    return a.path.localeCompare(b.path, 'en')
   }
 
   /**
