@@ -141,7 +141,7 @@
   "dependencies": {
     "@babel/types": "^7.26.8",
     "@vue-macros/common": "3.0.0-beta.15",
-    "@vue/language-core": "^2.2.10",
+    "@vue/language-core": "^3.0.1",
     "ast-walker-scope": "^0.8.1",
     "chokidar": "^4.0.3",
     "fast-glob": "^3.3.3",
@@ -206,7 +206,7 @@
     "vue": "^3.5.17",
     "vue-router": "^4.5.1",
     "vue-router-mock": "^1.1.0",
-    "vue-tsc": "^2.2.10",
+    "vue-tsc": "^3.0.1",
     "vuefire": "^3.2.1",
     "webpack": "^5.99.9",
     "yorkie": "^2.0.0"
