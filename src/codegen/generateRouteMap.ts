@@ -4,7 +4,7 @@ import { generateRouteParams } from './generateRouteParams'
 export function generateRouteNamedMap(node: TreeNode): string {
   if (node.isRoot()) {
     return `export interface RouteNamedMap {
-${node.getSortedChildren().map(generateRouteNamedMap).join('')}}`
+${node.getChildrenSorted().map(generateRouteNamedMap).join('')}}`
   }
 
   return (
@@ -14,7 +14,7 @@ ${node.getSortedChildren().map(generateRouteNamedMap).join('')}}`
       ? `  '${node.name}': ${generateRouteRecordInfo(node)},\n`
       : '') +
     (node.children.size > 0
-      ? node.getSortedChildren().map(generateRouteNamedMap).join('\n')
+      ? node.getChildrenSorted().map(generateRouteNamedMap).join('\n')
       : '')
   )
 }

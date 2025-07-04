@@ -155,7 +155,7 @@ export class TreeNode {
   /**
    * Get the children of this node sorted by their path.
    */
-  getSortedChildren(): TreeNode[] {
+  getChildrenSorted(): TreeNode[] {
     return Array.from(this.children.values()).sort(TreeNode.compare)
   }
 
@@ -294,12 +294,12 @@ export class TreeNode {
     return `${this.value}${
       // either we have multiple names
       this.value.components.size > 1 ||
-      // or we have one name and it's not default
-      (this.value.components.size === 1 &&
-        !this.value.components.get('default'))
+        // or we have one name and it's not default
+        (this.value.components.size === 1 &&
+          !this.value.components.get('default'))
         ? ` ⎈(${Array.from(this.value.components.keys()).join(', ')})`
         : ''
-    }${this.hasDefinePage ? ' ⚑ definePage()' : ''}`
+      }${this.hasDefinePage ? ' ⚑ definePage()' : ''}`
   }
 }
 

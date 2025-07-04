@@ -15,7 +15,7 @@ export function generateRouteFileInfoMap(
 
   // the root node is not a route
   const routesInfoList = node
-    .getSortedChildren()
+    .getChildrenSorted()
     .flatMap((child) => generateRouteFileInfoLines(child, root))
 
   // because the same file can be used for multiple routes, we need to group them
@@ -64,17 +64,17 @@ function generateRouteFileInfoLines(
   routeNames: string[]
   childrenNamedViews: string[] | null
 }> {
-  const children = node.children.size > 0 ? node.getSortedChildrenDeep() : null
+  const children = node.children.size > 0 ? node.getChildrenDeepSorted() : null
 
   const childrenNamedViews = children
     ? Array.from(
-        new Set(
-          children.flatMap((child) => Array.from(child.value.components.keys()))
-        )
+      new Set(
+        children.flatMap((child) => Array.from(child.value.components.keys()))
       )
+    )
     : null
 
-  const routeNames = [node, ...node.getSortedChildrenDeep()]
+  const routeNames = [node, ...node.getChildrenDeepSorted()]
     // an unnamed route cannot be accessed in types
     .filter((node) => node.name)
     .map((node) => node.name)
@@ -84,15 +84,15 @@ function generateRouteFileInfoLines(
     routeNames.length === 0
       ? []
       : Array.from(node.value.components.values()).map((file) => ({
-          key: relative(rootDir, file).replaceAll('\\', '/'),
-          routeNames,
-          childrenNamedViews,
-        }))
+        key: relative(rootDir, file).replaceAll('\\', '/'),
+        routeNames,
+        childrenNamedViews,
+      }))
 
   const childrenRouteInfo = node
     // if we recurse all children, we end up with duplicated entries
     // so we must go only with direct children
-    .getSortedChildren()
+    .getChildrenSorted()
     .flatMap((child) => generateRouteFileInfoLines(child, rootDir))
 
   return currentRouteInfo.concat(childrenRouteInfo)

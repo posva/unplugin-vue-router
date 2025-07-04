@@ -21,9 +21,9 @@ export function generateRouteRecord(
   if (node.isRoot()) {
     return `[
 ${node
-  .getSortedChildren()
-  .map((child) => generateRouteRecord(child, options, importsMap, indent + 1))
-  .join(',\n')}
+        .getChildrenSorted()
+        .map((child) => generateRouteRecord(child, options, importsMap, indent + 1))
+        .join(',\n')}
 ]`
   }
 
@@ -37,7 +37,7 @@ ${node
       importsMap.addDefault(
         // TODO: apply the language used in the sfc
         `${filePath}?definePage&` +
-          (lang === 'vue' ? 'vue&lang.tsx' : `lang.${lang}`),
+        (lang === 'vue' ? 'vue&lang.tsx' : `lang.${lang}`),
         pageDataImport
       )
     }
@@ -60,43 +60,39 @@ ${node
   // path
   const routeRecord = `${startIndent}{
 ${indentStr}path: '${node.path}',
-${indentStr}${
-    node.value.components.size
+${indentStr}${node.value.components.size
       ? node.name
         ? `name: '${node.name}',`
         : `/* no name */`
       : `/* internal name: '${node.name}' */`
-  }
+    }
 ${
-  // component
-  indentStr
-}${
-    node.value.components.size
+    // component
+    indentStr
+    }${node.value.components.size
       ? generateRouteRecordComponent(
-          node,
-          indentStr,
-          options.importMode,
-          importsMap
-        )
+        node,
+        indentStr,
+        options.importMode,
+        importsMap
+      )
       : '/* no component */'
-  }
-${overrides.props != null ? indentStr + `props: ${overrides.props},\n` : ''}${
-    overrides.alias != null
+    }
+${overrides.props != null ? indentStr + `props: ${overrides.props},\n` : ''}${overrides.alias != null
       ? indentStr + `alias: ${JSON.stringify(overrides.alias)},\n`
       : ''
-  }${
+    }${
     // children
     indentStr
-  }${
-    node.children.size > 0
+    }${node.children.size > 0
       ? `children: [
 ${node
-  .getSortedChildren()
-  .map((child) => generateRouteRecord(child, options, importsMap, indent + 2))
-  .join(',\n')}
+        .getChildrenSorted()
+        .map((child) => generateRouteRecord(child, options, importsMap, indent + 2))
+        .join(',\n')}
 ${indentStr}],`
       : '/* no children */'
-  }${formatMeta(node, indentStr)}
+    }${formatMeta(node, indentStr)}
 ${startIndent}}`
 
   if (definePageDataList.length > 0) {
@@ -123,17 +119,17 @@ function generateRouteRecordComponent(
   return isDefaultExport
     ? `component: ${generatePageImport(files[0]![1], importMode, importsMap)},`
     : // files has at least one entry
-      `components: {
+    `components: {
 ${files
-  .map(
-    ([key, path]) =>
-      `${indentStr + '  '}'${key}': ${generatePageImport(
-        path,
-        importMode,
-        importsMap
-      )}`
-  )
-  .join(',\n')}
+      .map(
+        ([key, path]) =>
+          `${indentStr + '  '}'${key}': ${generatePageImport(
+            path,
+            importMode,
+            importsMap
+          )}`
+      )
+      .join(',\n')}
 ${indentStr}},`
 }
 
