@@ -29,5 +29,6 @@ export function augmentVlsCtx(content: Code[], getCodes: () => ` & ${string}`) {
     return
   }
 
-  content.splice(to, 0, ...getCodes())
+  // TODO: getCodes should return a Code[] type but unsure of how to build that
+  content.splice(to, 0, getCodes())
 }
