@@ -7,7 +7,6 @@ import VueRouter from '../src/vite'
 import { VueRouterAutoImports } from '../src'
 import Vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
-import Inspect from 'vite-plugin-inspect'
 import VueDevtools from 'vite-plugin-vue-devtools'
 
 export default defineConfig({
@@ -161,6 +160,5 @@ export default defineConfig({
     // currently the devtools use 0.8.8 but we care more about
     // inspecting virtual files
     VueDevtools(),
-    Inspect(),
   ],
 })
