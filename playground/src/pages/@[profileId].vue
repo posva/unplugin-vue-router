@@ -2,7 +2,8 @@
 import type { Alias } from 'vite'
 const route = useRoute()
 
-const route2 = definePage<{ thing: string; alias: Alias }>({
+// TODO: implement Meta as a type param
+definePage<{ thing: string; alias: Alias }>({
   meta: {
     thing: 'hey' as 'hey' | 'heya',
   },
