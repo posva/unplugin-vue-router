@@ -6,7 +6,7 @@ import { generateRouteNamedMap } from '../codegen/generateRouteMap'
 import { generateRouteFileInfoMap } from '../codegen/generateRouteFileInfoMap'
 import { MODULE_ROUTES_PATH, MODULE_VUE_ROUTER_AUTO } from './moduleConstants'
 import { generateRouteRecord } from '../codegen/generateRouteRecords'
-import fg from 'fast-glob'
+import { glob } from 'tinyglobby'
 import { dirname, relative, resolve } from 'pathe'
 import { ServerContext } from '../options'
 import { getRouteBlock } from './customBlock'
@@ -74,11 +74,12 @@ export function createRoutesContext(options: ResolvedOptions) {
             f.startsWith('**') ? f : relative(folder.src, f)
           )
 
-          return fg(folder.pattern, {
+          return glob(folder.pattern, {
             cwd: folder.src,
             // TODO: do they return the symbolic link path or the original file?
             // followSymbolicLinks: false,
             ignore: ignorePattern,
+            expandDirectories: false,
           }).then((files) =>
             Promise.all(
               files
