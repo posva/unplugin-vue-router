@@ -92,6 +92,18 @@ declare module 'vue-router/auto-routes' {
    * @internal
    */
   export interface _RouteFileInfoMap {
+    'src/pages/(some-layout).vue': {
+      routes: '/(some-layout)/app' | '/(some-layout)/home'
+      views: 'default'
+    }
+    'src/pages/(some-layout)/app.vue': {
+      routes: '/(some-layout)/app'
+      views: never
+    }
+    'src/pages/(some-layout)/home.vue': {
+      routes: '/(some-layout)/home'
+      views: never
+    }
     'src/pages/(test-group).vue': {
       routes: '/(test-group)' | '/(test-group)/test-group-child'
       views: 'default'
