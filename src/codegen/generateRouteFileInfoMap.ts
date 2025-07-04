@@ -68,10 +68,10 @@ function generateRouteFileInfoLines(
 
   const childrenNamedViews = children
     ? Array.from(
-      new Set(
-        children.flatMap((child) => Array.from(child.value.components.keys()))
+        new Set(
+          children.flatMap((child) => Array.from(child.value.components.keys()))
+        )
       )
-    )
     : null
 
   const routeNames = [node, ...node.getChildrenDeepSorted()]
@@ -84,10 +84,10 @@ function generateRouteFileInfoLines(
     routeNames.length === 0
       ? []
       : Array.from(node.value.components.values()).map((file) => ({
-        key: relative(rootDir, file).replaceAll('\\', '/'),
-        routeNames,
-        childrenNamedViews,
-      }))
+          key: relative(rootDir, file).replaceAll('\\', '/'),
+          routeNames,
+          childrenNamedViews,
+        }))
 
   const childrenRouteInfo = node
     // if we recurse all children, we end up with duplicated entries
