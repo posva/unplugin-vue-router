@@ -21,7 +21,7 @@ export function generateRouteRecord(
   if (node.isRoot()) {
     return `[
 ${node
-  .getSortedChildren()
+  .getChildrenSorted()
   .map((child) => generateRouteRecord(child, options, importsMap, indent + 1))
   .join(',\n')}
 ]`
@@ -91,7 +91,7 @@ ${overrides.props != null ? indentStr + `props: ${overrides.props},\n` : ''}${
     node.children.size > 0
       ? `children: [
 ${node
-  .getSortedChildren()
+  .getChildrenSorted()
   .map((child) => generateRouteRecord(child, options, importsMap, indent + 2))
   .join(',\n')}
 ${indentStr}],`

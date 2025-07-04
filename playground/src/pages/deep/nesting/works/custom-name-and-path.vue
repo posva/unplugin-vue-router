@@ -1,6 +1,5 @@
 <route lang="json">
 {
-  "$schema": "https://raw.githubusercontent.com/posva/unplugin-vue-router/main/route.schema.json",
   "name": "deep the most rebel",
   "path": "/deep-most-rebel"
 }

@@ -155,7 +155,7 @@ export class TreeNode {
   /**
    * Get the children of this node sorted by their path.
    */
-  getSortedChildren(): TreeNode[] {
+  getChildrenSorted(): TreeNode[] {
     return Array.from(this.children.values()).sort(TreeNode.compare)
   }
 

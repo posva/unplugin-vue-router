@@ -49,6 +49,7 @@ import {
   onBeforeRouteUpdate,
   type RouteLocationNormalized,
 } from 'vue-router'
+import type { RouteNamedMap } from 'vue-router/auto-routes'
 
 const thing = 'THING'
 
@@ -90,8 +91,8 @@ if (routeLocation.name === '/[name]') {
   routeLocation.params.id
 }
 
-const route = useRoute('/[name]')
-const anyRoute = useRoute()
+const route = useRoute()
+const anyRoute = useRoute<keyof RouteNamedMap>()
 if (anyRoute.name == '/articles/[id]') {
   console.log('anyRoute.params', anyRoute.params.id)
 }
@@ -133,7 +134,7 @@ definePage({
 
 <template>
   <main>
-    <h1>Param: {{ $route.name === '/[name]' && $route.params.name }}</h1>
+    <h1>Param: {{ $route.params.name }}</h1>
     <h2>Param: {{ route.params.name }}</h2>
     <p v-show="false">{{ thing }}</p>
     <p v-if="isLoading">Loading user...</p>
