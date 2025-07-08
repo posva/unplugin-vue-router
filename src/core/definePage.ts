@@ -189,7 +189,7 @@ export function definePageTransform({
 export function extractDefinePageNameAndPath(
   sfcCode: string,
   id: string
-): { name?: string; path?: string } | null | undefined {
+): { name?: string | false; path?: string } | null | undefined {
   if (!sfcCode.includes(MACRO_DEFINE_PAGE)) return
 
   const { ast, definePageNodes } = getCodeAst(sfcCode, id)
@@ -221,10 +221,14 @@ export function extractDefinePageNameAndPath(
   for (const prop of routeRecord.properties) {
     if (prop.type === 'ObjectProperty' && prop.key.type === 'Identifier') {
       if (prop.key.name === 'name') {
-        if (prop.value.type !== 'StringLiteral') {
-          warn(`route name must be a string literal. Found in "${id}".`)
+        if (
+          prop.value.type !== 'StringLiteral' &&
+          (prop.value.type !== 'BooleanLiteral' || prop.value.value !== false)
+        ) {
+          warn(`route name must be a string literal or false. Found in "${id}".`)
         } else {
-          routeInfo.name = prop.value.value
+          // TODO: why does TS not narrow down the type?
+          routeInfo.name = (prop.value.value as string | false)
         }
       } else if (prop.key.name === 'path') {
         if (prop.value.type !== 'StringLiteral') {

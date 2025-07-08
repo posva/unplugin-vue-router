@@ -29,7 +29,6 @@ declare module 'vue-router/auto-routes' {
     '/@[profileId]': RouteRecordInfo<'/@[profileId]', '/@:profileId', { profileId: ParamValue<true> }, { profileId: ParamValue<false> }>,
     '/about': RouteRecordInfo<'/about', '/about', Record<never, never>, Record<never, never>>,
     '/about.extra.nested': RouteRecordInfo<'/about.extra.nested', '/about/extra/nested', Record<never, never>, Record<never, never>>,
-    '/articles': RouteRecordInfo<'/articles', '/articles', Record<never, never>, Record<never, never>, '/articles/' | '/articles/[id]' | '/articles/[id]+'>,
     '/articles/': RouteRecordInfo<'/articles/', '/articles', Record<never, never>, Record<never, never>>,
     '/articles/[id]': RouteRecordInfo<'/articles/[id]', '/articles/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
     '/articles/[id]+': RouteRecordInfo<'/articles/[id]+', '/articles/:id+', { id: ParamValueOneOrMore<true> }, { id: ParamValueOneOrMore<false> }>,
@@ -145,7 +144,7 @@ declare module 'vue-router/auto-routes' {
       views: never
     }
     'src/pages/articles.vue': {
-      routes: '/articles' | '/articles/' | '/articles/[id]' | '/articles/[id]+'
+      routes: '/articles/' | '/articles/[id]' | '/articles/[id]+'
       views: 'default'
     }
     'src/pages/articles/index.vue': {

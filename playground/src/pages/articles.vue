@@ -33,6 +33,11 @@ if (routeHasParam(route, 'id')) {
   route.name satisfies '/articles/[id]' | '/articles/[id]+'
   route.params.id satisfies string | [string, ...string[]]
 }
+
+definePage({
+  // remove the name to avoid the page appearing in types
+  name: false,
+})
 </script>
 
 <template>

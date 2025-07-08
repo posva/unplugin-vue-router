@@ -10,7 +10,7 @@ export const enum TreeNodeType {
 
 export interface RouteRecordOverride
   extends Partial<Pick<RouteRecordRaw, 'meta' | 'props' | 'alias' | 'path'>> {
-  name?: string | undefined
+  name?: string | undefined | false
 }
 
 export type SubSegment = string | TreeRouteParam

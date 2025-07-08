@@ -23,7 +23,7 @@ export interface CustomRouteBlock
       'components' | 'component' | 'children' | 'beforeEnter' | 'name'
     >
   > {
-  name?: string | undefined
+  name?: string | undefined | false
 }
 
 function parseCustomBlock(

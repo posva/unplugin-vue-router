@@ -239,9 +239,9 @@ export class TreeNode {
     const overrideName = this.value.overrides.name
     // allows passing a null or empty name so the route is not named
     // and isn't listed in the route map
-    return overrideName !== undefined
-      ? overrideName
-      : this.options.getRouteName(this)
+    return overrideName === undefined
+      ? this.options.getRouteName(this)
+      : overrideName
   }
 
   /**

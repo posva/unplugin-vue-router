@@ -85,7 +85,7 @@ export class EditableTreeNode {
    * nothing.
    * @see {@link isPassThrough}
    */
-  get name(): string {
+  get name(): string | false {
     return this.node.name
   }
 

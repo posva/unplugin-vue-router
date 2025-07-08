@@ -51,5 +51,11 @@ export function _mergeRouteRecord(
  */
 export interface DefinePage
   extends Partial<
-    Omit<RouteRecordRaw, 'children' | 'components' | 'component'>
-  > {}
+    Omit<RouteRecordRaw, 'children' | 'components' | 'component' | 'name'>
+  > {
+  /**
+   * A route name. If not provided, the name will be generated based on the file path.
+   * Can be set to `false` to remove the name from types.
+   */
+  name?: string | false
+}
