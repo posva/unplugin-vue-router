@@ -225,10 +225,12 @@ export function extractDefinePageNameAndPath(
           prop.value.type !== 'StringLiteral' &&
           (prop.value.type !== 'BooleanLiteral' || prop.value.value !== false)
         ) {
-          warn(`route name must be a string literal or false. Found in "${id}".`)
+          warn(
+            `route name must be a string literal or false. Found in "${id}".`
+          )
         } else {
           // TODO: why does TS not narrow down the type?
-          routeInfo.name = (prop.value.value as string | false)
+          routeInfo.name = prop.value.value as string | false
         }
       } else if (prop.key.name === 'path') {
         if (prop.value.type !== 'StringLiteral') {
