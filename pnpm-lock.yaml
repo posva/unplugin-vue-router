@@ -61,7 +61,7 @@ importers:
         version: 2.8.0
     devDependencies:
       '@babel/types':
-        specifier: ^7.27.7
+        specifier: ^7.28.0
         version: 7.28.0
       '@pinia/colada':
         specifier: ^0.17.1
@@ -76,7 +76,7 @@ importers:
         specifier: ^5.81.5
         version: 5.81.5(vue@3.5.17(typescript@5.8.3))
       '@types/node':
-        specifier: ^22.15.34
+        specifier: ^22.16.0
         version: 22.16.0
       '@types/picomatch':
         specifier: ^4.0.0
@@ -100,7 +100,7 @@ importers:
         specifier: ^9.6.0
         version: 9.6.0
       firebase:
-        specifier: ^11.9.1
+        specifier: ^11.10.0
         version: 11.10.0
       happy-dom:
         specifier: ^18.0.1
@@ -127,7 +127,7 @@ importers:
         specifier: ^6.0.1
         version: 6.0.1
       rollup:
-        specifier: ^4.44.1
+        specifier: ^4.44.2
         version: 4.44.2
       semver:
         specifier: ^7.7.2
@@ -160,8 +160,8 @@ importers:
         specifier: ^1.6.3
         version: 1.6.3(@algolia/client-search@5.20.0)(@types/node@22.16.0)(change-case@5.4.4)(fuse.js@7.1.0)(jwt-decode@4.0.0)(lightningcss@1.29.3)(postcss@8.5.6)(search-insights@2.17.2)(terser@5.40.0)(typescript@5.8.3)
       vitepress-plugin-llms:
-        specifier: ^1.6.0
-        version: 1.6.0
+        specifier: ^1.7.0
+        version: 1.7.0
       vitest:
         specifier: ^3.2.4
         version: 3.2.4(@types/debug@4.1.12)(@types/node@22.16.0)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.40.0)(yaml@2.8.0)
@@ -6309,8 +6309,8 @@ packages:
       yaml:
         optional: true
 
-  vitepress-plugin-llms@1.6.0:
-    resolution: {integrity: sha512-5EjrMvtggY61fAnhC+rldzw1UqPxwdbtsh/w15Z/Gy7u/SOsPQgSdDzoQm1iFet6ofAzUB2TXA8wj5KZX9TKSA==}
+  vitepress-plugin-llms@1.7.0:
+    resolution: {integrity: sha512-J4va/lPTBcrlV5RXmuML8Lg1nzRR8cB1nJszqjITtayOrliR1jDbho31nkzJCdU/SmwdR7PFVQDRwwOTEDdoHA==}
 
   vitepress@1.6.3:
     resolution: {integrity: sha512-fCkfdOk8yRZT8GD9BFqusW3+GggWYZ/rYncOfmgcDtP3ualNHCAg+Robxp2/6xfH1WwPHtGpPwv7mbA3qomtBw==}
@@ -13480,7 +13480,7 @@ snapshots:
       terser: 5.40.0
       yaml: 2.8.0
 
-  vitepress-plugin-llms@1.6.0:
+  vitepress-plugin-llms@1.7.0:
     dependencies:
       byte-size: 9.0.1
       gray-matter: 4.0.3
