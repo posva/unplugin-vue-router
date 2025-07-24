@@ -354,7 +354,7 @@ export function defineColadaLoader<Data>(
     if (this.pendingTo === to) {
       // console.log(' ->', this.staged)
       if (process.env.NODE_ENV === 'development') {
-        if (this.staged === STAGED_NO_VALUE) {
+        if (this.staged === STAGED_NO_VALUE && this.stagedError === null) {
           console.warn(
             `Loader "${key}"'s "commit()" was called but there is no staged data.`
           )

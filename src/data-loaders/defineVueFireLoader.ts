@@ -159,7 +159,7 @@ export function defineVueFireLoader<
     if (this.pendingTo === to && !this.error.value) {
       // console.log('👉 commit', this.staged)
       if (process.env.NODE_ENV === 'development') {
-        if (this.staged === STAGED_NO_VALUE) {
+        if (this.staged === STAGED_NO_VALUE && this.stagedError === null) {
           console.warn(
             `Loader "${options.key}"'s "commit()" was called but there is no staged data.`
           )
