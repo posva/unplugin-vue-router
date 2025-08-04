@@ -204,7 +204,7 @@
     "vitest": "^3.2.4",
     "vue": "^3.5.18",
     "vue-router": "^4.5.1",
-    "vue-router-mock": "^1.1.0",
+    "vue-router-mock": "^2.0.0",
     "vue-tsc": "^3.0.5",
     "vuefire": "^3.2.2",
     "webpack": "^5.101.0",

@@ -172,8 +172,8 @@ importers:
         specifier: ^4.5.1
         version: 4.5.1(vue@3.5.18(typescript@5.9.2))
       vue-router-mock:
-        specifier: ^1.1.0
-        version: 1.1.0(vue-router@4.5.1(vue@3.5.18(typescript@5.9.2)))(vue@3.5.18(typescript@5.9.2))
+        specifier: ^2.0.0
+        version: 2.0.0(vue-router@4.5.1(vue@3.5.18(typescript@5.9.2)))(vue@3.5.18(typescript@5.9.2))
       vue-tsc:
         specifier: ^3.0.5
         version: 3.0.5(typescript@5.9.2)
@@ -6388,8 +6388,8 @@ packages:
     peerDependencies:
       vue: ^3.0.0
 
-  vue-router-mock@1.1.0:
-    resolution: {integrity: sha512-RhKhxkiZh2zB2eRkzfcCILQQ0ZUc0tk7CE2ZC1PGJYi5GOU+2QQAGHtTCgb8V4B/OPm9ws+X5Q9SQB5vyTXxBQ==}
+  vue-router-mock@2.0.0:
+    resolution: {integrity: sha512-UmfJ9C4odcC8P2d8+yZWGPnjK7MMc1Uk3bmchpq+8lcGEdpwrO18RPQOMUEiwAjqjTVN5Z955Weaz2Ev9UrXMw==}
     peerDependencies:
       vue: ^3.2.23
       vue-router: ^4.0.12
@@ -13621,7 +13621,7 @@ snapshots:
     dependencies:
       vue: 3.5.18(typescript@5.9.2)
 
-  vue-router-mock@1.1.0(vue-router@4.5.1(vue@3.5.18(typescript@5.9.2)))(vue@3.5.18(typescript@5.9.2)):
+  vue-router-mock@2.0.0(vue-router@4.5.1(vue@3.5.18(typescript@5.9.2)))(vue@3.5.18(typescript@5.9.2)):
     dependencies:
       vue: 3.5.18(typescript@5.9.2)
       vue-router: 4.5.1(vue@3.5.18(typescript@5.9.2))
