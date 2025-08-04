@@ -7,19 +7,19 @@
     "build": "vite build"
   },
   "devDependencies": {
-    "@tanstack/vue-query-devtools": "^5.83.0",
-    "@vitejs/plugin-vue": "^6.0.0",
-    "@vue/compiler-sfc": "^3.5.17",
+    "@tanstack/vue-query-devtools": "^5.84.0",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "@vue/compiler-sfc": "^3.5.18",
     "@vue/tsconfig": "^0.7.0",
     "json-server": "^0.17.4",
     "unplugin-vue-router": "workspace:*",
-    "vite": "^7.0.4"
+    "vite": "^7.0.6"
   },
   "dependencies": {
-    "@tanstack/vue-query": "^5.83.0",
+    "@tanstack/vue-query": "^5.83.1",
     "mande": "^2.0.9",
     "pinia": "^3.0.3",
-    "vue": "^3.5.17",
+    "vue": "^3.5.18",
     "vue-router": "^4.5.1"
   }
 }
