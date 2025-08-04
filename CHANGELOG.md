@@ -1,3 +1,11 @@
+# [0.15.0](https://github.com/posva/unplugin-vue-router/compare/v0.14.0...v0.15.0) (2025-08-04)
+
+### Features
+
+- remove empty string names from the route map ([45de2b7](https://github.com/posva/unplugin-vue-router/commit/45de2b74692c85f35a2c3fcf25abcb8f437ed7c5))
+- allow removing a route by setting its name to `false` ([d754601](https://github.com/posva/unplugin-vue-router/commit/d754601b694eed4e42c5fbc175b1d74972942407))
+- automatically type `useRoute()` with a volar plugin ([#609](https://github.com/posva/unplugin-vue-router/issues/609)) ([a8a0dcc](https://github.com/posva/unplugin-vue-router/commit/a8a0dcc3f86f4ed8fabf2cc340e3f7bda1729523))
+
 # [0.14.0](https://github.com/posva/unplugin-vue-router/compare/v0.13.0...v0.14.0) (2025-06-29)
 
 ### Bug Fixes
