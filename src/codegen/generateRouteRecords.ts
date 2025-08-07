@@ -145,7 +145,7 @@ ${indentStr}},`
  * @param importsMap - the import list to fill
  * @returns
  */
-function generatePageImport(
+export function generatePageImport(
   filepath: string,
   importMode: ResolvedOptions['importMode'],
   importsMap: ImportsMap
