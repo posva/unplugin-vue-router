@@ -64,19 +64,28 @@ function generateRouteFileInfoLines(
   routeNames: string[]
   childrenNamedViews: string[] | null
 }> {
-  const children = node.children.size > 0 ? node.getChildrenDeepSorted() : null
+  const deepChildren =
+    node.children.size > 0 ? node.getChildrenDeepSorted() : null
 
-  const childrenNamedViews = children
+  const deepChildrenNamedViews = deepChildren
     ? Array.from(
         new Set(
-          children.flatMap((child) => Array.from(child.value.components.keys()))
+          deepChildren.flatMap((child) =>
+            Array.from(child.value.components.keys())
+          )
         )
       )
     : null
 
-  const routeNames = [node, ...node.getChildrenDeepSorted()]
-    // an unnamed route cannot be accessed in types
-    .filter((node): node is TreeNode & { name: string } => !!node.name)
+  const routeNames: Array<Extract<TreeNode['name'], string>> = [
+    node,
+    ...(deepChildren ?? []),
+  ]
+    // unnamed routes and routes that don't correspond to certain components cannot be accessed in types
+    .filter(
+      (node): node is TreeNode & { name: string } =>
+        node.value.components.size > 0 && !!node.name
+    )
     .map((node) => node.name)
 
   // Most of the time we only have one view, but with named views we can have multiple.
@@ -86,7 +95,7 @@ function generateRouteFileInfoLines(
       : Array.from(node.value.components.values()).map((file) => ({
           key: relative(rootDir, file).replaceAll('\\', '/'),
           routeNames,
-          childrenNamedViews,
+          childrenNamedViews: deepChildrenNamedViews,
         }))
 
   const childrenRouteInfo = node
