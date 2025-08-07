@@ -169,11 +169,11 @@ importers:
         specifier: ^3.5.18
         version: 3.5.18(typescript@5.9.2)
       vue-router:
-        specifier: ^4.5.1
-        version: 4.5.1(vue@3.5.18(typescript@5.9.2))
+        specifier: file:/Users/posva/oss/vuejs/router/packages/router/vue-router-4.5.1.tgz
+        version: file:../vuejs/router/packages/router/vue-router-4.5.1.tgz(vue@3.5.18(typescript@5.9.2))
       vue-router-mock:
         specifier: ^2.0.0
-        version: 2.0.0(vue-router@4.5.1(vue@3.5.18(typescript@5.9.2)))(vue@3.5.18(typescript@5.9.2))
+        version: 2.0.0(vue-router@file:../vuejs/router/packages/router/vue-router-4.5.1.tgz(vue@3.5.18(typescript@5.9.2)))(vue@3.5.18(typescript@5.9.2))
       vue-tsc:
         specifier: ^3.0.5
         version: 3.0.5(typescript@5.9.2)
@@ -6390,12 +6390,19 @@ packages:
 
   vue-router-mock@2.0.0:
     resolution: {integrity: sha512-UmfJ9C4odcC8P2d8+yZWGPnjK7MMc1Uk3bmchpq+8lcGEdpwrO18RPQOMUEiwAjqjTVN5Z955Weaz2Ev9UrXMw==}
+    version: 2.0.0
     peerDependencies:
       vue: ^3.2.23
       vue-router: ^4.0.12
 
   vue-router@4.5.1:
     resolution: {integrity: sha512-ogAF3P97NPm8fJsE4by9dwSYtDwXIY1nFY9T6DyQnGHd1E2Da94w9JIolpe42LJGIl0DwOHBi8TcRPlPGwbTtw==}
+    peerDependencies:
+      vue: ^3.2.0
+
+  vue-router@file:../vuejs/router/packages/router/vue-router-4.5.1.tgz:
+    resolution: {integrity: sha512-bmgXl/N9Q5UVBPT54UykkT9/ERixy62e1R1I0l36qvjfSy00xG5EMQd4/XfkNkQhvaKC1MqUHzJGHx4UwkWUMA==, tarball: file:../vuejs/router/packages/router/vue-router-4.5.1.tgz}
+    version: 4.5.1
     peerDependencies:
       vue: ^3.2.0
 
@@ -13621,12 +13628,17 @@ snapshots:
     dependencies:
       vue: 3.5.18(typescript@5.9.2)
 
-  vue-router-mock@2.0.0(vue-router@4.5.1(vue@3.5.18(typescript@5.9.2)))(vue@3.5.18(typescript@5.9.2)):
+  vue-router-mock@2.0.0(vue-router@file:../vuejs/router/packages/router/vue-router-4.5.1.tgz(vue@3.5.18(typescript@5.9.2)))(vue@3.5.18(typescript@5.9.2)):
     dependencies:
       vue: 3.5.18(typescript@5.9.2)
-      vue-router: 4.5.1(vue@3.5.18(typescript@5.9.2))
+      vue-router: file:../vuejs/router/packages/router/vue-router-4.5.1.tgz(vue@3.5.18(typescript@5.9.2))
 
   vue-router@4.5.1(vue@3.5.18(typescript@5.9.2)):
+    dependencies:
+      '@vue/devtools-api': 6.6.4
+      vue: 3.5.18(typescript@5.9.2)
+
+  vue-router@file:../vuejs/router/packages/router/vue-router-4.5.1.tgz(vue@3.5.18(typescript@5.9.2)):
     dependencies:
       '@vue/devtools-api': 6.6.4
       vue: 3.5.18(typescript@5.9.2)
