@@ -91,8 +91,7 @@ export class TreeNode {
    * @param filePath - file path, defaults to path for convenience and testing
    */
   insertParsedPath(path: string, filePath: string | null = path): TreeNode {
-    // Allow null filePath to be handled
-    const isComponent = filePath !== null
+    const isComponent = filePath != null
 
     const node = new TreeNode(
       {
