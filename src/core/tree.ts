@@ -279,6 +279,12 @@ export class TreeNode {
     return params
   }
 
+  isMatchable(): this is TreeNode & { name: string } {
+    // a node is matchable if it has at least one component
+    // and the name is not false
+    return this.value.components.size > 0 && this.name !== false
+  }
+
   /**
    * Returns wether this tree node is the root node of the tree.
    *
