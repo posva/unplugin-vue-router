@@ -50,6 +50,7 @@ export default defineConfig({
       // getRouteName: getPascalCaseRouteName,
       experimental: {
         autoExportsDataLoaders: ['src/loaders/**/*', '@/loaders/**/*'],
+        paramMatchers: true,
       },
       extendRoute(route) {
         route.params.forEach((param) => {
