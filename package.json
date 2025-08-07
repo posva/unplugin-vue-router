@@ -158,7 +158,7 @@
   },
   "peerDependencies": {
     "@vue/compiler-sfc": "^3.5.17",
-    "vue-router": "^4.5.1"
+    "vue-router": "file:/Users/posva/oss/vuejs/router/packages/router/vue-router-4.5.1.tgz"
   },
   "peerDependenciesMeta": {
     "vue-router": {
@@ -203,7 +203,7 @@
     "vitepress-plugin-llms": "^1.7.2",
     "vitest": "^3.2.4",
     "vue": "^3.5.18",
-    "vue-router": "^4.5.1",
+    "vue-router": "file:/Users/posva/oss/vuejs/router/packages/router/vue-router-4.5.1.tgz",
     "vue-router-mock": "^2.0.0",
     "vue-tsc": "^3.0.5",
     "vuefire": "^3.2.2",

@@ -225,8 +225,26 @@ export interface Options {
      * page component.
      */
     autoExportsDataLoaders?: string | string[]
+
+    /**
+     * Enable experimental support for the new custom resolvers.
+     */
+    paramMatchers?: boolean | ParamMatcherOptions
   }
 }
+
+export interface ParamMatcherOptions {
+  /**
+   * Folder(s) to scan for param matchers.
+   *
+   * @default `['src/params']`
+   */
+  dir?: string | string[]
+}
+
+export const DEFAULT_PARAM_MATCHER_OPTIONS = {
+  dir: ['src/params'],
+} satisfies Required<ParamMatcherOptions>
 
 export const DEFAULT_OPTIONS = {
   extensions: ['.vue'],
@@ -304,6 +322,14 @@ export function resolveOptions(options: Options) {
   }))
 
   const experimental = { ...options.experimental }
+  experimental.paramMatchers =
+    experimental.paramMatchers &&
+    (experimental.paramMatchers === true
+      ? DEFAULT_PARAM_MATCHER_OPTIONS
+      : {
+          ...DEFAULT_PARAM_MATCHER_OPTIONS,
+          ...experimental.paramMatchers,
+        })
 
   if (experimental.autoExportsDataLoaders) {
     experimental.autoExportsDataLoaders = (
@@ -351,6 +377,9 @@ export function resolveOptions(options: Options) {
   }
 }
 
+/**
+ * @internal
+ */
 export type ResolvedOptions = ReturnType<typeof resolveOptions>
 
 /**
