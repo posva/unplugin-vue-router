@@ -10,13 +10,13 @@ import { ImportsMap } from '../core/utils'
 const DEFAULT_OPTIONS = resolveOptions({})
 let DEFAULT_STATE: Parameters<typeof generateRouteRecord>[0]['state'] = {
   id: 0,
-  recordVarNames: [],
+  matchableRecords: [],
 }
 
 beforeEach(() => {
   DEFAULT_STATE = {
     id: 0,
-    recordVarNames: [],
+    matchableRecords: [],
   }
 })
 
@@ -73,22 +73,6 @@ describe('generateRouteResolver', () => {
 
     expect(resolver).toMatchInlineSnapshot(`
       "
-      import {
-        createStaticResolver,
-        MatcherPatternPathStatic,
-        MatcherPatternPathCustomParams,
-        MatcherPatternPathStar,
-        normalizeRouteRecord,
-        // param matchers
-        PARAM_NUMBER,
-      } from 'vue-router/experimental'
-      import type {
-        EXPERIMENTAL_RouteRecordNormalized_Matchable,
-        MatcherPatternHash,
-        MatcherPatternQuery,
-        EmptyParams,
-      } from 'vue-router/experimental'
-
       const r_0 = normalizeRouteRecord({
         name: '/a',
         path: new MatcherPatternPathStatic('/a'),
@@ -130,10 +114,46 @@ describe('generateRouteResolver', () => {
       })
 
       export const resolver = createStaticResolver([
-        r_0,
-        r_2,
-        r_3,
-        r_5,
+        r_0, /* /a */
+        r_2, /* /b/c */
+        r_3, /* /b/c/d */
+        r_5, /* /b/e/f */
+      ])
+      "
+    `)
+  })
+
+  it('orders records based on specificity of paths', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+    const importsMap = new ImportsMap()
+    tree.insert('a', 'a.vue')
+    tree.insert('b/a-b', 'b/c/d.vue')
+    tree.insert('b/a-[a]', 'b/c/d.vue')
+    tree.insert('b/a-[a]+', 'b/c/d.vue')
+    tree.insert('b/a-[[a]]', 'b/c/d.vue')
+    tree.insert('b/a-[[a]]+', 'b/c/d.vue')
+    tree.insert('b/[a]', 'b/c.vue')
+    tree.insert('b/[a]+', 'b/c/d.vue')
+    tree.insert('b/[[a]]', 'b/c/d.vue')
+    tree.insert('b/[[a]]+', 'b/c/d.vue')
+    tree.insert('[...all]', 'b/c/f.vue')
+    const resolver = generateRouteResolver(tree, DEFAULT_OPTIONS, importsMap)
+
+    expect(
+      resolver.replace(/^.*?createStaticResolver/s, '')
+    ).toMatchInlineSnapshot(`
+      "([
+        r_1,   // /a
+        r_11,  // /b/a-b
+        r_7,   // /b/a-:a
+        r_8,   // /b/a-:a?
+        r_10,  // /b/a-:a+
+        r_9,   // /b/a-:a*
+        r_3,   // /b/:a
+        r_4,   // /b/:a?
+        r_6,   // /b/:a+
+        r_5,   // /b/:a*
+        r_0,   // /:all(.*)
       ])
       "
     `)
