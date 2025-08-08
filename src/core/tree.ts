@@ -281,19 +281,31 @@ export class TreeNode {
 
   get regexp(): string {
     let re = ''
-    let parent: TreeNode | undefined = this
+    let node: TreeNode | undefined = this
 
-    while (parent) {
-      if (parent.value.isParam() && parent.value.re) {
-        re = parent.value.re + (re ? '\\/' : '') + re
+    while (node) {
+      if (node.value.isParam() && node.value.re) {
+        re = node.value.re + (re ? '\\/' : '') + re
       } else {
-        re = parent.value.pathSegment + (re ? '\\/' : '') + re
+        re = node.value.pathSegment + (re ? '\\/' : '') + re
       }
 
-      parent = parent.parent
+      node = node.parent
     }
 
     return '/^' + re + '$/i'
+  }
+
+  get score(): number {
+    let score = 666
+    let node: TreeNode | undefined = this
+
+    while (node && !node.isRoot()) {
+      score = Math.min(score, node.value.score)
+      node = node.parent
+    }
+
+    return score
   }
 
   get matcherParams() {

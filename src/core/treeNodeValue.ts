@@ -179,8 +179,23 @@ class _TreeNodeValueBase {
   }
 }
 
+/**
+ * - Static
+ * - Static + Custom Param (subSegments)
+ * - Static + Param (subSegments)
+ * - Custom Param
+ * - Param
+ * - CatchAll
+ */
+
+/**
+ * Static path like `/users`, `/users/list`, etc
+ * @extends _TreeNodeValueBase
+ */
 export class TreeNodeValueStatic extends _TreeNodeValueBase {
   override _type: TreeNodeType.static = TreeNodeType.static
+
+  readonly score = 300
 
   constructor(
     rawSegment: string,
@@ -194,6 +209,8 @@ export class TreeNodeValueStatic extends _TreeNodeValueBase {
 export class TreeNodeValueGroup extends _TreeNodeValueBase {
   override _type: TreeNodeType.group = TreeNodeType.group
   groupName: string
+
+  readonly score = 300
 
   constructor(
     rawSegment: string,
@@ -227,6 +244,26 @@ export class TreeNodeValueParam extends _TreeNodeValueBase {
   ) {
     super(rawSegment, parent, pathSegment, subSegments)
     this.params = params
+  }
+
+  get score(): number {
+    const malus = Math.max(
+      ...this.params.map((p) =>
+        p.isSplat ? 500 : (p.optional ? 10 : 0) + (p.repeatable ? 20 : 0)
+      )
+    )
+
+    console.log(this.subSegments)
+
+    return (
+      80 -
+      malus +
+      (this.params.length > 0 &&
+      this.subSegments.length > 1 &&
+      this.subSegments.some((s) => typeof s === 'string' && s.length > 0)
+        ? 35
+        : 0)
+    )
   }
 
   get re(): string {
