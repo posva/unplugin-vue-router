@@ -279,6 +279,46 @@ export class TreeNode {
     return params
   }
 
+  get regexp(): string {
+    let re = ''
+    let parent: TreeNode | undefined = this
+
+    while (parent) {
+      if (parent.value.isParam() && parent.value.re) {
+        re = parent.value.re + (re ? '\\/' : '') + re
+      } else {
+        re = parent.value.pathSegment + (re ? '\\/' : '') + re
+      }
+
+      parent = parent.parent
+    }
+
+    return '/^' + re + '$/i'
+  }
+
+  get matcherParams() {
+    const params: Record<string, { repeat?: boolean }> = {}
+    for (const param of this.params) {
+      params[param.paramName] = {
+        repeat: param.repeatable,
+        // TODO: parser
+      }
+    }
+    return params
+  }
+
+  get matcherParts(): Array<string | number> {
+    const parts: Array<string | number> = []
+    let node: TreeNode | undefined = this
+
+    while (node && !node.isRoot()) {
+      parts.unshift(node.value.isParam() ? 0 : node.value.pathSegment)
+      node = node.parent
+    }
+
+    return parts
+  }
+
   isMatchable(): this is TreeNode & { name: string } {
     // a node is matchable if it has at least one component
     // and the name is not false

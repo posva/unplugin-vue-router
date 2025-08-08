@@ -69,7 +69,6 @@ describe('generateRouteResolver', () => {
     tree.insert('b/c', 'b/c.vue')
     tree.insert('b/c/d', 'b/c/d.vue')
     tree.insert('b/e/f', 'b/c/f.vue')
-    console.log(tree.getChildrenSorted())
     const resolver = generateRouteResolver(tree, DEFAULT_OPTIONS, importsMap)
 
     expect(resolver).toMatchInlineSnapshot(`

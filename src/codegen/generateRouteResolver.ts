@@ -9,12 +9,14 @@ export function generateRouteResolver(
   options: ResolvedOptions,
   importsMap: ImportsMap
 ): string {
-  const state = { id: 0, recordVarNames: [] }
+  const state = { id: 0, recordVarNames: [] as string[] }
   const records = tree
     .getChildrenSorted()
     .map((node) =>
       generateRouteRecord({ node, parentVar: null, state, options, importsMap })
     )
+
+  // TODO: add these imports to the import map instead
 
   return ts`
 import {
@@ -23,14 +25,6 @@ import {
   MatcherPatternPathCustomParams,
   MatcherPatternPathStar,
   normalizeRouteRecord,
-  // param matchers
-  PARAM_NUMBER,
-} from 'vue-router/experimental'
-import type {
-  EXPERIMENTAL_RouteRecordNormalized_Matchable,
-  MatcherPatternHash,
-  MatcherPatternQuery,
-  EmptyParams,
 } from 'vue-router/experimental'
 
 ${records.join('\n\n')}
@@ -57,11 +51,13 @@ export function generateRouteRecord({
   options: ResolvedOptions
   importsMap: ImportsMap
 }): string {
+  // TODO: skip nodes that add no value. Maybe it should be done at the level of the tree?
   const varName = `r_${state.id++}`
 
   let recordName: string
   let recordComponents: string
 
+  // TODO: what about groups?
   if (node.isMatchable()) {
     state.recordVarNames.push(varName)
     recordName = `name: '${node.name}',`
@@ -127,10 +123,15 @@ ${indentStr}},`
 export function generateRouteRecordPathMatcher({ node }: { node: TreeNode }) {
   if (!node.isMatchable()) {
     return ''
-  } else if (node.value.isStatic()) {
+    // TODO: do we really need isGroup?
+  } else if (node.value.isStatic() || node.value.isGroup()) {
     return `path: new MatcherPatternPathStatic('${node.fullPath}'),`
   } else if (node.value.isParam()) {
-    return `path: new MatcherPatternPathCustomParams('${node.fullPath}'),`
+    return `path: new MatcherPatternPathCustomParams(
+    ${node.regexp},
+    ${JSON.stringify(node.matcherParams)},
+    ${JSON.stringify(node.matcherParts)},
+  ),`
   }
 
   return `/* UNSUPPORTED path matcher for: "${node.fullPath}" */`

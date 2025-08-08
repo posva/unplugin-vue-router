@@ -21,6 +21,7 @@ import { definePageTransform, extractDefinePageNameAndPath } from './definePage'
 import { EditableTreeNode } from './extendRoutes'
 import { isPackageExists as isPackageInstalled } from 'local-pkg'
 import { ts } from '../utils'
+import { generateRouteResolver } from '../codegen/generateRouteResolver'
 
 export function createRoutesContext(options: ResolvedOptions) {
   const { dts: preferDTS, root, routesFolder } = options
@@ -181,6 +182,24 @@ export function createRoutesContext(options: ResolvedOptions) {
     // unlinkDir event
   }
 
+  function generateResolver() {
+    const importsMap = new ImportsMap()
+
+    const resolverCode = generateRouteResolver(routeTree, options, importsMap)
+
+    // generate the list of imports
+    let imports = importsMap.toString()
+    // add an empty line for readability
+    if (imports) {
+      imports += '\n'
+    }
+
+    const newAutoRoutes = `${imports}${resolverCode}\n`
+
+    // prepend it to the code
+    return newAutoRoutes
+  }
+
   function generateRoutes() {
     const importsMap = new ImportsMap()
 
@@ -190,7 +209,7 @@ export function createRoutesContext(options: ResolvedOptions) {
       importsMap
     )}\n`
 
-    let hmr = ts`
+    const hmr = ts`
 export function handleHotUpdate(_router, _hotUpdateCallback) {
   if (import.meta.hot) {
     import.meta.hot.data.router = _router
@@ -305,6 +324,7 @@ if (import.meta.hot) {
     stopWatcher,
 
     generateRoutes,
+    generateResolver,
     generateVueRouterProxy,
 
     definePageTransform(code: string, id: string) {
