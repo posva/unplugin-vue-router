@@ -4,33 +4,44 @@ import { type ResolvedOptions } from '../options'
 import { ts } from '../utils'
 import { generatePageImport } from './generateRouteRecords'
 
+interface GenerateRouteResolverState {
+  id: number
+  matchableRecords: {
+    path: string
+    varName: string
+    score: number
+  }[]
+}
+
 export function generateRouteResolver(
   tree: PrefixTree,
   options: ResolvedOptions,
   importsMap: ImportsMap
 ): string {
-  const state = { id: 0, recordVarNames: [] as string[] }
+  const state: GenerateRouteResolverState = { id: 0, matchableRecords: [] }
   const records = tree
     .getChildrenSorted()
     .map((node) =>
       generateRouteRecord({ node, parentVar: null, state, options, importsMap })
     )
 
-  // TODO: add these imports to the import map instead
+  importsMap.add('vue-router/experimental', 'createStaticResolver')
+  importsMap.add('vue-router/experimental', 'MatcherPatternPathStatic')
+  importsMap.add('vue-router/experimental', 'MatcherPatternPathCustomParams')
+  importsMap.add('vue-router/experimental', 'MatcherPatternPathStar')
+  importsMap.add('vue-router/experimental', 'normalizeRouteRecord')
 
   return ts`
-import {
-  createStaticResolver,
-  MatcherPatternPathStatic,
-  MatcherPatternPathCustomParams,
-  MatcherPatternPathStar,
-  normalizeRouteRecord,
-} from 'vue-router/experimental'
-
 ${records.join('\n\n')}
 
 export const resolver = createStaticResolver([
-${state.recordVarNames.map((varName) => `  ${varName},`).join('\n')}
+${state.matchableRecords
+  .sort((a, b) => b.score - a.score)
+  .map(
+    ({ varName, path }) =>
+      `  ${varName},  ${' '.repeat(String(state.id).length - varName.length + 2)}// ${path}`
+  )
+  .join('\n')}
 ])
 `
 }
@@ -44,10 +55,7 @@ export function generateRouteRecord({
 }: {
   node: TreeNode
   parentVar: string | null | undefined
-  state: {
-    id: number
-    recordVarNames: string[]
-  }
+  state: GenerateRouteResolverState
   options: ResolvedOptions
   importsMap: ImportsMap
 }): string {
@@ -59,7 +67,11 @@ export function generateRouteRecord({
 
   // TODO: what about groups?
   if (node.isMatchable()) {
-    state.recordVarNames.push(varName)
+    state.matchableRecords.push({
+      path: node.fullPath,
+      varName,
+      score: node.score,
+    })
     recordName = `name: '${node.name}',`
     recordComponents = generateRouteRecordComponent(
       node,
