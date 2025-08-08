@@ -158,7 +158,7 @@
   },
   "peerDependencies": {
     "@vue/compiler-sfc": "^3.5.17",
-    "vue-router": "file:/Users/posva/oss/vuejs/router/packages/router/vue-router-4.5.1.tgz"
+    "vue-router": "^4.5.1"
   },
   "peerDependenciesMeta": {
     "vue-router": {

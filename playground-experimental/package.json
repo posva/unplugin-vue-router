@@ -1,0 +1,23 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon -w '../src/**/*.ts' -e .ts -x vite",
+    "json-server": "json-server --watch db.json --port 4000",
+    "playground:build": "vite build"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.1",
+    "@vue/compiler-sfc": "^3.5.18",
+    "@vue/tsconfig": "^0.7.0",
+    "json-server": "^0.17.4",
+    "unplugin-vue-router": "workspace:*",
+    "vite": "^7.0.6"
+  },
+  "dependencies": {
+    "mande": "^2.0.9",
+    "pinia": "^3.0.3",
+    "vue": "^3.5.18",
+    "vue-router": "file:/Users/posva/oss/vuejs/router/packages/router/vue-router-4.5.1.tgz"
+  }
+}
