@@ -1,6 +1,6 @@
 <script setup lang="ts">
 definePage({
-  name: '',
+  name: false,
 })
 </script>
 
