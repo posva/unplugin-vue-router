@@ -228,6 +228,22 @@ export class TreeNodeValueParam extends _TreeNodeValueBase {
     super(rawSegment, parent, pathSegment, subSegments)
     this.params = params
   }
+
+  get re(): string {
+    return this.subSegments
+      .filter(Boolean)
+      .map((segment) => {
+        if (typeof segment === 'string') {
+          // TODO: escape regexp from vue router source code
+          return segment.replaceAll('/', '\\/')
+        }
+        return (
+          (segment.repeatable ? '(.+)' : '([^/]+)') +
+          (segment.optional ? '?' : '')
+        )
+      })
+      .join('')
+  }
 }
 
 export type TreeNodeValue =

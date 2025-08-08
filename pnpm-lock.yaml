@@ -249,6 +249,40 @@ importers:
         specifier: ^7.1.5
         version: 7.1.6(@types/node@24.3.0)(jiti@2.5.1)(lightningcss@1.29.3)(terser@5.43.1)(yaml@2.8.1)
 
+  playground-experimental:
+    dependencies:
+      mande:
+        specifier: ^2.0.9
+        version: 2.0.9
+      pinia:
+        specifier: ^3.0.3
+        version: 3.0.3(typescript@5.9.2)(vue@3.5.21(typescript@5.9.2))
+      vue:
+        specifier: ^3.5.18
+        version: 3.5.21(typescript@5.9.2)
+      vue-router:
+        specifier: file:/Users/posva/oss/vuejs/router/packages/router/vue-router-4.5.1.tgz
+        version: file:../vuejs/router/packages/router/vue-router-4.5.1.tgz(vue@3.5.21(typescript@5.9.2))
+    devDependencies:
+      '@vitejs/plugin-vue':
+        specifier: ^6.0.1
+        version: 6.0.1(vite@7.1.6(@types/node@24.3.0)(jiti@2.5.1)(lightningcss@1.29.3)(terser@5.43.1)(yaml@2.8.1))(vue@3.5.21(typescript@5.9.2))
+      '@vue/compiler-sfc':
+        specifier: ^3.5.18
+        version: 3.5.21
+      '@vue/tsconfig':
+        specifier: ^0.7.0
+        version: 0.7.0(typescript@5.9.2)(vue@3.5.21(typescript@5.9.2))
+      json-server:
+        specifier: ^0.17.4
+        version: 0.17.4
+      unplugin-vue-router:
+        specifier: workspace:*
+        version: link:..
+      vite:
+        specifier: ^7.0.6
+        version: 7.1.6(@types/node@24.3.0)(jiti@2.5.1)(lightningcss@1.29.3)(terser@5.43.1)(yaml@2.8.1)
+
 packages:
 
   '@algolia/autocomplete-core@1.17.7':
@@ -2621,6 +2655,17 @@ packages:
 
   '@vue/test-utils@2.4.6':
     resolution: {integrity: sha512-FMxEjOpYNYiFe0GkaHsnJPXFHxQ6m4t8vI/ElPGpMWxZKpmRvQ33OIrvRXemy6yha03RxhOlQuy+gZMC3CQSow==}
+
+  '@vue/tsconfig@0.7.0':
+    resolution: {integrity: sha512-ku2uNz5MaZ9IerPPUyOHzyjhXoX2kVJaVf7hL315DC17vS6IiZRmmCPfggNbU16QTvM80+uYYy3eYJB59WCtvg==}
+    peerDependencies:
+      typescript: 5.x
+      vue: ^3.4.0
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+      vue:
+        optional: true
 
   '@vue/tsconfig@0.8.1':
     resolution: {integrity: sha512-aK7feIWPXFSUhsCP9PFqPyFOcz4ENkb8hZ2pneL6m2UjCkccvaOhC/5KCKluuBufvp2KzkbdA2W2pk20vLzu3g==}
@@ -6819,6 +6864,12 @@ packages:
     peerDependencies:
       vue: ^3.2.0
 
+  vue-router@file:../vuejs/router/packages/router/vue-router-4.5.1.tgz:
+    resolution: {integrity: sha512-aBPR/DiVyr5ns0dQiI6cAQl7JRgq7uVeM/OZGt+gy4xvc9HgZh/nPc3FaF1IzM6Efap6tQ9z1K6gvX1RT6JN+Q==, tarball: file:../vuejs/router/packages/router/vue-router-4.5.1.tgz}
+    version: 4.5.1
+    peerDependencies:
+      vue: ^3.2.0
+
   vue-tsc@2.2.10:
     resolution: {integrity: sha512-jWZ1xSaNbabEV3whpIDMbjVSVawjAyW+x1n3JeGQo7S0uv2n9F/JMgWW90tGWNFRKya4YwKMZgCtr0vRAM7DeQ==}
     hasBin: true
@@ -9573,9 +9624,9 @@ snapshots:
   '@vue/language-core@2.2.10(typescript@5.9.2)':
     dependencies:
       '@volar/language-core': 2.4.23
-      '@vue/compiler-dom': 3.5.18
+      '@vue/compiler-dom': 3.5.21
       '@vue/compiler-vue2': 2.7.16
-      '@vue/shared': 3.5.18
+      '@vue/shared': 3.5.21
       alien-signals: 1.0.13
       minimatch: 9.0.5
       muggle-string: 0.4.1
@@ -9649,6 +9700,11 @@ snapshots:
     dependencies:
       js-beautify: 1.15.1
       vue-component-type-helpers: 2.0.22
+
+  '@vue/tsconfig@0.7.0(typescript@5.9.2)(vue@3.5.21(typescript@5.9.2))':
+    optionalDependencies:
+      typescript: 5.9.2
+      vue: 3.5.21(typescript@5.9.2)
 
   '@vue/tsconfig@0.8.1(typescript@5.9.2)(vue@3.5.21(typescript@5.9.2))':
     optionalDependencies:
@@ -14550,6 +14606,11 @@ snapshots:
       vue-router: 4.5.1(vue@3.5.21(typescript@5.9.2))
 
   vue-router@4.5.1(vue@3.5.21(typescript@5.9.2)):
+    dependencies:
+      '@vue/devtools-api': 6.6.4
+      vue: 3.5.21(typescript@5.9.2)
+
+  vue-router@file:../vuejs/router/packages/router/vue-router-4.5.1.tgz(vue@3.5.21(typescript@5.9.2)):
     dependencies:
       '@vue/devtools-api': 6.6.4
       vue: 3.5.21(typescript@5.9.2)
