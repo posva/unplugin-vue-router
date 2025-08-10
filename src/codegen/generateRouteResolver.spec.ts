@@ -114,10 +114,10 @@ describe('generateRouteResolver', () => {
       })
 
       export const resolver = createStaticResolver([
-        r_0, /* /a */
-        r_2, /* /b/c */
-        r_3, /* /b/c/d */
-        r_5, /* /b/e/f */
+        r_0,  // /a
+        r_2,  // /b/c
+        r_3,  // /b/c/d
+        r_5,  // /b/e/f
       ])
       "
     `)

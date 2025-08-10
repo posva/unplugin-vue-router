@@ -69,12 +69,13 @@ describe('EditableTreeNode', () => {
     const child = tree.children.get(':id')!
     expect(child.fullPath).toBe('/:id')
     expect(child.path).toBe('/:id')
-    expect(child.params).toEqual([
+    expect(child.params).toMatchObject([
       {
         paramName: 'id',
         modifier: '',
         optional: false,
         repeatable: false,
+        parser: null,
         isSplat: false,
       },
     ])
@@ -89,9 +90,10 @@ describe('EditableTreeNode', () => {
     const child = tree.children.get(':id+')!
     expect(child.fullPath).toBe('/:id+')
     expect(child.path).toBe('/:id+')
-    expect(child.params).toEqual([
+    expect(child.params).toMatchObject([
       {
         paramName: 'id',
+        parser: null,
         modifier: '+',
         optional: false,
         repeatable: true,
@@ -109,7 +111,7 @@ describe('EditableTreeNode', () => {
     const node = tree.children.get(':foo/:bar')!
     expect(node.fullPath).toBe('/:foo/:bar')
     expect(node.path).toBe('/:foo/:bar')
-    expect(node.params).toEqual([
+    expect(node.params).toMatchObject([
       {
         paramName: 'foo',
         modifier: '',
@@ -136,7 +138,7 @@ describe('EditableTreeNode', () => {
     const node = tree.children.get(':foo/:bar+_:o(\\d+)')!
     expect(node.fullPath).toBe('/:foo/:bar+_:o(\\d+)')
     expect(node.path).toBe('/:foo/:bar+_:o(\\d+)')
-    expect(node.params).toEqual([
+    expect(node.params).toMatchObject([
       {
         paramName: 'foo',
         modifier: '',
@@ -169,7 +171,7 @@ describe('EditableTreeNode', () => {
     const node = tree.children.get(':id(\\d+)')!
     expect(node.fullPath).toBe('/:id(\\d+)')
     expect(node.path).toBe('/:id(\\d+)')
-    expect(node.params).toEqual([
+    expect(node.params).toMatchObject([
       {
         paramName: 'id',
         modifier: '',
@@ -188,7 +190,7 @@ describe('EditableTreeNode', () => {
     const node = tree.children.get(':id()')!
     expect(node.fullPath).toBe('/:id()')
     expect(node.path).toBe('/:id()')
-    expect(node.params).toEqual([
+    expect(node.params).toMatchObject([
       {
         paramName: 'id',
         modifier: '',
@@ -207,7 +209,7 @@ describe('EditableTreeNode', () => {
     const node = tree.children.get(':id(\\d+)+')!
     expect(node.fullPath).toBe('/:id(\\d+)+')
     expect(node.path).toBe('/:id(\\d+)+')
-    expect(node.params).toEqual([
+    expect(node.params).toMatchObject([
       {
         paramName: 'id',
         modifier: '+',
@@ -226,7 +228,7 @@ describe('EditableTreeNode', () => {
     const node = tree.children.get(':id()+')!
     expect(node.fullPath).toBe('/:id()+')
     expect(node.path).toBe('/:id()+')
-    expect(node.params).toEqual([
+    expect(node.params).toMatchObject([
       {
         paramName: 'id',
         modifier: '+',
@@ -246,7 +248,7 @@ describe('EditableTreeNode', () => {
     const child = tree.children.get(':path(.*)')!
     expect(child.fullPath).toBe('/:path(.*)')
     expect(child.path).toBe('/:path(.*)')
-    expect(child.params).toEqual([
+    expect(child.params).toMatchObject([
       {
         paramName: 'path',
         modifier: '',

@@ -224,8 +224,8 @@ importers:
         specifier: ^3.5.18
         version: 3.5.18(typescript@5.9.2)
       vue-router:
-        specifier: file:/Users/posva/oss/vuejs/router/packages/router/vue-router-4.5.1.tgz
-        version: file:../vuejs/router/packages/router/vue-router-4.5.1.tgz(vue@3.5.18(typescript@5.9.2))
+        specifier: ^4.5.1
+        version: 4.5.1(vue@3.5.18(typescript@5.9.2))
     devDependencies:
       '@tanstack/vue-query-devtools':
         specifier: ^5.84.0
@@ -251,9 +251,6 @@ importers:
 
   playground-experimental:
     dependencies:
-      '@tanstack/vue-query':
-        specifier: ^5.83.1
-        version: 5.83.1(vue@3.5.18(typescript@5.9.2))
       mande:
         specifier: ^2.0.9
         version: 2.0.9
@@ -267,9 +264,6 @@ importers:
         specifier: file:/Users/posva/oss/vuejs/router/packages/router/vue-router-4.5.1.tgz
         version: file:../vuejs/router/packages/router/vue-router-4.5.1.tgz(vue@3.5.18(typescript@5.9.2))
     devDependencies:
-      '@tanstack/vue-query-devtools':
-        specifier: ^5.84.0
-        version: 5.84.0(@tanstack/vue-query@5.83.1(vue@3.5.18(typescript@5.9.2)))(vue@3.5.18(typescript@5.9.2))
       '@vitejs/plugin-vue':
         specifier: ^6.0.1
         version: 6.0.1(vite@7.1.1(@types/node@22.17.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.40.0)(yaml@2.8.1))(vue@3.5.18(typescript@5.9.2))
