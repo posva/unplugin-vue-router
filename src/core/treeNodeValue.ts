@@ -229,6 +229,7 @@ export interface TreeRouteParam {
   optional: boolean
   repeatable: boolean
   isSplat: boolean
+  parser: string | null
 }
 
 export class TreeNodeValueParam extends _TreeNodeValueBase {
@@ -252,8 +253,6 @@ export class TreeNodeValueParam extends _TreeNodeValueBase {
         p.isSplat ? 500 : (p.optional ? 10 : 0) + (p.repeatable ? 20 : 0)
       )
     )
-
-    console.log(this.subSegments)
 
     return (
       80 -
@@ -384,6 +383,7 @@ const enum ParseFileSegmentState {
   static,
   paramOptional, // within [[]] or []
   param, // within []
+  paramParser, // [param=type]
   modifier, // after the ]
 }
 
@@ -414,6 +414,7 @@ function parseFileSegment(
   { dotNesting = true }: ParseSegmentOptions = {}
 ): [string, TreeRouteParam[], SubSegment[]] {
   let buffer = ''
+  let paramParserBuffer = ''
   let state: ParseFileSegmentState = ParseFileSegmentState.static
   const params: TreeRouteParam[] = []
   let pathSegment = ''
@@ -432,6 +433,7 @@ function parseFileSegment(
       subSegments.push(buffer)
     } else if (state === ParseFileSegmentState.modifier) {
       currentTreeRouteParam.paramName = buffer
+      currentTreeRouteParam.parser = paramParserBuffer || null
       currentTreeRouteParam.modifier = currentTreeRouteParam.optional
         ? currentTreeRouteParam.repeatable
           ? '*'
@@ -439,7 +441,11 @@ function parseFileSegment(
         : currentTreeRouteParam.repeatable
           ? '+'
           : ''
+
+      // reset the buffers
       buffer = ''
+      paramParserBuffer = ''
+
       pathSegment += `:${currentTreeRouteParam.paramName}${
         currentTreeRouteParam.isSplat
           ? '(.*)'
@@ -491,6 +497,9 @@ function parseFileSegment(
       } else if (c === '.') {
         currentTreeRouteParam.isSplat = true
         pos += 2 // skip the other 2 dots
+      } else if (c === '=') {
+        state = ParseFileSegmentState.paramParser
+        paramParserBuffer = ''
       } else {
         buffer += c
       }
@@ -504,12 +513,23 @@ function parseFileSegment(
       consumeBuffer()
       // start again
       state = ParseFileSegmentState.static
+    } else if (state === ParseFileSegmentState.paramParser) {
+      if (c === ']') {
+        if (currentTreeRouteParam.optional) {
+          // skip the next ]
+          pos++
+        }
+        state = ParseFileSegmentState.modifier
+      } else {
+        paramParserBuffer += c
+      }
     }
   }
 
   if (
     state === ParseFileSegmentState.param ||
-    state === ParseFileSegmentState.paramOptional
+    state === ParseFileSegmentState.paramOptional ||
+    state === ParseFileSegmentState.paramParser
   ) {
     throw new Error(`Invalid segment: "${segment}"`)
   }
@@ -674,6 +694,7 @@ function parseRawPathSegment(
 function createEmptyRouteParam(): TreeRouteParam {
   return {
     paramName: '',
+    parser: null,
     modifier: '',
     optional: false,
     repeatable: false,

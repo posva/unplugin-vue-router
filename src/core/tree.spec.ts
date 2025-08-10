@@ -43,6 +43,103 @@ describe('Tree', () => {
     expect(child.children.size).toBe(0)
   })
 
+  it('parses a custom param type', () => {
+    const tree = new PrefixTree(RESOLVED_OPTIONS)
+    tree.insert('[id=int]', '[id=int].vue')
+    const child = tree.children.get('[id=int]')!
+    expect(child).toBeDefined()
+    expect(child.value).toMatchObject({
+      rawSegment: '[id=int]',
+      params: [
+        {
+          paramName: 'id',
+          parser: 'int',
+        },
+      ],
+      fullPath: '/:id',
+      _type: TreeNodeType.param,
+    })
+  })
+
+  it('parses a repeatable custom param type', () => {
+    const tree = new PrefixTree(RESOLVED_OPTIONS)
+    tree.insert('[id=int]+', '[id=int]+.vue')
+    const child = tree.children.get('[id=int]+')!
+    expect(child).toBeDefined()
+    expect(child.value).toMatchObject({
+      rawSegment: '[id=int]+',
+      params: [
+        {
+          paramName: 'id',
+          parser: 'int',
+          repeatable: true,
+          modifier: '+',
+        },
+      ],
+      fullPath: '/:id+',
+      _type: TreeNodeType.param,
+    })
+  })
+
+  it('parses an optional custom param type', () => {
+    const tree = new PrefixTree(RESOLVED_OPTIONS)
+    tree.insert('[[id=int]]', '[[id=int]].vue')
+    const child = tree.children.get('[[id=int]]')!
+    expect(child).toBeDefined()
+    expect(child.value).toMatchObject({
+      rawSegment: '[[id=int]]',
+      params: [
+        {
+          paramName: 'id',
+          parser: 'int',
+          optional: true,
+          modifier: '?',
+        },
+      ],
+      fullPath: '/:id?',
+      _type: TreeNodeType.param,
+    })
+  })
+
+  it('parses a repeatable optional custom param type', () => {
+    const tree = new PrefixTree(RESOLVED_OPTIONS)
+    tree.insert('[[id=int]]+', '[[id=int]]+.vue')
+    const child = tree.children.get('[[id=int]]+')!
+    expect(child).toBeDefined()
+    expect(child.value).toMatchObject({
+      rawSegment: '[[id=int]]+',
+      params: [
+        {
+          paramName: 'id',
+          parser: 'int',
+          repeatable: true,
+          optional: true,
+          modifier: '*',
+        },
+      ],
+      fullPath: '/:id*',
+      _type: TreeNodeType.param,
+    })
+  })
+
+  it('parses a custom param type with sub segments', () => {
+    const tree = new PrefixTree(RESOLVED_OPTIONS)
+    tree.insert('a-[id=int]-b', 'file.vue')
+    const child = tree.children.get('a-[id=int]-b')!
+    expect(child).toBeDefined()
+    expect(child.value).toMatchObject({
+      rawSegment: 'a-[id=int]-b',
+      params: [
+        {
+          paramName: 'id',
+          parser: 'int',
+        },
+      ],
+      fullPath: '/a-:id-b',
+      _type: TreeNodeType.param,
+    })
+  })
+
   it('separate param names from static segments', () => {
     const tree = new PrefixTree(RESOLVED_OPTIONS)
     tree.insert('[id]_a', '[id]_a.vue')
@@ -452,13 +549,13 @@ describe('Tree', () => {
       path: '/:a()/new-b',
     })
     expect(node.params).toHaveLength(1)
-    expect(node.params[0]).toEqual({
+    expect(node.params[0]).toMatchObject({
       paramName: 'a',
       isSplat: false,
       modifier: '',
       optional: false,
       repeatable: false,
-    } satisfies TreeRouteParam)
+    } satisfies Partial<TreeRouteParam>)
   })
 
   it('removes trailing slash from path but not from name', () => {
