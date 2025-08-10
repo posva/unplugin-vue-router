@@ -21,7 +21,7 @@ declare module 'vue-router/auto-routes' {
     '/(home)': RouteRecordInfo<'/(home)', '/', Record<never, never>, Record<never, never>>,
     '/[name]': RouteRecordInfo<'/[name]', '/:name', { name: ParamValue<true> }, { name: ParamValue<false> }>,
     '/a.[b].c.[d]': RouteRecordInfo<'/a.[b].c.[d]', '/a/:b/c/:d', { b: ParamValue<true>, d: ParamValue<true> }, { b: ParamValue<false>, d: ParamValue<false> }>,
-    '/users/[userId]': RouteRecordInfo<'/users/[userId]', '/users/:userId', { userId: ParamValue<true> }, { userId: ParamValue<false> }>,
+    '/users/[userId=int]': RouteRecordInfo<'/users/[userId=int]', '/users/:userId', { userId: ParamValue<true> }, { userId: ParamValue<false> }>,
     '/users/sub-[first]-[second]': RouteRecordInfo<'/users/sub-[first]-[second]', '/users/sub-:first-:second', { first: ParamValue<true>, second: ParamValue<true> }, { first: ParamValue<false>, second: ParamValue<false> }>,
   }
 
@@ -48,8 +48,8 @@ declare module 'vue-router/auto-routes' {
       routes: '/a.[b].c.[d]'
       views: never
     }
-    'src/pages/users/[userId].vue': {
-      routes: '/users/[userId]'
+    'src/pages/users/[userId=int].vue': {
+      routes: '/users/[userId=int]'
       views: never
     }
     'src/pages/users/sub-[first]-[second].vue': {

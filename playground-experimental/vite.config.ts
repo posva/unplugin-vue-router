@@ -58,10 +58,6 @@ export default defineConfig({
         //   route.delete()
         // }
 
-        if (route.name === '/a.[b].c.[d]') {
-          console.log(route.node)
-        }
-
         if (route.name === '/[name]') {
           // TODO: implement aliases
           // route.addAlias('/hello-vite-:name')
