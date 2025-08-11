@@ -254,4 +254,30 @@ export default {
       path: '/custom',
     })
   })
+
+  it('handles syntax errors gracefully', async () => {
+    const invalidCode = `
+<script setup>
+definePage({ 2, 3 }) // invalid syntax
+</script>
+
+<template>
+  <div>hello</div>
+</template>
+    `
+
+    // Should not throw and return undefined for normal transform
+    const result = await definePageTransform({
+      code: invalidCode,
+      id: 'src/pages/invalid.vue',
+    })
+    expect(result).toBeUndefined()
+
+    // Should return empty object for definePage extraction
+    const extractResult = await definePageTransform({
+      code: invalidCode,
+      id: 'src/pages/invalid.vue?definePage&vue',
+    })
+    expect(extractResult).toBe('export default {}')
+  })
 })
