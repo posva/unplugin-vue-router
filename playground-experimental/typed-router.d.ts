@@ -19,10 +19,10 @@ declare module 'vue-router/auto-routes' {
    */
   export interface RouteNamedMap {
     '/(home)': RouteRecordInfo<'/(home)', '/', Record<never, never>, Record<never, never>>,
-    '/[name]': RouteRecordInfo<'/[name]', '/:name', { name: ParamValue<true> }, { name: ParamValue<false> }>,
-    '/a.[b].c.[d]': RouteRecordInfo<'/a.[b].c.[d]', '/a/:b/c/:d', { b: ParamValue<true>, d: ParamValue<true> }, { b: ParamValue<false>, d: ParamValue<false> }>,
-    '/users/[userId=int]': RouteRecordInfo<'/users/[userId=int]', '/users/:userId', { userId: ParamValue<true> }, { userId: ParamValue<false> }>,
-    '/users/sub-[first]-[second]': RouteRecordInfo<'/users/sub-[first]-[second]', '/users/sub-:first-:second', { first: ParamValue<true>, second: ParamValue<true> }, { first: ParamValue<false>, second: ParamValue<false> }>,
+    '/[name]': RouteRecordInfo<'/[name]', '/:name', { name: ParamValue<false> }, { name: ParamValue<false> }>,
+    '/a.[b].c.[d]': RouteRecordInfo<'/a.[b].c.[d]', '/a/:b/c/:d', { b: ParamValue<false>, d: ParamValue<false> }, { b: ParamValue<false>, d: ParamValue<false> }>,
+    '/users/[userId=int]': RouteRecordInfo<'/users/[userId=int]', '/users/:userId', { userId: number }, { userId: number }>,
+    '/users/sub-[first]-[second]': RouteRecordInfo<'/users/sub-[first]-[second]', '/users/sub-:first-:second', { first: ParamValue<false>, second: ParamValue<false> }, { first: ParamValue<false>, second: ParamValue<false> }>,
   }
 
   /**

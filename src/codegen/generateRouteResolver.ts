@@ -2,6 +2,7 @@ import { PrefixTree, type TreeNode } from '../core/tree'
 import { ImportsMap } from '../core/utils'
 import { type ResolvedOptions } from '../options'
 import { ts } from '../utils'
+import { generateParamOptions } from './generateParamParsers'
 import { generatePageImport } from './generateRouteRecords'
 
 interface GenerateRouteResolverState {
@@ -87,7 +88,7 @@ export function generateRouteRecord({
   const recordDeclaration = `
 const ${varName} = normalizeRouteRecord({
   ${recordName}
-  ${generateRouteRecordPathMatcher({ node })}
+  ${generateRouteRecordPathMatcher({ node, importsMap })}
   ${recordComponents}
   ${parentVar ? `parent: ${parentVar},` : ''}
 })
@@ -132,7 +133,13 @@ ${files
 ${indentStr}},`
 }
 
-export function generateRouteRecordPathMatcher({ node }: { node: TreeNode }) {
+export function generateRouteRecordPathMatcher({
+  node,
+  importsMap,
+}: {
+  node: TreeNode
+  importsMap: ImportsMap
+}) {
   if (!node.isMatchable()) {
     return ''
     // TODO: do we really need isGroup?
@@ -141,7 +148,7 @@ export function generateRouteRecordPathMatcher({ node }: { node: TreeNode }) {
   } else if (node.value.isParam()) {
     return `path: new MatcherPatternPathCustomParams(
     ${node.regexp},
-    ${JSON.stringify(node.matcherParams)},
+    ${generateParamOptions(node.params, importsMap)},
     ${JSON.stringify(node.matcherParts)},
   ),`
   }
