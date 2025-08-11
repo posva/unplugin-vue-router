@@ -156,8 +156,8 @@ definePage({
     expect(result?.code).toMatchSnapshot()
   })
 
-  it('throws if definePage uses a variable from the setup', async () => {
-    const code = vue`
+  it('handles definePage using a variable from setup gracefully', async () => {
+    const code = `
 <script setup>
 const a = 1
 definePage({
@@ -165,13 +165,13 @@ definePage({
 })
 </script>
 `
-    // the function syntax works with sync and async errors
-    await expect(async () => {
-      await definePageTransform({
-        code,
-        id: 'src/pages/basic.vue&definePage&vue',
-      })
-    }).rejects.toThrowError()
+    const result = await definePageTransform({
+      code,
+      id: 'src/pages/basic.vue&definePage&vue',
+    })
+
+    // Should return empty object instead of throwing
+    expect(result).toBe('export default {}')
   })
 
   it('extracts name and path', () => {
@@ -310,6 +310,130 @@ export default {
     ).toEqual({
       name: 'custom',
       path: '/custom',
+    })
+  })
+
+  describe('error handling', () => {
+    it('handles syntax errors gracefully when extracting definePage', async () => {
+      const codeWithSyntaxError = `
+<script setup>
+definePage({
+  name: 'test',,  // syntax error: extra comma
+  path: '/test'
+})
+</script>
+
+<template>
+  <div>hello</div>
+</template>
+      `
+
+      const result = await definePageTransform({
+        code: codeWithSyntaxError,
+        id: 'src/pages/broken.vue?definePage&vue',
+      })
+
+      // Should return empty object instead of crashing
+      expect(result).toBe('export default {}')
+    })
+
+    it('handles syntax errors gracefully when removing definePage from source', async () => {
+      const codeWithSyntaxError = `
+<script setup>
+const a = 1
+definePage({
+  name: 'test',,  // syntax error: extra comma
+  path: '/test'
+})
+const b = 1
+</script>
+
+<template>
+  <div>hello</div>
+</template>
+      `
+
+      const result = await definePageTransform({
+        code: codeWithSyntaxError,
+        id: 'src/pages/broken.vue',
+      })
+
+      // Should return undefined (no transform) instead of crashing
+      expect(result).toBeUndefined()
+    })
+
+    it('handles malformed definePage object gracefully', async () => {
+      const codeWithMalformedObject = `
+<script setup>
+definePage({
+  name: 'test'
+  path: '/test'  // missing comma
+})
+</script>
+      `
+
+      const result = await definePageTransform({
+        code: codeWithMalformedObject,
+        id: 'src/pages/malformed.vue?definePage&vue',
+      })
+
+      expect(result).toBe('export default {}')
+    })
+
+    it('handles completely invalid JavaScript syntax gracefully', async () => {
+      const codeWithInvalidSyntax = `
+<script setup>
+definePage({
+  name: 'test',
+  path: '/test'
+  invalid javascript syntax here ###
+})
+</script>
+      `
+
+      const result = await definePageTransform({
+        code: codeWithInvalidSyntax,
+        id: 'src/pages/invalid.vue?definePage&vue',
+      })
+
+      expect(result).toBe('export default {}')
+    })
+
+    it('handles extractDefinePageNameAndPath with syntax errors gracefully', async () => {
+      const codeWithSyntaxError = `
+<script setup>
+definePage({
+  name: 'test',,  // syntax error: extra comma
+  path: '/test'
+})
+</script>
+      `
+
+      const result = await extractDefinePageNameAndPath(
+        codeWithSyntaxError,
+        'src/pages/broken.vue'
+      )
+
+      // Should return null/undefined instead of crashing
+      expect(result).toBeUndefined()
+    })
+
+    it('handles unclosed brackets in definePage gracefully', async () => {
+      const codeWithUnclosedBracket = `
+<script setup>
+definePage({
+  name: 'test',
+  path: '/test'
+  // missing closing bracket
+</script>
+      `
+
+      const result = await definePageTransform({
+        code: codeWithUnclosedBracket,
+        id: 'src/pages/unclosed.vue?definePage&vue',
+      })
+
+      expect(result).toBe('export default {}')
     })
   })
 })
