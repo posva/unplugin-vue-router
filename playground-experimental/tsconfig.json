@@ -9,13 +9,19 @@
     "../src"
   ],
   "compilerOptions": {
-    // "baseUrl": ".",
+    "baseUrl": ".",
     "composite": true,
     "moduleResolution": "Bundler",
     "paths": {
-      "@/*": ["./src/*"],
-      "unplugin-vue-router/runtime": ["../src/runtime.ts"],
-      "unplugin-vue-router/types": ["../src/types.ts"],
+      "@/*": [
+        "./src/*"
+      ],
+      "unplugin-vue-router/runtime": [
+        "../src/runtime.ts"
+      ],
+      "unplugin-vue-router/types": [
+        "../src/types.ts"
+      ],
       "unplugin-vue-router/data-loaders": [
         "../src/data-loaders/entries/index.ts"
       ],
