@@ -63,6 +63,7 @@ declare module 'vue-router/auto-routes' {
     '/nested-group/(nested-group-first-level)/nested-group-first-level-child': RouteRecordInfo<'/nested-group/(nested-group-first-level)/nested-group-first-level-child', '/nested-group/nested-group-first-level-child', Record<never, never>, Record<never, never>>,
     '/partial-[name]': RouteRecordInfo<'/partial-[name]', '/partial-:name', { name: ParamValue<true> }, { name: ParamValue<false> }>,
     '/custom-path': RouteRecordInfo<'/custom-path', '/surprise-:id(\d+)', Record<never, never>, Record<never, never>>,
+    '/syntax-error-test': RouteRecordInfo<'/syntax-error-test', '/syntax-error-test', Record<never, never>, Record<never, never>>,
     '/test-[a-id]': RouteRecordInfo<'/test-[a-id]', '/test-:a-id', { aId: ParamValue<true> }, { aId: ParamValue<false> }>,
     '/todos/': RouteRecordInfo<'/todos/', '/todos', Record<never, never>, Record<never, never>>,
     '/todos/+layout': RouteRecordInfo<'/todos/+layout', '/todos/+layout', Record<never, never>, Record<never, never>>,
@@ -281,6 +282,10 @@ declare module 'vue-router/auto-routes' {
     }
     'src/pages/custom-path.vue': {
       routes: '/custom-path'
+      views: never
+    }
+    'src/pages/syntax-error-test.vue': {
+      routes: '/syntax-error-test'
       views: never
     }
     'src/pages/test-[a-id].vue': {

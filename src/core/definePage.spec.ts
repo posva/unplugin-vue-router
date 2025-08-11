@@ -279,5 +279,47 @@ definePage({ 2, 3 }) // invalid syntax
       id: 'src/pages/invalid.vue?definePage&vue',
     })
     expect(extractResult).toBe('export default {}')
+
+    // extractDefinePageNameAndPath should also handle syntax errors gracefully
+    const nameAndPath = await extractDefinePageNameAndPath(invalidCode, 'src/pages/invalid.vue')
+    expect(nameAndPath).toBeUndefined()
+  })
+
+  it('handles various syntax errors in definePage', async () => {
+    // Test with missing closing brace
+    const invalidCode1 = `
+<script setup>
+definePage({ name: 'test'  // missing closing brace
+</script>
+
+<template><div>test</div></template>
+    `
+
+    const result1 = await definePageTransform({
+      code: invalidCode1,
+      id: 'src/pages/invalid1.vue',
+    })
+    expect(result1).toBeUndefined()
+
+    // Test with invalid property syntax
+    const invalidCode2 = `
+<script setup>
+definePage({ 123abc: 'invalid' }) // invalid property name
+</script>
+
+<template><div>test</div></template>
+    `
+
+    const result2 = await definePageTransform({
+      code: invalidCode2,
+      id: 'src/pages/invalid2.vue',
+    })
+    expect(result2).toBeUndefined()
+
+    const extractResult2 = await definePageTransform({
+      code: invalidCode2,
+      id: 'src/pages/invalid2.vue?definePage&vue',
+    })
+    expect(extractResult2).toBe('export default {}')
   })
 })

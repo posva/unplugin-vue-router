@@ -35,17 +35,26 @@ function getCodeAst(code: string, id: string) {
   let offset = 0
   let ast: Program | undefined
   const lang = getLang(id.split(MACRO_DEFINE_PAGE_QUERY)[0]!)
-  if (lang === 'vue') {
-    const sfc = parseSFC(code, id)
-    if (sfc.scriptSetup) {
-      ast = sfc.getSetupAst()
-      offset = sfc.scriptSetup.loc.start.offset
-    } else if (sfc.script) {
-      ast = sfc.getScriptAst()
-      offset = sfc.script.loc.start.offset
+  
+  try {
+    if (lang === 'vue') {
+      const sfc = parseSFC(code, id)
+      if (sfc.scriptSetup) {
+        ast = sfc.getSetupAst()
+        offset = sfc.scriptSetup.loc.start.offset
+      } else if (sfc.script) {
+        ast = sfc.getScriptAst()
+        offset = sfc.script.loc.start.offset
+      }
+    } else if (/[jt]sx?$/.test(lang)) {
+      ast = babelParse(code, lang)
     }
-  } else if (/[jt]sx?$/.test(lang)) {
-    ast = babelParse(code, lang)
+  } catch (error) {
+    // If there's a syntax error in the code, warn and return empty results
+    // This prevents crashing the dev server when there are syntax errors
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    warn(`[${id}]: Failed to parse code due to syntax error: ${errorMessage}`)
+    return { ast: undefined, offset: 0, definePageNodes: [] }
   }
 
   const definePageNodes: CallExpression[] = (ast?.body || [])
@@ -78,7 +87,10 @@ export function definePageTransform({
   }
 
   const { ast, offset, definePageNodes } = getCodeAst(code, id)
-  if (!ast) return
+  if (!ast) {
+    // If parsing failed but we're extracting definePage, return empty object
+    return isExtractingDefinePage ? 'export default {}' : undefined
+  }
 
   if (!definePageNodes.length) {
     return isExtractingDefinePage
