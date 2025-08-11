@@ -261,7 +261,7 @@ if (import.meta.hot) {
     return _generateDTS({
       vueRouterModule: MODULE_VUE_ROUTER_AUTO,
       routesModule: MODULE_ROUTES_PATH,
-      routeNamedMap: generateRouteNamedMap(routeTree, options),
+      routeNamedMap: generateRouteNamedMap(routeTree),
       routeFileInfoMap: generateRouteFileInfoMap(routeTree, {
         root,
       }),
