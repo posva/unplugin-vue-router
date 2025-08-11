@@ -1,4 +1,5 @@
 import { TreeNode } from '../core/tree'
+import { ParamParserTypeInfo } from './generateParamParsers'
 
 export function generateRouteParams(node: TreeNode, isRaw: boolean): string {
   // node.params is a getter so we compute it once
@@ -16,6 +17,34 @@ export function generateRouteParams(node: TreeNode, isRaw: boolean): string {
                   ? `ParamValueZeroOrOne<${isRaw}>`
                   : `ParamValue<${isRaw}>`)
         )
+        .join(', ')} }`
+    : // no params allowed
+      'Record<never, never>'
+}
+
+export function EXPERIMENTAL_generateRouteParams(
+  node: TreeNode,
+  types: Array<ParamParserTypeInfo | null>
+) {
+  // node.params is a getter so we compute it once
+  const nodeParams = node.params
+  return nodeParams.length > 0
+    ? `{ ${nodeParams
+        .map((param, i) => {
+          const type = types[i]
+          const isRaw = false
+          return `${param.paramName}${param.optional ? '?' : ''}: ${
+            type
+              ? type[1] || '/* INVALID */ unknown'
+              : param.modifier === '+'
+                ? `ParamValueOneOrMore<${isRaw}>`
+                : param.modifier === '*'
+                  ? `ParamValueZeroOrMore<${isRaw}>`
+                  : param.modifier === '?'
+                    ? `ParamValueZeroOrOne<${isRaw}>`
+                    : `ParamValue<${isRaw}>`
+          }`
+        })
         .join(', ')} }`
     : // no params allowed
       'Record<never, never>'
