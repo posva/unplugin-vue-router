@@ -22,6 +22,7 @@ import { join } from 'pathe'
 import { appendExtensionListToPattern } from './core/utils'
 import { MACRO_DEFINE_PAGE_QUERY } from './core/definePage'
 import { createAutoExportPlugin } from './data-loaders/auto-exports'
+import { createAutoHmrPlugin } from './auto-hmr'
 
 export type * from './types'
 
@@ -199,6 +200,14 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
         },
         loadersPathsGlobs: options.experimental.autoExportsDataLoaders,
         root: options.root,
+      })
+    )
+  }
+
+  if (options.autoHmr) {
+    plugins.push(
+      createAutoHmrPlugin({
+        modulePath: MODULE_ROUTES_PATH,
       })
     )
   }
