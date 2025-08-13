@@ -235,7 +235,7 @@ export interface Options {
 
 export interface ParamMatcherOptions {
   /**
-   * Folder(s) to scan for param matchers.
+   * Folder(s) to scan for param matchers. Set to an empty array to disable the feature.
    *
    * @default `['src/params']`
    */
@@ -321,22 +321,38 @@ export function resolveOptions(options: Options) {
     src: resolve(root, routeOption.src),
   }))
 
-  const experimental = { ...options.experimental }
-  experimental.paramMatchers =
-    experimental.paramMatchers &&
-    (experimental.paramMatchers === true
+  const paramMatchers = options.experimental?.paramMatchers
+    ? options.experimental.paramMatchers === true
       ? DEFAULT_PARAM_MATCHER_OPTIONS
       : {
           ...DEFAULT_PARAM_MATCHER_OPTIONS,
-          ...experimental.paramMatchers,
-        })
+          ...options.experimental.paramMatchers,
+        }
+    : // this way we can do paramMatchers?.dir
+      null
 
-  if (experimental.autoExportsDataLoaders) {
-    experimental.autoExportsDataLoaders = (
-      Array.isArray(experimental.autoExportsDataLoaders)
-        ? experimental.autoExportsDataLoaders
-        : [experimental.autoExportsDataLoaders]
-    ).map((path) => resolve(root, path))
+  const paramMatchersDir = (
+    paramMatchers?.dir
+      ? isArray(paramMatchers.dir)
+        ? paramMatchers.dir
+        : [paramMatchers.dir]
+      : []
+  ).map((dir) => resolve(root, dir))
+
+  const autoExportsDataLoaders = options.experimental?.autoExportsDataLoaders
+    ? (isArray(options.experimental.autoExportsDataLoaders)
+        ? options.experimental.autoExportsDataLoaders
+        : [options.experimental.autoExportsDataLoaders]
+      ).map((path) => resolve(root, path))
+    : undefined
+
+  const experimental = {
+    ...options.experimental,
+    autoExportsDataLoaders,
+    paramMatchers: {
+      ...paramMatchers,
+      dir: paramMatchersDir,
+    },
   }
 
   if (options.extensions) {
