@@ -90,8 +90,8 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
         },
       },
 
-      buildStart() {
-        return ctx.scanPages(options.watch)
+      async buildStart() {
+        await ctx.scanPages(options.watch)
       },
 
       buildEnd() {

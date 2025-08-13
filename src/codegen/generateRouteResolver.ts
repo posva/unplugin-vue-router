@@ -2,7 +2,7 @@ import { PrefixTree, type TreeNode } from '../core/tree'
 import { ImportsMap } from '../core/utils'
 import { type ResolvedOptions } from '../options'
 import { ts } from '../utils'
-import { generateParamOptions } from './generateParamParsers'
+import { generateParamsOptions, ParamParsersMap } from './generateParamParsers'
 import { generatePageImport } from './generateRouteRecords'
 
 interface GenerateRouteResolverState {
@@ -17,13 +17,21 @@ interface GenerateRouteResolverState {
 export function generateRouteResolver(
   tree: PrefixTree,
   options: ResolvedOptions,
-  importsMap: ImportsMap
+  importsMap: ImportsMap,
+  paramParsersMap: ParamParsersMap
 ): string {
   const state: GenerateRouteResolverState = { id: 0, matchableRecords: [] }
   const records = tree
     .getChildrenSorted()
     .map((node) =>
-      generateRouteRecord({ node, parentVar: null, state, options, importsMap })
+      generateRouteRecord({
+        node,
+        parentVar: null,
+        state,
+        options,
+        importsMap,
+        paramParsersMap,
+      })
     )
 
   importsMap.add('vue-router/experimental', 'createStaticResolver')
@@ -53,12 +61,14 @@ export function generateRouteRecord({
   state,
   options,
   importsMap,
+  paramParsersMap,
 }: {
   node: TreeNode
   parentVar: string | null | undefined
   state: GenerateRouteResolverState
   options: ResolvedOptions
   importsMap: ImportsMap
+  paramParsersMap: ParamParsersMap
 }): string {
   // TODO: skip nodes that add no value. Maybe it should be done at the level of the tree?
   const varName = `r_${state.id++}`
@@ -88,7 +98,7 @@ export function generateRouteRecord({
   const recordDeclaration = `
 const ${varName} = normalizeRouteRecord({
   ${recordName}
-  ${generateRouteRecordPathMatcher({ node, importsMap })}
+  ${generateRouteRecordPathMatcher({ node, importsMap, paramParsersMap })}
   ${recordComponents}
   ${parentVar ? `parent: ${parentVar},` : ''}
 })
@@ -106,6 +116,7 @@ const ${varName} = normalizeRouteRecord({
       state,
       options,
       importsMap,
+      paramParsersMap,
     })
   )
 
@@ -136,9 +147,11 @@ ${indentStr}},`
 export function generateRouteRecordPathMatcher({
   node,
   importsMap,
+  paramParsersMap,
 }: {
   node: TreeNode
   importsMap: ImportsMap
+  paramParsersMap: ParamParsersMap
 }) {
   if (!node.isMatchable()) {
     return ''
@@ -148,7 +161,7 @@ export function generateRouteRecordPathMatcher({
   } else if (node.value.isParam()) {
     return `path: new MatcherPatternPathCustomParams(
     ${node.regexp},
-    ${generateParamOptions(node.params, importsMap)},
+    ${generateParamsOptions(node.params, importsMap, paramParsersMap)},
     ${JSON.stringify(node.matcherParts)},
   ),`
   }
