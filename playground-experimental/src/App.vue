@@ -57,6 +57,16 @@ if (Math.random() > 2) {
           <li>
             <RouterLink to="/">Home</RouterLink>
           </li>
+          <li>
+            <RouterLink to="/users/24" #default="{ href }">{{
+              href
+            }}</RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/events/1992-03-24" #default="{ href }">{{
+              href
+            }}</RouterLink>
+          </li>
         </ul>
       </nav>
     </div>

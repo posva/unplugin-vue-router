@@ -5,6 +5,8 @@
 // It's recommended to commit this file.
 // Make sure to add this file to your tsconfig.json file as an "includes" or "files" entry.
 
+type Param_date = ReturnType<NonNullable<typeof import('./src/params/date.ts').parser['get']>>
+
 declare module 'vue-router/auto-routes' {
   import type {
     RouteRecordInfo,
@@ -21,6 +23,7 @@ declare module 'vue-router/auto-routes' {
     '/(home)': RouteRecordInfo<'/(home)', '/', Record<never, never>, Record<never, never>>,
     '/[name]': RouteRecordInfo<'/[name]', '/:name', { name: ParamValue<false> }, { name: ParamValue<false> }>,
     '/a.[b].c.[d]': RouteRecordInfo<'/a.[b].c.[d]', '/a/:b/c/:d', { b: ParamValue<false>, d: ParamValue<false> }, { b: ParamValue<false>, d: ParamValue<false> }>,
+    '/events/[when=date]': RouteRecordInfo<'/events/[when=date]', '/events/:when', { when: Param_date }, { when: Param_date }>,
     '/users/[userId=int]': RouteRecordInfo<'/users/[userId=int]', '/users/:userId', { userId: number }, { userId: number }>,
     '/users/sub-[first]-[second]': RouteRecordInfo<'/users/sub-[first]-[second]', '/users/sub-:first-:second', { first: ParamValue<false>, second: ParamValue<false> }, { first: ParamValue<false>, second: ParamValue<false> }>,
   }
@@ -46,6 +49,10 @@ declare module 'vue-router/auto-routes' {
     }
     'src/pages/a.[b].c.[d].vue': {
       routes: '/a.[b].c.[d]'
+      views: never
+    }
+    'src/pages/events/[when=date].vue': {
+      routes: '/events/[when=date]'
       views: never
     }
     'src/pages/users/[userId=int].vue': {

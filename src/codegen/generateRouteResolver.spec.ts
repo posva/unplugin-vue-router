@@ -6,6 +6,7 @@ import {
   generateRouteRecord,
 } from './generateRouteResolver'
 import { ImportsMap } from '../core/utils'
+import { ParamParsersMap } from './generateParamParsers'
 
 const DEFAULT_OPTIONS = resolveOptions({})
 let DEFAULT_STATE: Parameters<typeof generateRouteRecord>[0]['state'] = {
@@ -24,6 +25,7 @@ describe('generateRouteRecord', () => {
   it('serializes a simple static path', () => {
     const tree = new PrefixTree(DEFAULT_OPTIONS)
     const importsMap = new ImportsMap()
+    const paramParsersMap: ParamParsersMap = new Map()
     expect(
       generateRouteRecord({
         node: tree.insert('a', 'a.vue'),
@@ -31,6 +33,7 @@ describe('generateRouteRecord', () => {
         state: DEFAULT_STATE,
         options: DEFAULT_OPTIONS,
         importsMap,
+        paramParsersMap,
       })
     ).toMatchInlineSnapshot(`
       "const r_0 = normalizeRouteRecord({
@@ -48,6 +51,7 @@ describe('generateRouteRecord', () => {
         state: DEFAULT_STATE,
         options: DEFAULT_OPTIONS,
         importsMap,
+        paramParsersMap,
       })
     ).toMatchInlineSnapshot(`
       "const r_1 = normalizeRouteRecord({
@@ -69,7 +73,12 @@ describe('generateRouteResolver', () => {
     tree.insert('b/c', 'b/c.vue')
     tree.insert('b/c/d', 'b/c/d.vue')
     tree.insert('b/e/f', 'b/c/f.vue')
-    const resolver = generateRouteResolver(tree, DEFAULT_OPTIONS, importsMap)
+    const resolver = generateRouteResolver(
+      tree,
+      DEFAULT_OPTIONS,
+      importsMap,
+      new Map()
+    )
 
     expect(resolver).toMatchInlineSnapshot(`
       "
@@ -137,11 +146,15 @@ describe('generateRouteResolver', () => {
     tree.insert('b/[[a]]', 'b/c/d.vue')
     tree.insert('b/[[a]]+', 'b/c/d.vue')
     tree.insert('[...all]', 'b/c/f.vue')
-    const resolver = generateRouteResolver(tree, DEFAULT_OPTIONS, importsMap)
+    const resolver = generateRouteResolver(
+      tree,
+      DEFAULT_OPTIONS,
+      importsMap,
+      new Map()
+    )
 
-    expect(
-      resolver.replace(/^.*?createStaticResolver/s, '')
-    ).toMatchInlineSnapshot(`
+    expect(resolver.replace(/^.*?createStaticResolver/s, ''))
+      .toMatchInlineSnapshot(`
       "([
         r_1,   // /a
         r_11,  // /b/a-b
