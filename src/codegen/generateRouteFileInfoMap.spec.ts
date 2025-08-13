@@ -23,19 +23,23 @@ describe('generateRouteFileInfoMap', () => {
       .toMatchInlineSnapshot(`
         "export interface _RouteFileInfoMap {
           'src/pages/index.vue': {
-            routes: '/'
+            routes:
+              | '/'
             views: never
           }
           'src/pages/a.vue': {
-            routes: '/a'
+            routes:
+              | '/a'
             views: never
           }
           'src/pages/b.vue': {
-            routes: '/b'
+            routes:
+              | '/b'
             views: never
           }
           'src/pages/c.vue': {
-            routes: '/c'
+            routes:
+              | '/c'
             views: never
           }
         }"
@@ -50,11 +54,15 @@ describe('generateRouteFileInfoMap', () => {
       .toMatchInlineSnapshot(`
         "export interface _RouteFileInfoMap {
           'src/pages/parent.vue': {
-            routes: '/parent' | '/parent/child'
-            views: 'default'
+            routes:
+              | '/parent'
+              | '/parent/child'
+            views:
+              | 'default'
           }
           'src/pages/parent/child.vue': {
-            routes: '/parent/child'
+            routes:
+              | '/parent/child'
             views: never
           }
         }"
@@ -70,15 +78,21 @@ describe('generateRouteFileInfoMap', () => {
       .toMatchInlineSnapshot(`
         "export interface _RouteFileInfoMap {
           'src/pages/parent.vue': {
-            routes: '/parent' | '/parent/child'
-            views: 'default' | 'test'
+            routes:
+              | '/parent'
+              | '/parent/child'
+            views:
+              | 'default'
+              | 'test'
           }
           'src/pages/parent/child.vue': {
-            routes: '/parent/child'
+            routes:
+              | '/parent/child'
             views: never
           }
           'src/pages/parent/child@test.vue': {
-            routes: '/parent/child'
+            routes:
+              | '/parent/child'
             views: never
           }
         }"
@@ -98,11 +112,15 @@ describe('generateRouteFileInfoMap', () => {
       .toMatchInlineSnapshot(`
         "export interface _RouteFileInfoMap {
           'index.vue': {
-            routes: '/' | '/home'
+            routes:
+              | '/'
+              | '/home'
             views: never
           }
           'nested/index.vue': {
-            routes: '/nested/path' | '/unnested'
+            routes:
+              | '/nested/path'
+              | '/unnested'
             views: never
           }
         }"

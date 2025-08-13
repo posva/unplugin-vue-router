@@ -42,8 +42,8 @@ export function generateRouteFileInfoMap(
       ([file, { routes, views }]) =>
         `
   '${file}': {
-    routes: ${routes.map((name) => `'${name}'`).join(' | ')}
-    views: ${views.length > 0 ? views.map((view) => `'${view}'`).join(' | ') : 'never'}
+    routes:${routes.map((name) => `\n      | '${name}'`).join('\n')}
+    views:${views.length > 0 ? views.map((view) => `\n      | '${view}'`).join('\n') : ' never'}
   }`
     )
     .join('\n')
