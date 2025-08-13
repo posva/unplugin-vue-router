@@ -55,6 +55,8 @@ export function generateRouteRecordInfo(
       : generateRouteParams(node, false),
   ]
 
+  let childRouteNames = 'never'
+
   if (node.children.size > 0) {
     // TODO: remove Array.from() once Node 20 support is dropped
     const deepNamedChildren = Array.from(node.getChildrenDeep())
@@ -66,9 +68,13 @@ export function generateRouteRecordInfo(
       .sort()
 
     if (deepNamedChildren.length > 0) {
-      typeParams.push(deepNamedChildren.join(' | '))
+      childRouteNames = deepNamedChildren
+        .map((childRouteName) => `| ${childRouteName}`)
+        .join('\n    ')
     }
   }
 
-  return `RouteRecordInfo<${typeParams.join(', ')}>`
+  typeParams.push(childRouteNames)
+
+  return `RouteRecordInfo<${typeParams.map((line) => `\n    ${line}`).join(',\n')}\n  >`
 }

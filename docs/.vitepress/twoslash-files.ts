@@ -31,7 +31,7 @@ declare module 'vue-router/auto-routes' {
       '/users/:id',
       { id: ParamValue<true> },
       { id: ParamValue<false> },
-      '/users/[id]/edit'
+      | '/users/[id]/edit'
     >
     '/users/[id]/edit': RouteRecordInfo<
       '/users/[id]/edit',

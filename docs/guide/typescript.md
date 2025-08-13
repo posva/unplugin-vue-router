@@ -63,7 +63,7 @@ declare module 'vue-router/auto-routes' {
       { path: ParamValue<false> },
       // this is a union of all children route names
       // if the route does not have nested routes, pass `never` or omit this generic entirely
-      'custom-dynamic-child-name'
+      | 'custom-dynamic-child-name'
     >
     'custom-dynamic-child-name': RouteRecordInfo<
       'custom-dynamic-child-name',
