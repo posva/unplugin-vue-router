@@ -91,8 +91,9 @@ function generateParamParserOptions(
   // we prioritize custom parsers to let users override them
   if (param.parser && paramParsers.has(param.parser)) {
     const { name, absolutePath } = paramParsers.get(param.parser)!
-    importsMap.add(absolutePath, { name: 'parser', as: name })
-    return ` ...${name}, `
+    const varName = `PARAM_PARSER__${name}`
+    importsMap.add(absolutePath, { name: 'parser', as: varName })
+    return ` ...${varName}, `
   } else if (param.parser === 'int') {
     importsMap.add('vue-router/experimental', `PARAM_PARSER_INT`)
     return ` ...PARAM_PARSER_INT, `
