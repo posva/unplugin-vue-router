@@ -35,17 +35,24 @@ function getCodeAst(code: string, id: string) {
   let offset = 0
   let ast: Program | undefined
   const lang = getLang(id.split(MACRO_DEFINE_PAGE_QUERY)[0]!)
-  if (lang === 'vue') {
-    const sfc = parseSFC(code, id)
-    if (sfc.scriptSetup) {
-      ast = sfc.getSetupAst()
-      offset = sfc.scriptSetup.loc.start.offset
-    } else if (sfc.script) {
-      ast = sfc.getScriptAst()
-      offset = sfc.script.loc.start.offset
+  
+  try {
+    if (lang === 'vue') {
+      const sfc = parseSFC(code, id)
+      if (sfc.scriptSetup) {
+        ast = sfc.getSetupAst()
+        offset = sfc.scriptSetup.loc.start.offset
+      } else if (sfc.script) {
+        ast = sfc.getScriptAst()
+        offset = sfc.script.loc.start.offset
+      }
+    } else if (/[jt]sx?$/.test(lang)) {
+      ast = babelParse(code, lang)
     }
-  } else if (/[jt]sx?$/.test(lang)) {
-    ast = babelParse(code, lang)
+  } catch (error) {
+    // If there's a syntax error in parsing, we can't extract definePage
+    // Return undefined AST to indicate parsing failure
+    ast = undefined
   }
 
   const definePageNodes: CallExpression[] = (ast?.body || [])
@@ -77,112 +84,123 @@ export function definePageTransform({
     return isExtractingDefinePage ? 'export default {}' : undefined
   }
 
-  const { ast, offset, definePageNodes } = getCodeAst(code, id)
-  if (!ast) return
+  try {
+    const { ast, offset, definePageNodes } = getCodeAst(code, id)
+    if (!ast) return isExtractingDefinePage ? 'export default {}' : undefined
 
-  if (!definePageNodes.length) {
-    return isExtractingDefinePage
-      ? // e.g. index.vue?definePage that contains a commented `definePage()
-        'export default {}'
-      : // e.g. index.vue that contains a commented `definePage()
-        null
-  } else if (definePageNodes.length > 1) {
-    throw new SyntaxError(`duplicate definePage() call`)
-  }
-
-  const definePageNode = definePageNodes[0]!
-
-  // we only want the page info
-  if (isExtractingDefinePage) {
-    const s = new MagicString(code)
-    // remove everything except the page info
-
-    const routeRecord = definePageNode.arguments[0]
-
-    if (!routeRecord) {
-      throw new SyntaxError(
-        `[${id}]: definePage() expects an object expression as its only argument`
-      )
+    if (!definePageNodes.length) {
+      return isExtractingDefinePage
+        ? // e.g. index.vue?definePage that contains a commented `definePage()
+          'export default {}'
+        : // e.g. index.vue that contains a commented `definePage()
+          null
+    } else if (definePageNodes.length > 1) {
+      warn(`duplicate definePage() call in ${id}`)
+      return isExtractingDefinePage ? 'export default {}' : undefined
     }
 
-    const scriptBindings = ast.body ? getIdentifiers(ast.body) : []
+    const definePageNode = definePageNodes[0]!
 
-    // this will throw if a property from the script setup is used in definePage
-    checkInvalidScopeReference(routeRecord, MACRO_DEFINE_PAGE, scriptBindings)
+    // we only want the page info
+    if (isExtractingDefinePage) {
+      const s = new MagicString(code)
+      // remove everything except the page info
 
-    s.remove(offset + routeRecord.end!, code.length)
-    s.remove(0, offset + routeRecord.start!)
-    s.prepend(`export default `)
+      const routeRecord = definePageNode.arguments[0]
 
-    // find all static imports and filter out the ones that are not used
-    const staticImports = findStaticImports(code)
-
-    const usedIds = new Set<string>()
-    const localIds = new Set<string>()
-
-    walkAST(routeRecord, {
-      enter(node) {
-        // skip literal keys from object properties
-        if (
-          this.parent?.type === 'ObjectProperty' &&
-          this.parent.key === node &&
-          // still track computed keys [a + b]: 1
-          !this.parent.computed &&
-          node.type === 'Identifier'
-        ) {
-          this.skip()
-        } else if (
-          // filter out things like 'log' in console.log
-          this.parent?.type === 'MemberExpression' &&
-          this.parent.property === node &&
-          !this.parent.computed &&
-          node.type === 'Identifier'
-        ) {
-          this.skip()
-          // types are stripped off so we can skip them
-        } else if (node.type === 'TSTypeAnnotation') {
-          this.skip()
-          // track everything else
-        } else if (node.type === 'Identifier' && !localIds.has(node.name)) {
-          usedIds.add(node.name)
-          // track local ids that could shadow an import
-        } else if ('scopeIds' in node && node.scopeIds instanceof Set) {
-          // avoid adding them to the usedIds list
-          for (const id of node.scopeIds as Set<string>) {
-            localIds.add(id)
-          }
-        }
-      },
-      leave(node) {
-        if ('scopeIds' in node && node.scopeIds instanceof Set) {
-          // clear out local ids
-          for (const id of node.scopeIds as Set<string>) {
-            localIds.delete(id)
-          }
-        }
-      },
-    })
-
-    for (const imp of staticImports) {
-      const importCode = generateFilteredImportStatement(
-        parseStaticImport(imp),
-        usedIds
-      )
-      if (importCode) {
-        s.prepend(importCode + '\n')
+      if (!routeRecord) {
+        warn(`[${id}]: definePage() expects an object expression as its only argument`)
+        return 'export default {}'
       }
+
+      const scriptBindings = ast.body ? getIdentifiers(ast.body) : []
+
+      // this will throw if a property from the script setup is used in definePage
+      try {
+        checkInvalidScopeReference(routeRecord, MACRO_DEFINE_PAGE, scriptBindings)
+      } catch (error) {
+        warn(`[${id}]: ${error instanceof Error ? error.message : 'Invalid scope reference in definePage'}`)
+        return 'export default {}'
+      }
+
+      s.remove(offset + routeRecord.end!, code.length)
+      s.remove(0, offset + routeRecord.start!)
+      s.prepend(`export default `)
+
+      // find all static imports and filter out the ones that are not used
+      const staticImports = findStaticImports(code)
+
+      const usedIds = new Set<string>()
+      const localIds = new Set<string>()
+
+      walkAST(routeRecord, {
+        enter(node) {
+          // skip literal keys from object properties
+          if (
+            this.parent?.type === 'ObjectProperty' &&
+            this.parent.key === node &&
+            // still track computed keys [a + b]: 1
+            !this.parent.computed &&
+            node.type === 'Identifier'
+          ) {
+            this.skip()
+          } else if (
+            // filter out things like 'log' in console.log
+            this.parent?.type === 'MemberExpression' &&
+            this.parent.property === node &&
+            !this.parent.computed &&
+            node.type === 'Identifier'
+          ) {
+            this.skip()
+            // types are stripped off so we can skip them
+          } else if (node.type === 'TSTypeAnnotation') {
+            this.skip()
+            // track everything else
+          } else if (node.type === 'Identifier' && !localIds.has(node.name)) {
+            usedIds.add(node.name)
+            // track local ids that could shadow an import
+          } else if ('scopeIds' in node && node.scopeIds instanceof Set) {
+            // avoid adding them to the usedIds list
+            for (const id of node.scopeIds as Set<string>) {
+              localIds.add(id)
+            }
+          }
+        },
+        leave(node) {
+          if ('scopeIds' in node && node.scopeIds instanceof Set) {
+            // clear out local ids
+            for (const id of node.scopeIds as Set<string>) {
+              localIds.delete(id)
+            }
+          }
+        },
+      })
+
+      for (const imp of staticImports) {
+        const importCode = generateFilteredImportStatement(
+          parseStaticImport(imp),
+          usedIds
+        )
+        if (importCode) {
+          s.prepend(importCode + '\n')
+        }
+      }
+
+      return generateTransform(s, id)
+    } else {
+      // console.log('!!!', definePageNode)
+
+      const s = new MagicString(code)
+
+      // s.removeNode(definePageNode, { offset })
+      s.remove(offset + definePageNode.start!, offset + definePageNode.end!)
+
+      return generateTransform(s, id)
     }
-
-    return generateTransform(s, id)
-  } else {
-    // console.log('!!!', definePageNode)
-
-    const s = new MagicString(code)
-
-    // s.removeNode(definePageNode, { offset })
-    s.remove(offset + definePageNode.start!, offset + definePageNode.end!)
-
-    return generateTransform(s, id)
+  } catch (error) {
+    // Handle any syntax errors or parsing errors gracefully
+    warn(`[${id}]: Failed to process definePage: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    return isExtractingDefinePage ? 'export default {}' : undefined
   }
 }
 
@@ -192,57 +210,62 @@ export function extractDefinePageNameAndPath(
 ): { name?: string | false; path?: string } | null | undefined {
   if (!sfcCode.includes(MACRO_DEFINE_PAGE)) return
 
-  const { ast, definePageNodes } = getCodeAst(sfcCode, id)
-  if (!ast) return
+  try {
+    const { ast, definePageNodes } = getCodeAst(sfcCode, id)
+    if (!ast) return
 
-  if (!definePageNodes.length) {
-    return
-  } else if (definePageNodes.length > 1) {
-    throw new SyntaxError(`duplicate definePage() call`)
-  }
+    if (!definePageNodes.length) {
+      return
+    } else if (definePageNodes.length > 1) {
+      warn(`duplicate definePage() call in ${id}`)
+      return
+    }
 
-  const definePageNode = definePageNodes[0]!
+    const definePageNode = definePageNodes[0]!
 
-  const routeRecord = definePageNode.arguments[0]
-  if (!routeRecord) {
-    throw new SyntaxError(
-      `[${id}]: definePage() expects an object expression as its only argument`
-    )
-  }
+    const routeRecord = definePageNode.arguments[0]
+    if (!routeRecord) {
+      warn(`[${id}]: definePage() expects an object expression as its only argument`)
+      return
+    }
 
-  if (routeRecord.type !== 'ObjectExpression') {
-    throw new SyntaxError(
-      `[${id}]: definePage() expects an object expression as its only argument`
-    )
-  }
+    if (routeRecord.type !== 'ObjectExpression') {
+      warn(`[${id}]: definePage() expects an object expression as its only argument`)
+      return
+    }
 
-  const routeInfo: Pick<CustomRouteBlock, 'name' | 'path'> = {}
+    const routeInfo: Pick<CustomRouteBlock, 'name' | 'path'> = {}
 
-  for (const prop of routeRecord.properties) {
-    if (prop.type === 'ObjectProperty' && prop.key.type === 'Identifier') {
-      if (prop.key.name === 'name') {
-        if (
-          prop.value.type !== 'StringLiteral' &&
-          (prop.value.type !== 'BooleanLiteral' || prop.value.value !== false)
-        ) {
-          warn(
-            `route name must be a string literal or false. Found in "${id}".`
-          )
-        } else {
-          // TODO: why does TS not narrow down the type?
-          routeInfo.name = prop.value.value as string | false
-        }
-      } else if (prop.key.name === 'path') {
-        if (prop.value.type !== 'StringLiteral') {
-          warn(`route path must be a string literal. Found in "${id}".`)
-        } else {
-          routeInfo.path = prop.value.value
+    for (const prop of routeRecord.properties) {
+      if (prop.type === 'ObjectProperty' && prop.key.type === 'Identifier') {
+        if (prop.key.name === 'name') {
+          if (
+            prop.value.type !== 'StringLiteral' &&
+            (prop.value.type !== 'BooleanLiteral' || prop.value.value !== false)
+          ) {
+            warn(
+              `route name must be a string literal or false. Found in "${id}".`
+            )
+          } else {
+            // TODO: why does TS not narrow down the type?
+            routeInfo.name = prop.value.value as string | false
+          }
+        } else if (prop.key.name === 'path') {
+          if (prop.value.type !== 'StringLiteral') {
+            warn(`route path must be a string literal. Found in "${id}".`)
+          } else {
+            routeInfo.path = prop.value.value
+          }
         }
       }
     }
-  }
 
-  return routeInfo
+    return routeInfo
+  } catch (error) {
+    // Handle any syntax errors or parsing errors gracefully
+    warn(`[${id}]: Failed to extract definePage info: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    return
+  }
 }
 
 // TODO: use
