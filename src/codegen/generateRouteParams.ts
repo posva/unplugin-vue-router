@@ -1,5 +1,4 @@
 import { TreeNode } from '../core/tree'
-import { ParamParserTypeInfo } from './generateParamParsers'
 
 export function generateRouteParams(node: TreeNode, isRaw: boolean): string {
   // node.params is a getter so we compute it once
@@ -24,7 +23,7 @@ export function generateRouteParams(node: TreeNode, isRaw: boolean): string {
 
 export function EXPERIMENTAL_generateRouteParams(
   node: TreeNode,
-  types: Array<ParamParserTypeInfo | null>
+  types: Array<string | null>
 ) {
   // node.params is a getter so we compute it once
   const nodeParams = node.params
@@ -35,7 +34,7 @@ export function EXPERIMENTAL_generateRouteParams(
           const isRaw = false
           return `${param.paramName}${param.optional ? '?' : ''}: ${
             type
-              ? type[1] || '/* INVALID */ unknown'
+              ? type || '/* INVALID */ unknown'
               : param.modifier === '+'
                 ? `ParamValueOneOrMore<${isRaw}>`
                 : param.modifier === '*'
