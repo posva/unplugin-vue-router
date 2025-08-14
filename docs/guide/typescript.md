@@ -70,7 +70,7 @@ declare module 'vue-router/auto-routes' {
       '/added-during-runtime/[...path]/child',
       { path: ParamValue<true> },
       { path: ParamValue<false> },
-      never
+      | never
     >
   }
 }

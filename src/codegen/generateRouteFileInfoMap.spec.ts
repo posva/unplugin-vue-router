@@ -25,22 +25,26 @@ describe('generateRouteFileInfoMap', () => {
           'src/pages/index.vue': {
             routes:
               | '/'
-            views: never
+            views:
+              | never
           }
           'src/pages/a.vue': {
             routes:
               | '/a'
-            views: never
+            views:
+              | never
           }
           'src/pages/b.vue': {
             routes:
               | '/b'
-            views: never
+            views:
+              | never
           }
           'src/pages/c.vue': {
             routes:
               | '/c'
-            views: never
+            views:
+              | never
           }
         }"
       `)
@@ -63,7 +67,8 @@ describe('generateRouteFileInfoMap', () => {
           'src/pages/parent/child.vue': {
             routes:
               | '/parent/child'
-            views: never
+            views:
+              | never
           }
         }"
       `)
@@ -88,12 +93,14 @@ describe('generateRouteFileInfoMap', () => {
           'src/pages/parent/child.vue': {
             routes:
               | '/parent/child'
-            views: never
+            views:
+              | never
           }
           'src/pages/parent/child@test.vue': {
             routes:
               | '/parent/child'
-            views: never
+            views:
+              | never
           }
         }"
       `)
@@ -115,13 +122,15 @@ describe('generateRouteFileInfoMap', () => {
             routes:
               | '/'
               | '/home'
-            views: never
+            views:
+              | never
           }
           'nested/index.vue': {
             routes:
               | '/nested/path'
               | '/unnested'
-            views: never
+            views:
+              | never
           }
         }"
       `)

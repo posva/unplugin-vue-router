@@ -17,14 +17,14 @@ declare module 'vue-router/auto-routes' {
       '/',
       Record<never, never>,
       Record<never, never>,
-      never
+      | never
     >
     '/users': RouteRecordInfo<
       '/users',
       '/users',
       Record<never, never>,
       Record<never, never>,
-      never
+      | never
     >
     '/users/[id]': RouteRecordInfo<
       '/users/[id]',
@@ -38,7 +38,7 @@ declare module 'vue-router/auto-routes' {
       '/users/:id/edit',
       { id: ParamValue<true> },
       { id: ParamValue<false> },
-      never
+      | never
     >
   }
 }

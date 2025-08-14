@@ -28,28 +28,28 @@ describe('generateRouteNamedMap', () => {
           '/',
           Record<never, never>,
           Record<never, never>,
-          never
+          | never
         >,
         '/a': RouteRecordInfo<
           '/a',
           '/a',
           Record<never, never>,
           Record<never, never>,
-          never
+          | never
         >,
         '/b': RouteRecordInfo<
           '/b',
           '/b',
           Record<never, never>,
           Record<never, never>,
-          never
+          | never
         >,
         '/c': RouteRecordInfo<
           '/c',
           '/c',
           Record<never, never>,
           Record<never, never>,
-          never
+          | never
         >,
       }"
     `)
@@ -75,63 +75,63 @@ describe('generateRouteNamedMap', () => {
           '/:a',
           { a: ParamValue<true> },
           { a: ParamValue<false> },
-          never
+          | never
         >,
         '/[[a]]': RouteRecordInfo<
           '/[[a]]',
           '/:a?',
           { a?: ParamValueZeroOrOne<true> },
           { a?: ParamValueZeroOrOne<false> },
-          never
+          | never
         >,
         '/[...a]': RouteRecordInfo<
           '/[...a]',
           '/:a(.*)',
           { a: ParamValue<true> },
           { a: ParamValue<false> },
-          never
+          | never
         >,
         '/[[...a]]': RouteRecordInfo<
           '/[[...a]]',
           '/:a(.*)?',
           { a?: ParamValueZeroOrOne<true> },
           { a?: ParamValueZeroOrOne<false> },
-          never
+          | never
         >,
         '/[[...a]]+': RouteRecordInfo<
           '/[[...a]]+',
           '/:a(.*)*',
           { a?: ParamValueZeroOrMore<true> },
           { a?: ParamValueZeroOrMore<false> },
-          never
+          | never
         >,
         '/[[a]]+': RouteRecordInfo<
           '/[[a]]+',
           '/:a*',
           { a?: ParamValueZeroOrMore<true> },
           { a?: ParamValueZeroOrMore<false> },
-          never
+          | never
         >,
         '/[a]+': RouteRecordInfo<
           '/[a]+',
           '/:a+',
           { a: ParamValueOneOrMore<true> },
           { a: ParamValueOneOrMore<false> },
-          never
+          | never
         >,
         '/partial-[a]': RouteRecordInfo<
           '/partial-[a]',
           '/partial-:a',
           { a: ParamValue<true> },
           { a: ParamValue<false> },
-          never
+          | never
         >,
         '/partial-[[a]]': RouteRecordInfo<
           '/partial-[[a]]',
           '/partial-:a?',
           { a?: ParamValueZeroOrOne<true> },
           { a?: ParamValueZeroOrOne<false> },
-          never
+          | never
         >,
       }"
     `)
@@ -152,14 +152,14 @@ describe('generateRouteNamedMap', () => {
           '/:a',
           { a: ParamValue<true> },
           { a: ParamValue<false> },
-          never
+          | never
         >,
         '/:b()': RouteRecordInfo<
           '/:b()',
           '/:b()',
           { b: ParamValue<true> },
           { b: ParamValue<false> },
-          never
+          | never
         >,
       }"
     `)
@@ -180,28 +180,28 @@ describe('generateRouteNamedMap', () => {
           '/n/:a',
           { a: ParamValue<true> },
           { a: ParamValue<false> },
-          never
+          | never
         >,
         '/n/[a]/[b]': RouteRecordInfo<
           '/n/[a]/[b]',
           '/n/:a/:b',
           { a: ParamValue<true>, b: ParamValue<true> },
           { a: ParamValue<false>, b: ParamValue<false> },
-          never
+          | never
         >,
         '/n/[a]/[c]/other-[d]': RouteRecordInfo<
           '/n/[a]/[c]/other-[d]',
           '/n/:a/:c/other-:d',
           { a: ParamValue<true>, c: ParamValue<true>, d: ParamValue<true> },
           { a: ParamValue<false>, c: ParamValue<false>, d: ParamValue<false> },
-          never
+          | never
         >,
         '/n/[a]/other': RouteRecordInfo<
           '/n/[a]/other',
           '/n/:a/other',
           { a: ParamValue<true> },
           { a: ParamValue<false> },
-          never
+          | never
         >,
       }"
     `)
@@ -224,35 +224,35 @@ describe('generateRouteNamedMap', () => {
           '/n/:a',
           { a: ParamValue<true> },
           { a: ParamValue<false> },
-          never
+          | never
         >,
         '/n/[[a]]': RouteRecordInfo<
           '/n/[[a]]',
           '/n/:a?',
           { a?: ParamValueZeroOrOne<true> },
           { a?: ParamValueZeroOrOne<false> },
-          never
+          | never
         >,
         '/n/[...a]': RouteRecordInfo<
           '/n/[...a]',
           '/n/:a(.*)',
           { a: ParamValue<true> },
           { a: ParamValue<false> },
-          never
+          | never
         >,
         '/n/[[a]]+': RouteRecordInfo<
           '/n/[[a]]+',
           '/n/:a*',
           { a?: ParamValueZeroOrMore<true> },
           { a?: ParamValueZeroOrMore<false> },
-          never
+          | never
         >,
         '/n/[a]+': RouteRecordInfo<
           '/n/[a]+',
           '/n/:a+',
           { a: ParamValueOneOrMore<true> },
           { a: ParamValueOneOrMore<false> },
-          never
+          | never
         >,
       }"
     `)
@@ -278,21 +278,21 @@ describe('generateRouteNamedMap', () => {
           '/:lang',
           { lang: ParamValue<true> },
           { lang: ParamValue<false> },
-          never
+          | never
         >,
         '/[lang]/[id]': RouteRecordInfo<
           '/[lang]/[id]',
           '/:lang/:id',
           { lang: ParamValue<true>, id: ParamValue<true> },
           { lang: ParamValue<false>, id: ParamValue<false> },
-          never
+          | never
         >,
         '/[lang]/a': RouteRecordInfo<
           '/[lang]/a',
           '/:lang/a',
           { lang: ParamValue<true> },
           { lang: ParamValue<false> },
-          never
+          | never
         >,
       }"
     `)
@@ -317,56 +317,56 @@ describe('generateRouteNamedMap', () => {
           '/a/a',
           Record<never, never>,
           Record<never, never>,
-          never
+          | never
         >,
         '/a/b': RouteRecordInfo<
           '/a/b',
           '/a/b',
           Record<never, never>,
           Record<never, never>,
-          never
+          | never
         >,
         '/a/c': RouteRecordInfo<
           '/a/c',
           '/a/c',
           Record<never, never>,
           Record<never, never>,
-          never
+          | never
         >,
         '/b/b': RouteRecordInfo<
           '/b/b',
           '/b/b',
           Record<never, never>,
           Record<never, never>,
-          never
+          | never
         >,
         '/b/c': RouteRecordInfo<
           '/b/c',
           '/b/c',
           Record<never, never>,
           Record<never, never>,
-          never
+          | never
         >,
         '/b/d': RouteRecordInfo<
           '/b/d',
           '/b/d',
           Record<never, never>,
           Record<never, never>,
-          never
+          | never
         >,
         '/c': RouteRecordInfo<
           '/c',
           '/c',
           Record<never, never>,
           Record<never, never>,
-          never
+          | never
         >,
         '/d': RouteRecordInfo<
           '/d',
           '/d',
           Record<never, never>,
           Record<never, never>,
-          never
+          | never
         >,
       }"
     `)
@@ -396,7 +396,7 @@ describe('generateRouteNamedMap', () => {
           '/a',
           Record<never, never>,
           Record<never, never>,
-          never
+          | never
         >,
         '/a/[id]': RouteRecordInfo<
           '/a/[id]',
@@ -410,7 +410,7 @@ describe('generateRouteNamedMap', () => {
           '/a/:id',
           { id: ParamValue<true> },
           { id: ParamValue<false> },
-          never
+          | never
         >,
       }"
     `)
@@ -438,7 +438,7 @@ describe('generateRouteNamedMap', () => {
           '/child',
           Record<never, never>,
           Record<never, never>,
-          never
+          | never
         >,
       }"
     `)
@@ -488,14 +488,14 @@ describe('generateRouteNamedMap', () => {
           '/parent/child/subchild/grandchild',
           Record<never, never>,
           Record<never, never>,
-          never
+          | never
         >,
         '/parent/other-child': RouteRecordInfo<
           '/parent/other-child',
           '/parent/other-child',
           Record<never, never>,
           Record<never, never>,
-          never
+          | never
         >,
       }"
     `)
@@ -521,7 +521,7 @@ describe('generateRouteNamedMap', () => {
           '/parent/child/a/b/c',
           Record<never, never>,
           Record<never, never>,
-          never
+          | never
         >,
       }"
     `)
@@ -540,14 +540,14 @@ describe('generateRouteNamedMap', () => {
           '/parent',
           Record<never, never>,
           Record<never, never>,
-          never
+          | never
         >,
         '/parent/child': RouteRecordInfo<
           '/parent/child',
           '/parent/child',
           Record<never, never>,
           Record<never, never>,
-          never
+          | never
         >,
       }"
     `)
@@ -569,14 +569,14 @@ describe('generateRouteNamedMap', () => {
           '/parent',
           Record<never, never>,
           Record<never, never>,
-          never
+          | never
         >,
         '/parent/a/': RouteRecordInfo<
           '/parent/a/',
           '/parent/a',
           Record<never, never>,
           Record<never, never>,
-          never
+          | never
         >,
         '/parent/a/b': RouteRecordInfo<
           '/parent/a/b',
@@ -591,14 +591,14 @@ describe('generateRouteNamedMap', () => {
           '/parent/a/b',
           Record<never, never>,
           Record<never, never>,
-          never
+          | never
         >,
         '/parent/a/b/c': RouteRecordInfo<
           '/parent/a/b/c',
           '/parent/a/b/c',
           Record<never, never>,
           Record<never, never>,
-          never
+          | never
         >,
       }"
     `)
@@ -624,21 +624,21 @@ describe('generateRouteNamedMap', () => {
           '/:lang',
           { lang: ParamValue<true> },
           { lang: ParamValue<false> },
-          never
+          | never
         >,
         '/[lang]/[id]': RouteRecordInfo<
           '/[lang]/[id]',
           '/:lang/:id',
           { lang: ParamValue<true>, id: ParamValue<true> },
           { lang: ParamValue<false>, id: ParamValue<false> },
-          never
+          | never
         >,
         '/[lang]/a': RouteRecordInfo<
           '/[lang]/a',
           '/:lang/a',
           { lang: ParamValue<true> },
           { lang: ParamValue<false> },
-          never
+          | never
         >,
       }"
     `)
@@ -658,7 +658,7 @@ describe('generateRouteNamedMap', () => {
           '/a',
           Record<never, never>,
           Record<never, never>,
-          never
+          | never
         >,
       }"
     `)
@@ -678,7 +678,7 @@ describe('generateRouteNamedMap', () => {
           '/c',
           Record<never, never>,
           Record<never, never>,
-          never
+          | never
         >,
       }"
     `)
@@ -698,7 +698,7 @@ describe('generateRouteNamedMap', () => {
           '/folder',
           Record<never, never>,
           Record<never, never>,
-          never
+          | never
         >,
       }"
     `)
@@ -758,14 +758,14 @@ describe('generateRouteNamedMap', () => {
           '/child',
           Record<never, never>,
           Record<never, never>,
-          never
+          | never
         >,
         '/parent/child': RouteRecordInfo<
           '/parent/child',
           '/parent/child',
           Record<never, never>,
           Record<never, never>,
-          never
+          | never
         >,
       }"
     `)
@@ -799,14 +799,14 @@ describe('generateRouteNamedMap', () => {
           '/parent/child1',
           Record<never, never>,
           Record<never, never>,
-          never
+          | never
         >,
         '/parent/child3': RouteRecordInfo<
           '/parent/child3',
           '/parent/child3',
           Record<never, never>,
           Record<never, never>,
-          never
+          | never
         >,
       }"
     `)
