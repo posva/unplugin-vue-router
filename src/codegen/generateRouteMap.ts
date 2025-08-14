@@ -5,7 +5,7 @@ import {
   EXPERIMENTAL_generateRouteParams,
   generateRouteParams,
 } from './generateRouteParams'
-import { pad, formatMultilineUnion } from '../utils'
+import { indent, formatMultilineUnion, stringToStringType } from '../utils'
 
 export function generateRouteNamedMap(
   node: TreeNode,
@@ -24,7 +24,7 @@ ${node
     // if the node has a filePath, it's a component, it has a routeName and it should be referenced in the RouteNamedMap
     // otherwise it should be skipped to avoid navigating to a route that doesn't render anything
     (node.value.components.size > 0 && node.name
-      ? pad(
+      ? indent(
           2,
           `'${node.name}': ${generateRouteRecordInfo(node, options, paramParsersMap)},\n`
         )
@@ -59,28 +59,24 @@ export function generateRouteRecordInfo(
       : generateRouteParams(node, false),
   ]
 
-  let childRouteNames = ['never']
+  const childRouteNames: string[] =
+    node.children.size > 0
+      ? // TODO: remove Array.from() once Node 20 support is dropped
+        Array.from(node.getChildrenDeep())
+          // skip routes that are not added to the types
+          .filter(
+            (childRoute): childRoute is TreeNode & { name: string } =>
+              childRoute.value.components.size > 0 && !!childRoute.name
+          )
+          .map((childRoute) => childRoute.name)
+          .sort()
+      : []
 
-  if (node.children.size > 0) {
-    // TODO: remove Array.from() once Node 20 support is dropped
-    const deepNamedChildren = Array.from(node.getChildrenDeep())
-      // skip routes that are not added to the types
-      .filter(
-        (childRoute) => childRoute.value.components.size > 0 && childRoute.name
-      )
-      .map((childRoute) => childRoute.name)
-      .sort()
-
-    if (deepNamedChildren.length > 0) {
-      childRouteNames = deepNamedChildren.map(
-        (childRouteName) => `'${childRouteName}'`
-      )
-    }
-  }
-
-  typeParams.push(formatMultilineUnion(childRouteNames, 4))
+  typeParams.push(
+    formatMultilineUnion(childRouteNames.map(stringToStringType), 4)
+  )
 
   return `RouteRecordInfo<
-${typeParams.map((line) => pad(4, line)).join(',\n')}
+${typeParams.map((line) => indent(4, line)).join(',\n')}
   >`
 }

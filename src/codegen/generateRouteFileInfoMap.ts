@@ -1,6 +1,6 @@
 import { relative } from 'pathe'
 import type { PrefixTree, TreeNode } from '../core/tree'
-import { formatMultilineUnion } from '../utils'
+import { formatMultilineUnion, stringToStringType } from '../utils'
 
 export function generateRouteFileInfoMap(
   node: PrefixTree,
@@ -44,15 +44,9 @@ export function generateRouteFileInfoMap(
         `
   '${file}': {
     routes:
-      ${formatMultilineUnion(
-        routes.map((routeName) => `'${routeName}'`),
-        6
-      )}
+      ${formatMultilineUnion(routes.map(stringToStringType), 6)}
     views:
-      ${formatMultilineUnion(
-        views.length > 0 ? views.map((view) => `'${view}'`) : ['never'],
-        6
-      )}
+      ${formatMultilineUnion(views.map(stringToStringType), 6)}
   }`
     )
     .join('\n')
