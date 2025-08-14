@@ -18,6 +18,15 @@ export type TreeNodeValueMatcherPart = Array<
   string | number | Array<string | number>
 >
 
+/**
+ * Makes the `name` property required and a string. Used for readability
+ *
+ * @internal
+ */
+export type TreeNodeNamed = TreeNode & {
+  name: Extract<TreeNode['name'], string>
+}
+
 export class TreeNode {
   /**
    * value of the node
@@ -429,6 +438,10 @@ export class TreeNode {
     return (
       !this.parent && this.value.fullPath === '/' && !this.value.components.size
     )
+  }
+
+  isNamed(): this is TreeNodeNamed {
+    return !!this.name
   }
 
   toString(): string {

@@ -1,4 +1,4 @@
-import type { TreeNode } from '../core/tree'
+import type { TreeNode, TreeNodeNamed } from '../core/tree'
 import type { ResolvedOptions } from '../options'
 import { generateParamsTypes, ParamParsersMap } from './generateParamParsers'
 import {
@@ -23,10 +23,10 @@ ${node
   return (
     // if the node has a filePath, it's a component, it has a routeName and it should be referenced in the RouteNamedMap
     // otherwise it should be skipped to avoid navigating to a route that doesn't render anything
-    (node.value.components.size > 0 && node.name
+    (node.value.components.size && node.isNamed()
       ? indent(
           2,
-          `'${node.name}': ${generateRouteRecordInfo(node, options, paramParsersMap)},\n`
+          `${stringToStringType(node.name)}: ${generateRouteRecordInfo(node, options, paramParsersMap)},\n`
         )
       : '') +
     (node.children.size > 0
@@ -39,18 +39,18 @@ ${node
 }
 
 export function generateRouteRecordInfo(
-  node: TreeNode,
+  node: TreeNodeNamed,
   options: ResolvedOptions,
   paramParsersMap: ParamParsersMap
 ): string {
   let paramParsers: Array<string | null> = []
-
   if (options.experimental.paramParsers) {
     paramParsers = generateParamsTypes(node.params, paramParsersMap)
   }
+
   const typeParams = [
-    `'${node.name}'`,
-    `'${node.fullPath}'`,
+    stringToStringType(node.name),
+    stringToStringType(node.fullPath),
     options.experimental.paramParsers
       ? EXPERIMENTAL_generateRouteParams(node, paramParsers, true)
       : generateRouteParams(node, true),
@@ -64,11 +64,12 @@ export function generateRouteRecordInfo(
       ? // TODO: remove Array.from() once Node 20 support is dropped
         Array.from(node.getChildrenDeep())
           // skip routes that are not added to the types
-          .filter(
-            (childRoute): childRoute is TreeNode & { name: string } =>
-              childRoute.value.components.size > 0 && !!childRoute.name
-          )
-          .map((childRoute) => childRoute.name)
+          .reduce<string[]>((acc, childRoute) => {
+            if (childRoute.value.components.size && childRoute.isNamed()) {
+              acc.push(childRoute.name)
+            }
+            return acc
+          }, [])
           .sort()
       : []
 
@@ -77,6 +78,6 @@ export function generateRouteRecordInfo(
   )
 
   return `RouteRecordInfo<
-${typeParams.map((line) => indent(4, line)).join(',\n')}
+${typeParams.map((line) => pad(4, line)).join(',\n')}
   >`
 }

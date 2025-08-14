@@ -32,7 +32,7 @@ export async function fileExists(filePath: string) {
  * @param str The string to pad, none if omitted.
  * @returns The padded string.
  */
-export function indent(spaces: number, str = ''): string {
+export function pad(spaces: number, str = ''): string {
   return `${' '.repeat(spaces)}${str}`
 }
 
@@ -45,7 +45,7 @@ export function indent(spaces: number, str = ''): string {
 export function formatMultilineUnion(items: string[], spaces: number): string {
   return (items.length ? items : ['never'])
     .map((s) => `| ${s}`)
-    .join(`\n${indent(spaces)}`)
+    .join(`\n${pad(spaces)}`)
 }
 
 /**

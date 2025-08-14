@@ -1,4 +1,4 @@
-import { ts, indent } from '../utils'
+import { ts, pad } from '../utils'
 
 /**
  * Removes empty lines and indent by two spaces to match the rest of the file.
@@ -10,7 +10,7 @@ function normalizeLines(code: string) {
       // FIXME: the code should be cleaned up by the codegen functions. Removing empty lines here
       // reduces readability of the route file info map.
       .filter((line) => line.length !== 0)
-      .map((line) => indent(2, line))
+      .map((line) => pad(2, line))
       .join('\n')
   )
 }

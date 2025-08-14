@@ -85,11 +85,12 @@ function generateRouteFileInfoLines(
     ...(deepChildren ?? []),
   ]
     // unnamed routes and routes that don't correspond to certain components cannot be accessed in types
-    .filter(
-      (node): node is TreeNode & { name: string } =>
-        node.value.components.size > 0 && !!node.name
-    )
-    .map((node) => node.name)
+    .reduce<string[]>((acc, node) => {
+      if (node.isNamed() && node.value.components.size > 0) {
+        acc.push(node.name)
+      }
+      return acc
+    }, [])
 
   // Most of the time we only have one view, but with named views we can have multiple.
   const currentRouteInfo =
