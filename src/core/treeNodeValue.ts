@@ -280,7 +280,7 @@ export class TreeNodeValueParam extends _TreeNodeValueBase {
           return segment.replace(REGEX_CHARS_RE, '\\$&')
         }
         return (
-          (segment.repeatable ? '(.+?)' : '([^/]+)') +
+          (segment.repeatable ? '(.+?)' : '([^/]+?)') +
           (segment.optional ? '?' : '')
         )
       })
