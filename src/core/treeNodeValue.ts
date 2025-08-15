@@ -195,7 +195,7 @@ class _TreeNodeValueBase {
 export class TreeNodeValueStatic extends _TreeNodeValueBase {
   override _type: TreeNodeType.static = TreeNodeType.static
 
-  readonly score = 300
+  readonly score = [300]
 
   constructor(
     rawSegment: string,
@@ -210,7 +210,7 @@ export class TreeNodeValueGroup extends _TreeNodeValueBase {
   override _type: TreeNodeType.group = TreeNodeType.group
   groupName: string
 
-  readonly score = 300
+  readonly score = [300]
 
   constructor(
     rawSegment: string,
@@ -253,23 +253,21 @@ export class TreeNodeValueParam extends _TreeNodeValueBase {
     this.params = params
   }
 
-  // FIXME: implement scoring from vue-router
-  get score(): number {
-    const malus = Math.max(
-      ...this.params.map((p) =>
-        p.isSplat ? 500 : (p.optional ? 10 : 0) + (p.repeatable ? 20 : 0)
-      )
-    )
+  // Calculate score for each subsegment to handle mixed static/param parts
+  get score(): number[] {
+    return this.subSegments.map((segment) => {
+      if (typeof segment === 'string') {
+        // Static subsegment gets highest score
+        return 300
+      } else {
+        // Parameter subsegment - calculate malus based on param properties
+        const malus = segment.isSplat
+          ? 500
+          : (segment.optional ? 10 : 0) + (segment.repeatable ? 20 : 0)
 
-    return (
-      80 -
-      malus +
-      (this.params.length > 0 &&
-      this.subSegments.length > 1 &&
-      this.subSegments.some((s) => typeof s === 'string' && s.length > 0)
-        ? 35
-        : 0)
-    )
+        return 80 - malus
+      }
+    })
   }
 
   get re(): string {
