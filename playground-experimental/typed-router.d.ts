@@ -5,6 +5,7 @@
 // It's recommended to commit this file.
 // Make sure to add this file to your tsconfig.json file as an "includes" or "files" entry.
 
+// Custom route params parsers
 type Param_date = ReturnType<NonNullable<typeof import('./src/params/date.ts').parser['get']>>
 
 declare module 'vue-router/auto-routes' {
@@ -21,8 +22,11 @@ declare module 'vue-router/auto-routes' {
    */
   export interface RouteNamedMap {
     '/(home)': RouteRecordInfo<'/(home)', '/', Record<never, never>, Record<never, never>>,
-    '/[name]': RouteRecordInfo<'/[name]', '/:name', { name: ParamValue<false> }, { name: ParamValue<false> }>,
+    '/[name]': RouteRecordInfo<'/[name]', '/:name', { name: ParamValue<false> }, { name: ParamValue<false> }, '/[name]/24' | '/[name]/[userId=int]'>,
+    '/[name]/[userId=int]': RouteRecordInfo<'/[name]/[userId=int]', '/:name/:userId', { name: ParamValue<false>, userId: number }, { name: ParamValue<false>, userId: number }>,
+    '/[name]/24': RouteRecordInfo<'/[name]/24', '/:name/24', { name: ParamValue<false> }, { name: ParamValue<false> }>,
     '/a.[b].c.[d]': RouteRecordInfo<'/a.[b].c.[d]', '/a/:b/c/:d', { b: ParamValue<false>, d: ParamValue<false> }, { b: ParamValue<false>, d: ParamValue<false> }>,
+    '/b': RouteRecordInfo<'/b', '/b', Record<never, never>, Record<never, never>>,
     '/events/[when=date]': RouteRecordInfo<'/events/[when=date]', '/events/:when', { when: Param_date }, { when: Param_date }>,
     '/users/[userId=int]': RouteRecordInfo<'/users/[userId=int]', '/users/:userId', { userId: number }, { userId: number }>,
     '/users/sub-[first]-[second]': RouteRecordInfo<'/users/sub-[first]-[second]', '/users/sub-:first-:second', { first: ParamValue<false>, second: ParamValue<false> }, { first: ParamValue<false>, second: ParamValue<false> }>,
@@ -44,11 +48,23 @@ declare module 'vue-router/auto-routes' {
       views: never
     }
     'src/pages/[name].vue': {
-      routes: '/[name]'
+      routes: '/[name]' | '/[name]/[userId=int]' | '/[name]/24'
+      views: 'default'
+    }
+    'src/pages/[name]/[userId=int].vue': {
+      routes: '/[name]/[userId=int]'
+      views: never
+    }
+    'src/pages/[name]/24.vue': {
+      routes: '/[name]/24'
       views: never
     }
     'src/pages/a.[b].c.[d].vue': {
       routes: '/a.[b].c.[d]'
+      views: never
+    }
+    'src/pages/b.vue': {
+      routes: '/b'
       views: never
     }
     'src/pages/events/[when=date].vue': {
