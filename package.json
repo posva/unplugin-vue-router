@@ -171,7 +171,7 @@
     "@posva/prompts": "^2.4.4",
     "@shikijs/vitepress-twoslash": "3.12.2",
     "@tanstack/vue-query": "^5.87.4",
-    "@types/node": "^22.18.3",
+    "@types/node": "^24.3.0",
     "@types/picomatch": "^4.0.2",
     "@vitest/coverage-v8": "^3.2.4",
     "@vitest/ui": "^3.2.4",
