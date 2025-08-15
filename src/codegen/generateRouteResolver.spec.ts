@@ -434,7 +434,10 @@ describe('generateRouteResolver', () => {
     // Create a route with both component and meta
     tree.insert('users', 'users.vue')
     const usersNode = tree.children.get('users')!
-    usersNode.value.setEditOverride('meta', { requiresAuth: true, title: 'Users' })
+    usersNode.value.setEditOverride('meta', {
+      requiresAuth: true,
+      title: 'Users',
+    })
 
     const resolver = generateRouteResolver(
       tree,
@@ -469,7 +472,7 @@ describe('generateRouteResolver', () => {
     // Create a route with a component
     tree.insert('profile', 'profile.vue')
     const profileNode = tree.children.get('profile')!
-    
+
     // Mark it as having definePage (this would normally be set by the plugin when parsing the file)
     profileNode.hasDefinePage = true
 
