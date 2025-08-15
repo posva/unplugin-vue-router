@@ -5,12 +5,56 @@ import { ts } from '../utils'
 import { generateParamsOptions, ParamParsersMap } from './generateParamParsers'
 import { generatePageImport } from './generateRouteRecords'
 
+/**
+ * Compare two score arrays for sorting routes by priority.
+ * Higher scores should come first (more specific routes).
+ */
+function compareRouteScore(a: number[][], b: number[][]): number {
+  const maxLength = Math.max(a.length, b.length)
+
+  for (let i = 0; i < maxLength; i++) {
+    const aSegment = a[i] || []
+    const bSegment = b[i] || []
+
+    // Compare segment by segment, but consider the "minimum" score of each segment
+    // since mixed segments with params should rank lower than pure static
+    const aMinScore = aSegment.length > 0 ? Math.min(...aSegment) : 0
+    const bMinScore = bSegment.length > 0 ? Math.min(...bSegment) : 0
+
+    if (aMinScore !== bMinScore) {
+      return bMinScore - aMinScore // Higher minimum score wins
+    }
+
+    // If minimum scores are equal, compare average scores
+    const aAvgScore =
+      aSegment.length > 0
+        ? aSegment.reduce((sum, s) => sum + s, 0) / aSegment.length
+        : 0
+    const bAvgScore =
+      bSegment.length > 0
+        ? bSegment.reduce((sum, s) => sum + s, 0) / bSegment.length
+        : 0
+
+    if (aAvgScore !== bAvgScore) {
+      return bAvgScore - aAvgScore // Higher average score wins
+    }
+
+    // If averages are equal, prefer fewer subsegments (less complexity)
+    if (aSegment.length !== bSegment.length) {
+      return aSegment.length - bSegment.length
+    }
+  }
+
+  // If all segments are equal, prefer fewer segments (shorter paths)
+  return a.length - b.length
+}
+
 interface GenerateRouteResolverState {
   id: number
   matchableRecords: {
     path: string
     varName: string
-    score: number
+    score: number[][]
   }[]
 }
 
@@ -43,7 +87,7 @@ ${records.join('\n\n')}
 
 export const resolver = createStaticResolver([
 ${state.matchableRecords
-  .sort((a, b) => b.score - a.score)
+  .sort((a, b) => compareRouteScore(a.score, b.score))
   .map(
     ({ varName, path }) =>
       `  ${varName},  ${' '.repeat(String(state.id).length - varName.length + 2)}// ${path}`
