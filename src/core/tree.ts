@@ -12,6 +12,10 @@ export interface TreeNodeOptions extends ResolvedOptions {
   treeNodeOptions?: TreeNodeValueOptions
 }
 
+export type TreeNodeValueMatcherPart = Array<
+  string | number | Array<string | number>
+>
+
 export class TreeNode {
   /**
    * value of the node
@@ -319,22 +323,24 @@ export class TreeNode {
     return params
   }
 
-  get matcherParts(): Array<string | number> {
-    const parts: Array<string | number> = []
+  get matcherParts(): TreeNodeValueMatcherPart {
+    const parts: TreeNodeValueMatcherPart = []
     let node: TreeNode | undefined = this
 
     while (node && !node.isRoot()) {
-      var subSegments = node.value.subSegments
-        .map(
-          (segment) =>
-            typeof segment === 'string'
-              ? segment.replaceAll('/', '')
-              : 0 /* param */
+      const subSegments = node.value.subSegments.map(
+        (segment) => (typeof segment === 'string' ? segment : 0) /* param */
+      )
+
+      if (subSegments.length > 1) {
+        parts.unshift(
+          node.value.subSegments.map(
+            (segment) => (typeof segment === 'string' ? segment : 0) /* param */
+          )
         )
-        // filter out empty segments
-        .filter((v) => v !== '')
-      console.log('✨', subSegments)
-      parts.unshift(...subSegments)
+      } else if (subSegments.length === 1) {
+        parts.unshift(subSegments[0]!)
+      }
       node = node.parent
     }
 
