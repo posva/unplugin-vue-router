@@ -2,7 +2,6 @@ import { defineConfig } from 'vitest/config'
 import Vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'url'
 
-const __dirname = new URL('.', import.meta.url).pathname
 export default defineConfig({
   resolve: {
     alias: [
@@ -20,6 +19,7 @@ export default defineConfig({
       },
     ],
   },
+
   plugins: [Vue()],
 
   test: {

@@ -300,16 +300,16 @@ export class TreeNode {
     return '/^' + re + '$/i'
   }
 
-  get score(): number {
-    let score = 666
+  get score(): number[][] {
+    const scores: number[][] = []
     let node: TreeNode | undefined = this
 
     while (node && !node.isRoot()) {
-      score = Math.min(score, node.value.score)
+      scores.unshift(node.value.score)
       node = node.parent
     }
 
-    return score
+    return scores
   }
 
   get matcherParams() {
