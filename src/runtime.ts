@@ -99,3 +99,33 @@ export interface DefinePageQueryParamOptions {
    */
   repeatable?: boolean
 }
+
+/**
+ * Merges route record objects for the experimental resolver format.
+ * This function is specifically designed to work with objects that will be passed to normalizeRouteRecord().
+ *
+ * @internal
+ *
+ * @param main - main route record object
+ * @param routeRecords - route records to merge (from definePage imports)
+ * @returns merged route record object
+ */
+export function _mergeRouteRecordExperimental(
+  main: Record<string, any>,
+  ...routeRecords: Partial<DefinePage>[]
+): Record<string, any> {
+  return routeRecords.reduce((acc, routeRecord) => {
+    // Merge meta properties specially
+    const meta = Object.assign({}, acc.meta, routeRecord.meta)
+    
+    // Merge all other properties directly
+    Object.assign(acc, routeRecord)
+    
+    // Set the merged meta
+    if (Object.keys(meta).length > 0) {
+      acc.meta = meta
+    }
+    
+    return acc
+  }, { ...main })
+}
