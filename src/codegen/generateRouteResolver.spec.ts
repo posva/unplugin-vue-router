@@ -409,6 +409,9 @@ describe('generateRouteResolver', () => {
       "
       const r_0 = normalizeRouteRecord({
         /* internal name: '/a/b' */
+        meta: {
+          "requiresAuth": true
+        },
       })
       const r_1 = normalizeRouteRecord({
         name: '/a/b/c',
@@ -421,6 +424,82 @@ describe('generateRouteResolver', () => {
 
       export const resolver = createStaticResolver([
         r_1,  // /a/b/c
+      ])
+      "
+    `)
+  })
+
+  it('includes meta in route records with components', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+    // Create a route with both component and meta
+    tree.insert('users', 'users.vue')
+    const usersNode = tree.children.get('users')!
+    usersNode.value.setEditOverride('meta', { requiresAuth: true, title: 'Users' })
+
+    const resolver = generateRouteResolver(
+      tree,
+      DEFAULT_OPTIONS,
+      new ImportsMap(),
+      new Map()
+    )
+
+    expect(resolver).toMatchInlineSnapshot(`
+      "
+      const r_0 = normalizeRouteRecord({
+        name: '/users',
+        path: new MatcherPatternPathStatic('/users'),
+        meta: {
+          "requiresAuth": true,
+          "title": "Users"
+        },
+        components: {
+          'default': () => import('users.vue')
+        },
+      })
+
+      export const resolver = createStaticResolver([
+        r_0,  // /users
+      ])
+      "
+    `)
+  })
+
+  it('handles definePage imports correctly', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+    // Create a route with a component
+    tree.insert('profile', 'profile.vue')
+    const profileNode = tree.children.get('profile')!
+    
+    // Mark it as having definePage (this would normally be set by the plugin when parsing the file)
+    profileNode.hasDefinePage = true
+
+    const resolver = generateRouteResolver(
+      tree,
+      DEFAULT_OPTIONS,
+      new ImportsMap(),
+      new Map()
+    )
+
+    expect(resolver).toMatchInlineSnapshot(`
+      "
+
+      const r_0 = normalizeRouteRecord(
+        _mergeRouteRecordExperimental(
+          {
+            name: '/profile',
+            path: new MatcherPatternPathStatic('/profile'),
+            components: {
+              'default': () => import('profile.vue')
+            },
+            
+          },
+          _definePage_default_0
+        )
+      )
+
+
+      export const resolver = createStaticResolver([
+        r_0,  // /profile
       ])
       "
     `)

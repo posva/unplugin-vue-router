@@ -654,7 +654,7 @@ exports[`generateRouteRecord > route block > adds meta data 1`] = `
     meta: {
       "auth": true,
       "title": "Home"
-    }
+    },
   }
 ]"
 `;
@@ -672,7 +672,7 @@ exports[`generateRouteRecord > route block > handles named views with empty rout
     meta: {
       "auth": true,
       "title": "Home"
-    }
+    },
   }
 ]"
 `;
@@ -695,7 +695,7 @@ exports[`generateRouteRecord > route block > merges deep meta properties 1`] = `
           3
         ]
       }
-    }
+    },
   }
 ]"
 `;
@@ -710,7 +710,7 @@ exports[`generateRouteRecord > route block > merges multiple meta properties 1`]
     meta: {
       "one": true,
       "two": true
-    }
+    },
   }
 ]"
 `;

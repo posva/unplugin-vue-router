@@ -11,6 +11,15 @@ definePage({
   <main>
     <h1>Not Found</h1>
 
-    <p>{{ $route.params }}</p>
+    <pre>{{ $route.params }}</pre>
+    <pre>{{ $route.meta }}</pre>
   </main>
 </template>
+
+<route lang="json">
+{
+  "meta": {
+    "from block": true
+  }
+}
+</route>
