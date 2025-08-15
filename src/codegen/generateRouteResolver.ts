@@ -1,9 +1,10 @@
+import { getLang } from '@vue-macros/common'
 import { PrefixTree, type TreeNode } from '../core/tree'
 import { ImportsMap } from '../core/utils'
 import { type ResolvedOptions } from '../options'
 import { ts } from '../utils'
 import { generateParamsOptions, ParamParsersMap } from './generateParamParsers'
-import { generatePageImport } from './generateRouteRecords'
+import { generatePageImport, formatMeta } from './generateRouteRecords'
 
 /**
  * Compare two score arrays for sorting routes by priority.
@@ -124,6 +125,22 @@ export function generateRouteRecord({
   let varName: string | null = null
   let recordDeclaration = ''
 
+  // Handle definePage imports
+  const definePageDataList: string[] = []
+  if (node.hasDefinePage) {
+    for (const [name, filePath] of node.value.components) {
+      const pageDataImport = `_definePage_${name}_${importsMap.size}`
+      definePageDataList.push(pageDataImport)
+      const lang = getLang(filePath)
+      importsMap.addDefault(
+        // TODO: apply the language used in the sfc
+        `${filePath}?definePage&` +
+          (lang === 'vue' ? 'vue&lang.tsx' : `lang.${lang}`),
+        pageDataImport
+      )
+    }
+  }
+
   if (!shouldSkipNode) {
     varName = `r_${state.id++}`
 
@@ -148,19 +165,28 @@ export function generateRouteRecord({
       recordComponents = ''
     }
 
-    recordDeclaration = `
-const ${varName} = normalizeRouteRecord({
+    const routeRecordObject = `{
   ${recordName}
-  ${generateRouteRecordPath({ node, importsMap, paramParsersMap })}
+  ${generateRouteRecordPath({ node, importsMap, paramParsersMap })}${formatMeta(node, '  ')}
   ${recordComponents}
   ${parentVar ? `parent: ${parentVar},` : ''}
-})
+}`
+
+    recordDeclaration =
+      definePageDataList.length > 0
+        ? `
+const ${varName} = normalizeRouteRecord(
+  ${generateRouteRecordMerge(routeRecordObject, definePageDataList, importsMap)}
+)
 `
-      .trim()
-      .split('\n')
-      // remove empty lines
-      .filter((l) => l.trimStart().length > 0)
-      .join('\n')
+        : `
+const ${varName} = normalizeRouteRecord(${routeRecordObject})
+`
+            .trim()
+            .split('\n')
+            // remove empty lines
+            .filter((l) => l.trimStart().length > 0)
+            .join('\n')
   }
 
   const children = node.getChildrenSorted().map((child) =>
@@ -229,4 +255,32 @@ export function generateRouteRecordPath({
   } else {
     return `path: new MatcherPatternPathStatic('${node.fullPath}'),`
   }
+}
+
+/**
+ * Generates a merge call for route records with definePage data in the experimental resolver format.
+ */
+function generateRouteRecordMerge(
+  routeRecordObject: string,
+  definePageDataList: string[],
+  importsMap: ImportsMap
+): string {
+  if (definePageDataList.length === 0) {
+    return routeRecordObject
+  }
+
+  importsMap.add('unplugin-vue-router/runtime', '_mergeRouteRecordExperimental')
+
+  // Re-indent the route object to be 4 spaces (2 levels from normalizeRouteRecord)
+  const indentedRouteObject = routeRecordObject
+    .split('\n')
+    .map((line) => {
+      return line && `    ${line}`
+    })
+    .join('\n')
+
+  return `_mergeRouteRecordExperimental(
+${indentedRouteObject},
+${definePageDataList.map((name) => `    ${name}`).join(',\n')}
+  )`
 }
