@@ -329,7 +329,7 @@ export function resolveOptions(options: Options) {
           ...options.experimental.paramMatchers,
         }
     : // this way we can do paramMatchers?.dir
-      null
+      undefined
 
   const paramMatchersDir = (
     paramMatchers?.dir
@@ -349,7 +349,8 @@ export function resolveOptions(options: Options) {
   const experimental = {
     ...options.experimental,
     autoExportsDataLoaders,
-    paramMatchers: {
+    // keep undefined if paramMatchers is not set
+    paramMatchers: paramMatchers && {
       ...paramMatchers,
       dir: paramMatchersDir,
     },

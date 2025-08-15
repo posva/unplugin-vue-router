@@ -261,8 +261,8 @@ importers:
         specifier: ^3.5.18
         version: 3.5.21(typescript@5.9.2)
       vue-router:
-        specifier: file:/Users/posva/oss/vuejs/router/packages/router/vue-router-4.5.1.tgz
-        version: file:../vuejs/router/packages/router/vue-router-4.5.1.tgz(vue@3.5.21(typescript@5.9.2))
+        specifier: https://pkg.pr.new/vue-router@2d79fe7
+        version: https://pkg.pr.new/vue-router@2d79fe7(vue@3.5.21(typescript@5.9.2))
     devDependencies:
       '@vitejs/plugin-vue':
         specifier: ^6.0.1
@@ -6864,8 +6864,8 @@ packages:
     peerDependencies:
       vue: ^3.2.0
 
-  vue-router@file:../vuejs/router/packages/router/vue-router-4.5.1.tgz:
-    resolution: {integrity: sha512-aBPR/DiVyr5ns0dQiI6cAQl7JRgq7uVeM/OZGt+gy4xvc9HgZh/nPc3FaF1IzM6Efap6tQ9z1K6gvX1RT6JN+Q==, tarball: file:../vuejs/router/packages/router/vue-router-4.5.1.tgz}
+  vue-router@https://pkg.pr.new/vue-router@2d79fe7:
+    resolution: {tarball: https://pkg.pr.new/vue-router@2d79fe7}
     version: 4.5.1
     peerDependencies:
       vue: ^3.2.0
@@ -14610,7 +14610,7 @@ snapshots:
       '@vue/devtools-api': 6.6.4
       vue: 3.5.21(typescript@5.9.2)
 
-  vue-router@file:../vuejs/router/packages/router/vue-router-4.5.1.tgz(vue@3.5.21(typescript@5.9.2)):
+  vue-router@https://pkg.pr.new/vue-router@2d79fe7(vue@3.5.21(typescript@5.9.2)):
     dependencies:
       '@vue/devtools-api': 6.6.4
       vue: 3.5.21(typescript@5.9.2)
