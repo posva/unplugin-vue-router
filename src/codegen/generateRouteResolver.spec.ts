@@ -4,6 +4,7 @@ import { resolveOptions } from '../options'
 import {
   generateRouteResolver,
   generateRouteRecord,
+  generateRouteRecordPath,
 } from './generateRouteResolver'
 import { ImportsMap } from '../core/utils'
 import { ParamParsersMap } from './generateParamParsers'
@@ -19,6 +20,135 @@ beforeEach(() => {
     id: 0,
     matchableRecords: [],
   }
+})
+
+describe('generateRouteRecordPath', () => {
+  let importsMap!: ImportsMap
+  beforeEach(() => {
+    importsMap = new ImportsMap()
+  })
+
+  it('generates static paths', () => {
+    const node = new PrefixTree(DEFAULT_OPTIONS).insert('a', 'a.vue')
+    expect(
+      generateRouteRecordPath({ importsMap, node, paramParsersMap: new Map() })
+    ).toBe(`path: new MatcherPatternPathStatic('/a'),`)
+  })
+
+  it('works with multiple segments', () => {
+    const node = new PrefixTree(DEFAULT_OPTIONS).insert('a/b/c', 'a/b/c.vue')
+    expect(
+      generateRouteRecordPath({ importsMap, node, paramParsersMap: new Map() })
+    ).toBe(`path: new MatcherPatternPathStatic('/a/b/c'),`)
+  })
+
+  // TODO: we need to figure out an option for this
+  it.todo('keeps trailing slashes', () => {
+    // currently, the `a/` gets converted to `a` in the tree (which is expected)
+    const node = new PrefixTree(DEFAULT_OPTIONS).insert('a/', 'a.vue')
+    expect(
+      generateRouteRecordPath({ importsMap, node, paramParsersMap: new Map() })
+    ).toBe(`path: new MatcherPatternPathStatic('/a/'),`)
+  })
+
+  it('generates paths with params', () => {
+    const node = new PrefixTree(DEFAULT_OPTIONS).insert('a/[b]', 'a.vue')
+    expect(
+      generateRouteRecordPath({ importsMap, node, paramParsersMap: new Map() })
+    ).toMatchInlineSnapshot(`
+      "path: new MatcherPatternPathCustomParams(
+          /^\\/a\\/([^/]+)$/i,
+          {
+            b: {},
+          },
+          ["a",0],
+        ),"
+    `)
+  })
+
+  it('works with multiple params', () => {
+    const node = new PrefixTree(DEFAULT_OPTIONS).insert('a/[b]/[c]', 'a.vue')
+    expect(
+      generateRouteRecordPath({
+        importsMap,
+        node,
+        paramParsersMap: new Map(),
+      })
+    ).toMatchInlineSnapshot(`
+      "path: new MatcherPatternPathCustomParams(
+          /^\\/a\\/([^/]+)\\/([^/]+)$/i,
+          {
+            b: {},
+            c: {},
+          },
+          ["a",0,0],
+        ),"
+    `)
+  })
+
+  it('works with optional params', () => {
+    const node = new PrefixTree(DEFAULT_OPTIONS).insert('a/[[b]]', 'a.vue')
+    expect(
+      generateRouteRecordPath({ importsMap, node, paramParsersMap: new Map() })
+    ).toMatchInlineSnapshot(`
+      "path: new MatcherPatternPathCustomParams(
+          /^\\/a\\/([^/]+)?$/i,
+          {
+            b: {},
+          },
+          ["a",0],
+        ),"
+    `)
+  })
+
+  it('works with repeatable params', () => {
+    const node = new PrefixTree(DEFAULT_OPTIONS).insert('a/[b]+', 'a.vue')
+    expect(
+      generateRouteRecordPath({ importsMap, node, paramParsersMap: new Map() })
+    ).toMatchInlineSnapshot(`
+      "path: new MatcherPatternPathCustomParams(
+          /^\\/a\\/(.+?)$/i,
+          {
+            b: {repeat: true, },
+          },
+          ["a",0],
+        ),"
+    `)
+  })
+
+  it('works with repeatable optional params', () => {
+    const node = new PrefixTree(DEFAULT_OPTIONS).insert('a/[[b]]+', 'a.vue')
+    expect(
+      generateRouteRecordPath({ importsMap, node, paramParsersMap: new Map() })
+    ).toMatchInlineSnapshot(`
+      "path: new MatcherPatternPathCustomParams(
+          /^\\/a\\/(.+?)?$/i,
+          {
+            b: {repeat: true, },
+          },
+          ["a",0],
+        ),"
+    `)
+  })
+
+  it('works with segments', () => {
+    const node = new PrefixTree(DEFAULT_OPTIONS).insert(
+      'a/a-[b]-c-[d]',
+      'a.vue'
+    )
+    expect(
+      generateRouteRecordPath({ importsMap, node, paramParsersMap: new Map() })
+    ).toMatchInlineSnapshot(`
+      "path: new MatcherPatternPathCustomParams(
+          /^\\/a\\/a-([^/]+)-c-([^/]+)$/i,
+          {
+            b: {},
+            d: {},
+          },
+          ["a",["a-",0,"-c-",0]],
+        ),"
+    `)
+  })
 })
 
 describe('generateRouteRecord', () => {

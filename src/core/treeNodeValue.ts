@@ -232,6 +232,12 @@ export interface TreeRouteParam {
   parser: string | null
 }
 
+/**
+ * To escape regex characters in the path segment.
+ * @internal
+ */
+const REGEX_CHARS_RE = /[.+*?^${}()[\]/\\]/g
+
 export class TreeNodeValueParam extends _TreeNodeValueBase {
   params: TreeRouteParam[]
   override _type: TreeNodeType.param = TreeNodeType.param
@@ -271,11 +277,10 @@ export class TreeNodeValueParam extends _TreeNodeValueBase {
       .filter(Boolean)
       .map((segment) => {
         if (typeof segment === 'string') {
-          // TODO: escape regexp from vue router source code
-          return segment.replaceAll('/', '\\/')
+          return segment.replace(REGEX_CHARS_RE, '\\$&')
         }
         return (
-          (segment.repeatable ? '(.+)' : '([^/]+)') +
+          (segment.repeatable ? '(.+?)' : '([^/]+)') +
           (segment.optional ? '?' : '')
         )
       })
@@ -484,7 +489,10 @@ function parseFileSegment(
 
     if (state === ParseFileSegmentState.static) {
       if (c === '[') {
-        consumeBuffer()
+        // avoid adding the leading empty string for segments that start with a param
+        if (buffer) {
+          consumeBuffer()
+        }
         // check if it's an optional param or not
         state = ParseFileSegmentState.paramOptional
       } else {

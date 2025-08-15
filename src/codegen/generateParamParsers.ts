@@ -110,12 +110,12 @@ export function generateParamsOptions(
   const paramOptions = params.map((param) => {
     const repeatable = param.repeatable ? `repeat: true, ` : ''
     return `
-      ${param.paramName}: {${generateParamParserOptions(param, importsMap, paramParsers)}${repeatable}},
-`
+${param.paramName}: {${generateParamParserOptions(param, importsMap, paramParsers)}${repeatable}},
+`.slice(1, -1)
   })
 
   return `{
-${paramOptions.join('\n')}
+      ${paramOptions.join('\n      ')}
     }`
 }
 

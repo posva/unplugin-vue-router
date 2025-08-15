@@ -72,6 +72,7 @@ export function generateRouteRecord({
   paramParsersMap: ParamParsersMap
 }): string {
   // TODO: skip nodes that add no value. Maybe it should be done at the level of the tree?
+  // by skipping the parent node that has no extra information
   const varName = `r_${state.id++}`
 
   let recordName: string
