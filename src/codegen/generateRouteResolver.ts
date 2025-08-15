@@ -53,6 +53,9 @@ ${state.matchableRecords
 `
 }
 
+/**
+ * Generates the route record in the format expected by the static resolver.
+ */
 export function generateRouteRecord({
   node,
   parentVar,
@@ -96,7 +99,7 @@ export function generateRouteRecord({
   const recordDeclaration = `
 const ${varName} = normalizeRouteRecord({
   ${recordName}
-  ${generateRouteRecordPathMatcher({ node, importsMap, paramParsersMap })}
+  ${generateRouteRecordPath({ node, importsMap, paramParsersMap })}
   ${recordComponents}
   ${parentVar ? `parent: ${parentVar},` : ''}
 })
@@ -142,7 +145,10 @@ ${files
 ${indentStr}},`
 }
 
-export function generateRouteRecordPathMatcher({
+/**
+ * Generates the `path` property of a route record for the static resolver.
+ */
+export function generateRouteRecordPath({
   node,
   importsMap,
   paramParsersMap,
@@ -153,16 +159,15 @@ export function generateRouteRecordPathMatcher({
 }) {
   if (!node.isMatchable()) {
     return ''
-    // TODO: do we really need isGroup?
-  } else if (node.value.isStatic() || node.value.isGroup()) {
-    return `path: new MatcherPatternPathStatic('${node.fullPath}'),`
-  } else if (node.value.isParam()) {
+  }
+  const params = node.params
+  if (params.length > 0) {
     return `path: new MatcherPatternPathCustomParams(
     ${node.regexp},
     ${generateParamsOptions(node.params, importsMap, paramParsersMap)},
     ${JSON.stringify(node.matcherParts)},
   ),`
+  } else {
+    return `path: new MatcherPatternPathStatic('${node.fullPath}'),`
   }
-
-  return `/* UNSUPPORTED path matcher for: "${node.fullPath}" */`
 }
