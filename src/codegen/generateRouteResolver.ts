@@ -21,18 +21,16 @@ export function generateRouteResolver(
   paramParsersMap: ParamParsersMap
 ): string {
   const state: GenerateRouteResolverState = { id: 0, matchableRecords: [] }
-  const records = tree
-    .getChildrenSorted()
-    .map((node) =>
-      generateRouteRecord({
-        node,
-        parentVar: null,
-        state,
-        options,
-        importsMap,
-        paramParsersMap,
-      })
-    )
+  const records = tree.getChildrenSorted().map((node) =>
+    generateRouteRecord({
+      node,
+      parentVar: null,
+      state,
+      options,
+      importsMap,
+      paramParsersMap,
+    })
+  )
 
   importsMap.add('vue-router/experimental', 'createStaticResolver')
   importsMap.add('vue-router/experimental', 'MatcherPatternPathStatic')

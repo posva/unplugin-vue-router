@@ -247,6 +247,7 @@ export class TreeNodeValueParam extends _TreeNodeValueBase {
     this.params = params
   }
 
+  // FIXME: implement scoring from vue-router
   get score(): number {
     const malus = Math.max(
       ...this.params.map((p) =>
@@ -279,6 +280,21 @@ export class TreeNodeValueParam extends _TreeNodeValueBase {
         )
       })
       .join('')
+  }
+
+  override toString(): string {
+    const params =
+      this.params.length > 0
+        ? ` 𝑥(` +
+          this.params
+            .map(
+              (p) =>
+                `${p.paramName}${p.modifier}` + (p.parser ? '=' + p.parser : '')
+            )
+            .join(', ') +
+          ')'
+        : ''
+    return `${this.pathSegment}` + params
   }
 }
 
