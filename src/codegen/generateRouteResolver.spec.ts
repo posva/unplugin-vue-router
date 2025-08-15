@@ -171,4 +171,6 @@ describe('generateRouteResolver', () => {
       "
     `)
   })
+
+  it.todo('strips off empty parent records')
 })
