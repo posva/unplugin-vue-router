@@ -115,33 +115,40 @@ export function generateRouteRecord({
   importsMap: ImportsMap
   paramParsersMap: ParamParsersMap
 }): string {
-  // TODO: skip nodes that add no value. Maybe it should be done at the level of the tree?
-  // by skipping the parent node that has no extra information
-  const varName = `r_${state.id++}`
+  const isMatchable = node.isMatchable()
 
-  let recordName: string
-  let recordComponents: string
+  // we want to skip adding routes that add no options (components, meta, props, etc)
+  // that simplifies the generated tree
+  const shouldSkipNode = !isMatchable && !node.meta
 
-  // TODO: what about groups?
-  if (node.isMatchable()) {
-    state.matchableRecords.push({
-      path: node.fullPath,
-      varName,
-      score: node.score,
-    })
-    recordName = `name: '${node.name}',`
-    recordComponents = generateRouteRecordComponent(
-      node,
-      '  ',
-      options.importMode,
-      importsMap
-    )
-  } else {
-    recordName = node.name ? `/* internal name: '${node.name}' */` : ``
-    recordComponents = ''
-  }
+  let varName: string | null = null
+  let recordDeclaration = ''
 
-  const recordDeclaration = `
+  if (!shouldSkipNode) {
+    varName = `r_${state.id++}`
+
+    let recordName: string
+    let recordComponents: string
+
+    if (isMatchable) {
+      state.matchableRecords.push({
+        path: node.fullPath,
+        varName,
+        score: node.score,
+      })
+      recordName = `name: '${node.name}',`
+      recordComponents = generateRouteRecordComponent(
+        node,
+        '  ',
+        options.importMode,
+        importsMap
+      )
+    } else {
+      recordName = node.name ? `/* internal name: '${node.name}' */` : ``
+      recordComponents = ''
+    }
+
+    recordDeclaration = `
 const ${varName} = normalizeRouteRecord({
   ${recordName}
   ${generateRouteRecordPath({ node, importsMap, paramParsersMap })}
@@ -149,16 +156,18 @@ const ${varName} = normalizeRouteRecord({
   ${parentVar ? `parent: ${parentVar},` : ''}
 })
 `
-    .trim()
-    .split('\n')
-    // remove empty lines
-    .filter((l) => l.trimStart().length > 0)
-    .join('\n')
+      .trim()
+      .split('\n')
+      // remove empty lines
+      .filter((l) => l.trimStart().length > 0)
+      .join('\n')
+  }
 
   const children = node.getChildrenSorted().map((child) =>
     generateRouteRecord({
       node: child,
-      parentVar: varName,
+      // If we skipped this node, pass the parent var from above, otherwise use our var
+      parentVar: shouldSkipNode ? parentVar : varName,
       state,
       options,
       importsMap,
@@ -166,7 +175,12 @@ const ${varName} = normalizeRouteRecord({
     })
   )
 
-  return recordDeclaration + (children.length ? '\n' + children.join('\n') : '')
+  return (
+    recordDeclaration +
+    (children.length
+      ? (recordDeclaration ? '\n' : '') + children.join('\n')
+      : '')
+  )
 }
 
 function generateRouteRecordComponent(
