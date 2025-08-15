@@ -221,41 +221,32 @@ describe('generateRouteResolver', () => {
       })
 
       const r_1 = normalizeRouteRecord({
-        /* internal name: '/b' */
-      })
-      const r_2 = normalizeRouteRecord({
         name: '/b/c',
         path: new MatcherPatternPathStatic('/b/c'),
         components: {
           'default': () => import('b/c.vue')
         },
-        parent: r_1,
       })
-      const r_3 = normalizeRouteRecord({
+      const r_2 = normalizeRouteRecord({
         name: '/b/c/d',
         path: new MatcherPatternPathStatic('/b/c/d'),
         components: {
           'default': () => import('b/c/d.vue')
         },
-        parent: r_2,
-      })
-      const r_4 = normalizeRouteRecord({
-        /* internal name: '/b/e' */
         parent: r_1,
       })
-      const r_5 = normalizeRouteRecord({
+      const r_3 = normalizeRouteRecord({
         name: '/b/e/f',
         path: new MatcherPatternPathStatic('/b/e/f'),
         components: {
           'default': () => import('b/c/f.vue')
         },
-        parent: r_4,
       })
 
       export const resolver = createStaticResolver([
-        r_3,  // /b/c/d
-        r_5,  // /b/e/f
-        r_2,  // /b/c
+        r_2,  // /b/c/d
+        r_3,  // /b/e/f
+        r_1,  // /b/c
         r_0,  // /a
       ])
       "
@@ -286,15 +277,15 @@ describe('generateRouteResolver', () => {
     expect(resolver.replace(/^.*?createStaticResolver/s, ''))
       .toMatchInlineSnapshot(`
         "([
-          r_11,  // /b/a-b
-          r_7,   // /b/a-:a
-          r_3,   // /b/:a
-          r_8,   // /b/a-:a?
-          r_4,   // /b/:a?
-          r_10,  // /b/a-:a+
-          r_6,   // /b/:a+
-          r_9,   // /b/a-:a*
-          r_5,   // /b/:a*
+          r_10,  // /b/a-b
+          r_6,   // /b/a-:a
+          r_2,   // /b/:a
+          r_7,   // /b/a-:a?
+          r_3,   // /b/:a?
+          r_9,   // /b/a-:a+
+          r_5,   // /b/:a+
+          r_8,   // /b/a-:a*
+          r_4,   // /b/:a*
           r_1,   // /a
           r_0,   // /:all(.*)
         ])
@@ -302,7 +293,138 @@ describe('generateRouteResolver', () => {
       `)
   })
 
-  it.todo('strips off empty parent records')
+  it('strips off empty parent records', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+    const importsMap = new ImportsMap()
+    tree.insert('a', 'a.vue')
+    tree.insert('b/c', 'b/c.vue')
+    tree.insert('b/c/d', 'b/c/d.vue')
+    tree.insert('b/e/f', 'b/c/f.vue')
+    const resolver = generateRouteResolver(
+      tree,
+      DEFAULT_OPTIONS,
+      importsMap,
+      new Map()
+    )
+
+    expect(resolver).toMatchInlineSnapshot(`
+      "
+      const r_0 = normalizeRouteRecord({
+        name: '/a',
+        path: new MatcherPatternPathStatic('/a'),
+        components: {
+          'default': () => import('a.vue')
+        },
+      })
+
+      const r_1 = normalizeRouteRecord({
+        name: '/b/c',
+        path: new MatcherPatternPathStatic('/b/c'),
+        components: {
+          'default': () => import('b/c.vue')
+        },
+      })
+      const r_2 = normalizeRouteRecord({
+        name: '/b/c/d',
+        path: new MatcherPatternPathStatic('/b/c/d'),
+        components: {
+          'default': () => import('b/c/d.vue')
+        },
+        parent: r_1,
+      })
+      const r_3 = normalizeRouteRecord({
+        name: '/b/e/f',
+        path: new MatcherPatternPathStatic('/b/e/f'),
+        components: {
+          'default': () => import('b/c/f.vue')
+        },
+      })
+
+      export const resolver = createStaticResolver([
+        r_2,  // /b/c/d
+        r_3,  // /b/e/f
+        r_1,  // /b/c
+        r_0,  // /a
+      ])
+      "
+    `)
+  })
+
+  it('retains parent chain when skipping empty intermediate nodes', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+    // Create a meaningful parent
+    tree.insert('a', 'a.vue')
+    // Create a deeply nested child with empty intermediate nodes b and c
+    tree.insert('a/b/c/e', 'a/b/c/e.vue')
+    const resolver = generateRouteResolver(
+      tree,
+      DEFAULT_OPTIONS,
+      new ImportsMap(),
+      new Map()
+    )
+
+    expect(resolver).toMatchInlineSnapshot(`
+      "
+      const r_0 = normalizeRouteRecord({
+        name: '/a',
+        path: new MatcherPatternPathStatic('/a'),
+        components: {
+          'default': () => import('a.vue')
+        },
+      })
+      const r_1 = normalizeRouteRecord({
+        name: '/a/b/c/e',
+        path: new MatcherPatternPathStatic('/a/b/c/e'),
+        components: {
+          'default': () => import('a/b/c/e.vue')
+        },
+        parent: r_0,
+      })
+
+      export const resolver = createStaticResolver([
+        r_1,  // /a/b/c/e
+        r_0,  // /a
+      ])
+      "
+    `)
+  })
+
+  it('preserves parent nodes with meta data', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+    // Create a nested route
+    tree.insert('a/b/c', 'a/b/c.vue')
+    // Add meta to the intermediate b node (no components, but has meta)
+    const aNode = tree.children.get('a')!
+    const bNode = aNode.children.get('b')!
+    bNode.value.setEditOverride('meta', { requiresAuth: true })
+
+    const resolver = generateRouteResolver(
+      tree,
+      DEFAULT_OPTIONS,
+      new ImportsMap(),
+      new Map()
+    )
+
+    expect(resolver).toMatchInlineSnapshot(`
+      "
+      const r_0 = normalizeRouteRecord({
+        /* internal name: '/a/b' */
+      })
+      const r_1 = normalizeRouteRecord({
+        name: '/a/b/c',
+        path: new MatcherPatternPathStatic('/a/b/c'),
+        components: {
+          'default': () => import('a/b/c.vue')
+        },
+        parent: r_0,
+      })
+
+      export const resolver = createStaticResolver([
+        r_1,  // /a/b/c
+      ])
+      "
+    `)
+  })
 })
 
 describe('route prioritization in resolver', () => {
