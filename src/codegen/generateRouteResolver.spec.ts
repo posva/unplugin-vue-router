@@ -57,7 +57,7 @@ describe('generateRouteRecordPath', () => {
       generateRouteRecordPath({ importsMap, node, paramParsersMap: new Map() })
     ).toMatchInlineSnapshot(`
       "path: new MatcherPatternPathCustomParams(
-          /^\\/a\\/([^/]+)$/i,
+          /^\\/a\\/([^/]+?)$/i,
           {
             b: {},
           },
@@ -76,7 +76,7 @@ describe('generateRouteRecordPath', () => {
       })
     ).toMatchInlineSnapshot(`
       "path: new MatcherPatternPathCustomParams(
-          /^\\/a\\/([^/]+)\\/([^/]+)$/i,
+          /^\\/a\\/([^/]+?)\\/([^/]+?)$/i,
           {
             b: {},
             c: {},
@@ -92,7 +92,7 @@ describe('generateRouteRecordPath', () => {
       generateRouteRecordPath({ importsMap, node, paramParsersMap: new Map() })
     ).toMatchInlineSnapshot(`
       "path: new MatcherPatternPathCustomParams(
-          /^\\/a\\/([^/]+)?$/i,
+          /^\\/a\\/([^/]+?)?$/i,
           {
             b: {},
           },
@@ -140,7 +140,7 @@ describe('generateRouteRecordPath', () => {
       generateRouteRecordPath({ importsMap, node, paramParsersMap: new Map() })
     ).toMatchInlineSnapshot(`
       "path: new MatcherPatternPathCustomParams(
-          /^\\/a\\/a-([^/]+)-c-([^/]+)$/i,
+          /^\\/a\\/a-([^/]+?)-c-([^/]+?)$/i,
           {
             b: {},
             d: {},
@@ -253,10 +253,10 @@ describe('generateRouteResolver', () => {
       })
 
       export const resolver = createStaticResolver([
-        r_0,  // /a
-        r_2,  // /b/c
         r_3,  // /b/c/d
         r_5,  // /b/e/f
+        r_2,  // /b/c
+        r_0,  // /a
       ])
       "
     `)
@@ -285,22 +285,140 @@ describe('generateRouteResolver', () => {
 
     expect(resolver.replace(/^.*?createStaticResolver/s, ''))
       .toMatchInlineSnapshot(`
-      "([
-        r_1,   // /a
-        r_11,  // /b/a-b
-        r_7,   // /b/a-:a
-        r_8,   // /b/a-:a?
-        r_10,  // /b/a-:a+
-        r_9,   // /b/a-:a*
-        r_3,   // /b/:a
-        r_4,   // /b/:a?
-        r_6,   // /b/:a+
-        r_5,   // /b/:a*
-        r_0,   // /:all(.*)
-      ])
-      "
-    `)
+        "([
+          r_11,  // /b/a-b
+          r_7,   // /b/a-:a
+          r_3,   // /b/:a
+          r_8,   // /b/a-:a?
+          r_4,   // /b/:a?
+          r_10,  // /b/a-:a+
+          r_6,   // /b/:a+
+          r_9,   // /b/a-:a*
+          r_5,   // /b/:a*
+          r_1,   // /a
+          r_0,   // /:all(.*)
+        ])
+        "
+      `)
   })
 
   it.todo('strips off empty parent records')
+})
+
+describe('route prioritization in resolver', () => {
+  function getRouteOrderFromResolver(tree: PrefixTree): string[] {
+    const resolver = generateRouteResolver(
+      tree,
+      DEFAULT_OPTIONS,
+      new ImportsMap(),
+      new Map()
+    )
+
+    // Extract the order from the resolver output
+    const lines = resolver.split('\n').filter((line) => line.includes('// /'))
+    return lines.map((line) => line.split('// ')[1] || '')
+  }
+
+  it('prioritizes routes correctly in resolver output', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+
+    // Create routes with different specificity levels
+    tree.insert('static', 'static.vue')
+    tree.insert('[id]', '[id].vue')
+    tree.insert('[[optional]]', '[[optional]].vue')
+    tree.insert('prefix-[id]-suffix', 'prefix-[id]-suffix.vue')
+    tree.insert('[...all]', '[...all].vue')
+
+    // Routes should be ordered from most specific to least specific
+    expect(getRouteOrderFromResolver(tree)).toEqual([
+      '/static', // static routes first
+      '/prefix-:id-suffix', // mixed routes with static content
+      '/:id', // pure parameter routes
+      '/:optional?', // optional parameter routes
+      '/:all(.*)', // catch-all routes last
+    ])
+  })
+
+  it('handles nested route prioritization correctly', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+
+    // Create nested routes with different patterns
+    tree.insert('api/users', 'api/users.vue')
+    tree.insert('api/[resource]', 'api/[resource].vue')
+    tree.insert('prefix-[param]/static', 'prefix-[param]/static.vue')
+    tree.insert('[dynamic]/static', '[dynamic]/static.vue')
+    tree.insert('[x]/[y]', '[x]/[y].vue')
+
+    // Routes with more static content should come first
+    expect(getRouteOrderFromResolver(tree)).toEqual([
+      '/api/users', // all static segments
+      '/api/:resource', // static root, param child
+      '/prefix-:param/static', // mixed root, static child
+      '/:dynamic/static', // param root, static child
+      '/:x/:y', // all param segments
+    ])
+  })
+
+  it('orders complex mixed routes appropriately', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+
+    // Create routes with various subsegment complexity
+    tree.insert('users', 'users.vue') // pure static
+    tree.insert('prefix-[id]', 'prefix-[id].vue') // prefix + param
+    tree.insert('[id]-suffix', '[id]-suffix.vue') // param + suffix
+    tree.insert('pre-[a]-mid-[b]-end', 'complex.vue') // complex mixed
+    tree.insert('[a]-[b]', '[a]-[b].vue') // params with separator
+    tree.insert('[param]', '[param].vue') // pure param
+
+    expect(getRouteOrderFromResolver(tree)).toEqual([
+      '/users', // pure static wins
+      '/pre-:a-mid-:b-end', // most static content in mixed
+      '/:id-suffix', // static suffix
+      '/prefix-:id', // static prefix
+      '/:a-:b', // params with static separator
+      '/:param', // pure param last
+    ])
+  })
+
+  it('handles optional and repeatable params in nested contexts', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+
+    // Create nested routes with optional and repeatable params
+    tree.insert('api/static', 'api/static.vue')
+    tree.insert('api/[[optional]]', 'api/[[optional]].vue')
+    tree.insert('api/[required]', 'api/[required].vue')
+    tree.insert('api/[repeatable]+', 'api/[repeatable]+.vue')
+    tree.insert('api/[[optional]]+', 'api/[[optional]]+.vue')
+    tree.insert('api/[...catchall]', 'api/[...catchall].vue')
+
+    expect(getRouteOrderFromResolver(tree)).toEqual([
+      '/api/static', // static segment wins
+      '/api/:required', // required param
+      '/api/:optional?', // optional param
+      '/api/:repeatable+', // repeatable param
+      '/api/:optional*', // optional repeatable param
+      '/api/:catchall(.*)', // catch-all last
+    ])
+  })
+
+  it('handles complex subsegments in deeply nested routes', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+
+    // Create deeply nested routes with complex subsegment patterns
+    tree.insert('api/v1/users', 'api/v1/users.vue')
+    tree.insert('api/v1/user-[id]', 'api/v1/user-[id].vue')
+    tree.insert('api/v1/[type]/list', 'api/v1/[type]/list.vue')
+    tree.insert('api/v1/[type]/[id]', 'api/v1/[type]/[id].vue')
+    tree.insert('api/v1/prefix-[a]-mid-[b]', 'api/v1/prefix-[a]-mid-[b].vue')
+    tree.insert('api/v1/[x]-[y]-[z]', 'api/v1/[x]-[y]-[z].vue')
+
+    expect(getRouteOrderFromResolver(tree)).toEqual([
+      '/api/v1/users', // all static segments
+      '/api/v1/user-:id', // mixed with static prefix
+      '/api/v1/prefix-:a-mid-:b', // complex mixed pattern
+      '/api/v1/:x-:y-:z', // multiple params with separators (mixed subsegments rank higher)
+      '/api/v1/:type/list', // param + static child
+      '/api/v1/:type/:id', // all param segments
+    ])
+  })
 })
