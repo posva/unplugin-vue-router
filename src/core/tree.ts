@@ -324,7 +324,17 @@ export class TreeNode {
     let node: TreeNode | undefined = this
 
     while (node && !node.isRoot()) {
-      parts.unshift(node.value.isParam() ? 0 : node.value.pathSegment)
+      var subSegments = node.value.subSegments
+        .map(
+          (segment) =>
+            typeof segment === 'string'
+              ? segment.replaceAll('/', '')
+              : 0 /* param */
+        )
+        // filter out empty segments
+        .filter((v) => v !== '')
+      console.log('✨', subSegments)
+      parts.unshift(...subSegments)
       node = node.parent
     }
 
