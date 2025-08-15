@@ -204,7 +204,7 @@
     "vitepress-plugin-llms": "^1.7.5",
     "vitest": "^3.2.4",
     "vue": "^3.5.21",
-    "vue-router": "https://pkg.pr.new/vue-router@2d79fe7",
+    "vue-router": "https://pkg.pr.new/vue-router@96d8a89",
     "vue-router-mock": "^2.0.0",
     "vue-tsc": "^3.0.7",
     "vuefire": "^3.2.2",
