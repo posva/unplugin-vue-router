@@ -28,6 +28,7 @@ import {
   ParamParsersMap,
   warnMissingParamParsers,
 } from '../codegen/generateParamParsers'
+import picomatch from 'picomatch'
 
 export function createRoutesContext(options: ResolvedOptions) {
   const { dts: preferDTS, root, routesFolder } = options
@@ -67,6 +68,8 @@ export function createRoutesContext(options: ResolvedOptions) {
       return
     }
 
+    const isParamParserMatch = picomatch('*.{ts,js}')
+
     // get the initial list of pages
     await Promise.all([
       ...routesFolder
@@ -102,7 +105,7 @@ export function createRoutesContext(options: ResolvedOptions) {
             )
           )
         }),
-      ...options.experimental.paramMatchers?.dir.map((folder) => {
+      ...(options.experimental.paramMatchers?.dir.map((folder) => {
         watchers.push(
           setupParamParserWatcher(
             fsWatch('.', {
@@ -110,14 +113,12 @@ export function createRoutesContext(options: ResolvedOptions) {
               ignoreInitial: true,
               ignorePermissionErrors: true,
               ignored: (filePath, stats) => {
-                console.log('ignore?', filePath)
                 // let folders pass, they are ignored by the glob pattern
                 if (!stats || stats.isDirectory()) {
                   return false
                 }
 
-                return false
-                // return !isMatch(path.relative(this.src, filePath))
+                return !isParamParserMatch(relative(folder, filePath))
               },
             })
           )
@@ -138,9 +139,9 @@ export function createRoutesContext(options: ResolvedOptions) {
               relativePath: relative(options.root, absolutePath),
             })
           }
-          console.log('PARAM PARSERS', [...paramParsers])
+          logger.log('Parsed param parsers', [...paramParsers])
         })
-      }),
+      }) || []),
     ])
 
     for (const route of editableRoutes) {
@@ -329,8 +330,11 @@ if (import.meta.hot) {
   }
 
   function generateDTS() {
-    if (options.experimental.paramMatchers.dir.length > 0) {
-      warnMissingParamParsers(routeTree, options, paramParsers)
+    if (
+      options.experimental.paramMatchers &&
+      options.experimental.paramMatchers.dir.length > 0
+    ) {
+      warnMissingParamParsers(routeTree, paramParsers)
     }
 
     const autoRoutes = _generateDTS({

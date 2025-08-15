@@ -3,7 +3,6 @@ import { TreeRouteParam } from '../core/treeNodeValue'
 import { ImportsMap } from '../core/utils'
 import { ts } from '../utils'
 import { PrefixTree } from '../core/tree'
-import { ResolvedOptions } from '../options'
 
 export type ParamParsersMap = Map<
   string,
@@ -17,7 +16,6 @@ export type ParamParsersMap = Map<
 
 export async function warnMissingParamParsers(
   tree: PrefixTree,
-  options: ResolvedOptions,
   paramParsers: ParamParsersMap
 ) {
   for (const node of tree.getChildrenDeepSorted()) {

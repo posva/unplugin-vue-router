@@ -61,7 +61,7 @@ export interface DefinePage
 
   // TODO: add a custom serialization based on the query object completely that
   // allows and extracts a function
-  query: Record<string, QueryParamType | DefinePageQueryParamOptions>
+  query?: Record<string, QueryParamType | DefinePageQueryParamOptions>
 }
 
 /**

@@ -1,8 +1,7 @@
 <script lang="ts" setup></script>
 
 <template>
-  <h1>Named param</h1>
-  <pre>{{ $route.params }}</pre>
+  <h2>This page should never be visible</h2>
 
   <RouterView />
 </template>
