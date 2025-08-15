@@ -114,18 +114,21 @@ export function _mergeRouteRecordExperimental(
   main: Record<string, any>,
   ...routeRecords: Partial<DefinePage>[]
 ): Record<string, any> {
-  return routeRecords.reduce((acc, routeRecord) => {
-    // Merge meta properties specially
-    const meta = Object.assign({}, acc.meta, routeRecord.meta)
-    
-    // Merge all other properties directly
-    Object.assign(acc, routeRecord)
-    
-    // Set the merged meta
-    if (Object.keys(meta).length > 0) {
-      acc.meta = meta
-    }
-    
-    return acc
-  }, { ...main })
+  return routeRecords.reduce(
+    (acc, routeRecord) => {
+      // Merge meta properties specially
+      const meta = Object.assign({}, acc.meta, routeRecord.meta)
+
+      // Merge all other properties directly
+      Object.assign(acc, routeRecord)
+
+      // Set the merged meta
+      if (Object.keys(meta).length > 0) {
+        acc.meta = meta
+      }
+
+      return acc
+    },
+    { ...main }
+  )
 }
