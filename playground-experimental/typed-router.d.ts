@@ -22,12 +22,13 @@ declare module 'vue-router/auto-routes' {
    */
   export interface RouteNamedMap {
     '/(home)': RouteRecordInfo<'/(home)', '/', Record<never, never>, Record<never, never>>,
-    '/[name]': RouteRecordInfo<'/[name]', '/:name', { name: ParamValue<false> }, { name: ParamValue<false> }, '/[name]/24' | '/[name]/[userId=int]'>,
-    '/[name]/[userId=int]': RouteRecordInfo<'/[name]/[userId=int]', '/:name/:userId', { name: ParamValue<false>, userId: number }, { name: ParamValue<false>, userId: number }>,
-    '/[name]/24': RouteRecordInfo<'/[name]/24', '/:name/24', { name: ParamValue<false> }, { name: ParamValue<false> }>,
+    '/[...404]': RouteRecordInfo<'/[...404]', '/:404(.*)', { 404: ParamValue<false> }, { 404: ParamValue<false> }>,
     '/a.[b].c.[d]': RouteRecordInfo<'/a.[b].c.[d]', '/a/:b/c/:d', { b: ParamValue<false>, d: ParamValue<false> }, { b: ParamValue<false>, d: ParamValue<false> }>,
     '/b': RouteRecordInfo<'/b', '/b', Record<never, never>, Record<never, never>>,
     '/events/[when=date]': RouteRecordInfo<'/events/[when=date]', '/events/:when', { when: Param_date }, { when: Param_date }>,
+    '/u[name]': RouteRecordInfo<'/u[name]', '/u:name', { name: ParamValue<false> }, { name: ParamValue<false> }, '/u[name]/24' | '/u[name]/[userId=int]'>,
+    '/u[name]/[userId=int]': RouteRecordInfo<'/u[name]/[userId=int]', '/u:name/:userId', { name: ParamValue<false>, userId: number }, { name: ParamValue<false>, userId: number }>,
+    '/u[name]/24': RouteRecordInfo<'/u[name]/24', '/u:name/24', { name: ParamValue<false> }, { name: ParamValue<false> }>,
     '/users/[userId=int]': RouteRecordInfo<'/users/[userId=int]', '/users/:userId', { userId: number }, { userId: number }>,
     '/users/sub-[first]-[second]': RouteRecordInfo<'/users/sub-[first]-[second]', '/users/sub-:first-:second', { first: ParamValue<false>, second: ParamValue<false> }, { first: ParamValue<false>, second: ParamValue<false> }>,
   }
@@ -47,16 +48,8 @@ declare module 'vue-router/auto-routes' {
       routes: '/(home)'
       views: never
     }
-    'src/pages/[name].vue': {
-      routes: '/[name]' | '/[name]/[userId=int]' | '/[name]/24'
-      views: 'default'
-    }
-    'src/pages/[name]/[userId=int].vue': {
-      routes: '/[name]/[userId=int]'
-      views: never
-    }
-    'src/pages/[name]/24.vue': {
-      routes: '/[name]/24'
+    'src/pages/[...404].vue': {
+      routes: '/[...404]'
       views: never
     }
     'src/pages/a.[b].c.[d].vue': {
@@ -69,6 +62,18 @@ declare module 'vue-router/auto-routes' {
     }
     'src/pages/events/[when=date].vue': {
       routes: '/events/[when=date]'
+      views: never
+    }
+    'src/pages/u[name].vue': {
+      routes: '/u[name]' | '/u[name]/[userId=int]' | '/u[name]/24'
+      views: 'default'
+    }
+    'src/pages/u[name]/[userId=int].vue': {
+      routes: '/u[name]/[userId=int]'
+      views: never
+    }
+    'src/pages/u[name]/24.vue': {
+      routes: '/u[name]/24'
       views: never
     }
     'src/pages/users/[userId=int].vue': {
