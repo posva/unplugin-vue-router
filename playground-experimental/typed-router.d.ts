@@ -26,6 +26,7 @@ declare module 'vue-router/auto-routes' {
     '/a.[b].c.[d]': RouteRecordInfo<'/a.[b].c.[d]', '/a/:b/c/:d', { b: ParamValue<false>, d: ParamValue<false> }, { b: ParamValue<false>, d: ParamValue<false> }>,
     '/b': RouteRecordInfo<'/b', '/b', Record<never, never>, Record<never, never>>,
     '/events/[when=date]': RouteRecordInfo<'/events/[when=date]', '/events/:when', { when: Param_date }, { when: Param_date }>,
+    '/manually-added': RouteRecordInfo<'/manually-added', '/manually-added', Record<never, never>, Record<never, never>>,
     '/u[name]': RouteRecordInfo<'/u[name]', '/u:name', { name: ParamValue<false> }, { name: ParamValue<false> }, '/u[name]/24' | '/u[name]/[userId=int]'>,
     '/u[name]/[userId=int]': RouteRecordInfo<'/u[name]/[userId=int]', '/u:name/:userId', { name: ParamValue<false>, userId: number }, { name: ParamValue<false>, userId: number }>,
     '/u[name]/24': RouteRecordInfo<'/u[name]/24', '/u:name/24', { name: ParamValue<false> }, { name: ParamValue<false> }>,
@@ -62,6 +63,10 @@ declare module 'vue-router/auto-routes' {
     }
     'src/pages/events/[when=date].vue': {
       routes: '/events/[when=date]'
+      views: never
+    }
+    'src/page-outside.vue': {
+      routes: '/manually-added'
       views: never
     }
     'src/pages/u[name].vue': {
