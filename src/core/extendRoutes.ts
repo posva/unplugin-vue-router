@@ -47,6 +47,8 @@ export class EditableTreeNode {
       // but in other places we need to instruct the path is at the root so we change it afterwards
       addBackLeadingSlash = !this.node.isRoot()
     }
+    // TODO: if options.experimental.paramMatchers, should insert the raw path as [thing]
+    // and warn if a path contains a :
     const node = this.node.insertParsedPath(path, filePath)
     const editable = new EditableTreeNode(node)
     if (addBackLeadingSlash) {
