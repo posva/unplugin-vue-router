@@ -238,6 +238,15 @@ export interface TreeRouteParam {
  */
 const REGEX_CHARS_RE = /[.+*?^${}()[\]/\\]/g
 
+/**
+ * Escapes regex characters in a string to be used in a regex pattern.
+ * @param str - The string to escape.
+ *
+ * @internal
+ */
+export const escapeRegex = (str: string): string =>
+  str.replace(REGEX_CHARS_RE, '\\$&')
+
 export class TreeNodeValueParam extends _TreeNodeValueBase {
   params: TreeRouteParam[]
   override _type: TreeNodeType.param = TreeNodeType.param
@@ -275,7 +284,7 @@ export class TreeNodeValueParam extends _TreeNodeValueBase {
       .filter(Boolean)
       .map((segment) => {
         if (typeof segment === 'string') {
-          return segment.replace(REGEX_CHARS_RE, '\\$&')
+          return escapeRegex(segment)
         }
         return segment.isSplat
           ? '(.*)'
