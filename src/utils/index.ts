@@ -1,4 +1,4 @@
-import { access, constants } from 'fs/promises'
+import { access, constants } from 'node:fs/promises'
 
 /**
  * Maybe a promise maybe not
