@@ -29,6 +29,7 @@ import {
   warnMissingParamParsers,
 } from '../codegen/generateParamParsers'
 import picomatch from 'picomatch'
+import { PRIVATE_TYPES } from '@babel/types'
 
 export function createRoutesContext(options: ResolvedOptions) {
   const { dts: preferDTS, root, routesFolder } = options
@@ -68,7 +69,8 @@ export function createRoutesContext(options: ResolvedOptions) {
       return
     }
 
-    const isParamParserMatch = picomatch('*.{ts,js}')
+    const PARAM_PARSER_GLOB = '*.{ts,js}'
+    const isParamParserMatch = picomatch(PARAM_PARSER_GLOB)
 
     // get the initial list of pages
     await Promise.all([
@@ -123,7 +125,7 @@ export function createRoutesContext(options: ResolvedOptions) {
             })
           )
         )
-        return glob('*', {
+        return glob(PARAM_PARSER_GLOB, {
           cwd: folder,
           onlyFiles: true,
           expandDirectories: false,
