@@ -29,7 +29,6 @@ import {
   warnMissingParamParsers,
 } from '../codegen/generateParamParsers'
 import picomatch from 'picomatch'
-import { PRIVATE_TYPES } from '@babel/types'
 
 export function createRoutesContext(options: ResolvedOptions) {
   const { dts: preferDTS, root, routesFolder } = options
