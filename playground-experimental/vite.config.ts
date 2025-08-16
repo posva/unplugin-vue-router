@@ -1,6 +1,5 @@
-import { fileURLToPath, URL } from 'url'
+import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
-import { join } from 'node:path'
 import Markdown from 'unplugin-vue-markdown/vite'
 // @ts-ignore: the plugin should not be checked in the playground
 import VueRouter from '../src/vite'
@@ -8,6 +7,7 @@ import { VueRouterAutoImports } from '../src'
 import Vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
 import VueDevtools from 'vite-plugin-vue-devtools'
+import { join, relative } from 'node:path'
 
 export default defineConfig({
   clearScreen: false,
@@ -75,7 +75,10 @@ export default defineConfig({
         // }
       },
       beforeWriteFiles(root) {
-        // root.insert('/from-root', join(__dirname, './src/pages/index.vue'))
+        root.insert(
+          '/manually-added',
+          join(__dirname, './src/page-outside.vue')
+        )
       },
       routesFolder: [
         // can add multiple routes folders
@@ -94,26 +97,11 @@ export default defineConfig({
           src: 'src/features',
           filePatterns: '*/pages/**/*',
           path: (file) => {
-            const prefix = 'src/features'
-            // +1 for the starting slash
-            file = file
-              .slice(file.lastIndexOf(prefix) + prefix.length + 1)
-              .replace('/pages', '')
-            // console.log('👉 FILE', file)
-            return file
+            return relative('src/features', file).replace(/^pages\//, '')
           },
         },
       ],
-      exclude: [
-        '**/ignored/**',
-        // '**/ignored/**/*',
-        '**/__*',
-        '**/__**/*',
-        '**/*.component.vue',
-        // resolve(__dirname, './src/pages/ignored'),
-        //
-        // './src/pages/**/*.spec.ts',
-      ],
+      exclude: ['**/ignored/**', '**/__*', '**/__**/*', '**/*.component.vue'],
     }),
     Vue({
       include: [/\.vue$/, /\.md$/],
