@@ -225,8 +225,26 @@ export interface Options {
      * page component.
      */
     autoExportsDataLoaders?: string | string[]
+
+    /**
+     * Enable experimental support for the new custom resolvers.
+     */
+    paramMatchers?: boolean | ParamMatcherOptions
   }
 }
+
+export interface ParamMatcherOptions {
+  /**
+   * Folder(s) to scan for param matchers. Set to an empty array to disable the feature.
+   *
+   * @default `['src/params']`
+   */
+  dir?: string | string[]
+}
+
+export const DEFAULT_PARAM_MATCHER_OPTIONS = {
+  dir: ['src/params'],
+} satisfies Required<ParamMatcherOptions>
 
 export const DEFAULT_OPTIONS = {
   extensions: ['.vue'],
@@ -303,14 +321,39 @@ export function resolveOptions(options: Options) {
     src: resolve(root, routeOption.src),
   }))
 
-  const experimental = { ...options.experimental }
+  const paramMatchers = options.experimental?.paramMatchers
+    ? options.experimental.paramMatchers === true
+      ? DEFAULT_PARAM_MATCHER_OPTIONS
+      : {
+          ...DEFAULT_PARAM_MATCHER_OPTIONS,
+          ...options.experimental.paramMatchers,
+        }
+    : // this way we can do paramMatchers?.dir
+      undefined
 
-  if (experimental.autoExportsDataLoaders) {
-    experimental.autoExportsDataLoaders = (
-      Array.isArray(experimental.autoExportsDataLoaders)
-        ? experimental.autoExportsDataLoaders
-        : [experimental.autoExportsDataLoaders]
-    ).map((path) => resolve(root, path))
+  const paramMatchersDir = (
+    paramMatchers?.dir
+      ? isArray(paramMatchers.dir)
+        ? paramMatchers.dir
+        : [paramMatchers.dir]
+      : []
+  ).map((dir) => resolve(root, dir))
+
+  const autoExportsDataLoaders = options.experimental?.autoExportsDataLoaders
+    ? (isArray(options.experimental.autoExportsDataLoaders)
+        ? options.experimental.autoExportsDataLoaders
+        : [options.experimental.autoExportsDataLoaders]
+      ).map((path) => resolve(root, path))
+    : undefined
+
+  const experimental = {
+    ...options.experimental,
+    autoExportsDataLoaders,
+    // keep undefined if paramMatchers is not set
+    paramMatchers: paramMatchers && {
+      ...paramMatchers,
+      dir: paramMatchersDir,
+    },
   }
 
   if (options.extensions) {
@@ -351,6 +394,9 @@ export function resolveOptions(options: Options) {
   }
 }
 
+/**
+ * @internal
+ */
 export type ResolvedOptions = ReturnType<typeof resolveOptions>
 
 /**

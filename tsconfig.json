@@ -14,15 +14,13 @@
     "dist"
   ],
   "compilerOptions": {
-    "baseUrl": ".",
+    // this makes auto import canonical (e.g. 'src/utils' instead of '../utils')
+    // "baseUrl": ".",
     "rootDir": ".",
     "jsx": "preserve",
     "target": "ESNext",
     "module": "ESNext",
-    "lib": [
-      "ESNext",
-      "DOM"
-    ],
+    "lib": ["ESNext", "DOM"],
     "moduleResolution": "Bundler",
     "skipDefaultLibCheck": true,
     "skipLibCheck": true,
@@ -42,25 +40,16 @@
     "strictNullChecks": true,
     "resolveJsonModule": true,
     "paths": {
-      "unplugin-vue-router": [
-        "./src/index.ts"
-      ],
-      "unplugin-vue-router/types": [
-        "./src/types.ts"
-      ],
-      "unplugin-vue-router/runtime": [
-        "./src/runtime.ts"
-      ],
+      "unplugin-vue-router": ["./src/index.ts"],
+      "unplugin-vue-router/types": ["./src/types.ts"],
+      "unplugin-vue-router/runtime": ["./src/runtime.ts"],
       "unplugin-vue-router/data-loaders": [
         "./src/data-loaders/entries/index.ts"
       ]
     },
-    "types": [
-      "node",
-      "vite/client"
-    ]
+    "types": ["node", "vite/client"]
   },
   "vueCompilerOptions": {
     "plugins": []
-  },
+  }
 }

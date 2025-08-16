@@ -19,11 +19,12 @@ export function generateDTS({
   routesModule,
   routeNamedMap,
   routeFileInfoMap,
+  paramsTypesDeclaration,
 }: {
-  vueRouterModule: string
   routesModule: string
   routeNamedMap: string
   routeFileInfoMap: string
+  paramsTypesDeclaration: string
 }) {
   return ts`
 /* eslint-disable */
@@ -33,7 +34,15 @@ export function generateDTS({
 // It's recommended to commit this file.
 // Make sure to add this file to your tsconfig.json file as an "includes" or "files" entry.
 
-declare module '${routesModule}' {
+${
+  paramsTypesDeclaration
+    ? `
+// Custom route params parsers
+${paramsTypesDeclaration}
+
+`.trimStart()
+    : ''
+}declare module '${routesModule}' {
   import type {
     RouteRecordInfo,
     ParamValue,

@@ -1,6 +1,7 @@
 import { type ResolvedOptions } from '../options'
 import {
   createTreeNodeValue,
+  escapeRegex,
   TreeNodeValueOptions,
   TreeRouteParam,
 } from './treeNodeValue'
@@ -11,6 +12,10 @@ import { RouteMeta } from 'vue-router'
 export interface TreeNodeOptions extends ResolvedOptions {
   treeNodeOptions?: TreeNodeValueOptions
 }
+
+export type TreeNodeValueMatcherPart = Array<
+  string | number | Array<string | number>
+>
 
 export class TreeNode {
   /**
@@ -277,6 +282,76 @@ export class TreeNode {
     }
 
     return params
+  }
+
+  get regexp(): string {
+    let re = ''
+    let node: TreeNode | undefined = this
+
+    while (node) {
+      if (node.value.isParam() && node.value.re) {
+        re = node.value.re + (re ? '\\/' : '') + re
+      } else {
+        re = escapeRegex(node.value.pathSegment) + (re ? '\\/' : '') + re
+      }
+
+      node = node.parent
+    }
+
+    return '/^' + re + '$/i'
+  }
+
+  get score(): number[][] {
+    const scores: number[][] = []
+    let node: TreeNode | undefined = this
+
+    while (node && !node.isRoot()) {
+      scores.unshift(node.value.score)
+      node = node.parent
+    }
+
+    return scores
+  }
+
+  get matcherParams() {
+    const params: Record<string, { repeat?: boolean }> = {}
+    for (const param of this.params) {
+      params[param.paramName] = {
+        repeat: param.repeatable,
+        // TODO: parser
+      }
+    }
+    return params
+  }
+
+  get matcherParts(): TreeNodeValueMatcherPart {
+    const parts: TreeNodeValueMatcherPart = []
+    let node: TreeNode | undefined = this
+
+    while (node && !node.isRoot()) {
+      const subSegments = node.value.subSegments.map(
+        (segment) => (typeof segment === 'string' ? segment : 0) /* param */
+      )
+
+      if (subSegments.length > 1) {
+        parts.unshift(
+          node.value.subSegments.map(
+            (segment) => (typeof segment === 'string' ? segment : 0) /* param */
+          )
+        )
+      } else if (subSegments.length === 1) {
+        parts.unshift(subSegments[0]!)
+      }
+      node = node.parent
+    }
+
+    return parts
+  }
+
+  isMatchable(): this is TreeNode & { name: string } {
+    // a node is matchable if it has at least one component
+    // and the name is not false
+    return this.value.components.size > 0 && this.name !== false
   }
 
   /**

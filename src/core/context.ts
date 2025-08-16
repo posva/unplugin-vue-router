@@ -1,13 +1,13 @@
 import { ResolvedOptions } from '../options'
 import { TreeNode, PrefixTree } from './tree'
-import { promises as fs } from 'fs'
+import { promises as fs } from 'node:fs'
 import { asRoutePath, ImportsMap, logTree, throttle } from './utils'
 import { generateRouteNamedMap } from '../codegen/generateRouteMap'
 import { generateRouteFileInfoMap } from '../codegen/generateRouteFileInfoMap'
-import { MODULE_ROUTES_PATH, MODULE_VUE_ROUTER_AUTO } from './moduleConstants'
+import { MODULE_ROUTES_PATH } from './moduleConstants'
 import { generateRouteRecord } from '../codegen/generateRouteRecords'
 import { glob } from 'tinyglobby'
-import { dirname, relative, resolve } from 'pathe'
+import { dirname, parse as parsePathe, relative, resolve } from 'pathe'
 import { ServerContext } from '../options'
 import { getRouteBlock } from './customBlock'
 import {
@@ -21,6 +21,14 @@ import { definePageTransform, extractDefinePageNameAndPath } from './definePage'
 import { EditableTreeNode } from './extendRoutes'
 import { isPackageExists as isPackageInstalled } from 'local-pkg'
 import { ts } from '../utils'
+import { generateRouteResolver } from '../codegen/generateRouteResolver'
+import { type FSWatcher, watch as fsWatch } from 'chokidar'
+import {
+  generateParamParsersTypesDeclarations,
+  ParamParsersMap,
+  warnMissingParamParsers,
+} from '../codegen/generateParamParsers'
+import picomatch from 'picomatch'
 
 export function createRoutesContext(options: ResolvedOptions) {
   const { dts: preferDTS, root, routesFolder } = options
@@ -45,7 +53,8 @@ export function createRoutesContext(options: ResolvedOptions) {
   })
 
   // populated by the initial scan pages
-  const watchers: RoutesFolderWatcher[] = []
+  const watchers: Array<FSWatcher | RoutesFolderWatcher> = []
+  const paramParsers: ParamParsersMap = new Map()
 
   async function scanPages(startWatchers = true) {
     if (options.extensions.length < 1) {
@@ -59,9 +68,12 @@ export function createRoutesContext(options: ResolvedOptions) {
       return
     }
 
+    const PARAM_PARSER_GLOB = '*.{ts,js}'
+    const isParamParserMatch = picomatch(PARAM_PARSER_GLOB)
+
     // get the initial list of pages
-    await Promise.all(
-      routesFolder
+    await Promise.all([
+      ...routesFolder
         .map((folder) => resolveFolderOptions(options, folder))
         .map((folder) => {
           if (startWatchers) {
@@ -93,8 +105,45 @@ export function createRoutesContext(options: ResolvedOptions) {
                 )
             )
           )
+        }),
+      ...(options.experimental.paramMatchers?.dir.map((folder) => {
+        watchers.push(
+          setupParamParserWatcher(
+            fsWatch('.', {
+              cwd: folder,
+              ignoreInitial: true,
+              ignorePermissionErrors: true,
+              ignored: (filePath, stats) => {
+                // let folders pass, they are ignored by the glob pattern
+                if (!stats || stats.isDirectory()) {
+                  return false
+                }
+
+                return !isParamParserMatch(relative(folder, filePath))
+              },
+            })
+          )
+        )
+        return glob(PARAM_PARSER_GLOB, {
+          cwd: folder,
+          onlyFiles: true,
+          expandDirectories: false,
+        }).then((paramParserFiles) => {
+          for (const file of paramParserFiles) {
+            const name = parsePathe(file).name
+            // TODO: could be simplified to only one import that starts with / for vite
+            const absolutePath = resolve(folder, file)
+            paramParsers.set(name, {
+              name,
+              typeName: `Param_${name}`,
+              absolutePath,
+              relativePath: relative(options.root, absolutePath),
+            })
+          }
+          logger.log('Parsed param parsers', [...paramParsers])
         })
-    )
+      }) || []),
+    ])
 
     for (const route of editableRoutes) {
       await options.extendRoute?.(route)
@@ -160,6 +209,26 @@ export function createRoutesContext(options: ResolvedOptions) {
     server?.updateRoutes()
   }
 
+  function setupParamParserWatcher(watcher: FSWatcher) {
+    logger.log(`🤖 Scanning param parsers in ${watcher.options.cwd}`)
+    return watcher
+      .on('add', (file) => {
+        const name = parsePathe(file).name
+        const absolutePath = resolve(watcher.options.cwd!, file)
+        paramParsers.set(name, {
+          name,
+          typeName: `Param_${name}`,
+          absolutePath,
+          relativePath: './' + relative(options.root, absolutePath),
+        })
+        writeConfigFiles()
+      })
+      .on('unlink', (file) => {
+        paramParsers.delete(parsePathe(file).name)
+        writeConfigFiles()
+      })
+  }
+
   function setupWatcher(watcher: RoutesFolderWatcher) {
     logger.log(`🤖 Scanning files in ${watcher.src}`)
 
@@ -181,6 +250,29 @@ export function createRoutesContext(options: ResolvedOptions) {
     // unlinkDir event
   }
 
+  function generateResolver() {
+    const importsMap = new ImportsMap()
+
+    const resolverCode = generateRouteResolver(
+      routeTree,
+      options,
+      importsMap,
+      paramParsers
+    )
+
+    // generate the list of imports
+    let imports = importsMap.toString()
+    // add an empty line for readability
+    if (imports) {
+      imports += '\n'
+    }
+
+    const newAutoRoutes = `${imports}${resolverCode}\n`
+
+    // prepend it to the code
+    return newAutoRoutes
+  }
+
   function generateRoutes() {
     const importsMap = new ImportsMap()
 
@@ -190,7 +282,7 @@ export function createRoutesContext(options: ResolvedOptions) {
       importsMap
     )}\n`
 
-    let hmr = ts`
+    const hmr = ts`
 export function handleHotUpdate(_router, _hotUpdateCallback) {
   if (import.meta.hot) {
     import.meta.hot.data.router = _router
@@ -238,15 +330,28 @@ if (import.meta.hot) {
     return newAutoRoutes
   }
 
-  function generateDTS(): string {
-    return _generateDTS({
-      vueRouterModule: MODULE_VUE_ROUTER_AUTO,
+  function generateDTS() {
+    if (
+      options.experimental.paramMatchers &&
+      options.experimental.paramMatchers.dir.length > 0
+    ) {
+      warnMissingParamParsers(routeTree, paramParsers)
+    }
+
+    const autoRoutes = _generateDTS({
       routesModule: MODULE_ROUTES_PATH,
-      routeNamedMap: generateRouteNamedMap(routeTree),
+      routeNamedMap: generateRouteNamedMap(routeTree, options, paramParsers),
       routeFileInfoMap: generateRouteFileInfoMap(routeTree, {
         root,
       }),
+      paramsTypesDeclaration:
+        generateParamParsersTypesDeclarations(paramParsers),
     })
+
+    // TODO: parser auto copmlete for definePage
+    // const paramParserListType = generateParamParserListTypes([...paramParsers])
+
+    return autoRoutes
   }
 
   // NOTE: this code needs to be generated because otherwise it doesn't go through transforms and `vue-router/auto-routes`
@@ -305,6 +410,7 @@ if (import.meta.hot) {
     stopWatcher,
 
     generateRoutes,
+    generateResolver,
     generateVueRouterProxy,
 
     definePageTransform(code: string, id: string) {

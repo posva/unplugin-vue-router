@@ -1,30 +1,57 @@
 import type { TreeNode } from '../core/tree'
-import { generateRouteParams } from './generateRouteParams'
+import type { ResolvedOptions } from '../options'
+import { generateParamsTypes, ParamParsersMap } from './generateParamParsers'
+import {
+  EXPERIMENTAL_generateRouteParams,
+  generateRouteParams,
+} from './generateRouteParams'
 
-export function generateRouteNamedMap(node: TreeNode): string {
+export function generateRouteNamedMap(
+  node: TreeNode,
+  options: ResolvedOptions,
+  paramParsersMap: ParamParsersMap
+): string {
   if (node.isRoot()) {
     return `export interface RouteNamedMap {
-${node.getChildrenSorted().map(generateRouteNamedMap).join('')}}`
+${node
+  .getChildrenSorted()
+  .map((n) => generateRouteNamedMap(n, options, paramParsersMap))
+  .join('')}}`
   }
 
   return (
     // if the node has a filePath, it's a component, it has a routeName and it should be referenced in the RouteNamedMap
     // otherwise it should be skipped to avoid navigating to a route that doesn't render anything
     (node.value.components.size > 0 && node.name
-      ? `  '${node.name}': ${generateRouteRecordInfo(node)},\n`
+      ? `  '${node.name}': ${generateRouteRecordInfo(node, options, paramParsersMap)},\n`
       : '') +
     (node.children.size > 0
-      ? node.getChildrenSorted().map(generateRouteNamedMap).join('\n')
+      ? node
+          .getChildrenSorted()
+          .map((n) => generateRouteNamedMap(n, options, paramParsersMap))
+          .join('\n')
       : '')
   )
 }
 
-export function generateRouteRecordInfo(node: TreeNode) {
+export function generateRouteRecordInfo(
+  node: TreeNode,
+  options: ResolvedOptions,
+  paramParsersMap: ParamParsersMap
+): string {
+  const params = node.params
+  let paramParsers: Array<string | null> = []
+  let paramType: string = ''
+
+  if (options.experimental.paramMatchers) {
+    paramParsers = generateParamsTypes(params, paramParsersMap)
+    paramType = EXPERIMENTAL_generateRouteParams(node, paramParsers)
+  }
   const typeParams = [
     `'${node.name}'`,
     `'${node.fullPath}'`,
-    generateRouteParams(node, true),
-    generateRouteParams(node, false),
+    paramType || generateRouteParams(node, true),
+    paramType || generateRouteParams(node, false),
   ]
 
   if (node.children.size > 0) {

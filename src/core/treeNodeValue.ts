@@ -179,8 +179,23 @@ class _TreeNodeValueBase {
   }
 }
 
+/**
+ * - Static
+ * - Static + Custom Param (subSegments)
+ * - Static + Param (subSegments)
+ * - Custom Param
+ * - Param
+ * - CatchAll
+ */
+
+/**
+ * Static path like `/users`, `/users/list`, etc
+ * @extends _TreeNodeValueBase
+ */
 export class TreeNodeValueStatic extends _TreeNodeValueBase {
   override _type: TreeNodeType.static = TreeNodeType.static
+
+  readonly score = [300]
 
   constructor(
     rawSegment: string,
@@ -194,6 +209,8 @@ export class TreeNodeValueStatic extends _TreeNodeValueBase {
 export class TreeNodeValueGroup extends _TreeNodeValueBase {
   override _type: TreeNodeType.group = TreeNodeType.group
   groupName: string
+
+  readonly score = [300]
 
   constructor(
     rawSegment: string,
@@ -212,7 +229,23 @@ export interface TreeRouteParam {
   optional: boolean
   repeatable: boolean
   isSplat: boolean
+  parser: string | null
 }
+
+/**
+ * To escape regex characters in the path segment.
+ * @internal
+ */
+const REGEX_CHARS_RE = /[.+*?^${}()[\]/\\]/g
+
+/**
+ * Escapes regex characters in a string to be used in a regex pattern.
+ * @param str - The string to escape.
+ *
+ * @internal
+ */
+export const escapeRegex = (str: string): string =>
+  str.replace(REGEX_CHARS_RE, '\\$&')
 
 export class TreeNodeValueParam extends _TreeNodeValueBase {
   params: TreeRouteParam[]
@@ -227,6 +260,53 @@ export class TreeNodeValueParam extends _TreeNodeValueBase {
   ) {
     super(rawSegment, parent, pathSegment, subSegments)
     this.params = params
+  }
+
+  // Calculate score for each subsegment to handle mixed static/param parts
+  get score(): number[] {
+    return this.subSegments.map((segment) => {
+      if (typeof segment === 'string') {
+        // Static subsegment gets highest score
+        return 300
+      } else {
+        // Parameter subsegment - calculate malus based on param properties
+        const malus = segment.isSplat
+          ? 500
+          : (segment.optional ? 10 : 0) + (segment.repeatable ? 20 : 0)
+
+        return 80 - malus
+      }
+    })
+  }
+
+  get re(): string {
+    return this.subSegments
+      .filter(Boolean)
+      .map((segment) => {
+        if (typeof segment === 'string') {
+          return escapeRegex(segment)
+        }
+        return segment.isSplat
+          ? '(.*)'
+          : (segment.repeatable ? '(.+?)' : '([^/]+?)') +
+              (segment.optional ? '?' : '')
+      })
+      .join('')
+  }
+
+  override toString(): string {
+    const params =
+      this.params.length > 0
+        ? ` 𝑥(` +
+          this.params
+            .map(
+              (p) =>
+                `${p.paramName}${p.modifier}` + (p.parser ? '=' + p.parser : '')
+            )
+            .join(', ') +
+          ')'
+        : ''
+    return `${this.pathSegment}` + params
   }
 }
 
@@ -331,6 +411,7 @@ const enum ParseFileSegmentState {
   static,
   paramOptional, // within [[]] or []
   param, // within []
+  paramParser, // [param=type]
   modifier, // after the ]
 }
 
@@ -361,6 +442,7 @@ function parseFileSegment(
   { dotNesting = true }: ParseSegmentOptions = {}
 ): [string, TreeRouteParam[], SubSegment[]] {
   let buffer = ''
+  let paramParserBuffer = ''
   let state: ParseFileSegmentState = ParseFileSegmentState.static
   const params: TreeRouteParam[] = []
   let pathSegment = ''
@@ -379,6 +461,7 @@ function parseFileSegment(
       subSegments.push(buffer)
     } else if (state === ParseFileSegmentState.modifier) {
       currentTreeRouteParam.paramName = buffer
+      currentTreeRouteParam.parser = paramParserBuffer || null
       currentTreeRouteParam.modifier = currentTreeRouteParam.optional
         ? currentTreeRouteParam.repeatable
           ? '*'
@@ -386,7 +469,11 @@ function parseFileSegment(
         : currentTreeRouteParam.repeatable
           ? '+'
           : ''
+
+      // reset the buffers
       buffer = ''
+      paramParserBuffer = ''
+
       pathSegment += `:${currentTreeRouteParam.paramName}${
         currentTreeRouteParam.isSplat
           ? '(.*)'
@@ -409,7 +496,10 @@ function parseFileSegment(
 
     if (state === ParseFileSegmentState.static) {
       if (c === '[') {
-        consumeBuffer()
+        // avoid adding the leading empty string for segments that start with a param
+        if (buffer) {
+          consumeBuffer()
+        }
         // check if it's an optional param or not
         state = ParseFileSegmentState.paramOptional
       } else {
@@ -438,6 +528,9 @@ function parseFileSegment(
       } else if (c === '.') {
         currentTreeRouteParam.isSplat = true
         pos += 2 // skip the other 2 dots
+      } else if (c === '=') {
+        state = ParseFileSegmentState.paramParser
+        paramParserBuffer = ''
       } else {
         buffer += c
       }
@@ -451,12 +544,23 @@ function parseFileSegment(
       consumeBuffer()
       // start again
       state = ParseFileSegmentState.static
+    } else if (state === ParseFileSegmentState.paramParser) {
+      if (c === ']') {
+        if (currentTreeRouteParam.optional) {
+          // skip the next ]
+          pos++
+        }
+        state = ParseFileSegmentState.modifier
+      } else {
+        paramParserBuffer += c
+      }
     }
   }
 
   if (
     state === ParseFileSegmentState.param ||
-    state === ParseFileSegmentState.paramOptional
+    state === ParseFileSegmentState.paramOptional ||
+    state === ParseFileSegmentState.paramParser
   ) {
     throw new Error(`Invalid segment: "${segment}"`)
   }
@@ -621,6 +725,7 @@ function parseRawPathSegment(
 function createEmptyRouteParam(): TreeRouteParam {
   return {
     paramName: '',
+    parser: null,
     modifier: '',
     optional: false,
     repeatable: false,
