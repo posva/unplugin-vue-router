@@ -1,6 +1,7 @@
 import { type ResolvedOptions } from '../options'
 import {
   createTreeNodeValue,
+  escapeRegex,
   TreeNodeValueOptions,
   TreeRouteParam,
 } from './treeNodeValue'
@@ -291,7 +292,7 @@ export class TreeNode {
       if (node.value.isParam() && node.value.re) {
         re = node.value.re + (re ? '\\/' : '') + re
       } else {
-        re = node.value.pathSegment + (re ? '\\/' : '') + re
+        re = escapeRegex(node.value.pathSegment) + (re ? '\\/' : '') + re
       }
 
       node = node.parent
