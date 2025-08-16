@@ -104,9 +104,6 @@ export function generateParamsOptions(
   importsMap: ImportsMap,
   paramParsers: ParamParsersMap
 ) {
-  if (!paramParsers) {
-    throw new Error('what')
-  }
   const paramOptions = params.map((param) => {
     const repeatable = param.repeatable ? `repeat: true, ` : ''
     return `
