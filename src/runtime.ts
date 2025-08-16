@@ -1,4 +1,5 @@
 import type { RouteRecordRaw } from 'vue-router'
+import type { EXPERIMENTAL_RouteRecordRaw } from 'vue-router/experimental'
 
 /**
  * Defines properties of the route for the current page component.
@@ -111,9 +112,9 @@ export interface DefinePageQueryParamOptions {
  * @returns merged route record object
  */
 export function _mergeRouteRecordExperimental(
-  main: Record<string, any>,
+  main: EXPERIMENTAL_RouteRecordRaw,
   ...routeRecords: Partial<DefinePage>[]
-): Record<string, any> {
+): EXPERIMENTAL_RouteRecordRaw {
   return routeRecords.reduce((acc, routeRecord) => {
     Object.assign(acc, routeRecord)
     acc.meta = { ...acc.meta, ...routeRecord.meta }
