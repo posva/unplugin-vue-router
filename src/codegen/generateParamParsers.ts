@@ -14,7 +14,7 @@ export type ParamParsersMap = Map<
   }
 >
 
-export async function warnMissingParamParsers(
+export function warnMissingParamParsers(
   tree: PrefixTree,
   paramParsers: ParamParsersMap
 ) {
