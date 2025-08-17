@@ -1,14 +1,10 @@
-import { type ParamParser } from 'vue-router/experimental'
-
-// NOTE: should be imported from vue-router
-const invalid = (...args: ConstructorParameters<typeof Error>) =>
-  new Error(...args)
+import { type ParamParser, miss } from 'vue-router/experimental'
 
 export const parser: ParamParser<Date, string> = {
   get: (value: string): Date => {
     const asDate = new Date(value)
     if (Number.isNaN(asDate.getTime())) {
-      throw invalid(`Invalid date: "${value}"`)
+      throw miss(`Invalid date: "${value}"`)
     }
 
     return asDate
@@ -17,5 +13,6 @@ export const parser: ParamParser<Date, string> = {
     value
       .toISOString()
       // allows keeping simple dates like 2023-10-01 without time
+      // while still being able to parse full dates like 2023-10-01T12:00:00.000Z
       .replace('T00:00:00.000Z', ''),
 }
