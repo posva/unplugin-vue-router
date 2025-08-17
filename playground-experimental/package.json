@@ -18,6 +18,6 @@
     "mande": "^2.0.9",
     "pinia": "^3.0.3",
     "vue": "^3.5.18",
-    "vue-router": "https://pkg.pr.new/vue-router@96d8a89"
+    "vue-router": "https://pkg.pr.new/vue-router@34703fb"
   }
 }
