@@ -3,12 +3,13 @@ const route = useRoute()
 route.params.userId
 
 definePage({
-  query: {
-    page: {
-      type: 'int',
-      optional: true,
-    },
-  },
+  path: '/users/:userId',
+  // query: {
+  //   page: {
+  //     type: 'int',
+  //     optional: true,
+  //   },
+  // },
   meta: {
     // te: 3, 2
   },
