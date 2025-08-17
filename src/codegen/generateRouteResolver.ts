@@ -77,16 +77,15 @@ export function generateRouteResolver(
     })
   )
 
-  importsMap.add('vue-router/experimental', 'createStaticResolver')
+  importsMap.add('vue-router/experimental', 'createFixedResolver')
   importsMap.add('vue-router/experimental', 'MatcherPatternPathStatic')
-  importsMap.add('vue-router/experimental', 'MatcherPatternPathCustomParams')
-  importsMap.add('vue-router/experimental', 'MatcherPatternPathStar')
+  importsMap.add('vue-router/experimental', 'MatcherPatternPathDynamic')
   importsMap.add('vue-router/experimental', 'normalizeRouteRecord')
 
   return ts`
 ${records.join('\n\n')}
 
-export const resolver = createStaticResolver([
+export const resolver = createFixedResolver([
 ${state.matchableRecords
   .sort((a, b) => compareRouteScore(a.score, b.score))
   .map(
@@ -168,8 +167,7 @@ export function generateRouteRecord({
     const routeRecordObject = `{
   ${recordName}
   ${generateRouteRecordPath({ node, importsMap, paramParsersMap })}${formatMeta(node, '  ')}
-  ${recordComponents}
-  ${parentVar ? `parent: ${parentVar},` : ''}
+  ${recordComponents}${parentVar ? `\n  parent: ${parentVar},` : ''}
 }`
 
     recordDeclaration =
@@ -247,7 +245,7 @@ export function generateRouteRecordPath({
   }
   const params = node.params
   if (params.length > 0) {
-    return `path: new MatcherPatternPathCustomParams(
+    return `path: new MatcherPatternPathDynamic(
     ${node.regexp},
     ${generateParamsOptions(node.params, importsMap, paramParsersMap)},
     ${JSON.stringify(node.matcherParts)},
