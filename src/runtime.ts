@@ -80,10 +80,8 @@ export function _mergeRouteRecordExperimental(
   },
   ...routeRecords: Partial<DefinePage>[]
 ) {
-  return routeRecords.reduce((acc, routeRecord) => {
-    Object.assign(acc, routeRecord)
-    acc.meta = { ...acc.meta, ...routeRecord.meta }
-
-    return acc
-  }, main)
+  for (const record of routeRecords) {
+    main.meta = { ...main.meta, ...record.meta }
+  }
+  return main
 }
