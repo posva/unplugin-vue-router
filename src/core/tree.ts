@@ -329,8 +329,13 @@ export class TreeNode {
     let node: TreeNode | undefined = this
 
     while (node && !node.isRoot()) {
-      const subSegments = node.value.subSegments.map(
-        (segment) => (typeof segment === 'string' ? segment : 0) /* param */
+      const subSegments = node.value.subSegments.map((segment) =>
+        typeof segment === 'string'
+          ? segment
+          : // param
+            segment.isSplat
+            ? 1
+            : 0
       )
 
       if (subSegments.length > 1) {

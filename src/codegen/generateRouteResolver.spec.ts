@@ -149,6 +149,43 @@ describe('generateRouteRecordPath', () => {
         ),"
     `)
   })
+
+  it('works with a catch all route', () => {
+    const node = new PrefixTree(DEFAULT_OPTIONS).insert(
+      '[...all]',
+      '[...all].vue'
+    )
+    expect(
+      generateRouteRecordPath({ importsMap, node, paramParsersMap: new Map() })
+    ).toMatchInlineSnapshot(`
+      "path: new MatcherPatternPathDynamic(
+          /^\\/(.*)$/i,
+          {
+            all: {},
+          },
+          [1],
+        ),"
+    `)
+  })
+
+  it('works with a splat param with a prefix', () => {
+    const node = new PrefixTree(DEFAULT_OPTIONS).insert(
+      'a/some-[id]/[...all]',
+      'a/some-[id]/[...all].vue'
+    )
+    expect(
+      generateRouteRecordPath({ importsMap, node, paramParsersMap: new Map() })
+    ).toMatchInlineSnapshot(`
+      "path: new MatcherPatternPathDynamic(
+          /^\\/a\\/some-([^/]+?)\\/(.*)$/i,
+          {
+            id: {},
+            all: {},
+          },
+          ["a",["some-",0],1],
+        ),"
+    `)
+  })
 })
 
 describe('generateRouteRecord', () => {
