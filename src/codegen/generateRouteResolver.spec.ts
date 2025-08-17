@@ -56,7 +56,7 @@ describe('generateRouteRecordPath', () => {
     expect(
       generateRouteRecordPath({ importsMap, node, paramParsersMap: new Map() })
     ).toMatchInlineSnapshot(`
-      "path: new MatcherPatternPathCustomParams(
+      "path: new MatcherPatternPathDynamic(
           /^\\/a\\/([^/]+?)$/i,
           {
             b: {},
@@ -75,7 +75,7 @@ describe('generateRouteRecordPath', () => {
         paramParsersMap: new Map(),
       })
     ).toMatchInlineSnapshot(`
-      "path: new MatcherPatternPathCustomParams(
+      "path: new MatcherPatternPathDynamic(
           /^\\/a\\/([^/]+?)\\/([^/]+?)$/i,
           {
             b: {},
@@ -91,7 +91,7 @@ describe('generateRouteRecordPath', () => {
     expect(
       generateRouteRecordPath({ importsMap, node, paramParsersMap: new Map() })
     ).toMatchInlineSnapshot(`
-      "path: new MatcherPatternPathCustomParams(
+      "path: new MatcherPatternPathDynamic(
           /^\\/a\\/([^/]+?)?$/i,
           {
             b: {},
@@ -106,7 +106,7 @@ describe('generateRouteRecordPath', () => {
     expect(
       generateRouteRecordPath({ importsMap, node, paramParsersMap: new Map() })
     ).toMatchInlineSnapshot(`
-      "path: new MatcherPatternPathCustomParams(
+      "path: new MatcherPatternPathDynamic(
           /^\\/a\\/(.+?)$/i,
           {
             b: {repeat: true, },
@@ -121,7 +121,7 @@ describe('generateRouteRecordPath', () => {
     expect(
       generateRouteRecordPath({ importsMap, node, paramParsersMap: new Map() })
     ).toMatchInlineSnapshot(`
-      "path: new MatcherPatternPathCustomParams(
+      "path: new MatcherPatternPathDynamic(
           /^\\/a\\/(.+?)?$/i,
           {
             b: {repeat: true, },
@@ -139,7 +139,7 @@ describe('generateRouteRecordPath', () => {
     expect(
       generateRouteRecordPath({ importsMap, node, paramParsersMap: new Map() })
     ).toMatchInlineSnapshot(`
-      "path: new MatcherPatternPathCustomParams(
+      "path: new MatcherPatternPathDynamic(
           /^\\/a\\/a-([^/]+?)-c-([^/]+?)$/i,
           {
             b: {},
@@ -243,7 +243,7 @@ describe('generateRouteResolver', () => {
         },
       })
 
-      export const resolver = createStaticResolver([
+      export const resolver = createFixedResolver([
         r_2,  // /b/c/d
         r_3,  // /b/e/f
         r_1,  // /b/c
@@ -274,7 +274,7 @@ describe('generateRouteResolver', () => {
       new Map()
     )
 
-    expect(resolver.replace(/^.*?createStaticResolver/s, ''))
+    expect(resolver.replace(/^.*?createFixedResolver/s, ''))
       .toMatchInlineSnapshot(`
         "([
           r_10,  // /b/a-b
@@ -340,7 +340,7 @@ describe('generateRouteResolver', () => {
         },
       })
 
-      export const resolver = createStaticResolver([
+      export const resolver = createFixedResolver([
         r_2,  // /b/c/d
         r_3,  // /b/e/f
         r_1,  // /b/c
@@ -381,7 +381,7 @@ describe('generateRouteResolver', () => {
         parent: r_0,
       })
 
-      export const resolver = createStaticResolver([
+      export const resolver = createFixedResolver([
         r_1,  // /a/b/c/e
         r_0,  // /a
       ])
@@ -422,7 +422,7 @@ describe('generateRouteResolver', () => {
         parent: r_0,
       })
 
-      export const resolver = createStaticResolver([
+      export const resolver = createFixedResolver([
         r_1,  // /a/b/c
       ])
       "
@@ -460,7 +460,7 @@ describe('generateRouteResolver', () => {
         },
       })
 
-      export const resolver = createStaticResolver([
+      export const resolver = createFixedResolver([
         r_0,  // /users
       ])
       "
@@ -494,14 +494,13 @@ describe('generateRouteResolver', () => {
             components: {
               'default': () => import('profile.vue')
             },
-            
           },
           _definePage_default_0
         )
       )
 
 
-      export const resolver = createStaticResolver([
+      export const resolver = createFixedResolver([
         r_0,  // /profile
       ])
       "
@@ -602,6 +601,22 @@ describe('route prioritization in resolver', () => {
       '/api/:repeatable+', // repeatable param
       '/api/:optional*', // optional repeatable param
       '/api/:catchall(.*)', // catch-all last
+    ])
+  })
+
+  it('handles catch all with prefix before generic param', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+
+    tree.insert('api/v1/users', 'api/v1/users.vue')
+    tree.insert('api/v1/[type]', 'api/v1/[type].vue')
+    tree.insert('api/v1/[type]/c', 'api/v1/[type].vue')
+    tree.insert('api/v1/teams/[...id]', 'api/v1/teams/[...id].vue')
+
+    expect(getRouteOrderFromResolver(tree)).toEqual([
+      '/api/v1/users',
+      '/api/v1/teams/:id(.*)',
+      '/api/v1/:type/c',
+      '/api/v1/:type',
     ])
   })
 
