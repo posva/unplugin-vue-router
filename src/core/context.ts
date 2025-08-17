@@ -140,7 +140,10 @@ export function createRoutesContext(options: ResolvedOptions) {
               relativePath: relative(options.root, absolutePath),
             })
           }
-          logger.log('Parsed param parsers', [...paramParsers])
+          logger.log(
+            'Parsed param parsers',
+            [...paramParsers].map((p) => p[0])
+          )
         })
       }) || []),
     ])
