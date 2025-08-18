@@ -5,23 +5,16 @@
     "./src/**/*.ts",
     "./src/**/*.vue",
     "./typed-router.d.ts",
-    "./auto-imports.d.ts",
-    "../src"
+    "./auto-imports.d.ts"
   ],
   "compilerOptions": {
     "baseUrl": ".",
     "composite": true,
     "moduleResolution": "Bundler",
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "unplugin-vue-router/runtime": [
-        "../src/runtime.ts"
-      ],
-      "unplugin-vue-router/types": [
-        "../src/types.ts"
-      ],
+      "@/*": ["./src/*"],
+      "unplugin-vue-router/runtime": ["../src/runtime.ts"],
+      "unplugin-vue-router/types": ["../src/types.ts"],
       "unplugin-vue-router/data-loaders": [
         "../src/data-loaders/entries/index.ts"
       ],
@@ -30,8 +23,8 @@
       ],
       "unplugin-vue-router/data-loaders/pinia-colada": [
         "../src/data-loaders/entries/pinia-colada.ts"
-      ],
-    },
+      ]
+    }
   },
   "vueCompilerOptions": {
     "plugins": [
