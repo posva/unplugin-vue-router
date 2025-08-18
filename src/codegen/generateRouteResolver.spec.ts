@@ -646,7 +646,7 @@ describe('route prioritization in resolver', () => {
 
     tree.insert('api/v1/users', 'api/v1/users.vue')
     tree.insert('api/v1/[type]', 'api/v1/[type].vue')
-    tree.insert('api/v1/[type]/c', 'api/v1/[type].vue')
+    tree.insert('api/v1/[type]/c', 'api/v1/[type]/c.vue')
     tree.insert('api/v1/teams/[...id]', 'api/v1/teams/[...id].vue')
 
     expect(getRouteOrderFromResolver(tree)).toEqual([
