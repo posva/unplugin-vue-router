@@ -121,7 +121,8 @@ export function createRoutesContext(options: ResolvedOptions) {
 
                 return !isParamParserMatch(relative(folder, filePath))
               },
-            })
+            }),
+            folder
           )
         )
         return glob(PARAM_PARSER_GLOB, {
@@ -212,12 +213,12 @@ export function createRoutesContext(options: ResolvedOptions) {
     server?.updateRoutes()
   }
 
-  function setupParamParserWatcher(watcher: FSWatcher) {
+  function setupParamParserWatcher(watcher: FSWatcher, cwd: string) {
     logger.log(`🤖 Scanning param parsers in ${watcher.options.cwd}`)
     return watcher
       .on('add', (file) => {
         const name = parsePathe(file).name
-        const absolutePath = resolve(watcher.options.cwd!, file)
+        const absolutePath = resolve(cwd, file)
         paramParsers.set(name, {
           name,
           typeName: `Param_${name}`,
