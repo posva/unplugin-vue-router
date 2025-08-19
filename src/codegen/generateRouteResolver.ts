@@ -267,7 +267,7 @@ function generateRouteRecordMerge(
     return routeRecordObject
   }
 
-  importsMap.add('unplugin-vue-router/runtime', '_mergeRouteRecordExperimental')
+  importsMap.add('vue-router/experimental', '_mergeRouteRecord')
 
   // Re-indent the route object to be 4 spaces (2 levels from normalizeRouteRecord)
   const indentedRouteObject = routeRecordObject
@@ -277,7 +277,7 @@ function generateRouteRecordMerge(
     })
     .join('\n')
 
-  return `_mergeRouteRecordExperimental(
+  return `_mergeRouteRecord(
 ${indentedRouteObject},
 ${definePageDataList.map((name) => `    ${name}`).join(',\n')}
   )`
