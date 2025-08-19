@@ -524,7 +524,7 @@ describe('generateRouteResolver', () => {
       "
 
       const r_0 = normalizeRouteRecord(
-        _mergeRouteRecordExperimental(
+        _mergeRouteRecord(
           {
             name: '/profile',
             path: new MatcherPatternPathStatic('/profile'),
