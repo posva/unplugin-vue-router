@@ -1,4 +1,4 @@
-import type { RouteRecordRaw } from 'vue-router'
+import type { RouteRecordRaw, TypesConfig } from 'vue-router'
 
 /**
  * Defines properties of the route for the current page component.
@@ -58,30 +58,83 @@ export interface DefinePage
    * Can be set to `false` to remove the name from types.
    */
   name?: string | false
+
+  /**
+   * Custom parameters for the route. Requires `experimental.paramMatchers` enabled.
+   *
+   * @experimental
+   */
+  params?: {
+    path?: Record<string, ParamParserType>
+
+    /**
+     * Parameters extracted from the query.
+     */
+    query?: Record<string, DefinePageQueryParamOptions | ParamParserType>
+  }
 }
 
-// TODO: remove as it's in runtime-experimental
+export type ParamParserType_Native = 'int' | 'bool'
+
+export type ParamParserType =
+  | (TypesConfig extends Record<'ParamParsers', infer ParamParsers>
+      ? ParamParsers
+      : never)
+  | ParamParserType_Native
+
 /**
- * Merges route record objects for the experimental resolver format.
- * This function is specifically designed to work with objects that will be passed to normalizeRouteRecord().
- *
- * @internal
- *
- * @param main - main route record object
- * @param routeRecords - route records to merge (from definePage imports)
- * @returns merged route record object
+ * Configures how to extract a route param from a specific query parameter.
  */
-export function _mergeRouteRecordExperimental(
-  // NOTE: we can't import from experimental because it changes the types of `children`
-  // import type { EXPERIMENTAL_RouteRecordRaw } from 'vue-router/experimental'
-  main: {
-    [x: string]: unknown
-    meta?: Record<string, unknown>
-  },
-  ...routeRecords: Partial<DefinePage>[]
-) {
-  for (const record of routeRecords) {
-    main.meta = { ...main.meta, ...record.meta }
-  }
-  return main
+export interface DefinePageQueryParamOptions<T = unknown> {
+  /**
+   * The type of the query parameter. Allowed values are native param parsers
+   * and any parser in the {@link https://uvr.esm.is/TODO | params folder }. If
+   * not provided, the value will kept as is.
+   */
+  parser?: ParamParserType
+
+  /**
+   * Default value if the query parameter is missing or if the match fails
+   * (e.g. a invalid number is passed to the int param parser). If not provided
+   * and the param parser throws, the route will not match.
+   */
+  default?: (() => T) | T
+
+  /**
+   * How to format the query parameter value.
+   *
+   * - 'value' - keep the first value only and pass that to parser
+   * - 'array' - keep all values (even one or none) as an array and pass that to parser
+   * - 'both' - keep it as passed to the query, so this can be a single value or an array
+   *
+   * @default 'both'
+   */
+  format?: 'value' | 'array' | 'both'
 }
+
+definePage({
+  params: {
+    path: {
+      // key autocompletes because it's based on the types of the RouteMap
+      // or maybe no autocomplete becuase changing this changes the file too
+      userId: 'int', // autocompletes
+    },
+    query: {
+      p: 'int', // short version: no default, format both
+      page: {
+        parser: 'int', // autocomplete int
+        default: 1, // default value when '', null or undefined, if provided, we catch the match error, and set the default
+        format: 'value', // keep the first value only and pass that to parser
+        // format: 'array', // keep all values as an array and pass that to parser
+        // format: 'both', // keep it as passed to the query, so this can be a single value or an array
+      },
+    },
+  },
+})
+
+/**
+ * TODO: native parsers ideas:
+ * - json -> just JSON.parse(value)
+ * - boolean -> 'true' | 'false' -> boolean
+ * - number -> Number(value) -> NaN if not a number
+ */

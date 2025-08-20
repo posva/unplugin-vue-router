@@ -22,7 +22,7 @@ declare module 'vue-router/auto-routes' {
    */
   export interface RouteNamedMap {
     '/(home)': RouteRecordInfo<'/(home)', '/', Record<never, never>, Record<never, never>>,
-    '/[...404]': RouteRecordInfo<'/[...404]', '/:404(.*)', { 404: ParamValue<false> }, { 404: ParamValue<false> }>,
+    '/[...path]': RouteRecordInfo<'/[...path]', '/:path(.*)', { path: ParamValue<false> }, { path: ParamValue<false> }>,
     '/a.[b].c.[d]': RouteRecordInfo<'/a.[b].c.[d]', '/a/:b/c/:d', { b: ParamValue<false>, d: ParamValue<false> }, { b: ParamValue<false>, d: ParamValue<false> }>,
     '/b': RouteRecordInfo<'/b', '/b', Record<never, never>, Record<never, never>>,
     '/events/[when=date]': RouteRecordInfo<'/events/[when=date]', '/events/:when', { when: Param_date }, { when: Param_date }>,
@@ -49,8 +49,8 @@ declare module 'vue-router/auto-routes' {
       routes: '/(home)'
       views: never
     }
-    'src/pages/[...404].vue': {
-      routes: '/[...404]'
+    'src/pages/[...path].vue': {
+      routes: '/[...path]'
       views: never
     }
     'src/pages/a.[b].c.[d].vue': {
