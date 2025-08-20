@@ -106,7 +106,7 @@ export function createRoutesContext(options: ResolvedOptions) {
             )
           )
         }),
-      ...(options.experimental.paramMatchers?.dir.map((folder) => {
+      ...(options.experimental.paramParsers?.dir.map((folder) => {
         watchers.push(
           setupParamParserWatcher(
             fsWatch('.', {
@@ -336,8 +336,8 @@ if (import.meta.hot) {
 
   function generateDTS() {
     if (
-      options.experimental.paramMatchers &&
-      options.experimental.paramMatchers.dir.length > 0
+      options.experimental.paramParsers &&
+      options.experimental.paramParsers.dir.length > 0
     ) {
       warnMissingParamParsers(routeTree, paramParsers)
     }
