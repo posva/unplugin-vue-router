@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { definePage } from 'unplugin-vue-router/experimental-param-parsers'
-import doc from './[...404].vue?raw'
+import doc from '../main.ts?raw'
 
 const route = useRoute()
 route.params.path
