@@ -52,13 +52,14 @@ export default defineConfig({
       // getRouteName: getPascalCaseRouteName,
       experimental: {
         autoExportsDataLoaders: ['src/loaders/**/*', '@/loaders/**/*'],
-        paramMatchers: false,
+        paramParsers: false,
       },
       extendRoute(route) {
         route.params.forEach((param) => {
           // transform kebab-case to camelCase
-          param.paramName = param.paramName.replace(/-([a-z])/g, (g) =>
-            g[1].toUpperCase()
+          param.paramName = param.paramName.replace(
+            /-([a-z])/g,
+            (g) => g[1]?.toUpperCase() || ''
           )
         })
 

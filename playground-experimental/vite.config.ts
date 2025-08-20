@@ -50,7 +50,7 @@ export default defineConfig({
       // getRouteName: getPascalCaseRouteName,
       experimental: {
         autoExportsDataLoaders: ['src/loaders/**/*', '@/loaders/**/*'],
-        paramMatchers: true,
+        paramParsers: true,
       },
       extendRoute(route) {
         // example of deleting routes

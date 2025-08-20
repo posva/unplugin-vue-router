@@ -43,7 +43,7 @@ export function generateRouteRecordInfo(
   let paramParsers: Array<string | null> = []
   let paramType: string = ''
 
-  if (options.experimental.paramMatchers) {
+  if (options.experimental.paramParsers) {
     paramParsers = generateParamsTypes(params, paramParsersMap)
     paramType = EXPERIMENTAL_generateRouteParams(node, paramParsers)
   }

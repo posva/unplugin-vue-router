@@ -229,11 +229,11 @@ export interface Options {
     /**
      * Enable experimental support for the new custom resolvers.
      */
-    paramMatchers?: boolean | ParamMatcherOptions
+    paramParsers?: boolean | ParamParsersOptions
   }
 }
 
-export interface ParamMatcherOptions {
+export interface ParamParsersOptions {
   /**
    * Folder(s) to scan for param matchers. Set to an empty array to disable the feature.
    *
@@ -242,9 +242,9 @@ export interface ParamMatcherOptions {
   dir?: string | string[]
 }
 
-export const DEFAULT_PARAM_MATCHER_OPTIONS = {
+export const DEFAULT_PARAM_PARSERS_OPTIONS = {
   dir: ['src/params'],
-} satisfies Required<ParamMatcherOptions>
+} satisfies Required<ParamParsersOptions>
 
 export const DEFAULT_OPTIONS = {
   extensions: ['.vue'],
@@ -321,21 +321,21 @@ export function resolveOptions(options: Options) {
     src: resolve(root, routeOption.src),
   }))
 
-  const paramMatchers = options.experimental?.paramMatchers
-    ? options.experimental.paramMatchers === true
-      ? DEFAULT_PARAM_MATCHER_OPTIONS
+  const paramParsers = options.experimental?.paramParsers
+    ? options.experimental.paramParsers === true
+      ? DEFAULT_PARAM_PARSERS_OPTIONS
       : {
-          ...DEFAULT_PARAM_MATCHER_OPTIONS,
-          ...options.experimental.paramMatchers,
+          ...DEFAULT_PARAM_PARSERS_OPTIONS,
+          ...options.experimental.paramParsers,
         }
-    : // this way we can do paramMatchers?.dir
+    : // this way we can do paramParsers?.dir
       undefined
 
-  const paramMatchersDir = (
-    paramMatchers?.dir
-      ? isArray(paramMatchers.dir)
-        ? paramMatchers.dir
-        : [paramMatchers.dir]
+  const paramParsersDir = (
+    paramParsers?.dir
+      ? isArray(paramParsers.dir)
+        ? paramParsers.dir
+        : [paramParsers.dir]
       : []
   ).map((dir) => resolve(root, dir))
 
@@ -349,10 +349,10 @@ export function resolveOptions(options: Options) {
   const experimental = {
     ...options.experimental,
     autoExportsDataLoaders,
-    // keep undefined if paramMatchers is not set
-    paramMatchers: paramMatchers && {
-      ...paramMatchers,
-      dir: paramMatchersDir,
+    // keep undefined if paramParsers is not set
+    paramParsers: paramParsers && {
+      ...paramParsers,
+      dir: paramParsersDir,
     },
   }
 
