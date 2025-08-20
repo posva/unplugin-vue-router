@@ -60,7 +60,7 @@ export interface DefinePage
   name?: string | false
 
   /**
-   * Custom parameters for the route. Requires `experimental.paramMatchers` enabled.
+   * Custom parameters for the route. Requires `experimental.paramParsers` enabled.
    *
    * @experimental
    */
