@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
 import { ref } from 'vue'
-import { routes } from 'vue-router/auto-routes'
-
-console.log(`We have ${routes.length} routes.`)
 
 const router = useRouter()
+
+console.log(`We have ${router.getRoutes().length} routes.`)
+
 const targetRoute = ref('')
 </script>
 

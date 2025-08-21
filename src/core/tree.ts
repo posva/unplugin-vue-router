@@ -270,6 +270,9 @@ export class TreeNode {
       : ''
   }
 
+  /**
+   * Array of route params for this node. It includes all the params from the parents as well.
+   */
   get params(): TreeRouteParam[] {
     const params = this.value.isParam() ? [...this.value.params] : []
     let node = this.parent
@@ -284,6 +287,26 @@ export class TreeNode {
     return params
   }
 
+  /**
+   * Array of route params coming from the path. It includes all the params from the parents as well.
+   */
+  get pathParams(): TreeRouteParam[] {
+    const params = this.value.isParam() ? [...this.value.params] : []
+    let node = this.parent
+    // add all the params from the parents
+    while (node) {
+      if (node.value.isParam()) {
+        params.unshift(...node.value.params)
+      }
+      node = node.parent
+    }
+
+    return params
+  }
+
+  /**
+   * Generates a regexp based on this node and its parents. This regexp is used by the custom resolver
+   */
   get regexp(): string {
     let re = ''
     let node: TreeNode | undefined = this
@@ -313,18 +336,10 @@ export class TreeNode {
     return scores
   }
 
-  get matcherParams() {
-    const params: Record<string, { repeat?: boolean }> = {}
-    for (const param of this.params) {
-      params[param.paramName] = {
-        repeat: param.repeatable,
-        // TODO: parser
-      }
-    }
-    return params
-  }
-
-  get matcherParts(): TreeNodeValueMatcherPart {
+  /**
+   * Returns an array of matcher parts that is consumed by MatcherPatternPathDynamic to render the path.
+   */
+  get matcherPatternPathDynamicParts(): TreeNodeValueMatcherPart {
     const parts: TreeNodeValueMatcherPart = []
     let node: TreeNode | undefined = this
 

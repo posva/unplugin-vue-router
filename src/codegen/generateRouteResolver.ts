@@ -248,7 +248,7 @@ export function generateRouteRecordPath({
     return `path: new MatcherPatternPathDynamic(
     ${node.regexp},
     ${generateParamsOptions(node.params, importsMap, paramParsersMap)},
-    ${JSON.stringify(node.matcherParts)},
+    ${JSON.stringify(node.matcherPatternPathDynamicParts)},
   ),`
   } else {
     return `path: new MatcherPatternPathStatic('${node.fullPath}'),`
