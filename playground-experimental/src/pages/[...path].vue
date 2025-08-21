@@ -10,6 +10,7 @@ definePage({
     description: 'This page does not exist.',
     docLength: doc.length,
   },
+  name: 'not-found',
   params: {
     query: {
       page: {
