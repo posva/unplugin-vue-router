@@ -3,12 +3,14 @@ import doc from '../main.ts?raw'
 
 const route = useRoute()
 route.params.path
+route.params.page
 
 definePage({
   meta: {
     title: 'Not Found',
     description: 'This page does not exist.',
     docLength: doc.length,
+    number: 27,
   },
   name: 'not-found',
   params: {

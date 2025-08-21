@@ -17,7 +17,7 @@ import {
 } from './RoutesFolderWatcher'
 import { generateDTS as _generateDTS } from '../codegen/generateDTS'
 import { generateVueRouterProxy as _generateVueRouterProxy } from '../codegen/vueRouterModule'
-import { definePageTransform, extractDefinePageNameAndPath } from './definePage'
+import { definePageTransform, extractDefinePageInfo } from './definePage'
 import { EditableTreeNode } from './extendRoutes'
 import { isPackageExists as isPackageInstalled } from 'local-pkg'
 import { ts } from '../utils'
@@ -162,10 +162,7 @@ export function createRoutesContext(options: ResolvedOptions) {
     // TODO: cache the result of parsing the SFC (in the extractDefinePageAndName) so the transform can reuse the parsing
     node.hasDefinePage ||= content.includes('definePage')
     // TODO: track if it changed and to not always trigger HMR
-    const definedPageNameAndPath = extractDefinePageNameAndPath(
-      content,
-      filePath
-    )
+    const definedPageInfo = extractDefinePageInfo(content, filePath)
     // TODO: track if it changed and if generateRoutes should be called again
     const routeBlock = getRouteBlock(filePath, content, options)
     // TODO: should warn if hasDefinePage and customRouteBlock
@@ -173,7 +170,7 @@ export function createRoutesContext(options: ResolvedOptions) {
 
     node.setCustomRouteBlock(filePath, {
       ...routeBlock,
-      ...definedPageNameAndPath,
+      ...definedPageInfo,
     })
   }
 
@@ -188,9 +185,6 @@ export function createRoutesContext(options: ResolvedOptions) {
     if (triggerExtendRoute) {
       await options.extendRoute?.(new EditableTreeNode(node))
     }
-
-    // TODO: trigger HMR vue-router/auto
-    server?.updateRoutes()
   }
 
   async function updatePage({ filePath, routePath }: HandlerContext) {
@@ -209,8 +203,6 @@ export function createRoutesContext(options: ResolvedOptions) {
   function removePage({ filePath, routePath }: HandlerContext) {
     logger.log(`remove "${routePath}" for "${filePath}"`)
     routeTree.removeChild(filePath)
-    // TODO: HMR vue-router/auto
-    server?.updateRoutes()
   }
 
   function setupParamParserWatcher(watcher: FSWatcher, cwd: string) {
@@ -271,7 +263,43 @@ export function createRoutesContext(options: ResolvedOptions) {
       imports += '\n'
     }
 
-    const newAutoRoutes = `${imports}${resolverCode}\n`
+    const hmr = ts`
+export function handleHotUpdate(_router, _hotUpdateCallback) {
+  if (import.meta.hot) {
+    import.meta.hot.data.router = _router
+    import.meta.hot.data.router_hotUpdateCallback = _hotUpdateCallback
+  }
+}
+
+if (import.meta.hot) {
+  import.meta.hot.accept((mod) => {
+    console.log('🔥 HMRRRR')
+    import.meta.hot.invalidate('[unplugin-vue-router:HMR] reloading resolver')
+    return
+    const router = import.meta.hot.data.router
+    if (!router) {
+      import.meta.hot.invalidate('[unplugin-vue-router:HMR] Cannot replace the resolver because there is no active router. Reloading.')
+      return
+    }
+    // TODO:
+    router._hmrReplaceResolver(mod.resolver)
+    // call the hotUpdateCallback for custom updates
+    import.meta.hot.data.router_hotUpdateCallback?.(mod.routes)
+    const route = router.currentRoute.value
+    router.replace({
+      ...route,
+      // NOTE: we should be able to just do ...route but the router
+      // currently skips resolving and can give errors with renamed routes
+      // so we explicitly set remove matched and name
+      name: undefined,
+      matched: undefined,
+      params: {},
+      force: true
+    })
+  })
+}`
+
+    const newAutoRoutes = `${imports}${resolverCode}\n${hmr}`
 
     // prepend it to the code
     return newAutoRoutes
@@ -384,6 +412,10 @@ if (import.meta.hot) {
         await fs.writeFile(dts, content, 'utf-8')
         logger.timeLog('writeConfigFiles', 'wrote dts file')
         lastDTS = content
+        // TODO: only update routes if routes changed (this includes definePage changes)
+        // but do not update routes if only the component want updated
+        // currently, this doesn't trigger if definePage meta properties changed
+        server?.updateRoutes()
       }
     }
     logger.timeEnd('writeConfigFiles')

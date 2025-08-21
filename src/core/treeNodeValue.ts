@@ -1,6 +1,7 @@
 import type { RouteRecordRaw } from 'vue-router'
 import { CustomRouteBlock } from './customBlock'
 import { joinPath, mergeRouteRecordOverride, warn } from './utils'
+import type { DefinePage } from 'unplugin-vue-router/runtime'
 
 export const enum TreeNodeType {
   static,
@@ -11,6 +12,11 @@ export const enum TreeNodeType {
 export interface RouteRecordOverride
   extends Partial<Pick<RouteRecordRaw, 'meta' | 'props' | 'alias' | 'path'>> {
   name?: string | undefined | false
+
+  /**
+   * Param Parsers information.
+   */
+  params?: DefinePage['params']
 }
 
 export type SubSegment = string | TreeRouteParam
