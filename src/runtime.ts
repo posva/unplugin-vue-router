@@ -98,7 +98,9 @@ export interface DefinePageQueryParamOptions<T = unknown> {
    * (e.g. a invalid number is passed to the int param parser). If not provided
    * and the param parser throws, the route will not match.
    */
-  default?: (() => T) | T
+  default?: T
+  // TODO: handle function syntax
+  // default?: (() => T) | T
 
   /**
    * How to format the query parameter value.

@@ -1,8 +1,11 @@
 import { TransformResult } from 'vite'
 import { expect, describe, it } from 'vitest'
-import { definePageTransform, extractDefinePageNameAndPath } from './definePage'
+import { definePageTransform, extractDefinePageInfo } from './definePage'
+import { ts } from '../utils'
 
-const sampleCode = `
+const vue = String.raw
+
+const sampleCode = vue`
 <script setup>
 const a = 1
 definePage({
@@ -31,7 +34,7 @@ describe('definePage', () => {
   describe('imports', () => {
     it('keeps used named imports', async () => {
       const result = (await definePageTransform({
-        code: `
+        code: vue`
 <script setup>
 import { my_var, not_used, my_func, my_num } from './lib'
 definePage({
@@ -53,7 +56,7 @@ definePage({
 
     it('keeps used default imports', async () => {
       const result = (await definePageTransform({
-        code: `
+        code: vue`
 <script setup>
 import my_var from './lib'
 definePage({
@@ -69,9 +72,9 @@ definePage({
       expect(result?.code).toMatchSnapshot()
     })
 
-    it('removes default import if not used', async () => {
-      const result = (await definePageTransform({
-        code: `
+    it('removes default unused imports', async () => {
+      const resultDefault = (await definePageTransform({
+        code: vue`
 <script setup>
 import my_var from './lib'
 definePage({name: 'ok'})
@@ -79,13 +82,27 @@ definePage({name: 'ok'})
 `,
         id: 'src/pages/with-imports.vue&definePage&vue&lang.ts',
       })) as Exclude<TransformResult, string>
-      expect(result).toHaveProperty('code')
-      expect(result?.code).toMatchSnapshot()
+      expect(resultDefault).toHaveProperty('code')
+      expect(resultDefault?.code).toMatchSnapshot()
+    })
+
+    it('removes unused star imports', async () => {
+      const resultStar = (await definePageTransform({
+        code: vue`
+<script setup>
+import * as lib from './my-lib'
+definePage({name: 'ok'})
+</script>
+`,
+        id: 'src/pages/with-imports.vue&definePage&vue&lang.ts',
+      })) as Exclude<TransformResult, string>
+      expect(resultStar).toHaveProperty('code')
+      expect(resultStar?.code).toMatchSnapshot()
     })
 
     it('works with star imports', async () => {
       const result = (await definePageTransform({
-        code: `
+        code: vue`
 <script setup>
 import * as lib from './my-lib'
 definePage({
@@ -101,23 +118,9 @@ definePage({
       expect(result?.code).toMatchSnapshot()
     })
 
-    it('removes star imports if not used', async () => {
-      const result = (await definePageTransform({
-        code: `
-<script setup>
-import * as lib from './my-lib'
-definePage({name: 'ok'})
-</script>
-`,
-        id: 'src/pages/with-imports.vue&definePage&vue&lang.ts',
-      })) as Exclude<TransformResult, string>
-      expect(result).toHaveProperty('code')
-      expect(result?.code).toMatchSnapshot()
-    })
-
     it('works when combining named and default imports', async () => {
       const result = (await definePageTransform({
-        code: `
+        code: vue`
 <script setup>
 import my_var, { not_used, my_func, not_used_either } from './lib'
 definePage({
@@ -136,7 +139,7 @@ definePage({
   })
 
   it('works with jsx', async () => {
-    const code = `
+    const code = ts`
     const a = 1
     definePage({
       name: 'custom',
@@ -154,7 +157,7 @@ definePage({
   })
 
   it('throws if definePage uses a variable from the setup', async () => {
-    const code = `
+    const code = vue`
 <script setup>
 const a = 1
 definePage({
@@ -171,19 +174,74 @@ definePage({
     }).rejects.toThrowError()
   })
 
-  it('extracts name and path', async () => {
-    expect(
-      await extractDefinePageNameAndPath(sampleCode, 'src/pages/basic.vue')
-    ).toEqual({
+  it('extracts name and path', () => {
+    expect(extractDefinePageInfo(sampleCode, 'src/pages/basic.vue')).toEqual({
       name: 'custom',
       path: '/custom',
     })
   })
 
+  it('extracts all types of params', () => {
+    const codeWithAllParams = vue`
+<script setup>
+definePage({
+  params: {
+    path: {
+      userId: 'int',
+      isActive: 'bool'
+    },
+    query: {
+      page: {
+        parser: 'int',
+        default: 1,
+        format: 'value',
+      },
+      enabled: 'bool',
+      count: {
+        parser: 'int',
+        default: 42
+      },
+      active: {
+        default: 'none',
+      },
+    }
+  }
+})
+</script>
+`
+    expect(
+      extractDefinePageInfo(codeWithAllParams, 'src/pages/test.vue')
+    ).toEqual({
+      params: {
+        path: {
+          userId: 'int',
+          isActive: 'bool',
+        },
+        query: {
+          page: {
+            parser: 'int',
+            default: 1,
+            format: 'value',
+          },
+          enabled: {
+            parser: 'bool',
+          },
+          count: {
+            parser: 'int',
+            default: 42,
+          },
+          active: {
+            default: 'none',
+          },
+        },
+      },
+    })
+  })
+
   it('extract name skipped when non existent', async () => {
     expect(
-      await extractDefinePageNameAndPath(
-        `
+      extractDefinePageInfo(
+        vue`
 <script setup>
 const a = 1
 const b = 1
@@ -199,7 +257,7 @@ const b = 1
   })
 
   it('works with comments', async () => {
-    const code = `
+    const code = vue`
 <script setup>
 // definePage
 </script>
@@ -240,15 +298,15 @@ const b = 1
         id: 'src/pages/definePage.vue?definePage&vue',
       })
     ).toMatchObject({
-      code: `\
+      code: ts`
 export default {
   name: 'custom',
   path: '/custom',
-}`,
+}`.trim(),
     })
 
     expect(
-      await extractDefinePageNameAndPath(sampleCode, 'src/pages/definePage.vue')
+      extractDefinePageInfo(sampleCode, 'src/pages/definePage.vue')
     ).toEqual({
       name: 'custom',
       path: '/custom',

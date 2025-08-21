@@ -21,7 +21,6 @@ import {
 import { createViteContext } from './core/vite'
 import { join } from 'pathe'
 import { appendExtensionListToPattern } from './core/utils'
-import { MACRO_DEFINE_PAGE_QUERY } from './core/definePage'
 import { createAutoExportPlugin } from './data-loaders/auto-exports'
 
 export type * from './types'
@@ -158,45 +157,10 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
         },
       },
 
-      // improves DX
+      // for HMR
       vite: {
         configureServer(server) {
           ctx.setServerContext(createViteContext(server))
-        },
-
-        handleHotUpdate: {
-          order: 'post',
-          handler({ server, file, modules }) {
-            // console.log(`🔥 HMR ${file}`)
-            const moduleList = server.moduleGraph.getModulesByFile(file)
-            const definePageModule = Array.from(moduleList || []).find(
-              (mod) => {
-                return mod?.id && MACRO_DEFINE_PAGE_QUERY.test(mod.id)
-              }
-            )
-
-            if (definePageModule) {
-              // console.log(`Updating ${definePageModule.file}`)
-              const routesModule = server.moduleGraph.getModuleById(
-                asVirtualId(MODULE_ROUTES_PATH)
-              )
-
-              if (!routesModule) {
-                console.error('🔥 HMR routes module not found')
-                return
-              }
-
-              return [
-                ...modules,
-                // TODO: only if the definePage changed
-                definePageModule,
-                // TODO: only if ether the definePage or the route block changed
-                routesModule,
-              ]
-            }
-
-            return // for ts
-          },
         },
       },
     },

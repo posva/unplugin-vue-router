@@ -199,6 +199,17 @@ export function mergeRouteRecordOverride(
       merged[key] = newAlias.concat(a.alias || [], b.alias || [])
     } else if (key === 'meta') {
       merged[key] = mergeDeep(a[key] || {}, b[key] || {})
+    } else if (key === 'params') {
+      merged[key] = {
+        path: {
+          ...a[key]?.path,
+          ...b[key]?.path,
+        },
+        query: {
+          ...a[key]?.query,
+          ...b[key]?.query,
+        },
+      }
     } else {
       // @ts-expect-error: TS cannot see it's the same key
       merged[key] = b[key] ?? a[key]

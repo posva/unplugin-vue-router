@@ -11,15 +11,16 @@ import type { Thenable, TransformResult } from 'unplugin'
 import type {
   CallExpression,
   Node,
+  ObjectExpression,
   ObjectProperty,
   Program,
   Statement,
   StringLiteral,
 } from '@babel/types'
 import { walkAST } from 'ast-walker-scope'
-import { CustomRouteBlock } from './customBlock'
 import { warn } from './utils'
 import { ParsedStaticImport, findStaticImports, parseStaticImport } from 'mlly'
+import type { DefinePage, ParamParserType } from 'unplugin-vue-router/runtime'
 
 const MACRO_DEFINE_PAGE = 'definePage'
 export const MACRO_DEFINE_PAGE_QUERY = /[?&]definePage\b/
@@ -186,10 +187,18 @@ export function definePageTransform({
   }
 }
 
-export function extractDefinePageNameAndPath(
+type DefinePageParamsInfo = DefinePage['params']
+
+export interface DefinePageInfo {
+  name?: string | false
+  path?: string
+  params?: DefinePage['params']
+}
+
+export function extractDefinePageInfo(
   sfcCode: string,
   id: string
-): { name?: string | false; path?: string } | null | undefined {
+): DefinePageInfo | null | undefined {
   if (!sfcCode.includes(MACRO_DEFINE_PAGE)) return
 
   const { ast, definePageNodes } = getCodeAst(sfcCode, id)
@@ -216,7 +225,7 @@ export function extractDefinePageNameAndPath(
     )
   }
 
-  const routeInfo: Pick<CustomRouteBlock, 'name' | 'path'> = {}
+  const routeInfo: DefinePageInfo = {}
 
   for (const prop of routeRecord.properties) {
     if (prop.type === 'ObjectProperty' && prop.key.type === 'Identifier') {
@@ -238,11 +247,118 @@ export function extractDefinePageNameAndPath(
         } else {
           routeInfo.path = prop.value.value
         }
+      } else if (prop.key.name === 'params') {
+        if (prop.value.type === 'ObjectExpression') {
+          routeInfo.params = extractParamsInfo(prop.value, id)
+        }
       }
     }
   }
 
   return routeInfo
+}
+
+function extractParamsInfo(
+  paramsObj: ObjectExpression,
+  id: string
+): DefinePageParamsInfo {
+  const params: DefinePageParamsInfo = {}
+
+  for (const prop of paramsObj.properties) {
+    if (prop.type === 'ObjectProperty' && prop.key.type === 'Identifier') {
+      if (prop.key.name === 'query' && prop.value.type === 'ObjectExpression') {
+        params.query = extractQueryParams(prop.value, id)
+      } else if (
+        prop.key.name === 'path' &&
+        prop.value.type === 'ObjectExpression'
+      ) {
+        params.path = extractPathParams(prop.value, id)
+      }
+    }
+  }
+
+  return params
+}
+
+function extractQueryParams(
+  queryObj: ObjectExpression,
+  _id: string
+): NonNullable<DefinePageInfo['params']>['query'] {
+  const queryParams: NonNullable<DefinePageInfo['params']>['query'] = {}
+
+  for (const prop of queryObj.properties) {
+    if (prop.type === 'ObjectProperty' && prop.key.type === 'Identifier') {
+      const paramName = prop.key.name
+
+      // we normalize short form for convenience
+      if (prop.value.type === 'StringLiteral') {
+        queryParams[paramName] = {
+          parser: prop.value.value as ParamParserType,
+        }
+      } else if (prop.value.type === 'ObjectExpression') {
+        // Full form: param: { parser: 'int', default: 1, format: 'value' }
+        const paramInfo: (typeof queryParams)[string] = {}
+
+        for (const paramProp of prop.value.properties) {
+          if (
+            paramProp.type === 'ObjectProperty' &&
+            paramProp.key.type === 'Identifier'
+          ) {
+            if (
+              paramProp.key.name === 'parser' &&
+              paramProp.value.type === 'StringLiteral'
+            ) {
+              paramInfo.parser = paramProp.value.value as ParamParserType
+            } else if (
+              paramProp.key.name === 'format' &&
+              paramProp.value.type === 'StringLiteral'
+            ) {
+              paramInfo.format = paramProp.value.value as
+                | 'value'
+                | 'array'
+                | 'both'
+            } else if (paramProp.key.name === 'default') {
+              // Handle different literal types for default values
+              if (paramProp.value.type === 'NumericLiteral') {
+                paramInfo.default = paramProp.value.value
+              } else if (paramProp.value.type === 'StringLiteral') {
+                paramInfo.default = paramProp.value.value
+              } else if (paramProp.value.type === 'BooleanLiteral') {
+                paramInfo.default = paramProp.value.value
+              } else if (paramProp.value.type === 'NullLiteral') {
+                paramInfo.default = null
+              }
+              // TODO: handle function expressions for default values
+            }
+          }
+        }
+
+        queryParams[paramName] = paramInfo
+      }
+    }
+  }
+
+  return queryParams
+}
+
+function extractPathParams(
+  pathObj: ObjectExpression,
+  _id: string
+): NonNullable<DefinePageInfo['params']>['path'] {
+  const pathParams: NonNullable<DefinePageInfo['params']>['path'] = {}
+
+  for (const prop of pathObj.properties) {
+    if (
+      prop.type === 'ObjectProperty' &&
+      prop.key.type === 'Identifier' &&
+      prop.value.type === 'StringLiteral'
+    ) {
+      // TODO: we should check if the value is a valid parser type
+      pathParams[prop.key.name] = prop.value.value as ParamParserType
+    }
+  }
+
+  return pathParams
 }
 
 // TODO: use
