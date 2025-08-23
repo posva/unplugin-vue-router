@@ -214,7 +214,7 @@ describe('generateRouteRecordQuery', () => {
       generateRouteRecordQuery({ importsMap, node, paramParsersMap: new Map() })
     ).toMatchInlineSnapshot(`
       "query: [
-          new MatcherPatternQueryParam('search', 'search', 'both')
+          new MatcherPatternQueryParam('search', 'search', 'value')
         ],"
     `)
   })
@@ -246,7 +246,7 @@ describe('generateRouteRecordQuery', () => {
       })
     ).toMatchInlineSnapshot(`
       "query: [
-          new MatcherPatternQueryParam('childParam', 'childParam', 'both', PARAM_PARSER_INT)
+          new MatcherPatternQueryParam('childParam', 'childParam', 'value', PARAM_PARSER_INT)
         ],"
     `)
   })
@@ -268,7 +268,7 @@ describe('generateRouteRecordQuery', () => {
       generateRouteRecordQuery({ importsMap, node, paramParsersMap: new Map() })
     ).toMatchInlineSnapshot(`
       "query: [
-          new MatcherPatternQueryParam('search', 'search', 'both')
+          new MatcherPatternQueryParam('search', 'search', 'value')
         ],"
     `)
   })
@@ -286,9 +286,9 @@ describe('generateRouteRecordQuery', () => {
       generateRouteRecordQuery({ importsMap, node, paramParsersMap: new Map() })
     ).toMatchInlineSnapshot(`
       "query: [
-          new MatcherPatternQueryParam('search', 'search', 'both'),
-          new MatcherPatternQueryParam('page', 'page', 'both', PARAM_PARSER_INT),
-          new MatcherPatternQueryParam('active', 'active', 'both')
+          new MatcherPatternQueryParam('search', 'search', 'value'),
+          new MatcherPatternQueryParam('page', 'page', 'value', PARAM_PARSER_INT),
+          new MatcherPatternQueryParam('active', 'active', 'value')
         ],"
     `)
   })
@@ -343,7 +343,7 @@ describe('generateRouteRecordQuery', () => {
       generateRouteRecordQuery({ importsMap, node, paramParsersMap: new Map() })
     ).toMatchInlineSnapshot(`
       "query: [
-          new MatcherPatternQueryParam('limit', 'limit', 'both', {}, 10)
+          new MatcherPatternQueryParam('limit', 'limit', 'value', {}, 10)
         ],"
     `)
   })
@@ -378,8 +378,8 @@ describe('generateRouteRecordQuery', () => {
       "query: [
           new MatcherPatternQueryParam('q', 'q', 'value'),
           new MatcherPatternQueryParam('tags', 'tags', 'array'),
-          new MatcherPatternQueryParam('limit', 'limit', 'both', PARAM_PARSER_INT, 20),
-          new MatcherPatternQueryParam('active', 'active', 'both', {}, true)
+          new MatcherPatternQueryParam('limit', 'limit', 'value', PARAM_PARSER_INT, 20),
+          new MatcherPatternQueryParam('active', 'active', 'value', {}, true)
         ],"
     `)
   })
@@ -767,8 +767,8 @@ describe('generateRouteResolver', () => {
         name: '/search',
         path: new MatcherPatternPathStatic('/search'),
         query: [
-          new MatcherPatternQueryParam('q', 'q', 'both'),
-          new MatcherPatternQueryParam('limit', 'limit', 'both', PARAM_PARSER_INT)
+          new MatcherPatternQueryParam('q', 'q', 'value'),
+          new MatcherPatternQueryParam('limit', 'limit', 'value', PARAM_PARSER_INT)
         ],
         components: {
           'default': () => import('search.vue')

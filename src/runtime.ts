@@ -110,11 +110,10 @@ export interface DefinePageQueryParamOptions<T = unknown> {
    *
    * - 'value' - keep the first value only and pass that to parser
    * - 'array' - keep all values (even one or none) as an array and pass that to parser
-   * - 'both' - keep it as passed to the query, so this can be a single value or an array
    *
-   * @default 'both'
+   * @default 'value'
    */
-  format?: 'value' | 'array' | 'both'
+  format?: 'value' | 'array'
 }
 
 /**
