@@ -273,27 +273,19 @@ export function handleHotUpdate(_router, _hotUpdateCallback) {
 
 if (import.meta.hot) {
   import.meta.hot.accept((mod) => {
-    console.log('🔥 HMRRRR')
-    import.meta.hot.invalidate('[unplugin-vue-router:HMR] reloading resolver')
-    return
     const router = import.meta.hot.data.router
     if (!router) {
       import.meta.hot.invalidate('[unplugin-vue-router:HMR] Cannot replace the resolver because there is no active router. Reloading.')
       return
     }
-    // TODO:
     router._hmrReplaceResolver(mod.resolver)
     // call the hotUpdateCallback for custom updates
-    import.meta.hot.data.router_hotUpdateCallback?.(mod.routes)
+    import.meta.hot.data.router_hotUpdateCallback?.(mod.resolver)
     const route = router.currentRoute.value
     router.replace({
-      ...route,
-      // NOTE: we should be able to just do ...route but the router
-      // currently skips resolving and can give errors with renamed routes
-      // so we explicitly set remove matched and name
-      name: undefined,
-      matched: undefined,
-      params: {},
+      path: route.path,
+      query: route.query,
+      hash: route.hash,
       force: true
     })
   })

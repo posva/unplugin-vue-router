@@ -1,5 +1,5 @@
 import { TreeNode } from './tree'
-import type { RouteRecordOverride, TreeRouteParam } from './treeNodeValue'
+import type { RouteRecordOverride, TreePathParam } from './treeNodeValue'
 import { pascalCase } from 'scule'
 import {
   ResolvedOptions,
@@ -119,7 +119,7 @@ export function joinPath(...paths: string[]): string {
   return result || '/'
 }
 
-function paramToName({ paramName, modifier, isSplat }: TreeRouteParam) {
+function paramToName({ paramName, modifier, isSplat }: TreePathParam) {
   return `${isSplat ? '$' : ''}${
     paramName.charAt(0).toUpperCase() + paramName.slice(1)
   }${

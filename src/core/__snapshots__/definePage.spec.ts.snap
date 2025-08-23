@@ -22,15 +22,7 @@ export default {
 }"
 `;
 
-exports[`definePage > imports > removes default import if not used 1`] = `"export default {name: 'ok'}"`;
-
 exports[`definePage > imports > removes default unused imports 1`] = `"export default {name: 'ok'}"`;
-
-exports[`definePage > imports > removes star imports if not used 1`] = `"export default {name: 'ok'}"`;
-
-exports[`definePage > imports > removes unused imports 1`] = `"export default {name: 'ok'}"`;
-
-exports[`definePage > imports > removes unused imports 2`] = `"export default {name: 'ok'}"`;
 
 exports[`definePage > imports > removes unused star imports 1`] = `"export default {name: 'ok'}"`;
 
