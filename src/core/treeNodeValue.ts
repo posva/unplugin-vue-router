@@ -124,15 +124,13 @@ class _TreeNodeValueBase {
         queryParams.push({
           paramName,
           parser: config,
-          // TODO: change to value
-          format: 'both',
+          format: 'value',
         })
       } else {
         queryParams.push({
           paramName,
           parser: config.parser || null,
-          // TODO: change to value
-          format: config.format || 'both',
+          format: config.format || 'value',
           defaultValue: config.default,
         })
       }
@@ -300,7 +298,7 @@ export interface TreeQueryParam {
 
   parser: string | null
 
-  format: 'value' | 'array' | 'both'
+  format: 'value' | 'array'
 
   /**
    * Expression to be passed as is to the default value of the param.
