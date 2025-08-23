@@ -355,10 +355,7 @@ if (import.meta.hot) {
   }
 
   function generateDTS() {
-    if (
-      options.experimental.paramParsers &&
-      options.experimental.paramParsers.dir.length > 0
-    ) {
+    if (options.experimental.paramParsers?.dir.length) {
       warnMissingParamParsers(routeTree, paramParsers)
     }
 
