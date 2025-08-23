@@ -206,7 +206,7 @@ export function createRoutesContext(options: ResolvedOptions) {
   }
 
   function setupParamParserWatcher(watcher: FSWatcher, cwd: string) {
-    logger.log(`🤖 Scanning param parsers in ${watcher.options.cwd}`)
+    logger.log(`🤖 Scanning param parsers in ${cwd}`)
     return watcher
       .on('add', (file) => {
         const name = parsePathe(file).name
