@@ -314,10 +314,7 @@ function extractQueryParams(
               paramProp.key.name === 'format' &&
               paramProp.value.type === 'StringLiteral'
             ) {
-              paramInfo.format = paramProp.value.value as
-                | 'value'
-                | 'array'
-                | 'both'
+              paramInfo.format = paramProp.value.value as 'value' | 'array'
             } else if (paramProp.key.name === 'default') {
               if (
                 typeof paramProp.value.extra?.raw === 'string' &&
