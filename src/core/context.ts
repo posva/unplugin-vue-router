@@ -54,7 +54,7 @@ export function createRoutesContext(options: ResolvedOptions) {
 
   // populated by the initial scan pages
   const watchers: Array<FSWatcher | RoutesFolderWatcher> = []
-  const paramParsers: ParamParsersMap = new Map()
+  const paramParsersMap: ParamParsersMap = new Map()
 
   async function scanPages(startWatchers = true) {
     if (options.extensions.length < 1) {
@@ -134,7 +134,7 @@ export function createRoutesContext(options: ResolvedOptions) {
             const name = parsePathe(file).name
             // TODO: could be simplified to only one import that starts with / for vite
             const absolutePath = resolve(folder, file)
-            paramParsers.set(name, {
+            paramParsersMap.set(name, {
               name,
               typeName: `Param_${name}`,
               absolutePath,
@@ -143,7 +143,7 @@ export function createRoutesContext(options: ResolvedOptions) {
           }
           logger.log(
             'Parsed param parsers',
-            [...paramParsers].map((p) => p[0])
+            [...paramParsersMap].map((p) => p[0])
           )
         })
       }) || []),
@@ -211,7 +211,7 @@ export function createRoutesContext(options: ResolvedOptions) {
       .on('add', (file) => {
         const name = parsePathe(file).name
         const absolutePath = resolve(cwd, file)
-        paramParsers.set(name, {
+        paramParsersMap.set(name, {
           name,
           typeName: `Param_${name}`,
           absolutePath,
@@ -220,7 +220,7 @@ export function createRoutesContext(options: ResolvedOptions) {
         writeConfigFiles()
       })
       .on('unlink', (file) => {
-        paramParsers.delete(parsePathe(file).name)
+        paramParsersMap.delete(parsePathe(file).name)
         writeConfigFiles()
       })
   }
@@ -253,7 +253,7 @@ export function createRoutesContext(options: ResolvedOptions) {
       routeTree,
       options,
       importsMap,
-      paramParsers
+      paramParsersMap
     )
 
     // generate the list of imports
@@ -356,17 +356,17 @@ if (import.meta.hot) {
 
   function generateDTS() {
     if (options.experimental.paramParsers?.dir.length) {
-      warnMissingParamParsers(routeTree, paramParsers)
+      warnMissingParamParsers(routeTree, paramParsersMap)
     }
 
     const autoRoutes = _generateDTS({
       routesModule: MODULE_ROUTES_PATH,
-      routeNamedMap: generateRouteNamedMap(routeTree, options, paramParsers),
+      routeNamedMap: generateRouteNamedMap(routeTree, options, paramParsersMap),
       routeFileInfoMap: generateRouteFileInfoMap(routeTree, {
         root,
       }),
       paramsTypesDeclaration:
-        generateParamParsersTypesDeclarations(paramParsers),
+        generateParamParsersTypesDeclarations(paramParsersMap),
     })
 
     // TODO: parser auto copmlete for definePage
