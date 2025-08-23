@@ -4,7 +4,7 @@ import JSON5 from 'json5'
 import { parse as YAMLParser } from 'yaml'
 import { RouteRecordRaw } from 'vue-router'
 import { warn } from './utils'
-import type { DefinePage } from '../runtime'
+import type { DefinePageQueryParamOptions } from '../runtime'
 
 export function getRouteBlock(
   path: string,
@@ -25,7 +25,19 @@ export interface CustomRouteBlock
     >
   > {
   name?: string | undefined | false
-  params?: DefinePage['params']
+
+  params?: {
+    path?: Record<string, string>
+
+    query?: Record<string, string | CustomRouteBlockQueryParamOptions>
+  }
+}
+
+export interface CustomRouteBlockQueryParamOptions {
+  parser?: string
+  format?: DefinePageQueryParamOptions['format']
+  // TODO: queryKey?: string
+  default?: string
 }
 
 function parseCustomBlock(

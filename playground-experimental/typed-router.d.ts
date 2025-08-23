@@ -22,16 +22,21 @@ declare module 'vue-router/auto-routes' {
    */
   export interface RouteNamedMap {
     '/(home)': RouteRecordInfo<'/(home)', '/', Record<never, never>, Record<never, never>>,
-    'not-found': RouteRecordInfo<'not-found', '/:path(.*)', { path: ParamValue<false> }, { path: ParamValue<false> }>,
-    '/a.[b].c.[d]': RouteRecordInfo<'/a.[b].c.[d]', '/a/:b/c/:d', { b: ParamValue<false>, d: ParamValue<false> }, { b: ParamValue<false>, d: ParamValue<false> }>,
+    'not-found': RouteRecordInfo<'not-found', '/:path(.*)', { path: string, page?: number }, { path: string, page: number }>,
+    '/a.[b].c.[d]': RouteRecordInfo<'/a.[b].c.[d]', '/a/:b/c/:d', { b: string, d: string }, { b: string, d: string }>,
     '/b': RouteRecordInfo<'/b', '/b', Record<never, never>, Record<never, never>>,
-    '/events/[when=date]': RouteRecordInfo<'/events/[when=date]', '/events/:when', { when: Param_date }, { when: Param_date }>,
+    '/blog/[slug]+': RouteRecordInfo<'/blog/[slug]+', '/blog/:slug+', { slug: string[] }, { slug: [string, ...string[]] }>,
+    '/blog/[[slugOptional]]+': RouteRecordInfo<'/blog/[[slugOptional]]+', '/blog/:slugOptional*', { slugOptional?: string[] }, { slugOptional: string[] }>,
+    '/blog/info/(info)': RouteRecordInfo<'/blog/info/(info)', '/blog/info', Record<never, never>, Record<never, never>>,
+    '/blog/info/[[section]]': RouteRecordInfo<'/blog/info/[[section]]', '/blog/info/:section?', { section?: string | null }, { section: string | null }>,
+    '/events/[when=date]': RouteRecordInfo<'/events/[when=date]', '/events/:when', { when: string }, { when: string }>,
     '/manually-added': RouteRecordInfo<'/manually-added', '/manually-added', Record<never, never>, Record<never, never>>,
-    '/u[name]': RouteRecordInfo<'/u[name]', '/u:name', { name: ParamValue<false> }, { name: ParamValue<false> }, '/u[name]/24' | '/u[name]/[userId=int]'>,
-    '/u[name]/[userId=int]': RouteRecordInfo<'/u[name]/[userId=int]', '/u:name/:userId', { name: ParamValue<false>, userId: number }, { name: ParamValue<false>, userId: number }>,
-    '/u[name]/24': RouteRecordInfo<'/u[name]/24', '/u:name/24', { name: ParamValue<false> }, { name: ParamValue<false> }>,
-    '/users/[userId=int]': RouteRecordInfo<'/users/[userId=int]', '/users/:userId', { userId: number }, { userId: number }>,
-    '/users/sub-[first]-[second]': RouteRecordInfo<'/users/sub-[first]-[second]', '/users/sub-:first-:second', { first: ParamValue<false>, second: ParamValue<false> }, { first: ParamValue<false>, second: ParamValue<false> }>,
+    '/tests/[[optional]]/end': RouteRecordInfo<'/tests/[[optional]]/end', '/tests/:optional?/end', { optional?: string | null }, { optional: string | null }>,
+    '/u[name]': RouteRecordInfo<'/u[name]', '/u:name', { name: string }, { name: string }, '/u[name]/24' | '/u[name]/[userId=int]'>,
+    '/u[name]/[userId=int]': RouteRecordInfo<'/u[name]/[userId=int]', '/u:name/:userId', { name: string, userId: string }, { name: string, userId: string }>,
+    '/u[name]/24': RouteRecordInfo<'/u[name]/24', '/u:name/24', { name: string }, { name: string }>,
+    '/users/[userId=int]': RouteRecordInfo<'/users/[userId=int]', '/users/:userId', { userId: string, anyParam: null, page?: number }, { userId: string, anyParam: null, page: number }>,
+    '/users/sub-[first]-[second]': RouteRecordInfo<'/users/sub-[first]-[second]', '/users/sub-:first-:second', { first: string, second: string }, { first: string, second: string }>,
   }
 
   /**
@@ -61,12 +66,32 @@ declare module 'vue-router/auto-routes' {
       routes: '/b'
       views: never
     }
+    'src/pages/blog/[slug]+.vue': {
+      routes: '/blog/[slug]+'
+      views: never
+    }
+    'src/pages/blog/[[slugOptional]]+.vue': {
+      routes: '/blog/[[slugOptional]]+'
+      views: never
+    }
+    'src/pages/blog/info/(info).vue': {
+      routes: '/blog/info/(info)'
+      views: never
+    }
+    'src/pages/blog/info/[[section]].vue': {
+      routes: '/blog/info/[[section]]'
+      views: never
+    }
     'src/pages/events/[when=date].vue': {
       routes: '/events/[when=date]'
       views: never
     }
     'src/page-outside.vue': {
       routes: '/manually-added'
+      views: never
+    }
+    'src/pages/tests/[[optional]]/end.vue': {
+      routes: '/tests/[[optional]]/end'
       views: never
     }
     'src/pages/u[name].vue': {

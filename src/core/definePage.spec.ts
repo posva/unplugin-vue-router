@@ -220,7 +220,7 @@ definePage({
         query: {
           page: {
             parser: 'int',
-            default: 1,
+            default: '1',
             format: 'value',
           },
           enabled: {
@@ -228,10 +228,10 @@ definePage({
           },
           count: {
             parser: 'int',
-            default: 42,
+            default: '42',
           },
           active: {
-            default: 'none',
+            default: "'none'",
           },
         },
       },

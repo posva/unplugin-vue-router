@@ -1,7 +1,5 @@
-import { camelCase } from 'scule'
-import { TreeRouteParam } from '../core/treeNodeValue'
+import { TreePathParam, TreeQueryParam } from '../core/treeNodeValue'
 import { ImportsMap } from '../core/utils'
-import { ts } from '../utils'
 import { PrefixTree } from '../core/tree'
 
 export type ParamParsersMap = Map<
@@ -31,29 +29,6 @@ export function warnMissingParamParsers(
   }
 }
 
-/**
- * Generates the import statement for a parameter parser type.
- *
- * @param paramParserPath - The path to the parameter parser file.
- */
-export function generateParamParserType(param: TreeRouteParam): string | null {
-  if (!param.parser) {
-    return null
-  }
-  // TODO: actualpath
-  // const nameWithExtension = basename(param.paramName)
-  const name = camelCase(param.parser)
-
-  // TODO: treat custom parsers first
-
-  // native parsers
-  if (name === 'int') {
-    return 'number'
-  }
-
-  return `Param_${name}`
-}
-
 export function generateParamParsersTypesDeclarations(
   paramParsers: ParamParsersMap
 ) {
@@ -66,7 +41,7 @@ export function generateParamParsersTypesDeclarations(
 }
 
 export function generateParamsTypes(
-  params: TreeRouteParam[],
+  params: (TreePathParam | TreeQueryParam)[],
   parparsersMap: ParamParsersMap
 ): Array<string | null> {
   return params.map((param) => {
@@ -81,8 +56,8 @@ export function generateParamsTypes(
   })
 }
 
-function generateParamParserOptions(
-  param: TreeRouteParam,
+export function generateParamParserOptions(
+  param: TreePathParam | TreeQueryParam,
   importsMap: ImportsMap,
   paramParsers: ParamParsersMap
 ): string {
@@ -94,13 +69,14 @@ function generateParamParserOptions(
     return ` ...${varName}, `
   } else if (param.parser === 'int') {
     importsMap.add('vue-router/experimental', `PARAM_PARSER_INT`)
-    return ` ...PARAM_PARSER_INT, `
+    // the path params have more options, the query params are passed as an argument
+    return 'modifier' in param ? ` ...PARAM_PARSER_INT, ` : `PARAM_PARSER_INT`
   }
   return ''
 }
 
-export function generateParamsOptions(
-  params: TreeRouteParam[],
+export function generatePathParamsOptions(
+  params: TreePathParam[],
   importsMap: ImportsMap,
   paramParsers: ParamParsersMap
 ) {
@@ -114,17 +90,4 @@ ${param.paramName}: {${generateParamParserOptions(param, importsMap, paramParser
   return `{
       ${paramOptions.join('\n      ')}
     }`
-}
-
-export function generateParamParserListTypes(parserNames: string[]) {
-  return parserNames.length
-    ? ts`
-declare module 'vue-router' {
-  export interface TypesConfig {
-    ParamParsers:
-${parserNames.map((name) => `      | '${name}'`).join('\n')}
-  }
-}
-`.trimStart()
-    : ''
 }

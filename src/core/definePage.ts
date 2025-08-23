@@ -20,7 +20,8 @@ import type {
 import { walkAST } from 'ast-walker-scope'
 import { warn } from './utils'
 import { ParsedStaticImport, findStaticImports, parseStaticImport } from 'mlly'
-import type { DefinePage, ParamParserType } from 'unplugin-vue-router/runtime'
+import type { ParamParserType } from 'unplugin-vue-router/runtime'
+import { CustomRouteBlock } from './customBlock'
 
 const MACRO_DEFINE_PAGE = 'definePage'
 export const MACRO_DEFINE_PAGE_QUERY = /[?&]definePage\b/
@@ -187,12 +188,12 @@ export function definePageTransform({
   }
 }
 
-type DefinePageParamsInfo = DefinePage['params']
+type DefinePageParamsInfo = NonNullable<CustomRouteBlock['params']>
 
 export interface DefinePageInfo {
   name?: string | false
   path?: string
-  params?: DefinePage['params']
+  params?: CustomRouteBlock['params']
 }
 
 export function extractDefinePageInfo(
@@ -318,17 +319,29 @@ function extractQueryParams(
                 | 'array'
                 | 'both'
             } else if (paramProp.key.name === 'default') {
-              // Handle different literal types for default values
-              if (paramProp.value.type === 'NumericLiteral') {
-                paramInfo.default = paramProp.value.value
-              } else if (paramProp.value.type === 'StringLiteral') {
-                paramInfo.default = paramProp.value.value
-              } else if (paramProp.value.type === 'BooleanLiteral') {
-                paramInfo.default = paramProp.value.value
-              } else if (paramProp.value.type === 'NullLiteral') {
-                paramInfo.default = null
+              if (
+                typeof paramProp.value.extra?.raw === 'string' &&
+                paramProp.value.extra
+              ) {
+                paramInfo.default = paramProp.value.extra.raw
+              } else {
+                warn(
+                  `No raw value parsed in definePage() for query param "${paramName}". This is a bug, open an issue on https://github.com/posva/unplugin-vue-router and provide the definePage() code.`
+                )
+                if (paramProp.value.type === 'NumericLiteral') {
+                  paramInfo.default = String(paramProp.value.value)
+                } else if (paramProp.value.type === 'StringLiteral') {
+                  paramInfo.default = JSON.stringify(paramProp.value.value)
+                } else if (paramProp.value.type === 'BooleanLiteral') {
+                  paramInfo.default = String(paramProp.value.value)
+                } else if (paramProp.value.type === 'NullLiteral') {
+                  paramInfo.default = 'null'
+                } else {
+                  warn(
+                    `Unrecognized default value in definePage() for query param "${paramName}". Typeof value: ${paramProp.value.type}. This is a bug, open an issue on https://github.com/posva/unplugin-vue-router and provide the definePage() code.`
+                  )
+                }
               }
-              // TODO: handle function expressions for default values
             }
           }
         }

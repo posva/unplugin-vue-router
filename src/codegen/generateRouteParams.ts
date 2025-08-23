@@ -1,8 +1,10 @@
 import { TreeNode } from '../core/tree'
+import { isTreeParamOptional } from '../core/treeNodeValue'
 
 export function generateRouteParams(node: TreeNode, isRaw: boolean): string {
-  // node.params is a getter so we compute it once
-  const nodeParams = node.params
+  // node.pathParams is a getter so we compute it once
+  // this version does not support query params
+  const nodeParams = node.pathParams
   return nodeParams.length > 0
     ? `{ ${nodeParams
         .map(
@@ -23,7 +25,8 @@ export function generateRouteParams(node: TreeNode, isRaw: boolean): string {
 
 export function EXPERIMENTAL_generateRouteParams(
   node: TreeNode,
-  types: Array<string | null>
+  types: Array<string | null>,
+  isRaw: boolean
 ) {
   // node.params is a getter so we compute it once
   const nodeParams = node.params
@@ -31,17 +34,18 @@ export function EXPERIMENTAL_generateRouteParams(
     ? `{ ${nodeParams
         .map((param, i) => {
           const type = types[i]
-          const isRaw = false
-          return `${param.paramName}${param.optional ? '?' : ''}: ${
-            type
-              ? type || '/* INVALID */ unknown'
-              : param.modifier === '+'
-                ? `ParamValueOneOrMore<${isRaw}>`
-                : param.modifier === '*'
-                  ? `ParamValueZeroOrMore<${isRaw}>`
-                  : param.modifier === '?'
-                    ? `ParamValueZeroOrOne<${isRaw}>`
-                    : `ParamValue<${isRaw}>`
+          return `${param.paramName}${
+            isRaw && isTreeParamOptional(param) ? '?' : ''
+          }: ${
+            'modifier' in param
+              ? param.repeatable
+                ? param.optional || isRaw // in raw mode, the tuple version is annoying to pass
+                  ? 'string[]'
+                  : '[string, ...string[]]'
+                : param.optional
+                  ? 'string | null'
+                  : 'string'
+              : type
           }`
         })
         .join(', ')} }`
@@ -49,7 +53,7 @@ export function EXPERIMENTAL_generateRouteParams(
       'Record<never, never>'
 }
 
-// TODO: refactor to ParamValueRaw and ParamValue ?
+// TODO: Remove in favor of inline types because it's easier to read
 
 /**
  * Utility type for raw and non raw params like :id+

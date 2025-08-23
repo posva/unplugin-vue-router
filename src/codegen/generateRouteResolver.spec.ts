@@ -5,6 +5,7 @@ import {
   generateRouteResolver,
   generateRouteRecord,
   generateRouteRecordPath,
+  generateRouteRecordQuery,
 } from './generateRouteResolver'
 import { ImportsMap } from '../core/utils'
 import { ParamParsersMap } from './generateParamParsers'
@@ -184,6 +185,202 @@ describe('generateRouteRecordPath', () => {
           },
           ["a",["some-",0],1],
         ),"
+    `)
+  })
+})
+
+describe('generateRouteRecordQuery', () => {
+  let importsMap!: ImportsMap
+  beforeEach(() => {
+    importsMap = new ImportsMap()
+  })
+
+  it('returns empty string for non-matchable nodes without query params', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+    const node = tree.insert('a/b', 'a/b.vue').parent! // non-matchable parent
+    expect(
+      generateRouteRecordQuery({ importsMap, node, paramParsersMap: new Map() })
+    ).toBe('')
+  })
+
+  it('generates query params for non-matchable nodes when they have query params', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+    const node = tree.insert('a/b', 'a/b.vue').parent! // non-matchable parent
+    // Add query params to the non-matchable parent
+    node.value.setEditOverride('params', {
+      query: { search: {} },
+    })
+    expect(
+      generateRouteRecordQuery({ importsMap, node, paramParsersMap: new Map() })
+    ).toMatchInlineSnapshot(`
+      "query: [
+          new MatcherPatternQueryParam('search', 'search', 'both')
+        ],"
+    `)
+  })
+
+  it('does not includes query params from parent nodes', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+    const parentNode = tree.insert('parent', 'parent.vue')
+    const childNode = tree.insert('parent/child', 'parent/child.vue')
+
+    // Add query params to parent
+    parentNode.value.setEditOverride('params', {
+      query: {
+        parentParam: {},
+      },
+    })
+
+    // Add query params to child
+    childNode.value.setEditOverride('params', {
+      query: {
+        childParam: { parser: 'int' },
+      },
+    })
+
+    expect(
+      generateRouteRecordQuery({
+        importsMap,
+        node: childNode,
+        paramParsersMap: new Map(),
+      })
+    ).toMatchInlineSnapshot(`
+      "query: [
+          new MatcherPatternQueryParam('childParam', 'childParam', 'both', PARAM_PARSER_INT)
+        ],"
+    `)
+  })
+
+  it('returns empty string when no query params', () => {
+    const node = new PrefixTree(DEFAULT_OPTIONS).insert('a', 'a.vue')
+    expect(
+      generateRouteRecordQuery({ importsMap, node, paramParsersMap: new Map() })
+    ).toBe('')
+  })
+
+  it('generates query property with single query param', () => {
+    const node = new PrefixTree(DEFAULT_OPTIONS).insert('a', 'a.vue')
+    // Mock the queryParams getter
+    node.value.setEditOverride('params', {
+      query: { search: {} },
+    })
+    expect(
+      generateRouteRecordQuery({ importsMap, node, paramParsersMap: new Map() })
+    ).toMatchInlineSnapshot(`
+      "query: [
+          new MatcherPatternQueryParam('search', 'search', 'both')
+        ],"
+    `)
+  })
+
+  it('generates query property with multiple query params', () => {
+    const node = new PrefixTree(DEFAULT_OPTIONS).insert('a', 'a.vue')
+    node.value.setEditOverride('params', {
+      query: {
+        search: {},
+        page: { parser: 'int' },
+        active: { parser: 'bool' },
+      },
+    })
+    expect(
+      generateRouteRecordQuery({ importsMap, node, paramParsersMap: new Map() })
+    ).toMatchInlineSnapshot(`
+      "query: [
+          new MatcherPatternQueryParam('search', 'search', 'both'),
+          new MatcherPatternQueryParam('page', 'page', 'both', PARAM_PARSER_INT),
+          new MatcherPatternQueryParam('active', 'active', 'both')
+        ],"
+    `)
+  })
+
+  it('adds MatcherPatternQueryParam import', () => {
+    const node = new PrefixTree(DEFAULT_OPTIONS).insert('a', 'a.vue')
+    node.value.setEditOverride('params', {
+      query: { search: {} },
+    })
+
+    generateRouteRecordQuery({ importsMap, node, paramParsersMap: new Map() })
+
+    expect(importsMap.toString()).toContain(
+      "import { MatcherPatternQueryParam } from 'vue-router/experimental'"
+    )
+  })
+
+  it('generates query param with format value', () => {
+    const node = new PrefixTree(DEFAULT_OPTIONS).insert('a', 'a.vue')
+    node.value.setEditOverride('params', {
+      query: { search: { format: 'value' } },
+    })
+    expect(
+      generateRouteRecordQuery({ importsMap, node, paramParsersMap: new Map() })
+    ).toMatchInlineSnapshot(`
+      "query: [
+          new MatcherPatternQueryParam('search', 'search', 'value')
+        ],"
+    `)
+  })
+
+  it('generates query param with format array', () => {
+    const node = new PrefixTree(DEFAULT_OPTIONS).insert('a', 'a.vue')
+    node.value.setEditOverride('params', {
+      query: { tags: { format: 'array' } },
+    })
+    expect(
+      generateRouteRecordQuery({ importsMap, node, paramParsersMap: new Map() })
+    ).toMatchInlineSnapshot(`
+      "query: [
+          new MatcherPatternQueryParam('tags', 'tags', 'array')
+        ],"
+    `)
+  })
+
+  it('generates query param with default value', () => {
+    const node = new PrefixTree(DEFAULT_OPTIONS).insert('a', 'a.vue')
+    node.value.setEditOverride('params', {
+      query: { limit: { default: '10' } },
+    })
+    expect(
+      generateRouteRecordQuery({ importsMap, node, paramParsersMap: new Map() })
+    ).toMatchInlineSnapshot(`
+      "query: [
+          new MatcherPatternQueryParam('limit', 'limit', 'both', {}, 10)
+        ],"
+    `)
+  })
+
+  it('generates query param with format and default value', () => {
+    const node = new PrefixTree(DEFAULT_OPTIONS).insert('a', 'a.vue')
+    node.value.setEditOverride('params', {
+      query: { page: { parser: 'int', format: 'value', default: '1' } },
+    })
+    expect(
+      generateRouteRecordQuery({ importsMap, node, paramParsersMap: new Map() })
+    ).toMatchInlineSnapshot(`
+      "query: [
+          new MatcherPatternQueryParam('page', 'page', 'value', PARAM_PARSER_INT, 1)
+        ],"
+    `)
+  })
+
+  it('generates mixed query params with different configurations', () => {
+    const node = new PrefixTree(DEFAULT_OPTIONS).insert('a', 'a.vue')
+    node.value.setEditOverride('params', {
+      query: {
+        q: { format: 'value' },
+        tags: { format: 'array' },
+        limit: { parser: 'int', default: '20' },
+        active: { default: 'true' },
+      },
+    })
+    expect(
+      generateRouteRecordQuery({ importsMap, node, paramParsersMap: new Map() })
+    ).toMatchInlineSnapshot(`
+      "query: [
+          new MatcherPatternQueryParam('q', 'q', 'value'),
+          new MatcherPatternQueryParam('tags', 'tags', 'array'),
+          new MatcherPatternQueryParam('limit', 'limit', 'both', PARAM_PARSER_INT, 20),
+          new MatcherPatternQueryParam('active', 'active', 'both', {}, true)
+        ],"
     `)
   })
 })
@@ -539,6 +736,47 @@ describe('generateRouteResolver', () => {
 
       export const resolver = createFixedResolver([
         r_0,  // /profile
+      ])
+      "
+    `)
+  })
+
+  it('includes query property in route records with query params', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+    tree.insert('search', 'search.vue')
+    const searchNode = tree.children.get('search')!
+
+    // Add query params
+    searchNode.value.setEditOverride('params', {
+      query: {
+        q: {},
+        limit: { parser: 'int' },
+      },
+    })
+
+    const resolver = generateRouteResolver(
+      tree,
+      DEFAULT_OPTIONS,
+      new ImportsMap(),
+      new Map()
+    )
+
+    expect(resolver).toMatchInlineSnapshot(`
+      "
+      const r_0 = normalizeRouteRecord({
+        name: '/search',
+        path: new MatcherPatternPathStatic('/search'),
+        query: [
+          new MatcherPatternQueryParam('q', 'q', 'both'),
+          new MatcherPatternQueryParam('limit', 'limit', 'both', PARAM_PARSER_INT)
+        ],
+        components: {
+          'default': () => import('search.vue')
+        },
+      })
+
+      export const resolver = createFixedResolver([
+        r_0,  // /search
       ])
       "
     `)

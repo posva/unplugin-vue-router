@@ -1,7 +1,9 @@
 import type { RouteRecordRaw } from 'vue-router'
-import { CustomRouteBlock } from './customBlock'
+import {
+  CustomRouteBlock,
+  CustomRouteBlockQueryParamOptions,
+} from './customBlock'
 import { joinPath, mergeRouteRecordOverride, warn } from './utils'
-import type { DefinePage } from 'unplugin-vue-router/runtime'
 
 export const enum TreeNodeType {
   static,
@@ -16,10 +18,19 @@ export interface RouteRecordOverride
   /**
    * Param Parsers information.
    */
-  params?: DefinePage['params']
+  params?: {
+    path?: Record<string, string>
+
+    query?: Record<string, string | RouteRecordOverrideQueryParamOptions>
+  }
 }
 
-export type SubSegment = string | TreeRouteParam
+export interface RouteRecordOverrideQueryParamOptions
+  extends CustomRouteBlockQueryParamOptions {
+  default?: string
+}
+
+export type SubSegment = string | TreePathParam
 
 // internal name used for overrides done by the user at build time
 export const EDITS_OVERRIDE_NAME = '@@edits'
@@ -51,7 +62,7 @@ class _TreeNodeValueBase {
    * Overrides defined by each file. The map is necessary to handle named views.
    */
   private _overrides = new Map<string, RouteRecordOverride>()
-  // TODO: cache the overrides generation
+  // TODO: measure perf bottlenecks with large trees and use caching if it can potentially improve
 
   /**
    * View name (Vue Router feature) mapped to their corresponding file. By default, the view name is `default` unless
@@ -92,6 +103,50 @@ class _TreeNodeValueBase {
     }
 
     return joinPath(this.parent?.fullPath ?? '', pathSegment)
+  }
+
+  /**
+   * Gets all the query params for the node. This does not include params from parent nodes.
+   */
+  get queryParams(): TreeQueryParam[] {
+    const paramsQuery = this.overrides.params?.query
+    if (!paramsQuery) {
+      return []
+    }
+
+    const queryParams: TreeQueryParam[] = []
+
+    for (var paramName in paramsQuery) {
+      var config = paramsQuery[paramName]
+      // shouldn't happen
+      if (!config) continue
+      if (typeof config === 'string') {
+        queryParams.push({
+          paramName,
+          parser: config,
+          // TODO: change to value
+          format: 'both',
+        })
+      } else {
+        queryParams.push({
+          paramName,
+          parser: config.parser || null,
+          // TODO: change to value
+          format: config.format || 'both',
+          defaultValue: config.default,
+        })
+      }
+    }
+
+    return queryParams
+  }
+
+  /**
+   * Gets all the params for the node including path and query params. This
+   * does not include params from parent nodes.
+   */
+  get params(): (TreePathParam | TreeQueryParam)[] {
+    return [...(this.isParam() ? this.pathParams : []), ...this.queryParams]
   }
 
   toString(): string {
@@ -229,13 +284,37 @@ export class TreeNodeValueGroup extends _TreeNodeValueBase {
   }
 }
 
-export interface TreeRouteParam {
+export interface TreePathParam {
   paramName: string
   modifier: string
   optional: boolean
   repeatable: boolean
   isSplat: boolean
   parser: string | null
+}
+
+export interface TreeQueryParam {
+  paramName: string
+
+  queryKey?: string
+
+  parser: string | null
+
+  format: 'value' | 'array' | 'both'
+
+  /**
+   * Expression to be passed as is to the default value of the param.
+   */
+  defaultValue?: string
+}
+
+export function isTreeParamOptional(
+  param: TreePathParam | TreeQueryParam
+): boolean {
+  if ('optional' in param) {
+    return param.optional
+  }
+  return param.defaultValue !== undefined
 }
 
 /**
@@ -254,18 +333,16 @@ export const escapeRegex = (str: string): string =>
   str.replace(REGEX_CHARS_RE, '\\$&')
 
 export class TreeNodeValueParam extends _TreeNodeValueBase {
-  params: TreeRouteParam[]
   override _type: TreeNodeType.param = TreeNodeType.param
 
   constructor(
     rawSegment: string,
     parent: TreeNodeValue | undefined,
-    params: TreeRouteParam[],
+    public pathParams: TreePathParam[],
     pathSegment: string,
     subSegments: SubSegment[]
   ) {
     super(rawSegment, parent, pathSegment, subSegments)
-    this.params = params
   }
 
   // Calculate score for each subsegment to handle mixed static/param parts
@@ -307,7 +384,9 @@ export class TreeNodeValueParam extends _TreeNodeValueBase {
           this.params
             .map(
               (p) =>
-                `${p.paramName}${p.modifier}` + (p.parser ? '=' + p.parser : '')
+                ('format' in p ? '?' : '') +
+                `${p.paramName}${'modifier' in p ? p.modifier : ''}` +
+                (p.parser ? '=' + p.parser : '')
             )
             .join(', ') +
           ')'
@@ -394,17 +473,17 @@ export function createTreeNodeValue(
     }
   }
 
-  const [pathSegment, params, subSegments] =
+  const [pathSegment, pathParams, subSegments] =
     options.format === 'path'
       ? parseRawPathSegment(segment)
       : // by default, we use the file format
         parseFileSegment(segment, options)
 
-  if (params.length) {
+  if (pathParams.length) {
     return new TreeNodeValueParam(
       segment,
       parent,
-      params,
+      pathParams,
       pathSegment,
       subSegments
     )
@@ -446,14 +525,14 @@ const IS_VARIABLE_CHAR_RE = /[0-9a-zA-Z_]/
 function parseFileSegment(
   segment: string,
   { dotNesting = true }: ParseSegmentOptions = {}
-): [string, TreeRouteParam[], SubSegment[]] {
+): [string, TreePathParam[], SubSegment[]] {
   let buffer = ''
   let paramParserBuffer = ''
   let state: ParseFileSegmentState = ParseFileSegmentState.static
-  const params: TreeRouteParam[] = []
+  const params: TreePathParam[] = []
   let pathSegment = ''
   const subSegments: SubSegment[] = []
-  let currentTreeRouteParam: TreeRouteParam = createEmptyRouteParam()
+  let currentTreeRouteParam: TreePathParam = createEmptyRouteParam()
 
   // position in segment
   let pos = 0
@@ -597,12 +676,12 @@ const IS_MODIFIER_RE = /[+*?]/
  */
 function parseRawPathSegment(
   segment: string
-): [string, TreeRouteParam[], SubSegment[]] {
+): [string, TreePathParam[], SubSegment[]] {
   let buffer = ''
   let state: ParseRawPathSegmentState = ParseRawPathSegmentState.static
-  const params: TreeRouteParam[] = []
+  const params: TreePathParam[] = []
   const subSegments: SubSegment[] = []
-  let currentTreeRouteParam: TreeRouteParam = createEmptyRouteParam()
+  let currentTreeRouteParam: TreePathParam = createEmptyRouteParam()
 
   // position in segment
   let pos = 0
@@ -728,7 +807,7 @@ function parseRawPathSegment(
  *
  * @returns an empty route param
  */
-function createEmptyRouteParam(): TreeRouteParam {
+function createEmptyRouteParam(): TreePathParam {
   return {
     paramName: '',
     parser: null,
