@@ -93,6 +93,9 @@ export interface DefinePageQueryParamOptions<T = unknown> {
    */
   parser?: ParamParserType
 
+  // TODO: allow customizing the name in the query string
+  // queryKey?: string
+
   /**
    * Default value if the query parameter is missing or if the match fails
    * (e.g. a invalid number is passed to the int param parser). If not provided
@@ -113,26 +116,6 @@ export interface DefinePageQueryParamOptions<T = unknown> {
    */
   format?: 'value' | 'array' | 'both'
 }
-
-definePage({
-  params: {
-    path: {
-      // key autocompletes because it's based on the types of the RouteMap
-      // or maybe no autocomplete becuase changing this changes the file too
-      userId: 'int', // autocompletes
-    },
-    query: {
-      p: 'int', // short version: no default, format both
-      page: {
-        parser: 'int', // autocomplete int
-        default: 1, // default value when '', null or undefined, if provided, we catch the match error, and set the default
-        format: 'value', // keep the first value only and pass that to parser
-        // format: 'array', // keep all values as an array and pass that to parser
-        // format: 'both', // keep it as passed to the query, so this can be a single value or an array
-      },
-    },
-  },
-})
 
 /**
  * TODO: native parsers ideas:

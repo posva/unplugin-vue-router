@@ -3,7 +3,8 @@ import {
   createTreeNodeValue,
   escapeRegex,
   TreeNodeValueOptions,
-  TreeRouteParam,
+  TreePathParam,
+  TreeQueryParam,
 } from './treeNodeValue'
 import type { TreeNodeValue } from './treeNodeValue'
 import { CustomRouteBlock } from './customBlock'
@@ -273,14 +274,12 @@ export class TreeNode {
   /**
    * Array of route params for this node. It includes all the params from the parents as well.
    */
-  get params(): TreeRouteParam[] {
-    const params = this.value.isParam() ? [...this.value.params] : []
+  get params(): (TreePathParam | TreeQueryParam)[] {
+    const params = [...this.value.params]
     let node = this.parent
     // add all the params from the parents
     while (node) {
-      if (node.value.isParam()) {
-        params.unshift(...node.value.params)
-      }
+      params.unshift(...node.value.params)
       node = node.parent
     }
 
@@ -290,18 +289,25 @@ export class TreeNode {
   /**
    * Array of route params coming from the path. It includes all the params from the parents as well.
    */
-  get pathParams(): TreeRouteParam[] {
-    const params = this.value.isParam() ? [...this.value.params] : []
+  get pathParams(): TreePathParam[] {
+    const params = this.value.isParam() ? [...this.value.pathParams] : []
     let node = this.parent
     // add all the params from the parents
     while (node) {
       if (node.value.isParam()) {
-        params.unshift(...node.value.params)
+        params.unshift(...node.value.pathParams)
       }
       node = node.parent
     }
 
     return params
+  }
+
+  /**
+   * Array of query params extracted from definePage. Only returns query params from this specific node.
+   */
+  get queryParams(): TreeQueryParam[] {
+    return this.value.queryParams
   }
 
   /**

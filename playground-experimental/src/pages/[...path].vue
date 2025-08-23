@@ -18,7 +18,7 @@ definePage({
       page: {
         parser: 'int',
         default: 1,
-        format: 'value',
+        format: 'array',
       },
     },
   },
@@ -29,6 +29,7 @@ definePage({
   <main>
     <h1>Not Found</h1>
 
+    <pre>{{ $route.params }}</pre>
     <pre>{{ $route.params }}</pre>
     <pre>{{ $route.meta }}</pre>
   </main>

@@ -40,17 +40,19 @@ export function generateRouteRecordInfo(
   paramParsersMap: ParamParsersMap
 ): string {
   let paramParsers: Array<string | null> = []
-  let paramType: string = ''
 
   if (options.experimental.paramParsers) {
     paramParsers = generateParamsTypes(node.params, paramParsersMap)
-    paramType = EXPERIMENTAL_generateRouteParams(node, paramParsers)
   }
   const typeParams = [
     `'${node.name}'`,
     `'${node.fullPath}'`,
-    paramType || generateRouteParams(node, true),
-    paramType || generateRouteParams(node, false),
+    options.experimental.paramParsers
+      ? EXPERIMENTAL_generateRouteParams(node, paramParsers, true)
+      : generateRouteParams(node, true),
+    options.experimental.paramParsers
+      ? EXPERIMENTAL_generateRouteParams(node, paramParsers, false)
+      : generateRouteParams(node, false),
   ]
 
   if (node.children.size > 0) {

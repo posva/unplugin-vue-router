@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_OPTIONS, resolveOptions } from '../options'
 import { PrefixTree } from './tree'
-import { TreeNodeType, type TreeRouteParam } from './treeNodeValue'
+import { TreeNodeType, type TreePathParam } from './treeNodeValue'
 import { resolve } from 'pathe'
 import { mockWarn } from '../../tests/vitest-mock-warn'
 
@@ -555,7 +555,7 @@ describe('Tree', () => {
       modifier: '',
       optional: false,
       repeatable: false,
-    } satisfies Partial<TreeRouteParam>)
+    } satisfies Partial<TreePathParam>)
   })
 
   it('removes trailing slash from path but not from name', () => {
@@ -685,6 +685,89 @@ describe('Tree', () => {
         fullPath: '/1.2.3-lesson',
         _type: TreeNodeType.static,
       })
+    })
+  })
+
+  describe('Query params from definePage', () => {
+    it('extracts query params from route overrides', () => {
+      const tree = new PrefixTree(RESOLVED_OPTIONS)
+      const node = tree.insert('users', 'users.vue')
+
+      // Simulate definePage params extraction
+      node.setCustomRouteBlock('users.vue', {
+        params: {
+          query: {
+            search: {},
+            limit: { parser: 'int', default: '10' },
+            tags: { parser: 'bool' },
+            other: { default: '"defaultValue"' },
+          },
+        },
+      })
+
+      expect(node.queryParams).toEqual([
+        {
+          paramName: 'search',
+          parser: null,
+          format: 'both',
+          defaultValue: undefined,
+        },
+        {
+          paramName: 'limit',
+          parser: 'int',
+          format: 'both',
+          defaultValue: '10',
+        },
+        {
+          paramName: 'tags',
+          parser: 'bool',
+          format: 'both',
+          defaultValue: undefined,
+        },
+        {
+          paramName: 'other',
+          parser: null,
+          format: 'both',
+          defaultValue: '"defaultValue"',
+        },
+      ])
+    })
+
+    it('returns empty array when no query params defined', () => {
+      const tree = new PrefixTree(RESOLVED_OPTIONS)
+      const node = tree.insert('about', 'about.vue')
+
+      expect(node.queryParams).toEqual([])
+    })
+
+    it('params includes both path and query params', () => {
+      const tree = new PrefixTree(RESOLVED_OPTIONS)
+      const node = tree.insert('posts/[id]', 'posts/[id].vue')
+
+      node.setCustomRouteBlock('posts/[id].vue', {
+        params: {
+          query: {
+            tab: {},
+            expand: { parser: 'bool', default: 'false' },
+          },
+        },
+      })
+
+      // Should have 1 path param + 2 query params
+      expect(node.params).toHaveLength(3)
+      expect(node.params[0]).toMatchObject({ paramName: 'id' }) // path param
+      expect(node.params[1]).toMatchObject({
+        paramName: 'tab',
+        parser: null,
+        format: 'both',
+        defaultValue: undefined,
+      }) // query param
+      expect(node.params[2]).toMatchObject({
+        paramName: 'expand',
+        parser: 'bool',
+        format: 'both',
+        defaultValue: 'false',
+      }) // query param
     })
   })
 })

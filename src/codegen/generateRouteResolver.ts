@@ -3,7 +3,11 @@ import { PrefixTree, type TreeNode } from '../core/tree'
 import { ImportsMap } from '../core/utils'
 import { type ResolvedOptions } from '../options'
 import { ts } from '../utils'
-import { generateParamsOptions, ParamParsersMap } from './generateParamParsers'
+import {
+  generatePathParamsOptions,
+  generateParamParserOptions,
+  ParamParsersMap,
+} from './generateParamParsers'
 import { generatePageImport, formatMeta } from './generateRouteRecords'
 
 /**
@@ -164,9 +168,16 @@ export function generateRouteRecord({
       recordComponents = ''
     }
 
+    const queryProperty = generateRouteRecordQuery({
+      node,
+      importsMap,
+      paramParsersMap,
+    })
     const routeRecordObject = `{
   ${recordName}
-  ${generateRouteRecordPath({ node, importsMap, paramParsersMap })}${formatMeta(node, '  ')}
+  ${generateRouteRecordPath({ node, importsMap, paramParsersMap })}${
+    queryProperty ? `\n  ${queryProperty}` : ''
+  }${formatMeta(node, '  ')}
   ${recordComponents}${parentVar ? `\n  parent: ${parentVar},` : ''}
 }`
 
@@ -243,16 +254,65 @@ export function generateRouteRecordPath({
   if (!node.isMatchable()) {
     return ''
   }
-  const params = node.params
+  const params = node.pathParams
   if (params.length > 0) {
     return `path: new MatcherPatternPathDynamic(
     ${node.regexp},
-    ${generateParamsOptions(node.params, importsMap, paramParsersMap)},
+    ${generatePathParamsOptions(params, importsMap, paramParsersMap)},
     ${JSON.stringify(node.matcherPatternPathDynamicParts)},
   ),`
   } else {
     return `path: new MatcherPatternPathStatic('${node.fullPath}'),`
   }
+}
+
+/**
+ * Generates the `query` property of a route record for the static resolver.
+ */
+export function generateRouteRecordQuery({
+  node,
+  importsMap,
+  paramParsersMap,
+}: {
+  node: TreeNode
+  importsMap: ImportsMap
+  paramParsersMap: ParamParsersMap
+}) {
+  const queryParams = node.queryParams
+  if (queryParams.length === 0) {
+    return ''
+  }
+
+  importsMap.add('vue-router/experimental', 'MatcherPatternQueryParam')
+
+  return `query: [
+${queryParams
+  .map((param) => {
+    const parserOptions = generateParamParserOptions(
+      param,
+      importsMap,
+      paramParsersMap
+    )
+
+    const args = [
+      `'${param.paramName}'`,
+      // TODO: allow param.queryKey
+      `'${param.paramName}'`,
+      `'${param.format}'`,
+    ]
+
+    if (parserOptions || param.defaultValue !== undefined) {
+      args.push(parserOptions || '{}')
+    }
+
+    if (param.defaultValue !== undefined) {
+      args.push(param.defaultValue)
+    }
+
+    return `    new MatcherPatternQueryParam(${args.join(', ')})`
+  })
+  .join(',\n')}
+  ],`
 }
 
 /**

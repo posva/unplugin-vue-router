@@ -8,9 +8,12 @@ declare module 'vue-router/auto-routes' {
 
   /**
    * Setups hot module replacement for routes.
+   *
    * @param router - The router instance
    * @param hotUpdateCallback - Callback to be called after replacing the routes and before the navigation
+   *
    * @example
+   *
    * ```ts
    * import { createRouter, createWebHistory } from 'vue-router'
    * import { routes, handleHotUpdate } from 'vue-router/auto-routes'
@@ -19,7 +22,7 @@ declare module 'vue-router/auto-routes' {
    *   routes,
    * })
    * if (import.meta.hot) {
-   * handleHotUpdate(router)
+   *   handleHotUpdate(router)
    * }
    * ```
    */
