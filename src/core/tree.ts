@@ -272,7 +272,7 @@ export class TreeNode {
   }
 
   /**
-   * Array of route params for this node. It includes all the params from the parents as well.
+   * Array of route params for this node. It includes **all** the params from the parents as well.
    */
   get params(): (TreePathParam | TreeQueryParam)[] {
     const params = [...this.value.params]
