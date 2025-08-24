@@ -355,8 +355,8 @@ export class TreeNode {
           ? segment
           : // param
             segment.isSplat
-            ? 1
-            : 0
+            ? 0
+            : 1
       )
 
       if (subSegments.length > 1) {
