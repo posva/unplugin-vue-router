@@ -64,6 +64,7 @@ declare module 'vue-router/auto-routes' {
     '/partial-[name]': RouteRecordInfo<'/partial-[name]', '/partial-:name', { name: ParamValue<true> }, { name: ParamValue<false> }>,
     '/custom-path': RouteRecordInfo<'/custom-path', '/surprise-:id(\d+)', Record<never, never>, Record<never, never>>,
     '/test-[a-id]': RouteRecordInfo<'/test-[a-id]', '/test-:a-id', { aId: ParamValue<true> }, { aId: ParamValue<false> }>,
+    '/test-broken-syntax': RouteRecordInfo<'/test-broken-syntax', '/test-broken-syntax', Record<never, never>, Record<never, never>>,
     '/todos/': RouteRecordInfo<'/todos/', '/todos', Record<never, never>, Record<never, never>>,
     '/todos/+layout': RouteRecordInfo<'/todos/+layout', '/todos/+layout', Record<never, never>, Record<never, never>>,
     '/users/': RouteRecordInfo<'/users/', '/users', Record<never, never>, Record<never, never>>,
@@ -285,6 +286,10 @@ declare module 'vue-router/auto-routes' {
     }
     'src/pages/test-[a-id].vue': {
       routes: '/test-[a-id]'
+      views: never
+    }
+    'src/pages/test-broken-syntax.vue': {
+      routes: '/test-broken-syntax'
       views: never
     }
     'src/pages/todos/index.vue': {

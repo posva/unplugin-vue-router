@@ -1,6 +1,7 @@
 import { TransformResult } from 'vite'
 import { expect, describe, it } from 'vitest'
 import { definePageTransform, extractDefinePageNameAndPath } from './definePage'
+import { mockWarn } from '../../tests/vitest-mock-warn'
 
 const sampleCode = `
 <script setup>
@@ -18,6 +19,7 @@ const b = 1
       `
 
 describe('definePage', () => {
+  mockWarn()
   it('removes definePage', async () => {
     const result = (await definePageTransform({
       code: sampleCode,
@@ -153,7 +155,7 @@ definePage({
     expect(result?.code).toMatchSnapshot()
   })
 
-  it('throws if definePage uses a variable from the setup', async () => {
+  it('handles definePage using a variable from setup gracefully', async () => {
     const code = `
 <script setup>
 const a = 1
@@ -162,13 +164,14 @@ definePage({
 })
 </script>
 `
-    // the function syntax works with sync and async errors
-    await expect(async () => {
-      await definePageTransform({
-        code,
-        id: 'src/pages/basic.vue&definePage&vue',
-      })
-    }).rejects.toThrowError()
+    const result = await definePageTransform({
+      code,
+      id: 'src/pages/basic.vue&definePage&vue',
+    })
+
+    // Should return empty object instead of throwing
+    expect(result).toBe('export default {}')
+    expect('`definePage()` in <script setup> cannot reference locally declared variables').toHaveBeenWarned()
   })
 
   it('extracts name and path', async () => {
@@ -252,6 +255,54 @@ export default {
     ).toEqual({
       name: 'custom',
       path: '/custom',
+    })
+  })
+
+  describe('error handling', () => {
+    const codeWithSyntaxError = `
+<script setup>
+definePage({
+  name: 'test',,  // syntax error: extra comma
+  path: '/test'
+})
+</script>
+
+<template>
+  <div>hello</div>
+</template>
+      `
+
+    it('handles syntax errors gracefully when extracting definePage', async () => {
+      const result = await definePageTransform({
+        code: codeWithSyntaxError,
+        id: 'src/pages/broken.vue?definePage&vue',
+      })
+
+      // Should return empty object instead of crashing
+      expect(result).toBe('export default {}')
+      expect('Failed to process definePage:').toHaveBeenWarned()
+    })
+
+    it('handles syntax errors gracefully when removing definePage from source', async () => {
+      const result = await definePageTransform({
+        code: codeWithSyntaxError,
+        id: 'src/pages/broken.vue',
+      })
+
+      // Should return undefined (no transform) instead of crashing
+      expect(result).toBeUndefined()
+      expect('Failed to process definePage:').toHaveBeenWarned()
+    })
+
+    it('handles extractDefinePageNameAndPath with syntax errors gracefully', async () => {
+      const result = await extractDefinePageNameAndPath(
+        codeWithSyntaxError,
+        'src/pages/broken.vue'
+      )
+
+      // Should return null/undefined instead of crashing
+      expect(result).toBeUndefined()
+      expect('Failed to extract definePage info:').toHaveBeenWarned()
     })
   })
 })
