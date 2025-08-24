@@ -62,7 +62,7 @@ describe('generateRouteRecordPath', () => {
           {
             b: {},
           },
-          ["a",0],
+          ["a",1],
         ),"
     `)
   })
@@ -82,7 +82,7 @@ describe('generateRouteRecordPath', () => {
             b: {},
             c: {},
           },
-          ["a",0,0],
+          ["a",1,1],
         ),"
     `)
   })
@@ -97,7 +97,7 @@ describe('generateRouteRecordPath', () => {
           {
             b: {},
           },
-          ["a",0],
+          ["a",1],
         ),"
     `)
   })
@@ -112,7 +112,7 @@ describe('generateRouteRecordPath', () => {
           {
             b: {repeat: true, },
           },
-          ["a",0],
+          ["a",1],
         ),"
     `)
   })
@@ -127,7 +127,7 @@ describe('generateRouteRecordPath', () => {
           {
             b: {repeat: true, },
           },
-          ["a",0],
+          ["a",1],
         ),"
     `)
   })
@@ -164,7 +164,7 @@ describe('generateRouteRecordPath', () => {
           {
             all: {},
           },
-          [1],
+          [0],
         ),"
     `)
   })
@@ -183,7 +183,7 @@ describe('generateRouteRecordPath', () => {
             id: {},
             all: {},
           },
-          ["a",["some-",0],1],
+          ["a",["some-",0],0],
         ),"
     `)
   })
