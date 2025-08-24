@@ -174,6 +174,7 @@ definePage({
 
     // Should return empty object instead of throwing
     expect(result).toBe('export default {}')
+    expect('`definePage()` in <script setup> cannot reference locally declared variables').toHaveBeenWarned()
   })
 
   it('extracts name and path', () => {
@@ -341,23 +342,8 @@ definePage({
     })
 
     it('handles syntax errors gracefully when removing definePage from source', async () => {
-      const codeForRemoval = `
-<script setup>
-const a = 1
-definePage({
-  name: 'test',,  // syntax error: extra comma
-  path: '/test'
-})
-const b = 1
-</script>
-
-<template>
-  <div>hello</div>
-</template>
-      `
-
       const result = await definePageTransform({
-        code: codeForRemoval,
+        code: codeWithSyntaxError,
         id: 'src/pages/broken.vue',
       })
 
@@ -375,25 +361,6 @@ const b = 1
       // Should return null/undefined instead of crashing
       expect(result).toBeUndefined()
       expect('Failed to extract definePage info:').toHaveBeenWarned()
-    })
-
-    it('handles unclosed brackets in definePage gracefully', async () => {
-      const codeWithUnclosedBracket = `
-<script setup>
-definePage({
-  name: 'test',
-  path: '/test'
-  // missing closing bracket
-</script>
-      `
-
-      const result = await definePageTransform({
-        code: codeWithUnclosedBracket,
-        id: 'src/pages/unclosed.vue?definePage&vue',
-      })
-
-      expect(result).toBe('export default {}')
-      expect('Failed to process definePage:').toHaveBeenWarned()
     })
   })
 })

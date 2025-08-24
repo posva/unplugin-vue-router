@@ -39,23 +39,17 @@ function getCodeAst(code: string, id: string) {
   let ast: Program | undefined
   const lang = getLang(id.split(MACRO_DEFINE_PAGE_QUERY)[0]!)
 
-  try {
-    if (lang === 'vue') {
-      const sfc = parseSFC(code, id)
-      if (sfc.scriptSetup) {
-        ast = sfc.getSetupAst()
-        offset = sfc.scriptSetup.loc.start.offset
-      } else if (sfc.script) {
-        ast = sfc.getScriptAst()
-        offset = sfc.script.loc.start.offset
-      }
-    } else if (/[jt]sx?$/.test(lang)) {
-      ast = babelParse(code, lang)
+  if (lang === 'vue') {
+    const sfc = parseSFC(code, id)
+    if (sfc.scriptSetup) {
+      ast = sfc.getSetupAst()
+      offset = sfc.scriptSetup.loc.start.offset
+    } else if (sfc.script) {
+      ast = sfc.getScriptAst()
+      offset = sfc.script.loc.start.offset
     }
-  } catch (error) {
-    // If there's a syntax error in parsing, we can't extract definePage
-    // Return undefined AST to indicate parsing failure
-    ast = undefined
+  } else if (/[jt]sx?$/.test(lang)) {
+    ast = babelParse(code, lang)
   }
 
   const definePageNodes: CallExpression[] = (ast?.body || [])
