@@ -1,33 +1,17 @@
 import { type ViteDevServer } from 'vite'
 import { type ServerContext } from '../../options'
-import { MODULE_ROUTES_PATH, asVirtualId } from '../moduleConstants'
+import {
+  MODULE_RESOLVER_PATH,
+  MODULE_ROUTES_PATH,
+  asVirtualId,
+} from '../moduleConstants'
 
 export function createViteContext(server: ViteDevServer): ServerContext {
   function invalidate(path: string) {
-    const { moduleGraph } = server
-    const foundModule = moduleGraph.getModuleById(path)
+    const foundModule = server.moduleGraph.getModuleById(path)
+    // console.log(`🟣 Invalidating module: ${path}, found: ${!!foundModule}`)
     if (foundModule) {
-      moduleGraph.invalidateModule(foundModule, undefined, undefined, true)
-      // for (const mod of foundModule.importers) {
-      //   console.log(`Invalidating ${mod.url}`)
-      //   moduleGraph.invalidateModule(mod)
-      // }
-      setTimeout(() => {
-        console.log(`Sending update for ${foundModule.url}`)
-        server.ws.send({
-          type: 'update',
-          updates: [
-            {
-              acceptedPath: path,
-              path: path,
-              // NOTE: this was in the
-              // timestamp: ROUTES_LAST_LOAD_TIME.value,
-              timestamp: Date.now(),
-              type: 'js-update',
-            },
-          ],
-        })
-      }, 100)
+      return server.reloadModule(foundModule)
     }
     return !!foundModule
   }
@@ -43,11 +27,17 @@ export function createViteContext(server: ViteDevServer): ServerContext {
    * Triggers HMR for the vue-router/auto-routes module.
    */
   async function updateRoutes() {
-    const modId = asVirtualId(MODULE_ROUTES_PATH)
-    const mod = server.moduleGraph.getModuleById(modId)
-    if (mod) {
-      return server.reloadModule(mod)
-    }
+    const autoRoutesMod = server.moduleGraph.getModuleById(
+      asVirtualId(MODULE_ROUTES_PATH)
+    )
+    const autoResolvedMod = server.moduleGraph.getModuleById(
+      asVirtualId(MODULE_RESOLVER_PATH)
+    )
+
+    await Promise.all([
+      autoRoutesMod && server.reloadModule(autoRoutesMod),
+      autoResolvedMod && server.reloadModule(autoResolvedMod),
+    ])
   }
 
   return {

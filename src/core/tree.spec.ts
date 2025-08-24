@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_OPTIONS, resolveOptions } from '../options'
 import { PrefixTree } from './tree'
-import { TreeNodeType, type TreeRouteParam } from './treeNodeValue'
+import { TreeNodeType, type TreePathParam } from './treeNodeValue'
 import { resolve } from 'pathe'
 import { mockWarn } from '../../tests/vitest-mock-warn'
 
@@ -41,6 +41,103 @@ describe('Tree', () => {
       _type: TreeNodeType.param,
     })
     expect(child.children.size).toBe(0)
+  })
+
+  it('parses a custom param type', () => {
+    const tree = new PrefixTree(RESOLVED_OPTIONS)
+    tree.insert('[id=int]', '[id=int].vue')
+    const child = tree.children.get('[id=int]')!
+    expect(child).toBeDefined()
+    expect(child.value).toMatchObject({
+      rawSegment: '[id=int]',
+      params: [
+        {
+          paramName: 'id',
+          parser: 'int',
+        },
+      ],
+      fullPath: '/:id',
+      _type: TreeNodeType.param,
+    })
+  })
+
+  it('parses a repeatable custom param type', () => {
+    const tree = new PrefixTree(RESOLVED_OPTIONS)
+    tree.insert('[id=int]+', '[id=int]+.vue')
+    const child = tree.children.get('[id=int]+')!
+    expect(child).toBeDefined()
+    expect(child.value).toMatchObject({
+      rawSegment: '[id=int]+',
+      params: [
+        {
+          paramName: 'id',
+          parser: 'int',
+          repeatable: true,
+          modifier: '+',
+        },
+      ],
+      fullPath: '/:id+',
+      _type: TreeNodeType.param,
+    })
+  })
+
+  it('parses an optional custom param type', () => {
+    const tree = new PrefixTree(RESOLVED_OPTIONS)
+    tree.insert('[[id=int]]', '[[id=int]].vue')
+    const child = tree.children.get('[[id=int]]')!
+    expect(child).toBeDefined()
+    expect(child.value).toMatchObject({
+      rawSegment: '[[id=int]]',
+      params: [
+        {
+          paramName: 'id',
+          parser: 'int',
+          optional: true,
+          modifier: '?',
+        },
+      ],
+      fullPath: '/:id?',
+      _type: TreeNodeType.param,
+    })
+  })
+
+  it('parses a repeatable optional custom param type', () => {
+    const tree = new PrefixTree(RESOLVED_OPTIONS)
+    tree.insert('[[id=int]]+', '[[id=int]]+.vue')
+    const child = tree.children.get('[[id=int]]+')!
+    expect(child).toBeDefined()
+    expect(child.value).toMatchObject({
+      rawSegment: '[[id=int]]+',
+      params: [
+        {
+          paramName: 'id',
+          parser: 'int',
+          repeatable: true,
+          optional: true,
+          modifier: '*',
+        },
+      ],
+      fullPath: '/:id*',
+      _type: TreeNodeType.param,
+    })
+  })
+
+  it('parses a custom param type with sub segments', () => {
+    const tree = new PrefixTree(RESOLVED_OPTIONS)
+    tree.insert('a-[id=int]-b', 'file.vue')
+    const child = tree.children.get('a-[id=int]-b')!
+    expect(child).toBeDefined()
+    expect(child.value).toMatchObject({
+      rawSegment: 'a-[id=int]-b',
+      params: [
+        {
+          paramName: 'id',
+          parser: 'int',
+        },
+      ],
+      fullPath: '/a-:id-b',
+      _type: TreeNodeType.param,
+    })
   })
 
   it('separate param names from static segments', () => {
@@ -452,13 +549,13 @@ describe('Tree', () => {
       path: '/:a()/new-b',
     })
     expect(node.params).toHaveLength(1)
-    expect(node.params[0]).toEqual({
+    expect(node.params[0]).toMatchObject({
       paramName: 'a',
       isSplat: false,
       modifier: '',
       optional: false,
       repeatable: false,
-    } satisfies TreeRouteParam)
+    } satisfies Partial<TreePathParam>)
   })
 
   it('removes trailing slash from path but not from name', () => {
@@ -588,6 +685,89 @@ describe('Tree', () => {
         fullPath: '/1.2.3-lesson',
         _type: TreeNodeType.static,
       })
+    })
+  })
+
+  describe('Query params from definePage', () => {
+    it('extracts query params from route overrides', () => {
+      const tree = new PrefixTree(RESOLVED_OPTIONS)
+      const node = tree.insert('users', 'users.vue')
+
+      // Simulate definePage params extraction
+      node.setCustomRouteBlock('users.vue', {
+        params: {
+          query: {
+            search: {},
+            limit: { parser: 'int', default: '10' },
+            tags: { parser: 'bool' },
+            other: { default: '"defaultValue"' },
+          },
+        },
+      })
+
+      expect(node.queryParams).toEqual([
+        {
+          paramName: 'search',
+          parser: null,
+          format: 'value',
+          defaultValue: undefined,
+        },
+        {
+          paramName: 'limit',
+          parser: 'int',
+          format: 'value',
+          defaultValue: '10',
+        },
+        {
+          paramName: 'tags',
+          parser: 'bool',
+          format: 'value',
+          defaultValue: undefined,
+        },
+        {
+          paramName: 'other',
+          parser: null,
+          format: 'value',
+          defaultValue: '"defaultValue"',
+        },
+      ])
+    })
+
+    it('returns empty array when no query params defined', () => {
+      const tree = new PrefixTree(RESOLVED_OPTIONS)
+      const node = tree.insert('about', 'about.vue')
+
+      expect(node.queryParams).toEqual([])
+    })
+
+    it('params includes both path and query params', () => {
+      const tree = new PrefixTree(RESOLVED_OPTIONS)
+      const node = tree.insert('posts/[id]', 'posts/[id].vue')
+
+      node.setCustomRouteBlock('posts/[id].vue', {
+        params: {
+          query: {
+            tab: {},
+            expand: { parser: 'bool', default: 'false' },
+          },
+        },
+      })
+
+      // Should have 1 path param + 2 query params
+      expect(node.params).toHaveLength(3)
+      expect(node.params[0]).toMatchObject({ paramName: 'id' }) // path param
+      expect(node.params[1]).toMatchObject({
+        paramName: 'tab',
+        parser: null,
+        format: 'value',
+        defaultValue: undefined,
+      }) // query param
+      expect(node.params[2]).toMatchObject({
+        paramName: 'expand',
+        parser: 'bool',
+        format: 'value',
+        defaultValue: 'false',
+      }) // query param
     })
   })
 })

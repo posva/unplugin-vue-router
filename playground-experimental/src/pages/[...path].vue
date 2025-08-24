@@ -1,0 +1,44 @@
+<script setup lang="ts">
+import doc from '../main.ts?raw'
+
+const route = useRoute()
+route.params.path
+route.params.page
+
+definePage({
+  meta: {
+    title: 'Not Found',
+    description: 'This page does not exist.',
+    docLength: doc.length,
+    number: 27,
+  },
+  name: 'not-found',
+  params: {
+    query: {
+      page: {
+        parser: 'int',
+        default: 1,
+        format: 'array',
+      },
+    },
+  },
+})
+</script>
+
+<template>
+  <main>
+    <h1>Not Found</h1>
+
+    <pre>{{ $route.params }}</pre>
+    <pre>{{ $route.params }}</pre>
+    <pre>{{ $route.meta }}</pre>
+  </main>
+</template>
+
+<route lang="json">
+{
+  "meta": {
+    "from block": true
+  }
+}
+</route>

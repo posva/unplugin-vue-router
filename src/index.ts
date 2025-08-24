@@ -10,6 +10,7 @@ import {
   ROUTES_LAST_LOAD_TIME,
   VIRTUAL_PREFIX,
   DEFINE_PAGE_QUERY_RE,
+  MODULE_RESOLVER_PATH,
 } from './core/moduleConstants'
 import {
   Options,
@@ -20,7 +21,6 @@ import {
 import { createViteContext } from './core/vite'
 import { join } from 'pathe'
 import { appendExtensionListToPattern } from './core/utils'
-import { MACRO_DEFINE_PAGE_QUERY } from './core/definePage'
 import { createAutoExportPlugin } from './data-loaders/auto-exports'
 
 export type * from './types'
@@ -66,6 +66,7 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
             include: [
               new RegExp(`^${MODULE_VUE_ROUTER_AUTO}$`),
               new RegExp(`^${MODULE_ROUTES_PATH}$`),
+              new RegExp(`^${MODULE_RESOLVER_PATH}$`),
               routeBlockQueryRE,
             ],
           },
@@ -73,7 +74,11 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
         handler(id) {
           // vue-router/auto
           // vue-router/auto-routes
-          if (id === MODULE_ROUTES_PATH || id === MODULE_VUE_ROUTER_AUTO) {
+          if (
+            id === MODULE_ROUTES_PATH ||
+            id === MODULE_VUE_ROUTER_AUTO ||
+            id === MODULE_RESOLVER_PATH
+          ) {
             // must be a virtual module
             return asVirtualId(id)
           }
@@ -84,8 +89,8 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
         },
       },
 
-      buildStart() {
-        return ctx.scanPages(options.watch)
+      async buildStart() {
+        await ctx.scanPages(options.watch)
       },
 
       buildEnd() {
@@ -113,6 +118,7 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
               new RegExp(`^${ROUTE_BLOCK_ID}$`),
               new RegExp(`^${VIRTUAL_PREFIX}${MODULE_VUE_ROUTER_AUTO}$`),
               new RegExp(`^${VIRTUAL_PREFIX}${MODULE_ROUTES_PATH}$`),
+              new RegExp(`^${VIRTUAL_PREFIX}${MODULE_RESOLVER_PATH}$`),
             ],
           },
         },
@@ -136,6 +142,12 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
             return ctx.generateRoutes()
           }
 
+          // vue-router/auto-resolver
+          if (resolvedId === MODULE_RESOLVER_PATH) {
+            ROUTES_LAST_LOAD_TIME.update()
+            return ctx.generateResolver()
+          }
+
           // vue-router/auto
           if (resolvedId === MODULE_VUE_ROUTER_AUTO) {
             return ctx.generateVueRouterProxy()
@@ -145,45 +157,10 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
         },
       },
 
-      // improves DX
+      // for HMR
       vite: {
         configureServer(server) {
           ctx.setServerContext(createViteContext(server))
-        },
-
-        handleHotUpdate: {
-          order: 'post',
-          handler({ server, file, modules }) {
-            // console.log(`🔥 HMR ${file}`)
-            const moduleList = server.moduleGraph.getModulesByFile(file)
-            const definePageModule = Array.from(moduleList || []).find(
-              (mod) => {
-                return mod?.id && MACRO_DEFINE_PAGE_QUERY.test(mod.id)
-              }
-            )
-
-            if (definePageModule) {
-              // console.log(`Updating ${definePageModule.file}`)
-              const routesModule = server.moduleGraph.getModuleById(
-                asVirtualId(MODULE_ROUTES_PATH)
-              )
-
-              if (!routesModule) {
-                console.error('🔥 HMR routes module not found')
-                return
-              }
-
-              return [
-                ...modules,
-                // TODO: only if the definePage changed
-                definePageModule,
-                // TODO: only if ether the definePage or the route block changed
-                routesModule,
-              ]
-            }
-
-            return // for ts
-          },
         },
       },
     },

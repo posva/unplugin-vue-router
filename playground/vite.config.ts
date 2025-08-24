@@ -9,6 +9,8 @@ import Vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
 import VueDevtools from 'vite-plugin-vue-devtools'
 
+const __dirname = fileURLToPath(new URL('.', import.meta.url))
+
 export default defineConfig({
   clearScreen: false,
   resolve: {
@@ -50,12 +52,14 @@ export default defineConfig({
       // getRouteName: getPascalCaseRouteName,
       experimental: {
         autoExportsDataLoaders: ['src/loaders/**/*', '@/loaders/**/*'],
+        paramParsers: false,
       },
       extendRoute(route) {
         route.params.forEach((param) => {
           // transform kebab-case to camelCase
-          param.paramName = param.paramName.replace(/-([a-z])/g, (g) =>
-            g[1].toUpperCase()
+          param.paramName = param.paramName.replace(
+            /-([a-z])/g,
+            (g) => g[1]?.toUpperCase() || ''
           )
         })
 

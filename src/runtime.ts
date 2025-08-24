@@ -1,4 +1,4 @@
-import type { RouteRecordRaw } from 'vue-router'
+import type { RouteRecordRaw, TypesConfig } from 'vue-router'
 
 /**
  * Defines properties of the route for the current page component.
@@ -58,4 +58,67 @@ export interface DefinePage
    * Can be set to `false` to remove the name from types.
    */
   name?: string | false
+
+  /**
+   * Custom parameters for the route. Requires `experimental.paramParsers` enabled.
+   *
+   * @experimental
+   */
+  params?: {
+    path?: Record<string, ParamParserType>
+
+    /**
+     * Parameters extracted from the query.
+     */
+    query?: Record<string, DefinePageQueryParamOptions | ParamParserType>
+  }
 }
+
+export type ParamParserType_Native = 'int' | 'bool'
+
+export type ParamParserType =
+  | (TypesConfig extends Record<'ParamParsers', infer ParamParsers>
+      ? ParamParsers
+      : never)
+  | ParamParserType_Native
+
+/**
+ * Configures how to extract a route param from a specific query parameter.
+ */
+export interface DefinePageQueryParamOptions<T = unknown> {
+  /**
+   * The type of the query parameter. Allowed values are native param parsers
+   * and any parser in the {@link https://uvr.esm.is/TODO | params folder }. If
+   * not provided, the value will kept as is.
+   */
+  parser?: ParamParserType
+
+  // TODO: allow customizing the name in the query string
+  // queryKey?: string
+
+  /**
+   * Default value if the query parameter is missing or if the match fails
+   * (e.g. a invalid number is passed to the int param parser). If not provided
+   * and the param parser throws, the route will not match.
+   */
+  default?: T
+  // TODO: handle function syntax
+  // default?: (() => T) | T
+
+  /**
+   * How to format the query parameter value.
+   *
+   * - 'value' - keep the first value only and pass that to parser
+   * - 'array' - keep all values (even one or none) as an array and pass that to parser
+   *
+   * @default 'value'
+   */
+  format?: 'value' | 'array'
+}
+
+/**
+ * TODO: native parsers ideas:
+ * - json -> just JSON.parse(value)
+ * - boolean -> 'true' | 'false' -> boolean
+ * - number -> Number(value) -> NaN if not a number
+ */
