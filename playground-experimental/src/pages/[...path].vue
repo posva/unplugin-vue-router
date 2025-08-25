@@ -3,7 +3,11 @@ import doc from '../main.ts?raw'
 
 const route = useRoute()
 route.params.path
-route.params.page
+
+console.log('typeof', typeof route.params.active)
+console.log('value', route.params.active)
+console.log('typeof', typeof route.params.other)
+console.log('value', route.params.other)
 
 definePage({
   meta: {
@@ -19,6 +23,11 @@ definePage({
         parser: 'int',
         default: 1,
         format: 'array',
+      },
+      other: 'bool',
+      active: {
+        parser: 'bool',
+        default: false,
       },
     },
   },
