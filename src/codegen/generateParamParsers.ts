@@ -66,11 +66,10 @@ export function generateParamParserOptions(
     const { name, absolutePath } = paramParsers.get(param.parser)!
     const varName = `PARAM_PARSER__${name}`
     importsMap.add(absolutePath, { name: 'parser', as: varName })
-    return ` ...${varName}, `
+    return varName
   } else if (param.parser === 'int') {
     importsMap.add('vue-router/experimental', `PARAM_PARSER_INT`)
-    // the path params have more options, the query params are passed as an argument
-    return 'modifier' in param ? ` ...PARAM_PARSER_INT, ` : `PARAM_PARSER_INT`
+    return `PARAM_PARSER_INT`
   }
   return ''
 }
@@ -81,9 +80,22 @@ export function generatePathParamsOptions(
   paramParsers: ParamParsersMap
 ) {
   const paramOptions = params.map((param) => {
-    const repeatable = param.repeatable ? `repeat: true, ` : ''
+    // build a lean option list without any optional value
+    const optionList: string[] = []
+    const parser = generateParamParserOptions(param, importsMap, paramParsers)
+    optionList.push(parser || `/* no parser */`)
+    if (param.optional || param.repeatable) {
+      optionList.push(
+        `/* repeatable: ` + (param.repeatable ? `*/ true` : `false */`)
+      )
+    }
+    if (param.optional) {
+      optionList.push(
+        `/* optional: ` + (param.optional ? `*/ true` : `false */`)
+      )
+    }
     return `
-${param.paramName}: {${generateParamParserOptions(param, importsMap, paramParsers)}${repeatable}},
+${param.paramName}: [${optionList.join(', ')}],
 `.slice(1, -1)
   })
 
