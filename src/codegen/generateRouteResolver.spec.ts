@@ -60,7 +60,7 @@ describe('generateRouteRecordPath', () => {
       "path: new MatcherPatternPathDynamic(
           /^\\/a\\/([^/]+?)$/i,
           {
-            b: {},
+            b: [/* no parser */],
           },
           ["a",1],
         ),"
@@ -79,8 +79,8 @@ describe('generateRouteRecordPath', () => {
       "path: new MatcherPatternPathDynamic(
           /^\\/a\\/([^/]+?)\\/([^/]+?)$/i,
           {
-            b: {},
-            c: {},
+            b: [/* no parser */],
+            c: [/* no parser */],
           },
           ["a",1,1],
         ),"
@@ -95,7 +95,7 @@ describe('generateRouteRecordPath', () => {
       "path: new MatcherPatternPathDynamic(
           /^\\/a\\/([^/]+?)?$/i,
           {
-            b: {},
+            b: [/* no parser */, /* repeatable: false */, /* optional: */ true],
           },
           ["a",1],
         ),"
@@ -110,7 +110,7 @@ describe('generateRouteRecordPath', () => {
       "path: new MatcherPatternPathDynamic(
           /^\\/a\\/(.+?)$/i,
           {
-            b: {repeat: true, },
+            b: [/* no parser */, /* repeatable: */ true],
           },
           ["a",1],
         ),"
@@ -125,7 +125,7 @@ describe('generateRouteRecordPath', () => {
       "path: new MatcherPatternPathDynamic(
           /^\\/a\\/(.+?)?$/i,
           {
-            b: {repeat: true, },
+            b: [/* no parser */, /* repeatable: */ true, /* optional: */ true],
           },
           ["a",1],
         ),"
@@ -143,8 +143,8 @@ describe('generateRouteRecordPath', () => {
       "path: new MatcherPatternPathDynamic(
           /^\\/a\\/a-([^/]+?)-c-([^/]+?)$/i,
           {
-            b: {},
-            d: {},
+            b: [/* no parser */],
+            d: [/* no parser */],
           },
           ["a",["a-",0,"-c-",0]],
         ),"
@@ -162,7 +162,7 @@ describe('generateRouteRecordPath', () => {
       "path: new MatcherPatternPathDynamic(
           /^\\/(.*)$/i,
           {
-            all: {},
+            all: [/* no parser */],
           },
           [0],
         ),"
@@ -180,8 +180,8 @@ describe('generateRouteRecordPath', () => {
       "path: new MatcherPatternPathDynamic(
           /^\\/a\\/some-([^/]+?)\\/(.*)$/i,
           {
-            id: {},
-            all: {},
+            id: [/* no parser */],
+            all: [/* no parser */],
           },
           ["a",["some-",0],0],
         ),"
