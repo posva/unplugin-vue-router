@@ -394,12 +394,14 @@ describe('Tree', () => {
       name: 'custom',
     })
     expect(node.name).toBe('custom')
+    expect(node.isNamed()).toBe(true)
 
     node = tree.insert('auth/login', 'auth/login.vue')
     node.value.setOverride('', {
       name: 'custom-child',
     })
     expect(node.name).toBe('custom-child')
+    expect(node.isNamed()).toBe(true)
   })
 
   it('allows empty name to remove route from route map', () => {
@@ -408,21 +410,38 @@ describe('Tree', () => {
 
     // Before setting empty name, it should use the default name
     expect(node.name).toBe('/some-route')
+    expect(node.isNamed()).toBe(true)
 
     // Set empty name
     node.value.setOverride('', {
       name: '',
     })
     expect(node.name).toBe('')
+    expect(node.isNamed()).toBe(false)
+
+    // Set false name
+    node.value.setOverride('', {
+      name: false,
+    })
+    expect(node.name).toBe(false)
+    expect(node.isNamed()).toBe(false)
 
     // Test with nested route
     node = tree.insert('nested/child', 'nested/child.vue')
     expect(node.name).toBe('/nested/child')
+    expect(node.isNamed()).toBe(true)
 
     node.value.setOverride('', {
       name: '',
     })
     expect(node.name).toBe('')
+    expect(node.isNamed()).toBe(false)
+
+    node.value.setOverride('', {
+      name: false,
+    })
+    expect(node.name).toBe(false)
+    expect(node.isNamed()).toBe(false)
   })
 
   it('allows a custom path', () => {
