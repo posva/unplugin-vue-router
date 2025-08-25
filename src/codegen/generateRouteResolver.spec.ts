@@ -45,8 +45,10 @@ describe('generateRouteRecordPath', () => {
 
   // TODO: we need to figure out an option for this
   it.todo('keeps trailing slashes', () => {
-    // currently, the `a/` gets converted to `a` in the tree (which is expected)
-    const node = new PrefixTree(DEFAULT_OPTIONS).insert('a/', 'a.vue')
+    const node = new PrefixTree({
+      ...DEFAULT_OPTIONS,
+      // trailingSlash: 'always',
+    }).insert('a', 'a.vue')
     expect(
       generateRouteRecordPath({ importsMap, node, paramParsersMap: new Map() })
     ).toBe(`path: new MatcherPatternPathStatic('/a/'),`)
