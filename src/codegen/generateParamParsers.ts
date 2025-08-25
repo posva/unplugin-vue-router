@@ -12,6 +12,14 @@ export type ParamParsersMap = Map<
   }
 >
 
+// just for type strictness
+const _NATIVE_PARAM_PARSERS = ['int', 'bool'] as const
+const NATIVE_PARAM_PARSERS = _NATIVE_PARAM_PARSERS as readonly string[]
+const NATIVE_PARAM_PARSERS_TYPES = {
+  int: 'number',
+  bool: 'boolean',
+} satisfies Record<(typeof _NATIVE_PARAM_PARSERS)[number], string>
+
 export function warnMissingParamParsers(
   tree: PrefixTree,
   paramParsers: ParamParsersMap
@@ -19,7 +27,7 @@ export function warnMissingParamParsers(
   for (const node of tree.getChildrenDeepSorted()) {
     for (const param of node.params) {
       if (param.parser && !paramParsers.has(param.parser)) {
-        if (param.parser !== 'int') {
+        if (!NATIVE_PARAM_PARSERS.includes(param.parser)) {
           console.warn(
             `Parameter parser "${param.parser}" not found for route "${node.fullPath}".`
           )
@@ -48,8 +56,10 @@ export function generateParamsTypes(
     if (param.parser) {
       if (parparsersMap.has(param.parser)) {
         return parparsersMap.get(param.parser)!.typeName
-      } else if (param.parser === 'int') {
-        return 'number'
+      } else if (param.parser in NATIVE_PARAM_PARSERS_TYPES) {
+        return NATIVE_PARAM_PARSERS_TYPES[
+          param.parser as keyof typeof NATIVE_PARAM_PARSERS_TYPES
+        ]
       }
     }
     return null
@@ -61,15 +71,18 @@ export function generateParamParserOptions(
   importsMap: ImportsMap,
   paramParsers: ParamParsersMap
 ): string {
+  if (!param.parser) return ''
+
   // we prioritize custom parsers to let users override them
-  if (param.parser && paramParsers.has(param.parser)) {
+  if (paramParsers.has(param.parser)) {
     const { name, absolutePath } = paramParsers.get(param.parser)!
     const varName = `PARAM_PARSER__${name}`
     importsMap.add(absolutePath, { name: 'parser', as: varName })
     return varName
-  } else if (param.parser === 'int') {
-    importsMap.add('vue-router/experimental', `PARAM_PARSER_INT`)
-    return `PARAM_PARSER_INT`
+  } else if (NATIVE_PARAM_PARSERS.includes(param.parser)) {
+    const varName = `PARAM_PARSER_${param.parser.toUpperCase()}`
+    importsMap.add('vue-router/experimental', varName)
+    return varName
   }
   return ''
 }

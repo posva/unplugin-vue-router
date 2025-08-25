@@ -22,7 +22,7 @@ declare module 'vue-router/auto-routes' {
    */
   export interface RouteNamedMap {
     '/(home)': RouteRecordInfo<'/(home)', '/', Record<never, never>, Record<never, never>>,
-    'not-found': RouteRecordInfo<'not-found', '/:path(.*)', { path: string, page?: number }, { path: string, page: number }>,
+    'not-found': RouteRecordInfo<'not-found', '/:path(.*)', { path: string, page?: number, other: boolean, active?: boolean }, { path: string, page: number, other: boolean, active: boolean }>,
     '/a.[b].c.[d]': RouteRecordInfo<'/a.[b].c.[d]', '/a/:b/c/:d', { b: string, d: string }, { b: string, d: string }>,
     '/b': RouteRecordInfo<'/b', '/b', Record<never, never>, Record<never, never>>,
     '/blog/[slug]+': RouteRecordInfo<'/blog/[slug]+', '/blog/:slug+', { slug: string[] }, { slug: [string, ...string[]] }>,
