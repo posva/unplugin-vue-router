@@ -290,7 +290,7 @@ describe('generateRouteRecordQuery', () => {
       "query: [
           new MatcherPatternQueryParam('search', 'search', 'value'),
           new MatcherPatternQueryParam('page', 'page', 'value', PARAM_PARSER_INT),
-          new MatcherPatternQueryParam('active', 'active', 'value')
+          new MatcherPatternQueryParam('active', 'active', 'value', PARAM_PARSER_BOOL)
         ],"
     `)
   })

@@ -112,7 +112,9 @@ ${param.paramName}: [${optionList.join(', ')}],
 `.slice(1, -1)
   })
 
-  return `{
+  return paramOptions.length === 0
+    ? '{}'
+    : `{
       ${paramOptions.join('\n      ')}
     }`
 }
