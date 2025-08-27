@@ -65,6 +65,7 @@ describe('generateRouteRecordPath', () => {
             b: [/* no parser */],
           },
           ["a",1],
+          /* trailingSlash */
         ),"
     `)
   })
@@ -85,6 +86,7 @@ describe('generateRouteRecordPath', () => {
             c: [/* no parser */],
           },
           ["a",1,1],
+          /* trailingSlash */
         ),"
     `)
   })
@@ -100,6 +102,7 @@ describe('generateRouteRecordPath', () => {
             b: [/* no parser */, /* repeatable: false */, /* optional: */ true],
           },
           ["a",1],
+          /* trailingSlash */
         ),"
     `)
   })
@@ -115,6 +118,7 @@ describe('generateRouteRecordPath', () => {
             b: [/* no parser */, /* repeatable: */ true],
           },
           ["a",1],
+          /* trailingSlash */
         ),"
     `)
   })
@@ -130,6 +134,7 @@ describe('generateRouteRecordPath', () => {
             b: [/* no parser */, /* repeatable: */ true, /* optional: */ true],
           },
           ["a",1],
+          /* trailingSlash */
         ),"
     `)
   })
@@ -149,6 +154,7 @@ describe('generateRouteRecordPath', () => {
             d: [/* no parser */],
           },
           ["a",["a-",0,"-c-",0]],
+          /* trailingSlash */
         ),"
     `)
   })
@@ -167,6 +173,7 @@ describe('generateRouteRecordPath', () => {
             all: [/* no parser */],
           },
           [0],
+          null,
         ),"
     `)
   })
@@ -186,6 +193,7 @@ describe('generateRouteRecordPath', () => {
             all: [/* no parser */],
           },
           ["a",["some-",0],0],
+          null,
         ),"
     `)
   })

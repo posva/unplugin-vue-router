@@ -1,5 +1,9 @@
 import { TreeNode } from '../core/tree'
-import { isTreeParamOptional } from '../core/treeNodeValue'
+import {
+  isTreeParamOptional,
+  isTreeParamRepeatable,
+  isTreePathParam,
+} from '../core/treeNodeValue'
 
 export function generateRouteParams(node: TreeNode, isRaw: boolean): string {
   // node.pathParams is a getter so we compute it once
@@ -33,19 +37,26 @@ export function EXPERIMENTAL_generateRouteParams(
   return nodeParams.length > 0
     ? `{ ${nodeParams
         .map((param, i) => {
+          const isOptional = isTreeParamOptional(param)
+          const isRepeatable = isTreeParamRepeatable(param)
+
           const type = types[i]
-          return `${param.paramName}${
-            isRaw && isTreeParamOptional(param) ? '?' : ''
-          }: ${
-            'modifier' in param
-              ? param.repeatable
-                ? param.optional || isRaw // in raw mode, the tuple version is annoying to pass
-                  ? 'string[]'
-                  : '[string, ...string[]]'
-                : param.optional
-                  ? 'string | null'
-                  : 'string'
-              : type
+
+          let extractedType: string
+
+          if (type?.startsWith('Param_')) {
+            extractedType = `${isRepeatable ? 'Extract' : 'Exclude'}<${type}, unknown[]>`
+          } else {
+            extractedType = `${type ?? 'string'}${isRepeatable ? '[]' : ''}`
+          }
+
+          extractedType +=
+            isTreePathParam(param) && isOptional && !isRepeatable
+              ? ' | null'
+              : ''
+
+          return `${param.paramName}${isRaw && isOptional ? '?' : ''}: ${
+            extractedType
           }`
         })
         .join(', ')} }`

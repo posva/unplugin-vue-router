@@ -343,7 +343,15 @@ export class TreeNode {
   }
 
   /**
-   * Returns an array of matcher parts that is consumed by MatcherPatternPathDynamic to render the path.
+   * Is this node a splat (catch-all) param
+   */
+  get isSplat(): boolean {
+    return this.value.isParam() && this.value.pathParams.some((p) => p.isSplat)
+  }
+
+  /**
+   * Returns an array of matcher parts that is consumed by
+   * MatcherPatternPathDynamic to render the path.
    */
   get matcherPatternPathDynamicParts(): TreeNodeValueMatcherPart {
     const parts: TreeNodeValueMatcherPart = []
@@ -374,6 +382,10 @@ export class TreeNode {
     return parts
   }
 
+  /**
+   * Is this tree node matchable? A matchable node has at least one component
+   * and a name.
+   */
   isMatchable(): this is TreeNode & { name: string } {
     // a node is matchable if it has at least one component
     // and the name is not false
