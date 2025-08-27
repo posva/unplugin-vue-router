@@ -107,24 +107,27 @@ export function createRoutesContext(options: ResolvedOptions) {
           )
         }),
       ...(options.experimental.paramParsers?.dir.map((folder) => {
-        watchers.push(
-          setupParamParserWatcher(
-            fsWatch('.', {
-              cwd: folder,
-              ignoreInitial: true,
-              ignorePermissionErrors: true,
-              ignored: (filePath, stats) => {
-                // let folders pass, they are ignored by the glob pattern
-                if (!stats || stats.isDirectory()) {
-                  return false
-                }
+        if (startWatchers) {
+          watchers.push(
+            setupParamParserWatcher(
+              fsWatch('.', {
+                cwd: folder,
+                ignoreInitial: true,
+                ignorePermissionErrors: true,
+                ignored: (filePath, stats) => {
+                  // let folders pass, they are ignored by the glob pattern
+                  if (!stats || stats.isDirectory()) {
+                    return false
+                  }
 
-                return !isParamParserMatch(relative(folder, filePath))
-              },
-            }),
-            folder
+                  return !isParamParserMatch(relative(folder, filePath))
+                },
+              }),
+              folder
+            )
           )
-        )
+        }
+
         return glob(PARAM_PARSER_GLOB, {
           cwd: folder,
           onlyFiles: true,
