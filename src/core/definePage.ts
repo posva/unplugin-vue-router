@@ -319,35 +319,30 @@ function extractQueryParams(
             } else if (paramProp.key.name === 'default') {
               if (typeof paramProp.value.extra?.raw === 'string') {
                 paramInfo.default = paramProp.value.extra.raw
+              } else if (paramProp.value.type === 'NumericLiteral') {
+                paramInfo.default = String(paramProp.value.value)
+              } else if (paramProp.value.type === 'StringLiteral') {
+                paramInfo.default = JSON.stringify(paramProp.value.value)
+              } else if (paramProp.value.type === 'BooleanLiteral') {
+                paramInfo.default = String(paramProp.value.value)
+              } else if (paramProp.value.type === 'NullLiteral') {
+                paramInfo.default = 'null'
+              } else if (
+                paramProp.value.type === 'UnaryExpression' &&
+                (paramProp.value.operator === '-' ||
+                  paramProp.value.operator === '+' ||
+                  paramProp.value.operator === '!' ||
+                  paramProp.value.operator === '~') &&
+                paramProp.value.argument.type === 'NumericLiteral'
+              ) {
+                // support negative numeric literals: -1, -1.5
+                paramInfo.default = `${paramProp.value.operator}${paramProp.value.argument.value}`
+              } else if (paramProp.value.type === 'ArrowFunctionExpression') {
+                paramInfo.default = generate(paramProp.value).code
               } else {
                 warn(
-                  `No raw value parsed in definePage() for query param "${paramName}". This is a bug, open an issue on https://github.com/posva/unplugin-vue-router and provide the definePage() code.`
+                  `Unrecognized default value in definePage() for query param "${paramName}". Typeof value: "${paramProp.value.type}". This is a bug or a missing type of value, open an issue on https://github.com/posva/unplugin-vue-router and provide the definePage() code.`
                 )
-                if (paramProp.value.type === 'NumericLiteral') {
-                  paramInfo.default = String(paramProp.value.value)
-                } else if (paramProp.value.type === 'StringLiteral') {
-                  paramInfo.default = JSON.stringify(paramProp.value.value)
-                } else if (paramProp.value.type === 'BooleanLiteral') {
-                  paramInfo.default = String(paramProp.value.value)
-                } else if (paramProp.value.type === 'NullLiteral') {
-                  paramInfo.default = 'null'
-                } else if (
-                  paramProp.value.type === 'UnaryExpression' &&
-                  (paramProp.value.operator === '-' ||
-                    paramProp.value.operator === '+' ||
-                    paramProp.value.operator === '!' ||
-                    paramProp.value.operator === '~') &&
-                  paramProp.value.argument.type === 'NumericLiteral'
-                ) {
-                  // support negative numeric literals: -1, -1.5
-                  paramInfo.default = `${paramProp.value.operator}${paramProp.value.argument.value}`
-                } else if (paramProp.value.type === 'ArrowFunctionExpression') {
-                  paramInfo.default = generate(paramProp.value).code
-                } else {
-                  warn(
-                    `Unrecognized default value in definePage() for query param "${paramName}". Typeof value: ${paramProp.value.type}. This is a bug, open an issue on https://github.com/posva/unplugin-vue-router and provide the definePage() code.`
-                  )
-                }
               }
             }
           }
