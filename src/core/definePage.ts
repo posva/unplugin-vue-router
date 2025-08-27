@@ -330,6 +330,16 @@ function extractQueryParams(
                   paramInfo.default = String(paramProp.value.value)
                 } else if (paramProp.value.type === 'NullLiteral') {
                   paramInfo.default = 'null'
+                } else if (
+                  paramProp.value.type === 'UnaryExpression' &&
+                  (paramProp.value.operator === '-' ||
+                    paramProp.value.operator === '+' ||
+                    paramProp.value.operator === '!' ||
+                    paramProp.value.operator === '~') &&
+                  paramProp.value.argument.type === 'NumericLiteral'
+                ) {
+                  // support negative numeric literals: -1, -1.5
+                  paramInfo.default = `${paramProp.value.operator}${paramProp.value.argument.value}`
                 } else {
                   warn(
                     `Unrecognized default value in definePage() for query param "${paramName}". Typeof value: ${paramProp.value.type}. This is a bug, open an issue on https://github.com/posva/unplugin-vue-router and provide the definePage() code.`
