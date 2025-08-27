@@ -17,6 +17,7 @@ import type {
   Statement,
   StringLiteral,
 } from '@babel/types'
+import { generate } from '@babel/generator'
 import { walkAST } from 'ast-walker-scope'
 import { warn } from './utils'
 import { ParsedStaticImport, findStaticImports, parseStaticImport } from 'mlly'
@@ -340,6 +341,8 @@ function extractQueryParams(
                 ) {
                   // support negative numeric literals: -1, -1.5
                   paramInfo.default = `${paramProp.value.operator}${paramProp.value.argument.value}`
+                } else if (paramProp.value.type === 'ArrowFunctionExpression') {
+                  paramInfo.default = generate(paramProp.value).code
                 } else {
                   warn(
                     `Unrecognized default value in definePage() for query param "${paramName}". Typeof value: ${paramProp.value.type}. This is a bug, open an issue on https://github.com/posva/unplugin-vue-router and provide the definePage() code.`
