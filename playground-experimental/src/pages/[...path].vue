@@ -2,6 +2,7 @@
 import doc from '../main.ts?raw'
 
 const route = useRoute()
+const router = useRouter()
 route.params.path
 
 console.log('typeof', typeof route.params.active)
@@ -22,12 +23,29 @@ definePage({
       page: {
         parser: 'int',
         default: 1,
-        format: 'array',
+        format: 'value',
       },
-      other: 'bool',
-      active: {
+      other: {
         parser: 'bool',
         default: false,
+      },
+      active: {
+        parser: 'bool',
+        default: true,
+      },
+
+      multi: {
+        format: 'array',
+      },
+
+      req: {
+        parser: 'int',
+        default: -1,
+      },
+
+      when: {
+        parser: 'date',
+        default: () => new Date(),
       },
     },
   },
@@ -39,7 +57,7 @@ definePage({
     <h1>Not Found</h1>
 
     <pre>{{ $route.params }}</pre>
-    <pre>{{ $route.params }}</pre>
+    <pre>{{ $route.query }}</pre>
     <pre>{{ $route.meta }}</pre>
   </main>
 </template>

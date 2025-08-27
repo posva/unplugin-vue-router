@@ -22,20 +22,21 @@ declare module 'vue-router/auto-routes' {
    */
   export interface RouteNamedMap {
     '/(home)': RouteRecordInfo<'/(home)', '/', Record<never, never>, Record<never, never>>,
-    'not-found': RouteRecordInfo<'not-found', '/:path(.*)', { path: string, page?: number, other: boolean, active?: boolean }, { path: string, page: number, other: boolean, active: boolean }>,
+    'not-found': RouteRecordInfo<'not-found', '/:path(.*)', { path: string, page?: number, other?: boolean, active?: boolean, multi: string[], req?: number, when?: Exclude<Param_date, unknown[]> }, { path: string, page: number, other: boolean, active: boolean, multi: string[], req: number, when: Exclude<Param_date, unknown[]> }>,
     '/a.[b].c.[d]': RouteRecordInfo<'/a.[b].c.[d]', '/a/:b/c/:d', { b: string, d: string }, { b: string, d: string }>,
     '/b': RouteRecordInfo<'/b', '/b', Record<never, never>, Record<never, never>>,
-    '/blog/[slug]+': RouteRecordInfo<'/blog/[slug]+', '/blog/:slug+', { slug: string[] }, { slug: [string, ...string[]] }>,
+    '/blog/[slug]+': RouteRecordInfo<'/blog/[slug]+', '/blog/:slug+', { slug: string[] }, { slug: string[] }>,
     '/blog/[[slugOptional]]+': RouteRecordInfo<'/blog/[[slugOptional]]+', '/blog/:slugOptional*', { slugOptional?: string[] }, { slugOptional: string[] }>,
     '/blog/info/(info)': RouteRecordInfo<'/blog/info/(info)', '/blog/info', Record<never, never>, Record<never, never>>,
     '/blog/info/[[section]]': RouteRecordInfo<'/blog/info/[[section]]', '/blog/info/:section?', { section?: string | null }, { section: string | null }>,
-    '/events/[when=date]': RouteRecordInfo<'/events/[when=date]', '/events/:when', { when: string }, { when: string }>,
+    '/events/[when=date]': RouteRecordInfo<'/events/[when=date]', '/events/:when', { when: Exclude<Param_date, unknown[]> }, { when: Exclude<Param_date, unknown[]> }>,
+    '/events/repeat/[when=date]+': RouteRecordInfo<'/events/repeat/[when=date]+', '/events/repeat/:when+', { when: Extract<Param_date, unknown[]> }, { when: Extract<Param_date, unknown[]> }>,
     '/manually-added': RouteRecordInfo<'/manually-added', '/manually-added', Record<never, never>, Record<never, never>>,
     '/tests/[[optional]]/end': RouteRecordInfo<'/tests/[[optional]]/end', '/tests/:optional?/end', { optional?: string | null }, { optional: string | null }>,
     '/u[name]': RouteRecordInfo<'/u[name]', '/u:name', { name: string }, { name: string }, '/u[name]/24' | '/u[name]/[userId=int]'>,
-    '/u[name]/[userId=int]': RouteRecordInfo<'/u[name]/[userId=int]', '/u:name/:userId', { name: string, userId: string }, { name: string, userId: string }>,
+    '/u[name]/[userId=int]': RouteRecordInfo<'/u[name]/[userId=int]', '/u:name/:userId', { name: string, userId: number }, { name: string, userId: number }>,
     '/u[name]/24': RouteRecordInfo<'/u[name]/24', '/u:name/24', { name: string }, { name: string }>,
-    '/users/[userId=int]': RouteRecordInfo<'/users/[userId=int]', '/users/:userId', { userId: string, anyParam: null, page?: number }, { userId: string, anyParam: null, page: number }>,
+    '/users/[userId=int]': RouteRecordInfo<'/users/[userId=int]', '/users/:userId', { userId: number, anyParam?: string, page?: number }, { userId: number, anyParam: string, page: number }>,
     '/users/sub-[first]-[second]': RouteRecordInfo<'/users/sub-[first]-[second]', '/users/sub-:first-:second', { first: string, second: string }, { first: string, second: string }>,
   }
 
@@ -84,6 +85,10 @@ declare module 'vue-router/auto-routes' {
     }
     'src/pages/events/[when=date].vue': {
       routes: '/events/[when=date]'
+      views: never
+    }
+    'src/pages/events/repeat/[when=date]+.vue': {
+      routes: '/events/repeat/[when=date]+'
       views: never
     }
     'src/page-outside.vue': {

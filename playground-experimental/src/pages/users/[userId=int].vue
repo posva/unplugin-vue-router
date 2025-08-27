@@ -9,7 +9,9 @@ definePage({
   // path: '/users/:userId',
   params: {
     query: {
-      anyParam: {},
+      anyParam: {
+        default: '',
+      },
       page: {
         parser: 'int',
         default: 1,
