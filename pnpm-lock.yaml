@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@babel/generator':
+        specifier: ^7.28.3
+        version: 7.28.3
       '@vue-macros/common':
         specifier: 3.0.0
         version: 3.0.0(vue@3.5.21(typescript@5.9.2))
@@ -75,6 +78,9 @@ importers:
       '@tanstack/vue-query':
         specifier: ^5.89.0
         version: 5.89.0(vue@3.5.21(typescript@5.9.2))
+      '@types/babel__generator':
+        specifier: ^7.27.0
+        version: 7.27.0
       '@types/node':
         specifier: ^24.3.0
         version: 24.3.0
@@ -169,11 +175,11 @@ importers:
         specifier: ^3.5.21
         version: 3.5.21(typescript@5.9.2)
       vue-router:
-        specifier: https://pkg.pr.new/vue-router@be1679c
-        version: https://pkg.pr.new/vue-router@be1679c(vue@3.5.21(typescript@5.9.2))
+        specifier: https://pkg.pr.new/vue-router@ecd1303
+        version: https://pkg.pr.new/vue-router@ecd1303(vue@3.5.21(typescript@5.9.2))
       vue-router-mock:
         specifier: ^2.0.0
-        version: 2.0.0(vue-router@https://pkg.pr.new/vue-router@be1679c(vue@3.5.21(typescript@5.9.2)))(vue@3.5.21(typescript@5.9.2))
+        version: 2.0.0(vue-router@https://pkg.pr.new/vue-router@ecd1303(vue@3.5.21(typescript@5.9.2)))(vue@3.5.21(typescript@5.9.2))
       vue-tsc:
         specifier: ^3.0.7
         version: 3.0.7(typescript@5.9.2)
@@ -261,8 +267,8 @@ importers:
         specifier: ^3.5.18
         version: 3.5.21(typescript@5.9.2)
       vue-router:
-        specifier: https://pkg.pr.new/vue-router@be1679c
-        version: https://pkg.pr.new/vue-router@be1679c(vue@3.5.21(typescript@5.9.2))
+        specifier: https://pkg.pr.new/vue-router@ecd1303
+        version: https://pkg.pr.new/vue-router@ecd1303(vue@3.5.21(typescript@5.9.2))
     devDependencies:
       '@vitejs/plugin-vue':
         specifier: ^6.0.1
@@ -2312,6 +2318,9 @@ packages:
 
   '@tybys/wasm-util@0.9.0':
     resolution: {integrity: sha512-6+7nlbMVX/PVDCwaIQ8nTOPveOcFLSt8GcXdx8hD0bt39uWxYT88uXzqTd4fTvqta7oeUJqudepapKNt2DYJFw==}
+
+  '@types/babel__generator@7.27.0':
+    resolution: {integrity: sha512-ufFd2Xi92OAVPYsy+P4n7/U7e68fex0+Ee8gSG9KX7eo084CWiQ4sdxktvdl0bOPupXtVJPY19zk6EwWqUQ8lg==}
 
   '@types/chai@5.2.2':
     resolution: {integrity: sha512-8kB30R7Hwqf40JPiKhVzodJs2Qc1ZJ5zuT3uzw5Hq/dhNCl3G3l83jfpdI1e20BP348+fV7VIL/+FxaXkqBmWg==}
@@ -6863,8 +6872,8 @@ packages:
     peerDependencies:
       vue: ^3.2.0
 
-  vue-router@https://pkg.pr.new/vue-router@be1679c:
-    resolution: {tarball: https://pkg.pr.new/vue-router@be1679c}
+  vue-router@https://pkg.pr.new/vue-router@ecd1303:
+    resolution: {tarball: https://pkg.pr.new/vue-router@ecd1303}
     version: 4.5.1
     peerDependencies:
       vue: ^3.2.0
@@ -9157,6 +9166,10 @@ snapshots:
     dependencies:
       tslib: 2.8.1
     optional: true
+
+  '@types/babel__generator@7.27.0':
+    dependencies:
+      '@babel/types': 7.28.4
 
   '@types/chai@5.2.2':
     dependencies:
@@ -14573,17 +14586,17 @@ snapshots:
     dependencies:
       vue: 3.5.21(typescript@5.9.2)
 
-  vue-router-mock@2.0.0(vue-router@https://pkg.pr.new/vue-router@be1679c(vue@3.5.21(typescript@5.9.2)))(vue@3.5.21(typescript@5.9.2)):
+  vue-router-mock@2.0.0(vue-router@https://pkg.pr.new/vue-router@ecd1303(vue@3.5.21(typescript@5.9.2)))(vue@3.5.21(typescript@5.9.2)):
     dependencies:
       vue: 3.5.21(typescript@5.9.2)
-      vue-router: https://pkg.pr.new/vue-router@be1679c(vue@3.5.21(typescript@5.9.2))
+      vue-router: https://pkg.pr.new/vue-router@ecd1303(vue@3.5.21(typescript@5.9.2))
 
   vue-router@4.5.1(vue@3.5.21(typescript@5.9.2)):
     dependencies:
       '@vue/devtools-api': 6.6.4
       vue: 3.5.21(typescript@5.9.2)
 
-  vue-router@https://pkg.pr.new/vue-router@be1679c(vue@3.5.21(typescript@5.9.2)):
+  vue-router@https://pkg.pr.new/vue-router@ecd1303(vue@3.5.21(typescript@5.9.2)):
     dependencies:
       '@vue/devtools-api': 6.6.4
       vue: 3.5.21(typescript@5.9.2)

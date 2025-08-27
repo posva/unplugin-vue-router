@@ -260,6 +260,7 @@ export function generateRouteRecordPath({
     ${node.regexp},
     ${generatePathParamsOptions(params, importsMap, paramParsersMap)},
     ${JSON.stringify(node.matcherPatternPathDynamicParts)},
+    ${node.isSplat ? 'null,' : '/* trailingSlash */'}
   ),`
   } else {
     return `path: new MatcherPatternPathStatic('${node.fullPath}'),`

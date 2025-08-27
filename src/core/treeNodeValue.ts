@@ -306,6 +306,11 @@ export interface TreeQueryParam {
   defaultValue?: string
 }
 
+/**
+ * Checks if a TreePathParam or TreeQueryParam is optional.
+ *
+ * @internal
+ */
 export function isTreeParamOptional(
   param: TreePathParam | TreeQueryParam
 ): boolean {
@@ -313,6 +318,31 @@ export function isTreeParamOptional(
     return param.optional
   }
   return param.defaultValue !== undefined
+}
+
+/**
+ * Checks if a TreePathParam or TreeQueryParam is repeatable (array).
+ *
+ * @internal
+ */
+export function isTreeParamRepeatable(
+  param: TreePathParam | TreeQueryParam
+): boolean {
+  if ('repeatable' in param) {
+    return param.repeatable
+  }
+  return param.format === 'array'
+}
+
+/**
+ * Checks if a param is a TreePathParam.
+ *
+ * @internal
+ */
+export function isTreePathParam(
+  param: TreePathParam | TreeQueryParam
+): param is TreePathParam {
+  return 'modifier' in param
 }
 
 /**
