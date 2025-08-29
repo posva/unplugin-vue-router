@@ -314,20 +314,52 @@ export class TreeNode {
    * Generates a regexp based on this node and its parents. This regexp is used by the custom resolver
    */
   get regexp(): string {
-    let re = ''
     let node: TreeNode | undefined = this
-
-    while (node) {
-      if (node.value.isParam() && node.value.re) {
-        re = node.value.re + (re ? '\\/' : '') + re
-      } else {
-        re = escapeRegex(node.value.pathSegment) + (re ? '\\/' : '') + re
-      }
-
+    // we build the node list from parent to child
+    const nodeList: TreeNode[] = []
+    while (node && !node.isRoot()) {
+      nodeList.unshift(node)
       node = node.parent
     }
 
-    return '/^' + re + '$/i'
+    let re = ''
+    for (var i = 0; i < nodeList.length; i++) {
+      node = nodeList[i]!
+      if (node.value.isParam()) {
+        var nodeRe = node.value.re
+        // Ensure we add a connecting slash
+        // if we already have something in the regexp and if the only part of
+        // the segment is an optional param, then the / must be put inside the
+        // non-capturing group
+        if (
+          // if we have a segment before or after
+          (re || i < nodeList.length - 1) &&
+          // if the only part of the segment is an optional (can be repeatable) param
+          node.value.subSegments.length === 1 &&
+          (node.value.subSegments.at(0) as TreePathParam).optional
+        ) {
+          // TODO: tweak if trailingSlash
+          re += `(?:\\/${
+            // we remove the ? at the end because we add it later
+            nodeRe.slice(0, -1)
+          })?`
+        } else {
+          re += (re ? '\\/' : '') + nodeRe
+        }
+      } else {
+        re += (re ? '\\/' : '') + escapeRegex(node.value.pathSegment)
+      }
+    }
+
+    // TODO: trailingSlash
+    return (
+      '/^' +
+      // Avoid adding a leading slash if the first segment
+      // is an optional segment that already includes it
+      (re.startsWith('(?:\\/') ? '' : '\\/') +
+      re +
+      '$/i'
+    )
   }
 
   get score(): number[][] {
@@ -370,7 +402,7 @@ export class TreeNode {
       if (subSegments.length > 1) {
         parts.unshift(
           node.value.subSegments.map(
-            (segment) => (typeof segment === 'string' ? segment : 0) /* param */
+            (segment) => (typeof segment === 'string' ? segment : 1) /* param */
           )
         )
       } else if (subSegments.length === 1) {
