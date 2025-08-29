@@ -818,6 +818,100 @@ describe('generateRouteResolver', () => {
     `)
   })
 
+  it('generates correct nested layouts', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+    const importsMap = new ImportsMap()
+    tree.insert('a', 'a.vue')
+    tree.insert('a/(a-home)', 'a/(a-home).vue')
+    tree.insert('a/b', 'a/b.vue')
+    tree.insert('a/b/c', 'a/b/c.vue')
+    tree.insert('a/b/(b-home)', 'a/b/(b-home).vue')
+    tree.insert('a/d', 'a/d.vue')
+    tree.insert('a/b/e', 'a/b/e.vue')
+
+    const resolver = generateRouteResolver(
+      tree,
+      DEFAULT_OPTIONS,
+      importsMap,
+      new Map()
+    )
+
+    // FIXME: there are conflicting paths here. The order is correct as nested routes appear higher but
+    // it should appeand a trailing slash to the children route or the parent
+    // Adding it to the parent makes the routing stable but also inconsistent trailing slash
+    // I think it's better to not have a stable routing to preserve stable trailing slash
+
+    expect(resolver).toMatchInlineSnapshot(`
+      "
+      const r_0 = normalizeRouteRecord({
+        name: '/a',
+        path: new MatcherPatternPathStatic('/a'),
+        components: {
+          'default': () => import('a.vue')
+        },
+      })
+      const r_1 = normalizeRouteRecord({
+        name: '/a/(a-home)',
+        path: new MatcherPatternPathStatic('/a'),
+        components: {
+          'default': () => import('a/(a-home).vue')
+        },
+        parent: r_0,
+      })
+      const r_2 = normalizeRouteRecord({
+        name: '/a/b',
+        path: new MatcherPatternPathStatic('/a/b'),
+        components: {
+          'default': () => import('a/b.vue')
+        },
+        parent: r_0,
+      })
+      const r_3 = normalizeRouteRecord({
+        name: '/a/b/(b-home)',
+        path: new MatcherPatternPathStatic('/a/b'),
+        components: {
+          'default': () => import('a/b/(b-home).vue')
+        },
+        parent: r_2,
+      })
+      const r_4 = normalizeRouteRecord({
+        name: '/a/b/c',
+        path: new MatcherPatternPathStatic('/a/b/c'),
+        components: {
+          'default': () => import('a/b/c.vue')
+        },
+        parent: r_2,
+      })
+      const r_5 = normalizeRouteRecord({
+        name: '/a/b/e',
+        path: new MatcherPatternPathStatic('/a/b/e'),
+        components: {
+          'default': () => import('a/b/e.vue')
+        },
+        parent: r_2,
+      })
+      const r_6 = normalizeRouteRecord({
+        name: '/a/d',
+        path: new MatcherPatternPathStatic('/a/d'),
+        components: {
+          'default': () => import('a/d.vue')
+        },
+        parent: r_0,
+      })
+
+      export const resolver = createFixedResolver([
+        r_3,  // /a/b
+        r_4,  // /a/b/c
+        r_5,  // /a/b/e
+        r_1,  // /a
+        r_2,  // /a/b
+        r_6,  // /a/d
+        r_0,  // /a
+      ])
+      "
+    `)
+  })
+
   describe('route prioritization in resolver', () => {
     function getRouteOrderFromResolver(tree: PrefixTree): string[] {
       const resolver = generateRouteResolver(
