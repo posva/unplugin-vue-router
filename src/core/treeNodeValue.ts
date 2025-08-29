@@ -391,18 +391,28 @@ export class TreeNodeValueParam extends _TreeNodeValueBase {
   }
 
   get re(): string {
-    return this.subSegments
+    const paramRe = this.subSegments
       .filter(Boolean)
       .map((segment) => {
         if (typeof segment === 'string') {
           return escapeRegex(segment)
         }
-        return segment.isSplat
-          ? '(.*)'
-          : (segment.repeatable ? '(.+?)' : '([^/]+?)') +
-              (segment.optional ? '?' : '')
+
+        if (segment.isSplat) {
+          return '(.*)'
+        }
+
+        let re = segment.repeatable ? '(.+?)' : '([^/]+?)'
+
+        if (segment.optional) {
+          re += '?'
+        }
+
+        return re
       })
       .join('')
+
+    return paramRe
   }
 
   override toString(): string {

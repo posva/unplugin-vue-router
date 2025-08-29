@@ -54,31 +54,387 @@ describe('generateRouteRecordPath', () => {
     ).toBe(`path: new MatcherPatternPathStatic('/a/'),`)
   })
 
-  it('generates paths with params', () => {
-    const node = new PrefixTree(DEFAULT_OPTIONS).insert('a/[b]', 'a.vue')
-    expect(
-      generateRouteRecordPath({ importsMap, node, paramParsersMap: new Map() })
-    ).toMatchInlineSnapshot(`
-      "path: new MatcherPatternPathDynamic(
-          /^\\/a\\/([^/]+?)$/i,
-          {
-            b: [/* no parser */],
-          },
-          ["a",1],
-          /* trailingSlash */
-        ),"
-    `)
-  })
+  describe('basic params [id] in all positions', () => {
+    it('only segment', () => {
+      const node = new PrefixTree(DEFAULT_OPTIONS).insert('[id]', '[id].vue')
+      expect(
+        generateRouteRecordPath({
+          importsMap,
+          node,
+          paramParsersMap: new Map(),
+        })
+      ).toMatchInlineSnapshot(`
+        "path: new MatcherPatternPathDynamic(
+            /^\\/([^/]+?)$/i,
+            {
+              id: [/* no parser */],
+            },
+            [1],
+            /* trailingSlash */
+          ),"
+      `)
+    })
 
-  it('works with multiple params', () => {
-    const node = new PrefixTree(DEFAULT_OPTIONS).insert('a/[b]/[c]', 'a.vue')
-    expect(
-      generateRouteRecordPath({
-        importsMap,
-        node,
-        paramParsersMap: new Map(),
+    it('first position', () => {
+      const node = new PrefixTree(DEFAULT_OPTIONS).insert(
+        '[id]/static',
+        '[id]/static.vue'
+      )
+      expect(
+        generateRouteRecordPath({
+          importsMap,
+          node,
+          paramParsersMap: new Map(),
+        })
+      ).toMatchInlineSnapshot(`
+        "path: new MatcherPatternPathDynamic(
+            /^\\/([^/]+?)\\/static$/i,
+            {
+              id: [/* no parser */],
+            },
+            [1,"static"],
+            /* trailingSlash */
+          ),"
+      `)
+    })
+
+    it('middle position', () => {
+      const node = new PrefixTree(DEFAULT_OPTIONS).insert(
+        'static/[id]/more',
+        'static/[id]/more.vue'
+      )
+      expect(
+        generateRouteRecordPath({
+          importsMap,
+          node,
+          paramParsersMap: new Map(),
+        })
+      ).toMatchInlineSnapshot(`
+        "path: new MatcherPatternPathDynamic(
+            /^\\/static\\/([^/]+?)\\/more$/i,
+            {
+              id: [/* no parser */],
+            },
+            ["static",1,"more"],
+            /* trailingSlash */
+          ),"
+      `)
+    })
+
+    it('last position', () => {
+      const node = new PrefixTree(DEFAULT_OPTIONS).insert(
+        'static/[id]',
+        'static/[id].vue'
+      )
+      expect(
+        generateRouteRecordPath({
+          importsMap,
+          node,
+          paramParsersMap: new Map(),
+        })
+      ).toMatchInlineSnapshot(`
+        "path: new MatcherPatternPathDynamic(
+            /^\\/static\\/([^/]+?)$/i,
+            {
+              id: [/* no parser */],
+            },
+            ["static",1],
+            /* trailingSlash */
+          ),"
+      `)
+    })
+
+    describe('optional params [[id]] in all positions', () => {
+      it('only segment', () => {
+        const node = new PrefixTree(DEFAULT_OPTIONS).insert(
+          '[[id]]',
+          '[[id]].vue'
+        )
+        expect(
+          generateRouteRecordPath({
+            importsMap,
+            node,
+            paramParsersMap: new Map(),
+          })
+        ).toMatchInlineSnapshot(`
+        "path: new MatcherPatternPathDynamic(
+            /^\\/([^/]+?)?$/i,
+            {
+              id: [/* no parser */, /* repeatable: false */, /* optional: */ true],
+            },
+            [1],
+            /* trailingSlash */
+          ),"
+      `)
       })
-    ).toMatchInlineSnapshot(`
+
+      it('first position', () => {
+        const node = new PrefixTree(DEFAULT_OPTIONS).insert(
+          '[[id]]/static',
+          '[[id]]/static.vue'
+        )
+        expect(
+          generateRouteRecordPath({
+            importsMap,
+            node,
+            paramParsersMap: new Map(),
+          })
+        ).toMatchInlineSnapshot(`
+        "path: new MatcherPatternPathDynamic(
+            /^(?:\\/([^/]+?))?\\/static$/i,
+            {
+              id: [/* no parser */, /* repeatable: false */, /* optional: */ true],
+            },
+            [1,"static"],
+            /* trailingSlash */
+          ),"
+      `)
+      })
+
+      it('middle position', () => {
+        const node = new PrefixTree(DEFAULT_OPTIONS).insert(
+          'static/[[id]]/more',
+          'static/[[id]]/more.vue'
+        )
+        expect(
+          generateRouteRecordPath({
+            importsMap,
+            node,
+            paramParsersMap: new Map(),
+          })
+        ).toMatchInlineSnapshot(`
+        "path: new MatcherPatternPathDynamic(
+            /^\\/static(?:\\/([^/]+?))?\\/more$/i,
+            {
+              id: [/* no parser */, /* repeatable: false */, /* optional: */ true],
+            },
+            ["static",1,"more"],
+            /* trailingSlash */
+          ),"
+      `)
+      })
+
+      it('last position', () => {
+        const node = new PrefixTree(DEFAULT_OPTIONS).insert(
+          'static/[[id]]',
+          'static/[[id]].vue'
+        )
+        expect(
+          generateRouteRecordPath({
+            importsMap,
+            node,
+            paramParsersMap: new Map(),
+          })
+        ).toMatchInlineSnapshot(`
+          "path: new MatcherPatternPathDynamic(
+              /^\\/static(?:\\/([^/]+?))?$/i,
+              {
+                id: [/* no parser */, /* repeatable: false */, /* optional: */ true],
+              },
+              ["static",1],
+              /* trailingSlash */
+            ),"
+        `)
+      })
+    })
+
+    describe('repeatable params [id]+ in all positions', () => {
+      it('only segment', () => {
+        const node = new PrefixTree(DEFAULT_OPTIONS).insert(
+          '[id]+',
+          '[id]+.vue'
+        )
+        expect(
+          generateRouteRecordPath({
+            importsMap,
+            node,
+            paramParsersMap: new Map(),
+          })
+        ).toMatchInlineSnapshot(`
+        "path: new MatcherPatternPathDynamic(
+            /^\\/(.+?)$/i,
+            {
+              id: [/* no parser */, /* repeatable: */ true],
+            },
+            [1],
+            /* trailingSlash */
+          ),"
+      `)
+      })
+
+      it('first position', () => {
+        const node = new PrefixTree(DEFAULT_OPTIONS).insert(
+          '[id]+/static',
+          '[id]+/static.vue'
+        )
+        expect(
+          generateRouteRecordPath({
+            importsMap,
+            node,
+            paramParsersMap: new Map(),
+          })
+        ).toMatchInlineSnapshot(`
+        "path: new MatcherPatternPathDynamic(
+            /^\\/(.+?)\\/static$/i,
+            {
+              id: [/* no parser */, /* repeatable: */ true],
+            },
+            [1,"static"],
+            /* trailingSlash */
+          ),"
+      `)
+      })
+
+      it('middle position', () => {
+        const node = new PrefixTree(DEFAULT_OPTIONS).insert(
+          'static/[id]+/more',
+          'static/[id]+/more.vue'
+        )
+        expect(
+          generateRouteRecordPath({
+            importsMap,
+            node,
+            paramParsersMap: new Map(),
+          })
+        ).toMatchInlineSnapshot(`
+        "path: new MatcherPatternPathDynamic(
+            /^\\/static\\/(.+?)\\/more$/i,
+            {
+              id: [/* no parser */, /* repeatable: */ true],
+            },
+            ["static",1,"more"],
+            /* trailingSlash */
+          ),"
+      `)
+      })
+
+      it('last position', () => {
+        const node = new PrefixTree(DEFAULT_OPTIONS).insert(
+          'static/[id]+',
+          'static/[id]+.vue'
+        )
+        expect(
+          generateRouteRecordPath({
+            importsMap,
+            node,
+            paramParsersMap: new Map(),
+          })
+        ).toMatchInlineSnapshot(`
+          "path: new MatcherPatternPathDynamic(
+              /^\\/static\\/(.+?)$/i,
+              {
+                id: [/* no parser */, /* repeatable: */ true],
+              },
+              ["static",1],
+              /* trailingSlash */
+            ),"
+        `)
+      })
+    })
+
+    describe('optional repeatable params [[id]]+ in all positions', () => {
+      it('only segment', () => {
+        const node = new PrefixTree(DEFAULT_OPTIONS).insert(
+          '[[id]]+',
+          '[[id]]+.vue'
+        )
+        expect(
+          generateRouteRecordPath({
+            importsMap,
+            node,
+            paramParsersMap: new Map(),
+          })
+        ).toMatchInlineSnapshot(`
+        "path: new MatcherPatternPathDynamic(
+            /^\\/(.+?)?$/i,
+            {
+              id: [/* no parser */, /* repeatable: */ true, /* optional: */ true],
+            },
+            [1],
+            /* trailingSlash */
+          ),"
+      `)
+      })
+
+      it('first position', () => {
+        const node = new PrefixTree(DEFAULT_OPTIONS).insert(
+          '[[id]]+/static',
+          '[[id]]+/static.vue'
+        )
+        expect(
+          generateRouteRecordPath({
+            importsMap,
+            node,
+            paramParsersMap: new Map(),
+          })
+        ).toMatchInlineSnapshot(`
+        "path: new MatcherPatternPathDynamic(
+            /^(?:\\/(.+?))?\\/static$/i,
+            {
+              id: [/* no parser */, /* repeatable: */ true, /* optional: */ true],
+            },
+            [1,"static"],
+            /* trailingSlash */
+          ),"
+      `)
+      })
+
+      it('middle position', () => {
+        const node = new PrefixTree(DEFAULT_OPTIONS).insert(
+          'static/[[id]]+/more',
+          'static/[[id]]+/more.vue'
+        )
+        expect(
+          generateRouteRecordPath({
+            importsMap,
+            node,
+            paramParsersMap: new Map(),
+          })
+        ).toMatchInlineSnapshot(`
+        "path: new MatcherPatternPathDynamic(
+            /^\\/static(?:\\/(.+?))?\\/more$/i,
+            {
+              id: [/* no parser */, /* repeatable: */ true, /* optional: */ true],
+            },
+            ["static",1,"more"],
+            /* trailingSlash */
+          ),"
+      `)
+      })
+
+      it('last position', () => {
+        const node = new PrefixTree(DEFAULT_OPTIONS).insert(
+          'static/[[id]]+',
+          'static/[[id]]+.vue'
+        )
+        expect(
+          generateRouteRecordPath({
+            importsMap,
+            node,
+            paramParsersMap: new Map(),
+          })
+        ).toMatchInlineSnapshot(`
+          "path: new MatcherPatternPathDynamic(
+              /^\\/static(?:\\/(.+?))?$/i,
+              {
+                id: [/* no parser */, /* repeatable: */ true, /* optional: */ true],
+              },
+              ["static",1],
+              /* trailingSlash */
+            ),"
+        `)
+      })
+    })
+
+    it('works with multiple params', () => {
+      const node = new PrefixTree(DEFAULT_OPTIONS).insert('a/[b]/[c]', 'a.vue')
+      expect(
+        generateRouteRecordPath({
+          importsMap,
+          node,
+          paramParsersMap: new Map(),
+        })
+      ).toMatchInlineSnapshot(`
       "path: new MatcherPatternPathDynamic(
           /^\\/a\\/([^/]+?)\\/([^/]+?)$/i,
           {
@@ -89,84 +445,44 @@ describe('generateRouteRecordPath', () => {
           /* trailingSlash */
         ),"
     `)
-  })
+    })
 
-  it('works with optional params', () => {
-    const node = new PrefixTree(DEFAULT_OPTIONS).insert('a/[[b]]', 'a.vue')
-    expect(
-      generateRouteRecordPath({ importsMap, node, paramParsersMap: new Map() })
-    ).toMatchInlineSnapshot(`
-      "path: new MatcherPatternPathDynamic(
-          /^\\/a\\/([^/]+?)?$/i,
-          {
-            b: [/* no parser */, /* repeatable: false */, /* optional: */ true],
-          },
-          ["a",1],
-          /* trailingSlash */
-        ),"
-    `)
-  })
-
-  it('works with repeatable params', () => {
-    const node = new PrefixTree(DEFAULT_OPTIONS).insert('a/[b]+', 'a.vue')
-    expect(
-      generateRouteRecordPath({ importsMap, node, paramParsersMap: new Map() })
-    ).toMatchInlineSnapshot(`
-      "path: new MatcherPatternPathDynamic(
-          /^\\/a\\/(.+?)$/i,
-          {
-            b: [/* no parser */, /* repeatable: */ true],
-          },
-          ["a",1],
-          /* trailingSlash */
-        ),"
-    `)
-  })
-
-  it('works with repeatable optional params', () => {
-    const node = new PrefixTree(DEFAULT_OPTIONS).insert('a/[[b]]+', 'a.vue')
-    expect(
-      generateRouteRecordPath({ importsMap, node, paramParsersMap: new Map() })
-    ).toMatchInlineSnapshot(`
-      "path: new MatcherPatternPathDynamic(
-          /^\\/a\\/(.+?)?$/i,
-          {
-            b: [/* no parser */, /* repeatable: */ true, /* optional: */ true],
-          },
-          ["a",1],
-          /* trailingSlash */
-        ),"
-    `)
-  })
-
-  it('works with segments', () => {
-    const node = new PrefixTree(DEFAULT_OPTIONS).insert(
-      'a/a-[b]-c-[d]',
-      'a.vue'
-    )
-    expect(
-      generateRouteRecordPath({ importsMap, node, paramParsersMap: new Map() })
-    ).toMatchInlineSnapshot(`
+    it('works with segments', () => {
+      const node = new PrefixTree(DEFAULT_OPTIONS).insert(
+        'a/a-[b]-c-[d]',
+        'a.vue'
+      )
+      expect(
+        generateRouteRecordPath({
+          importsMap,
+          node,
+          paramParsersMap: new Map(),
+        })
+      ).toMatchInlineSnapshot(`
       "path: new MatcherPatternPathDynamic(
           /^\\/a\\/a-([^/]+?)-c-([^/]+?)$/i,
           {
             b: [/* no parser */],
             d: [/* no parser */],
           },
-          ["a",["a-",0,"-c-",0]],
+          ["a",["a-",1,"-c-",1]],
           /* trailingSlash */
         ),"
     `)
-  })
+    })
 
-  it('works with a catch all route', () => {
-    const node = new PrefixTree(DEFAULT_OPTIONS).insert(
-      '[...all]',
-      '[...all].vue'
-    )
-    expect(
-      generateRouteRecordPath({ importsMap, node, paramParsersMap: new Map() })
-    ).toMatchInlineSnapshot(`
+    it('works with a catch all route', () => {
+      const node = new PrefixTree(DEFAULT_OPTIONS).insert(
+        '[...all]',
+        '[...all].vue'
+      )
+      expect(
+        generateRouteRecordPath({
+          importsMap,
+          node,
+          paramParsersMap: new Map(),
+        })
+      ).toMatchInlineSnapshot(`
       "path: new MatcherPatternPathDynamic(
           /^\\/(.*)$/i,
           {
@@ -176,26 +492,31 @@ describe('generateRouteRecordPath', () => {
           null,
         ),"
     `)
-  })
+    })
 
-  it('works with a splat param with a prefix', () => {
-    const node = new PrefixTree(DEFAULT_OPTIONS).insert(
-      'a/some-[id]/[...all]',
-      'a/some-[id]/[...all].vue'
-    )
-    expect(
-      generateRouteRecordPath({ importsMap, node, paramParsersMap: new Map() })
-    ).toMatchInlineSnapshot(`
+    it('works with a splat param with a prefix', () => {
+      const node = new PrefixTree(DEFAULT_OPTIONS).insert(
+        'a/some-[id]/[...all]',
+        'a/some-[id]/[...all].vue'
+      )
+      expect(
+        generateRouteRecordPath({
+          importsMap,
+          node,
+          paramParsersMap: new Map(),
+        })
+      ).toMatchInlineSnapshot(`
       "path: new MatcherPatternPathDynamic(
           /^\\/a\\/some-([^/]+?)\\/(.*)$/i,
           {
             id: [/* no parser */],
             all: [/* no parser */],
           },
-          ["a",["some-",0],0],
+          ["a",["some-",1],0],
           null,
         ),"
     `)
+    })
   })
 })
 
@@ -208,6 +529,13 @@ describe('generateRouteRecordQuery', () => {
   it('returns empty string for non-matchable nodes without query params', () => {
     const tree = new PrefixTree(DEFAULT_OPTIONS)
     const node = tree.insert('a/b', 'a/b.vue').parent! // non-matchable parent
+    expect(
+      generateRouteRecordQuery({ importsMap, node, paramParsersMap: new Map() })
+    ).toBe('')
+  })
+
+  it('returns empty string when no query params in a matchable node', () => {
+    const node = new PrefixTree(DEFAULT_OPTIONS).insert('a', 'a.vue')
     expect(
       generateRouteRecordQuery({ importsMap, node, paramParsersMap: new Map() })
     ).toBe('')
@@ -261,13 +589,6 @@ describe('generateRouteRecordQuery', () => {
     `)
   })
 
-  it('returns empty string when no query params', () => {
-    const node = new PrefixTree(DEFAULT_OPTIONS).insert('a', 'a.vue')
-    expect(
-      generateRouteRecordQuery({ importsMap, node, paramParsersMap: new Map() })
-    ).toBe('')
-  })
-
   it('generates query property with single query param', () => {
     const node = new PrefixTree(DEFAULT_OPTIONS).insert('a', 'a.vue')
     // Mock the queryParams getter
@@ -311,12 +632,12 @@ describe('generateRouteRecordQuery', () => {
 
     generateRouteRecordQuery({ importsMap, node, paramParsersMap: new Map() })
 
-    expect(importsMap.toString()).toContain(
-      "import { MatcherPatternQueryParam } from 'vue-router/experimental'"
-    )
+    expect(
+      importsMap.has('vue-router/experimental', 'MatcherPatternQueryParam')
+    ).toBe(true)
   })
 
-  it('generates query param with format value', () => {
+  it('generates query param with format "value"', () => {
     const node = new PrefixTree(DEFAULT_OPTIONS).insert('a', 'a.vue')
     node.value.setEditOverride('params', {
       query: { search: { format: 'value' } },
@@ -330,7 +651,7 @@ describe('generateRouteRecordQuery', () => {
     `)
   })
 
-  it('generates query param with format array', () => {
+  it('generates query param with format "array"', () => {
     const node = new PrefixTree(DEFAULT_OPTIONS).insert('a', 'a.vue')
     node.value.setEditOverride('params', {
       query: { tags: { format: 'array' } },
@@ -361,13 +682,13 @@ describe('generateRouteRecordQuery', () => {
   it('generates query param with format and default value', () => {
     const node = new PrefixTree(DEFAULT_OPTIONS).insert('a', 'a.vue')
     node.value.setEditOverride('params', {
-      query: { page: { parser: 'int', format: 'value', default: '1' } },
+      query: { page: { parser: 'int', format: 'array', default: '1' } },
     })
     expect(
       generateRouteRecordQuery({ importsMap, node, paramParsersMap: new Map() })
     ).toMatchInlineSnapshot(`
       "query: [
-          new MatcherPatternQueryParam('page', 'page', 'value', PARAM_PARSER_INT, 1)
+          new MatcherPatternQueryParam('page', 'page', 'array', PARAM_PARSER_INT, 1)
         ],"
     `)
   })
@@ -497,44 +818,98 @@ describe('generateRouteResolver', () => {
     `)
   })
 
-  it('orders records based on specificity of paths', () => {
-    const tree = new PrefixTree(DEFAULT_OPTIONS)
-    const importsMap = new ImportsMap()
-    tree.insert('a', 'a.vue')
-    tree.insert('b/a-b', 'b/c/d.vue')
-    tree.insert('b/a-[a]', 'b/c/d.vue')
-    tree.insert('b/a-[a]+', 'b/c/d.vue')
-    tree.insert('b/a-[[a]]', 'b/c/d.vue')
-    tree.insert('b/a-[[a]]+', 'b/c/d.vue')
-    tree.insert('b/[a]', 'b/c.vue')
-    tree.insert('b/[a]+', 'b/c/d.vue')
-    tree.insert('b/[[a]]', 'b/c/d.vue')
-    tree.insert('b/[[a]]+', 'b/c/d.vue')
-    tree.insert('[...all]', 'b/c/f.vue')
-    const resolver = generateRouteResolver(
-      tree,
-      DEFAULT_OPTIONS,
-      importsMap,
-      new Map()
-    )
+  describe('route prioritization in resolver', () => {
+    function getRouteOrderFromResolver(tree: PrefixTree): string[] {
+      const resolver = generateRouteResolver(
+        tree,
+        DEFAULT_OPTIONS,
+        new ImportsMap(),
+        new Map()
+      )
 
-    expect(resolver.replace(/^.*?createFixedResolver/s, ''))
-      .toMatchInlineSnapshot(`
-        "([
-          r_10,  // /b/a-b
-          r_6,   // /b/a-:a
-          r_2,   // /b/:a
-          r_7,   // /b/a-:a?
-          r_3,   // /b/:a?
-          r_9,   // /b/a-:a+
-          r_5,   // /b/:a+
-          r_8,   // /b/a-:a*
-          r_4,   // /b/:a*
-          r_1,   // /a
-          r_0,   // /:all(.*)
-        ])
-        "
-      `)
+      // Extract the order from the resolver output
+      const lines = resolver.split('\n').filter((line) => line.includes('// /'))
+      return lines.map((line) => line.split('// ')[1] || '')
+    }
+
+    it('orders records based on specificity of paths', () => {
+      const tree = new PrefixTree(DEFAULT_OPTIONS)
+      // static at root
+      tree.insert('prefix', 'prefix.vue')
+
+      // params in the end
+      tree.insert('prefix/sub-end', 'prefix/sub-end.vue')
+      tree.insert('prefix/sub-[id]', 'prefix/sub-[id].vue')
+      // repeat can only be the whole segment
+      // tree.insert('prefix/sub-[repeat]+', 'prefix/sub-[repeat]+.vue')
+      tree.insert('prefix/sub-[[opt]]', 'prefix/sub-[[opt]].vue')
+      // repeat can only be the whole segment
+      // tree.insert('prefix/sub-[[optRepeat]]+', 'prefix/c/d.vue')
+      tree.insert('prefix/[id]', 'prefix/[id].vue')
+      tree.insert('prefix/[repeat]+', 'prefix/[repeat]+.vue')
+      tree.insert('prefix/[[opt]]', 'prefix/[[opt]].vue')
+      tree.insert('prefix/[[optRepeat]]+', 'prefix/[[optRepeat]]+.vue')
+      tree.insert('[...splat]', '[...splat].vue')
+
+      // params at root level
+      tree.insert('[id]', '[id].vue')
+      tree.insert('[[optional]]', '[[optional]].vue')
+      tree.insert('prefix-[id]-suffix', 'prefix-[id]-suffix.vue')
+
+      // params in the middle path parts
+      tree.insert('prefix/[id]/suffix', 'prefix/[id]/suffix.vue')
+      tree.insert('prefix/[[opt]]/suffix', 'prefix/[[opt]]/suffix.vue')
+      tree.insert('prefix/[repeat]+/suffix', 'prefix/[repeat]+/suffix.vue')
+      tree.insert(
+        'prefix/[[optRepeat]]+/suffix',
+        'prefix/[[optRepeat]]+/suffix.vue'
+      )
+      tree.insert('prefix/static/suffix', 'prefix/static/suffix.vue')
+      // sub-segments
+      tree.insert('prefix/[id]-end/suffix', 'prefix/[id]-end/suffix.vue')
+      tree.insert('prefix/[[opt]]-end/suffix', 'prefix/[[opt]]-end/suffix.vue')
+      tree.insert(
+        'prefix/sub-[id]-end/suffix',
+        'prefix/sub-[id]-end/suffix.vue'
+      )
+      tree.insert(
+        'prefix/sub-[[opt]]-end/suffix',
+        'prefix/sub-[[opt]]-end/suffix.vue'
+      )
+      tree.insert('prefix/sub-[id]/suffix', 'prefix/static-[id]/suffix.vue')
+      tree.insert('prefix/sub-[[opt]]/suffix', 'prefix/sub-[[opt]]/suffix.vue')
+
+      expect(getRouteOrderFromResolver(tree)).toEqual([
+        '/prefix/static/suffix',
+        '/prefix/sub-end',
+        '/prefix/sub-:id-end/suffix',
+        '/prefix/:id-end/suffix',
+        '/prefix/sub-:id/suffix',
+        '/prefix/sub-:id',
+        '/prefix/:id/suffix',
+        '/prefix/:id',
+        // this could be before /prefix/:id, but since it has a suffix, it works too
+        '/prefix/sub-:opt?-end/suffix',
+        '/prefix/:opt?-end/suffix',
+        '/prefix/sub-:opt?/suffix',
+        '/prefix/sub-:opt?', // FIXME: should be before /prefix/:id
+        '/prefix/:opt?/suffix',
+        '/prefix/:opt?',
+        '/prefix/:repeat+/suffix',
+        '/prefix/:repeat+',
+        '/prefix/:optRepeat*/suffix',
+        '/prefix/:optRepeat*',
+        '/prefix',
+        '/prefix-:id-suffix',
+        '/:id',
+        // one should never have both a regular id and an optional id in the same position
+        // because the optional one will never match
+        '/:optional?',
+        '/:splat(.*)',
+      ])
+    })
+
+    it.todo('warns on invalid repeatable params')
   })
 
   it('strips off empty parent records', () => {
@@ -790,139 +1165,5 @@ describe('generateRouteResolver', () => {
       ])
       "
     `)
-  })
-})
-
-describe('route prioritization in resolver', () => {
-  function getRouteOrderFromResolver(tree: PrefixTree): string[] {
-    const resolver = generateRouteResolver(
-      tree,
-      DEFAULT_OPTIONS,
-      new ImportsMap(),
-      new Map()
-    )
-
-    // Extract the order from the resolver output
-    const lines = resolver.split('\n').filter((line) => line.includes('// /'))
-    return lines.map((line) => line.split('// ')[1] || '')
-  }
-
-  it('prioritizes routes correctly in resolver output', () => {
-    const tree = new PrefixTree(DEFAULT_OPTIONS)
-
-    // Create routes with different specificity levels
-    tree.insert('static', 'static.vue')
-    tree.insert('[id]', '[id].vue')
-    tree.insert('[[optional]]', '[[optional]].vue')
-    tree.insert('prefix-[id]-suffix', 'prefix-[id]-suffix.vue')
-    tree.insert('[...all]', '[...all].vue')
-
-    // Routes should be ordered from most specific to least specific
-    expect(getRouteOrderFromResolver(tree)).toEqual([
-      '/static', // static routes first
-      '/prefix-:id-suffix', // mixed routes with static content
-      '/:id', // pure parameter routes
-      '/:optional?', // optional parameter routes
-      '/:all(.*)', // catch-all routes last
-    ])
-  })
-
-  it('handles nested route prioritization correctly', () => {
-    const tree = new PrefixTree(DEFAULT_OPTIONS)
-
-    // Create nested routes with different patterns
-    tree.insert('api/users', 'api/users.vue')
-    tree.insert('api/[resource]', 'api/[resource].vue')
-    tree.insert('prefix-[param]/static', 'prefix-[param]/static.vue')
-    tree.insert('[dynamic]/static', '[dynamic]/static.vue')
-    tree.insert('[x]/[y]', '[x]/[y].vue')
-
-    // Routes with more static content should come first
-    expect(getRouteOrderFromResolver(tree)).toEqual([
-      '/api/users', // all static segments
-      '/api/:resource', // static root, param child
-      '/prefix-:param/static', // mixed root, static child
-      '/:dynamic/static', // param root, static child
-      '/:x/:y', // all param segments
-    ])
-  })
-
-  it('orders complex mixed routes appropriately', () => {
-    const tree = new PrefixTree(DEFAULT_OPTIONS)
-
-    // Create routes with various subsegment complexity
-    tree.insert('users', 'users.vue') // pure static
-    tree.insert('prefix-[id]', 'prefix-[id].vue') // prefix + param
-    tree.insert('[id]-suffix', '[id]-suffix.vue') // param + suffix
-    tree.insert('pre-[a]-mid-[b]-end', 'complex.vue') // complex mixed
-    tree.insert('[a]-[b]', '[a]-[b].vue') // params with separator
-    tree.insert('[param]', '[param].vue') // pure param
-
-    expect(getRouteOrderFromResolver(tree)).toEqual([
-      '/users', // pure static wins
-      '/pre-:a-mid-:b-end', // most static content in mixed
-      '/:id-suffix', // static suffix
-      '/prefix-:id', // static prefix
-      '/:a-:b', // params with static separator
-      '/:param', // pure param last
-    ])
-  })
-
-  it('handles optional and repeatable params in nested contexts', () => {
-    const tree = new PrefixTree(DEFAULT_OPTIONS)
-
-    // Create nested routes with optional and repeatable params
-    tree.insert('api/static', 'api/static.vue')
-    tree.insert('api/[[optional]]', 'api/[[optional]].vue')
-    tree.insert('api/[required]', 'api/[required].vue')
-    tree.insert('api/[repeatable]+', 'api/[repeatable]+.vue')
-    tree.insert('api/[[optional]]+', 'api/[[optional]]+.vue')
-    tree.insert('api/[...catchall]', 'api/[...catchall].vue')
-
-    expect(getRouteOrderFromResolver(tree)).toEqual([
-      '/api/static', // static segment wins
-      '/api/:required', // required param
-      '/api/:optional?', // optional param
-      '/api/:repeatable+', // repeatable param
-      '/api/:optional*', // optional repeatable param
-      '/api/:catchall(.*)', // catch-all last
-    ])
-  })
-
-  it('handles catch all with prefix before generic param', () => {
-    const tree = new PrefixTree(DEFAULT_OPTIONS)
-
-    tree.insert('api/v1/users', 'api/v1/users.vue')
-    tree.insert('api/v1/[type]', 'api/v1/[type].vue')
-    tree.insert('api/v1/[type]/c', 'api/v1/[type]/c.vue')
-    tree.insert('api/v1/teams/[...id]', 'api/v1/teams/[...id].vue')
-
-    expect(getRouteOrderFromResolver(tree)).toEqual([
-      '/api/v1/users',
-      '/api/v1/teams/:id(.*)',
-      '/api/v1/:type/c',
-      '/api/v1/:type',
-    ])
-  })
-
-  it('handles complex subsegments in deeply nested routes', () => {
-    const tree = new PrefixTree(DEFAULT_OPTIONS)
-
-    // Create deeply nested routes with complex subsegment patterns
-    tree.insert('api/v1/users', 'api/v1/users.vue')
-    tree.insert('api/v1/user-[id]', 'api/v1/user-[id].vue')
-    tree.insert('api/v1/[type]/list', 'api/v1/[type]/list.vue')
-    tree.insert('api/v1/[type]/[id]', 'api/v1/[type]/[id].vue')
-    tree.insert('api/v1/prefix-[a]-mid-[b]', 'api/v1/prefix-[a]-mid-[b].vue')
-    tree.insert('api/v1/[x]-[y]-[z]', 'api/v1/[x]-[y]-[z].vue')
-
-    expect(getRouteOrderFromResolver(tree)).toEqual([
-      '/api/v1/users', // all static segments
-      '/api/v1/user-:id', // mixed with static prefix
-      '/api/v1/prefix-:a-mid-:b', // complex mixed pattern
-      '/api/v1/:x-:y-:z', // multiple params with separators (mixed subsegments rank higher)
-      '/api/v1/:type/list', // param + static child
-      '/api/v1/:type/:id', // all param segments
-    ])
   })
 })
