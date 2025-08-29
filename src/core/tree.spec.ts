@@ -651,6 +651,223 @@ describe('Tree', () => {
     expect(`"(home" is missing the closing ")"`).toHaveBeenWarned()
   })
 
+  describe('path regexp', () => {
+    it('generates static paths', () => {
+      const node = new PrefixTree(RESOLVED_OPTIONS).insert('a', 'a.vue')
+      expect(node.regexp).toBe('/^\\/a$/i')
+    })
+
+    it('works with multiple segments', () => {
+      const node = new PrefixTree(RESOLVED_OPTIONS).insert('a/b/c', 'a/b/c.vue')
+      expect(node.regexp).toBe('/^\\/a\\/b\\/c$/i')
+    })
+
+    describe('basic params [id] in all positions', () => {
+      it('only segment', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert('[id]', '[id].vue')
+        expect(node.regexp).toBe('/^\\/([^/]+?)$/i')
+        expect(node.matcherPatternPathDynamicParts).toEqual([1])
+      })
+
+      it('first position', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          '[id]/static',
+          '[id]/static.vue'
+        )
+        expect(node.regexp).toBe('/^\\/([^/]+?)\\/static$/i')
+        expect(node.matcherPatternPathDynamicParts).toEqual([1, 'static'])
+      })
+
+      it('middle position', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          'static/[id]/more',
+          'static/[id]/more.vue'
+        )
+        expect(node.regexp).toBe('/^\\/static\\/([^/]+?)\\/more$/i')
+        expect(node.matcherPatternPathDynamicParts).toEqual([
+          'static',
+          1,
+          'more',
+        ])
+      })
+
+      it('last position', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          'static/[id]',
+          'static/[id].vue'
+        )
+        expect(node.regexp).toBe('/^\\/static\\/([^/]+?)$/i')
+        expect(node.matcherPatternPathDynamicParts).toEqual(['static', 1])
+      })
+    })
+
+    describe('optional params [[id]] in all positions', () => {
+      it('only segment', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          '[[id]]',
+          '[[id]].vue'
+        )
+        expect(node.regexp).toBe('/^\\/([^/]+?)?$/i')
+        expect(node.matcherPatternPathDynamicParts).toEqual([1])
+      })
+
+      it('first position', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          '[[id]]/static',
+          '[[id]]/static.vue'
+        )
+        expect(node.regexp).toBe('/^(?:\\/([^/]+?))?\\/static$/i')
+        expect(node.matcherPatternPathDynamicParts).toEqual([1, 'static'])
+      })
+
+      it('middle position', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          'static/[[id]]/more',
+          'static/[[id]]/more.vue'
+        )
+        expect(node.regexp).toBe('/^\\/static(?:\\/([^/]+?))?\\/more$/i')
+        expect(node.matcherPatternPathDynamicParts).toEqual([
+          'static',
+          1,
+          'more',
+        ])
+      })
+
+      it('last position', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          'static/[[id]]',
+          'static/[[id]].vue'
+        )
+        expect(node.regexp).toBe('/^\\/static(?:\\/([^/]+?))?$/i')
+        expect(node.matcherPatternPathDynamicParts).toEqual(['static', 1])
+      })
+    })
+
+    describe('repeatable params [id]+ in all positions', () => {
+      it('only segment', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          '[id]+',
+          '[id]+.vue'
+        )
+        expect(node.regexp).toBe('/^\\/(.+?)$/i')
+        expect(node.matcherPatternPathDynamicParts).toEqual([1])
+      })
+
+      it('first position', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          '[id]+/static',
+          '[id]+/static.vue'
+        )
+        expect(node.regexp).toBe('/^\\/(.+?)\\/static$/i')
+        expect(node.matcherPatternPathDynamicParts).toEqual([1, 'static'])
+      })
+
+      it('middle position', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          'static/[id]+/more',
+          'static/[id]+/more.vue'
+        )
+        expect(node.regexp).toBe('/^\\/static\\/(.+?)\\/more$/i')
+        expect(node.matcherPatternPathDynamicParts).toEqual([
+          'static',
+          1,
+          'more',
+        ])
+      })
+
+      it('last position', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          'static/[id]+',
+          'static/[id]+.vue'
+        )
+        expect(node.regexp).toBe('/^\\/static\\/(.+?)$/i')
+        expect(node.matcherPatternPathDynamicParts).toEqual(['static', 1])
+      })
+    })
+
+    describe('optional repeatable params [[id]]+ in all positions', () => {
+      it('only segment', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          '[[id]]+',
+          '[[id]]+.vue'
+        )
+        expect(node.regexp).toBe('/^\\/(.+?)?$/i')
+        expect(node.matcherPatternPathDynamicParts).toEqual([1])
+      })
+
+      it('first position', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          '[[id]]+/static',
+          '[[id]]+/static.vue'
+        )
+        expect(node.regexp).toBe('/^(?:\\/(.+?))?\\/static$/i')
+        expect(node.matcherPatternPathDynamicParts).toEqual([1, 'static'])
+      })
+
+      it('middle position', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          'static/[[id]]+/more',
+          'static/[[id]]+/more.vue'
+        )
+        expect(node.regexp).toBe('/^\\/static(?:\\/(.+?))?\\/more$/i')
+        expect(node.matcherPatternPathDynamicParts).toEqual([
+          'static',
+          1,
+          'more',
+        ])
+      })
+
+      it('last position', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          'static/[[id]]+',
+          'static/[[id]]+.vue'
+        )
+        expect(node.regexp).toBe('/^\\/static(?:\\/(.+?))?$/i')
+        expect(node.matcherPatternPathDynamicParts).toEqual(['static', 1])
+      })
+    })
+
+    it('works with multiple params', () => {
+      const node = new PrefixTree(RESOLVED_OPTIONS).insert('a/[b]/[c]', 'a.vue')
+      expect(node.regexp).toBe('/^\\/a\\/([^/]+?)\\/([^/]+?)$/i')
+      expect(node.matcherPatternPathDynamicParts).toEqual(['a', 1, 1])
+    })
+
+    it('works with segments', () => {
+      const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+        'a/a-[b]-c-[d]',
+        'a.vue'
+      )
+      expect(node.regexp).toBe('/^\\/a\\/a-([^/]+?)-c-([^/]+?)$/i')
+      expect(node.matcherPatternPathDynamicParts).toEqual([
+        'a',
+        ['a-', 1, '-c-', 1],
+      ])
+    })
+
+    it('works with a catch all route', () => {
+      const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+        '[...all]',
+        '[...all].vue'
+      )
+      expect(node.regexp).toBe('/^\\/(.*)$/i')
+      expect(node.matcherPatternPathDynamicParts).toEqual([0])
+    })
+
+    it('works with a splat param with a prefix', () => {
+      const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+        'a/some-[id]/[...all]',
+        'a/some-[id]/[...all].vue'
+      )
+      expect(node.regexp).toBe('/^\\/a\\/some-([^/]+?)\\/(.*)$/i')
+      expect(node.matcherPatternPathDynamicParts).toEqual([
+        'a',
+        ['some-', 1],
+        0,
+      ])
+    })
+  })
+
   // TODO: check warns with different order
   it.todo(`warns when a group's path conflicts with an existing file`)
 
