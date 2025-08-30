@@ -472,7 +472,7 @@ describe('generateRouteResolver', () => {
         'prefix/sub-[[opt]]-end/suffix',
         'prefix/sub-[[opt]]-end/suffix.vue'
       )
-      tree.insert('prefix/sub-[id]/suffix', 'prefix/static-[id]/suffix.vue')
+      tree.insert('prefix/sub-[id]/suffix', 'prefix/sub-[id]/suffix.vue')
       tree.insert('prefix/sub-[[opt]]/suffix', 'prefix/sub-[[opt]]/suffix.vue')
 
       expect(getRouteOrderFromResolver(tree)).toEqual([
