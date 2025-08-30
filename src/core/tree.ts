@@ -400,11 +400,7 @@ export class TreeNode {
       )
 
       if (subSegments.length > 1) {
-        parts.unshift(
-          node.value.subSegments.map(
-            (segment) => (typeof segment === 'string' ? segment : 1) /* param */
-          )
-        )
+        parts.unshift(subSegments)
       } else if (subSegments.length === 1) {
         parts.unshift(subSegments[0]!)
       }
