@@ -25,6 +25,7 @@ import {
   NavigationResult,
   DataLoaderPluginOptions,
   useIsDataLoading,
+  LOADER_SET_PROMISES_KEY,
 } from 'unplugin-vue-router/data-loaders'
 import { mockPromise } from '../../tests/utils'
 import {
@@ -176,6 +177,30 @@ describe('navigation-guard', () => {
     await router.push('/fetch')
     const set = router.currentRoute.value.meta[LOADER_SET_KEY]
     expect([...set!]).toEqual([useDataOne, useDataTwo])
+  })
+
+  it('collects all loaders from lazy loaded pages with repeated navigation', async () => {
+    setupApp({ isSSR: false })
+    const router = getRouter()
+    router.addRoute({
+      name: '_test',
+      path: '/fetch',
+      component: () =>
+        import('../../tests/data-loaders/ComponentWithLoader.vue'),
+    })
+
+    void router.push('/fetch')
+
+    // simulate repeated navigation while the async component is loading
+    await Promise.resolve()
+    await router.push('/fetch')
+
+    const set = router.currentRoute.value.meta[LOADER_SET_KEY]
+    expect([...set!]).toEqual([useDataOne, useDataTwo])
+
+    for (const record of router.currentRoute.value.matched) {
+      expect(record.meta[LOADER_SET_PROMISES_KEY]).toBeUndefined()
+    }
   })
 
   it('awaits for all loaders to be resolved', async () => {

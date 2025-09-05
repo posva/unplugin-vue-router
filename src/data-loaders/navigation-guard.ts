@@ -14,6 +14,7 @@ import {
   IS_SSR_KEY,
   LOADER_ENTRIES_KEY,
   LOADER_SET_KEY,
+  LOADER_SET_PROMISES_KEY,
   NAVIGATION_RESULTS_KEY,
   PENDING_LOCATION_KEY,
 } from './meta-extensions'
@@ -145,8 +146,15 @@ export function setupLoaderGuard({
             }
           })
 
+          record.meta[LOADER_SET_PROMISES_KEY] ??= []
+          record.meta[LOADER_SET_PROMISES_KEY].push(promise)
           lazyLoadingPromises.push(promise)
         }
+      } else if (record.meta[LOADER_SET_PROMISES_KEY]) {
+        console.log('REUSE', record.path)
+        // When repeated navigation happen on the same route, loaders might still be
+        // loading from async components, so we need to wait for them to resolve.
+        lazyLoadingPromises.push(...record.meta[LOADER_SET_PROMISES_KEY])
       }
     }
 
@@ -157,6 +165,7 @@ export function setupLoaderGuard({
         for (const loader of record.meta[LOADER_SET_KEY]!) {
           to.meta[LOADER_SET_KEY]!.add(loader)
         }
+        record.meta[LOADER_SET_PROMISES_KEY] = undefined
       }
       // we return nothing to remove the value to allow the navigation
       // same as return true
