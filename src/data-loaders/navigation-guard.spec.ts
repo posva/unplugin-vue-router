@@ -182,17 +182,65 @@ describe('navigation-guard', () => {
   it('collects all loaders from lazy loaded pages with repeated navigation', async () => {
     setupApp({ isSSR: false })
     const router = getRouter()
+
+    const { promise, resolve } = Promise.withResolvers<void>()
+
     router.addRoute({
       name: '_test',
       path: '/fetch',
-      component: () =>
-        import('../../tests/data-loaders/ComponentWithLoader.vue'),
+      component: async () => {
+        await promise
+
+        return import('../../tests/data-loaders/ComponentWithLoader.vue')
+      },
     })
 
     void router.push('/fetch')
 
-    // simulate repeated navigation while the async component is loading
+    // wait a tick to ensure first navigation is started
     await Promise.resolve()
+
+    const secondNavPromise = router.push('/fetch')
+    resolve()
+    await secondNavPromise
+
+    const set = router.currentRoute.value.meta[LOADER_SET_KEY]
+    expect([...set!]).toEqual([useDataOne, useDataTwo])
+
+    for (const record of router.currentRoute.value.matched) {
+      expect(record.meta[LOADER_SET_PROMISES_KEY]).toBeUndefined()
+    }
+  })
+
+  it('collects all loaders from lazy loaded pages when first navigation fails', async () => {
+    setupApp({ isSSR: false })
+    const router = getRouter()
+
+    let first = true
+    router.addRoute({
+      name: '_test',
+      path: '/fetch',
+      component: async () => {
+        if (first) {
+          first = false
+
+          throw new Error('Failed to load component')
+        }
+
+        return import('../../tests/data-loaders/ComponentWithLoader.vue')
+      },
+    })
+
+    const firstNavPromise = router.push('/fetch')
+    await expect(firstNavPromise).rejects.toThrow(Error)
+
+    // Verify loaders collection cleanup after failure
+    const rec = getRouter()
+      .getRoutes()
+      .find((r) => r.name === '_test')!
+    expect(rec.meta[LOADER_SET_KEY]).toBeUndefined()
+    expect(rec.meta[LOADER_SET_PROMISES_KEY]).toBeUndefined()
+
     await router.push('/fetch')
 
     const set = router.currentRoute.value.meta[LOADER_SET_KEY]

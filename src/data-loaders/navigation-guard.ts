@@ -151,25 +151,35 @@ export function setupLoaderGuard({
           lazyLoadingPromises.push(promise)
         }
       } else if (record.meta[LOADER_SET_PROMISES_KEY]) {
-        console.log('REUSE', record.path)
         // When repeated navigation happen on the same route, loaders might still be
         // loading from async components, so we need to wait for them to resolve.
         lazyLoadingPromises.push(...record.meta[LOADER_SET_PROMISES_KEY])
       }
     }
 
-    return Promise.all(lazyLoadingPromises).then(() => {
-      // group all the loaders in a single set
-      for (const record of to.matched) {
-        // merge the whole set of loaders
-        for (const loader of record.meta[LOADER_SET_KEY]!) {
-          to.meta[LOADER_SET_KEY]!.add(loader)
+    return Promise.all(lazyLoadingPromises)
+      .then(() => {
+        // group all the loaders in a single set
+        for (const record of to.matched) {
+          // merge the whole set of loaders
+          for (const loader of record.meta[LOADER_SET_KEY]!) {
+            to.meta[LOADER_SET_KEY]!.add(loader)
+          }
+          record.meta[LOADER_SET_PROMISES_KEY] = undefined
         }
-        record.meta[LOADER_SET_PROMISES_KEY] = undefined
-      }
-      // we return nothing to remove the value to allow the navigation
-      // same as return true
-    })
+        // we return nothing to remove the value to allow the navigation
+        // same as return true
+      })
+      .catch((error) => {
+        // If error happens while collecting loaders, reset them
+        // so on next navigation we can try again
+        for (const record of to.matched) {
+          record.meta[LOADER_SET_KEY] = undefined
+          record.meta[LOADER_SET_PROMISES_KEY] = undefined
+        }
+
+        throw error
+      })
   })
 
   const removeDataLoaderGuard = router.beforeResolve((to, from) => {
