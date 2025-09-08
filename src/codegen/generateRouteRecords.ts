@@ -2,6 +2,7 @@ import { getLang } from '@vue-macros/common'
 import type { TreeNode } from '../core/tree'
 import { ImportsMap } from '../core/utils'
 import { type ResolvedOptions } from '../options'
+import { pad, stringToStringType } from '../utils'
 
 /**
  * Generate the route records for the given node.
@@ -48,8 +49,8 @@ ${node
     }
   }
 
-  const startIndent = ' '.repeat(indent * 2)
-  const indentStr = ' '.repeat((indent + 1) * 2)
+  const startIndent = pad(indent * 2)
+  const indentStr = pad((indent + 1) * 2)
 
   // TODO: should meta be defined a different way to allow preserving imports?
   // const meta = node.value.overrides.meta
@@ -62,10 +63,11 @@ ${node
 ${indentStr}path: '${node.path}',
 ${indentStr}${
     node.value.components.size
-      ? node.name
-        ? `name: '${node.name}',`
+      ? node.isNamed()
+        ? `name: ${stringToStringType(node.name)},`
         : `/* no name */`
-      : `/* internal name: '${node.name}' */`
+      : // node.name can still be false and we don't want that to result in string literal 'false'
+        `/* internal name: ${typeof node.name === 'string' ? stringToStringType(node.name) : node.name} */`
   }
 ${
   // component
