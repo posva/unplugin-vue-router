@@ -7,7 +7,7 @@ export function generateRouteParams(node: TreeNode, isRaw: boolean): string {
     ? `{ ${nodeParams
         .map(
           (param) =>
-            `${param.paramName}${param.optional ? '?' : ''}: ` +
+            `${param.paramName || `''`}${param.optional ? '?' : ''}: ` +
             (param.modifier === '+'
               ? `ParamValueOneOrMore<${isRaw}>`
               : param.modifier === '*'
