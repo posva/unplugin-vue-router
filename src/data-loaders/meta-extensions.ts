@@ -8,6 +8,7 @@ import type {
   ABORT_CONTROLLER_KEY,
   NAVIGATION_RESULTS_KEY,
   IS_SSR_KEY,
+  LOADER_SET_PROMISES_KEY,
 } from './symbols'
 import { type NavigationResult } from './navigation-guard'
 
@@ -69,6 +70,12 @@ declare module 'vue-router' {
      * @internal
      */
     [LOADER_SET_KEY]?: Set<UseDataLoader>
+
+    /**
+     * List of promises while loaders from async components are being collected.
+     * @internal
+     */
+    [LOADER_SET_PROMISES_KEY]?: Promise<void>[]
 
     /**
      * The signal that is aborted when the navigation is canceled or an error occurs.
