@@ -1,5 +1,6 @@
-import type { TreeNode } from '../core/tree'
+import type { TreeNode, TreeNodeNamed } from '../core/tree'
 import { generateRouteParams } from './generateRouteParams'
+import { pad, formatMultilineUnion, stringToStringType } from '../utils'
 
 export function generateRouteNamedMap(node: TreeNode): string {
   if (node.isRoot()) {
@@ -10,8 +11,11 @@ ${node.getChildrenSorted().map(generateRouteNamedMap).join('')}}`
   return (
     // if the node has a filePath, it's a component, it has a routeName and it should be referenced in the RouteNamedMap
     // otherwise it should be skipped to avoid navigating to a route that doesn't render anything
-    (node.value.components.size > 0 && node.name
-      ? `  '${node.name}': ${generateRouteRecordInfo(node)},\n`
+    (node.value.components.size && node.isNamed()
+      ? pad(
+          2,
+          `${stringToStringType(node.name)}: ${generateRouteRecordInfo(node)},\n`
+        )
       : '') +
     (node.children.size > 0
       ? node.getChildrenSorted().map(generateRouteNamedMap).join('\n')
@@ -19,28 +23,33 @@ ${node.getChildrenSorted().map(generateRouteNamedMap).join('')}}`
   )
 }
 
-export function generateRouteRecordInfo(node: TreeNode) {
+export function generateRouteRecordInfo(node: TreeNodeNamed): string {
   const typeParams = [
-    `'${node.name}'`,
-    `'${node.fullPath}'`,
+    stringToStringType(node.name),
+    stringToStringType(node.fullPath),
     generateRouteParams(node, true),
     generateRouteParams(node, false),
   ]
 
-  if (node.children.size > 0) {
-    // TODO: remove Array.from() once Node 20 support is dropped
-    const deepNamedChildren = Array.from(node.getChildrenDeep())
-      // skip routes that are not added to the types
-      .filter(
-        (childRoute) => childRoute.value.components.size > 0 && childRoute.name
-      )
-      .map((childRoute) => `'${childRoute.name}'`)
-      .sort()
+  const childRouteNames: string[] =
+    node.children.size > 0
+      ? // TODO: remove Array.from() once Node 20 support is dropped
+        Array.from(node.getChildrenDeep())
+          // skip routes that are not added to the types
+          .reduce<string[]>((acc, childRoute) => {
+            if (childRoute.value.components.size && childRoute.isNamed()) {
+              acc.push(childRoute.name)
+            }
+            return acc
+          }, [])
+          .sort()
+      : []
 
-    if (deepNamedChildren.length > 0) {
-      typeParams.push(deepNamedChildren.join(' | '))
-    }
-  }
+  typeParams.push(
+    formatMultilineUnion(childRouteNames.map(stringToStringType), 4)
+  )
 
-  return `RouteRecordInfo<${typeParams.join(', ')}>`
+  return `RouteRecordInfo<
+${typeParams.map((line) => pad(4, line)).join(',\n')}
+  >`
 }

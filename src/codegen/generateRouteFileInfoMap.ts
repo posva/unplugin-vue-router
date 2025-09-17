@@ -1,5 +1,6 @@
 import { relative } from 'pathe'
 import type { PrefixTree, TreeNode } from '../core/tree'
+import { formatMultilineUnion, stringToStringType } from '../utils'
 
 export function generateRouteFileInfoMap(
   node: PrefixTree,
@@ -42,8 +43,10 @@ export function generateRouteFileInfoMap(
       ([file, { routes, views }]) =>
         `
   '${file}': {
-    routes: ${routes.map((name) => `'${name}'`).join(' | ')}
-    views: ${views.length > 0 ? views.map((view) => `'${view}'`).join(' | ') : 'never'}
+    routes:
+      ${formatMultilineUnion(routes.map(stringToStringType), 6)}
+    views:
+      ${formatMultilineUnion(views.map(stringToStringType), 6)}
   }`
     )
     .join('\n')
@@ -76,8 +79,12 @@ function generateRouteFileInfoLines(
 
   const routeNames = [node, ...node.getChildrenDeepSorted()]
     // an unnamed route cannot be accessed in types
-    .filter((node): node is TreeNode & { name: string } => !!node.name)
-    .map((node) => node.name)
+    .reduce<string[]>((acc, node) => {
+      if (node.isNamed()) {
+        acc.push(node.name)
+      }
+      return acc
+    }, [])
 
   // Most of the time we only have one view, but with named views we can have multiple.
   const currentRouteInfo =
