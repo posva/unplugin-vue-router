@@ -1,3 +1,15 @@
+declare module 'vue-router/auto-resolver' {
+  import type { EXPERIMENTAL_RouterOptions, EXPERIMENTAL_Router } from 'vue-router/experimental'
+
+  export function handleHotUpdate(
+    router: EXPERIMENTAL_Router
+  ): void
+
+  const resolver: EXPERIMENTAL_RouterOptions['resolver']
+
+  export { resolver }
+}
+
 declare module 'vue-router/auto-routes' {
   import type { RouteRecordRaw, Router } from 'vue-router'
 
