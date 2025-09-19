@@ -110,7 +110,7 @@
     "route.schema.json"
   ],
   "scripts": {
-    "build": "pnpm run --stream '/^build:/'",
+    "build": "pnpm run --stream /^build:/",
     "build:core": "tsdown",
     "build:runtime": "tsdown --config tsdown-runtime.config.ts",
     "dev": "pnpm run vitest --ui",
