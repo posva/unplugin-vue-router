@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_OPTIONS, resolveOptions } from '../options'
 import { PrefixTree } from './tree'
-import { TreeNodeType, type TreeRouteParam } from './treeNodeValue'
+import { TreeNodeType, type TreePathParam } from './treeNodeValue'
 import { resolve } from 'pathe'
 import { mockWarn } from '../../tests/vitest-mock-warn'
 
@@ -41,6 +41,103 @@ describe('Tree', () => {
       _type: TreeNodeType.param,
     })
     expect(child.children.size).toBe(0)
+  })
+
+  it('parses a custom param type', () => {
+    const tree = new PrefixTree(RESOLVED_OPTIONS)
+    tree.insert('[id=int]', '[id=int].vue')
+    const child = tree.children.get('[id=int]')!
+    expect(child).toBeDefined()
+    expect(child.value).toMatchObject({
+      rawSegment: '[id=int]',
+      params: [
+        {
+          paramName: 'id',
+          parser: 'int',
+        },
+      ],
+      fullPath: '/:id',
+      _type: TreeNodeType.param,
+    })
+  })
+
+  it('parses a repeatable custom param type', () => {
+    const tree = new PrefixTree(RESOLVED_OPTIONS)
+    tree.insert('[id=int]+', '[id=int]+.vue')
+    const child = tree.children.get('[id=int]+')!
+    expect(child).toBeDefined()
+    expect(child.value).toMatchObject({
+      rawSegment: '[id=int]+',
+      params: [
+        {
+          paramName: 'id',
+          parser: 'int',
+          repeatable: true,
+          modifier: '+',
+        },
+      ],
+      fullPath: '/:id+',
+      _type: TreeNodeType.param,
+    })
+  })
+
+  it('parses an optional custom param type', () => {
+    const tree = new PrefixTree(RESOLVED_OPTIONS)
+    tree.insert('[[id=int]]', '[[id=int]].vue')
+    const child = tree.children.get('[[id=int]]')!
+    expect(child).toBeDefined()
+    expect(child.value).toMatchObject({
+      rawSegment: '[[id=int]]',
+      params: [
+        {
+          paramName: 'id',
+          parser: 'int',
+          optional: true,
+          modifier: '?',
+        },
+      ],
+      fullPath: '/:id?',
+      _type: TreeNodeType.param,
+    })
+  })
+
+  it('parses a repeatable optional custom param type', () => {
+    const tree = new PrefixTree(RESOLVED_OPTIONS)
+    tree.insert('[[id=int]]+', '[[id=int]]+.vue')
+    const child = tree.children.get('[[id=int]]+')!
+    expect(child).toBeDefined()
+    expect(child.value).toMatchObject({
+      rawSegment: '[[id=int]]+',
+      params: [
+        {
+          paramName: 'id',
+          parser: 'int',
+          repeatable: true,
+          optional: true,
+          modifier: '*',
+        },
+      ],
+      fullPath: '/:id*',
+      _type: TreeNodeType.param,
+    })
+  })
+
+  it('parses a custom param type with sub segments', () => {
+    const tree = new PrefixTree(RESOLVED_OPTIONS)
+    tree.insert('a-[id=int]-b', 'file.vue')
+    const child = tree.children.get('a-[id=int]-b')!
+    expect(child).toBeDefined()
+    expect(child.value).toMatchObject({
+      rawSegment: 'a-[id=int]-b',
+      params: [
+        {
+          paramName: 'id',
+          parser: 'int',
+        },
+      ],
+      fullPath: '/a-:id-b',
+      _type: TreeNodeType.param,
+    })
   })
 
   it('separate param names from static segments', () => {
@@ -452,13 +549,13 @@ describe('Tree', () => {
       path: '/:a()/new-b',
     })
     expect(node.params).toHaveLength(1)
-    expect(node.params[0]).toEqual({
+    expect(node.params[0]).toMatchObject({
       paramName: 'a',
       isSplat: false,
       modifier: '',
       optional: false,
       repeatable: false,
-    } satisfies TreeRouteParam)
+    } satisfies Partial<TreePathParam>)
   })
 
   it('removes trailing slash from path but not from name', () => {
@@ -554,6 +651,223 @@ describe('Tree', () => {
     expect(`"(home" is missing the closing ")"`).toHaveBeenWarned()
   })
 
+  describe('path regexp', () => {
+    it('generates static paths', () => {
+      const node = new PrefixTree(RESOLVED_OPTIONS).insert('a', 'a.vue')
+      expect(node.regexp).toBe('/^\\/a$/i')
+    })
+
+    it('works with multiple segments', () => {
+      const node = new PrefixTree(RESOLVED_OPTIONS).insert('a/b/c', 'a/b/c.vue')
+      expect(node.regexp).toBe('/^\\/a\\/b\\/c$/i')
+    })
+
+    describe('basic params [id] in all positions', () => {
+      it('only segment', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert('[id]', '[id].vue')
+        expect(node.regexp).toBe('/^\\/([^/]+?)$/i')
+        expect(node.matcherPatternPathDynamicParts).toEqual([1])
+      })
+
+      it('first position', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          '[id]/static',
+          '[id]/static.vue'
+        )
+        expect(node.regexp).toBe('/^\\/([^/]+?)\\/static$/i')
+        expect(node.matcherPatternPathDynamicParts).toEqual([1, 'static'])
+      })
+
+      it('middle position', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          'static/[id]/more',
+          'static/[id]/more.vue'
+        )
+        expect(node.regexp).toBe('/^\\/static\\/([^/]+?)\\/more$/i')
+        expect(node.matcherPatternPathDynamicParts).toEqual([
+          'static',
+          1,
+          'more',
+        ])
+      })
+
+      it('last position', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          'static/[id]',
+          'static/[id].vue'
+        )
+        expect(node.regexp).toBe('/^\\/static\\/([^/]+?)$/i')
+        expect(node.matcherPatternPathDynamicParts).toEqual(['static', 1])
+      })
+    })
+
+    describe('optional params [[id]] in all positions', () => {
+      it('only segment', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          '[[id]]',
+          '[[id]].vue'
+        )
+        expect(node.regexp).toBe('/^\\/([^/]+?)?$/i')
+        expect(node.matcherPatternPathDynamicParts).toEqual([1])
+      })
+
+      it('first position', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          '[[id]]/static',
+          '[[id]]/static.vue'
+        )
+        expect(node.regexp).toBe('/^(?:\\/([^/]+?))?\\/static$/i')
+        expect(node.matcherPatternPathDynamicParts).toEqual([1, 'static'])
+      })
+
+      it('middle position', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          'static/[[id]]/more',
+          'static/[[id]]/more.vue'
+        )
+        expect(node.regexp).toBe('/^\\/static(?:\\/([^/]+?))?\\/more$/i')
+        expect(node.matcherPatternPathDynamicParts).toEqual([
+          'static',
+          1,
+          'more',
+        ])
+      })
+
+      it('last position', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          'static/[[id]]',
+          'static/[[id]].vue'
+        )
+        expect(node.regexp).toBe('/^\\/static(?:\\/([^/]+?))?$/i')
+        expect(node.matcherPatternPathDynamicParts).toEqual(['static', 1])
+      })
+    })
+
+    describe('repeatable params [id]+ in all positions', () => {
+      it('only segment', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          '[id]+',
+          '[id]+.vue'
+        )
+        expect(node.regexp).toBe('/^\\/(.+?)$/i')
+        expect(node.matcherPatternPathDynamicParts).toEqual([1])
+      })
+
+      it('first position', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          '[id]+/static',
+          '[id]+/static.vue'
+        )
+        expect(node.regexp).toBe('/^\\/(.+?)\\/static$/i')
+        expect(node.matcherPatternPathDynamicParts).toEqual([1, 'static'])
+      })
+
+      it('middle position', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          'static/[id]+/more',
+          'static/[id]+/more.vue'
+        )
+        expect(node.regexp).toBe('/^\\/static\\/(.+?)\\/more$/i')
+        expect(node.matcherPatternPathDynamicParts).toEqual([
+          'static',
+          1,
+          'more',
+        ])
+      })
+
+      it('last position', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          'static/[id]+',
+          'static/[id]+.vue'
+        )
+        expect(node.regexp).toBe('/^\\/static\\/(.+?)$/i')
+        expect(node.matcherPatternPathDynamicParts).toEqual(['static', 1])
+      })
+    })
+
+    describe('optional repeatable params [[id]]+ in all positions', () => {
+      it('only segment', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          '[[id]]+',
+          '[[id]]+.vue'
+        )
+        expect(node.regexp).toBe('/^\\/(.+?)?$/i')
+        expect(node.matcherPatternPathDynamicParts).toEqual([1])
+      })
+
+      it('first position', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          '[[id]]+/static',
+          '[[id]]+/static.vue'
+        )
+        expect(node.regexp).toBe('/^(?:\\/(.+?))?\\/static$/i')
+        expect(node.matcherPatternPathDynamicParts).toEqual([1, 'static'])
+      })
+
+      it('middle position', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          'static/[[id]]+/more',
+          'static/[[id]]+/more.vue'
+        )
+        expect(node.regexp).toBe('/^\\/static(?:\\/(.+?))?\\/more$/i')
+        expect(node.matcherPatternPathDynamicParts).toEqual([
+          'static',
+          1,
+          'more',
+        ])
+      })
+
+      it('last position', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          'static/[[id]]+',
+          'static/[[id]]+.vue'
+        )
+        expect(node.regexp).toBe('/^\\/static(?:\\/(.+?))?$/i')
+        expect(node.matcherPatternPathDynamicParts).toEqual(['static', 1])
+      })
+    })
+
+    it('works with multiple params', () => {
+      const node = new PrefixTree(RESOLVED_OPTIONS).insert('a/[b]/[c]', 'a.vue')
+      expect(node.regexp).toBe('/^\\/a\\/([^/]+?)\\/([^/]+?)$/i')
+      expect(node.matcherPatternPathDynamicParts).toEqual(['a', 1, 1])
+    })
+
+    it('works with segments', () => {
+      const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+        'a/a-[b]-c-[d]',
+        'a.vue'
+      )
+      expect(node.regexp).toBe('/^\\/a\\/a-([^/]+?)-c-([^/]+?)$/i')
+      expect(node.matcherPatternPathDynamicParts).toEqual([
+        'a',
+        ['a-', 1, '-c-', 1],
+      ])
+    })
+
+    it('works with a catch all route', () => {
+      const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+        '[...all]',
+        '[...all].vue'
+      )
+      expect(node.regexp).toBe('/^\\/(.*)$/i')
+      expect(node.matcherPatternPathDynamicParts).toEqual([0])
+    })
+
+    it('works with a splat param with a prefix', () => {
+      const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+        'a/some-[id]/[...all]',
+        'a/some-[id]/[...all].vue'
+      )
+      expect(node.regexp).toBe('/^\\/a\\/some-([^/]+?)\\/(.*)$/i')
+      expect(node.matcherPatternPathDynamicParts).toEqual([
+        'a',
+        ['some-', 1],
+        0,
+      ])
+    })
+  })
+
   // TODO: check warns with different order
   it.todo(`warns when a group's path conflicts with an existing file`)
 
@@ -588,6 +902,89 @@ describe('Tree', () => {
         fullPath: '/1.2.3-lesson',
         _type: TreeNodeType.static,
       })
+    })
+  })
+
+  describe('Query params from definePage', () => {
+    it('extracts query params from route overrides', () => {
+      const tree = new PrefixTree(RESOLVED_OPTIONS)
+      const node = tree.insert('users', 'users.vue')
+
+      // Simulate definePage params extraction
+      node.setCustomRouteBlock('users.vue', {
+        params: {
+          query: {
+            search: {},
+            limit: { parser: 'int', default: '10' },
+            tags: { parser: 'bool' },
+            other: { default: '"defaultValue"' },
+          },
+        },
+      })
+
+      expect(node.queryParams).toEqual([
+        {
+          paramName: 'search',
+          parser: null,
+          format: 'value',
+          defaultValue: undefined,
+        },
+        {
+          paramName: 'limit',
+          parser: 'int',
+          format: 'value',
+          defaultValue: '10',
+        },
+        {
+          paramName: 'tags',
+          parser: 'bool',
+          format: 'value',
+          defaultValue: undefined,
+        },
+        {
+          paramName: 'other',
+          parser: null,
+          format: 'value',
+          defaultValue: '"defaultValue"',
+        },
+      ])
+    })
+
+    it('returns empty array when no query params defined', () => {
+      const tree = new PrefixTree(RESOLVED_OPTIONS)
+      const node = tree.insert('about', 'about.vue')
+
+      expect(node.queryParams).toEqual([])
+    })
+
+    it('params includes both path and query params', () => {
+      const tree = new PrefixTree(RESOLVED_OPTIONS)
+      const node = tree.insert('posts/[id]', 'posts/[id].vue')
+
+      node.setCustomRouteBlock('posts/[id].vue', {
+        params: {
+          query: {
+            tab: {},
+            expand: { parser: 'bool', default: 'false' },
+          },
+        },
+      })
+
+      // Should have 1 path param + 2 query params
+      expect(node.params).toHaveLength(3)
+      expect(node.params[0]).toMatchObject({ paramName: 'id' }) // path param
+      expect(node.params[1]).toMatchObject({
+        paramName: 'tab',
+        parser: null,
+        format: 'value',
+        defaultValue: undefined,
+      }) // query param
+      expect(node.params[2]).toMatchObject({
+        paramName: 'expand',
+        parser: 'bool',
+        format: 'value',
+        defaultValue: 'false',
+      }) // query param
     })
   })
 })

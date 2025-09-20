@@ -1,8 +1,10 @@
 import { type ResolvedOptions } from '../options'
 import {
   createTreeNodeValue,
+  escapeRegex,
   TreeNodeValueOptions,
-  TreeRouteParam,
+  TreePathParam,
+  TreeQueryParam,
 } from './treeNodeValue'
 import type { TreeNodeValue } from './treeNodeValue'
 import { CustomRouteBlock } from './customBlock'
@@ -11,6 +13,10 @@ import { RouteMeta } from 'vue-router'
 export interface TreeNodeOptions extends ResolvedOptions {
   treeNodeOptions?: TreeNodeValueOptions
 }
+
+export type TreeNodeValueMatcherPart = Array<
+  string | number | Array<string | number>
+>
 
 export class TreeNode {
   /**
@@ -265,18 +271,153 @@ export class TreeNode {
       : ''
   }
 
-  get params(): TreeRouteParam[] {
-    const params = this.value.isParam() ? [...this.value.params] : []
+  /**
+   * Array of route params for this node. It includes **all** the params from the parents as well.
+   */
+  get params(): (TreePathParam | TreeQueryParam)[] {
+    const params = [...this.value.params]
+    let node = this.parent
+    // add all the params from the parents
+    while (node) {
+      params.unshift(...node.value.params)
+      node = node.parent
+    }
+
+    return params
+  }
+
+  /**
+   * Array of route params coming from the path. It includes all the params from the parents as well.
+   */
+  get pathParams(): TreePathParam[] {
+    const params = this.value.isParam() ? [...this.value.pathParams] : []
     let node = this.parent
     // add all the params from the parents
     while (node) {
       if (node.value.isParam()) {
-        params.unshift(...node.value.params)
+        params.unshift(...node.value.pathParams)
       }
       node = node.parent
     }
 
     return params
+  }
+
+  /**
+   * Array of query params extracted from definePage. Only returns query params from this specific node.
+   */
+  get queryParams(): TreeQueryParam[] {
+    return this.value.queryParams
+  }
+
+  /**
+   * Generates a regexp based on this node and its parents. This regexp is used by the custom resolver
+   */
+  get regexp(): string {
+    let node: TreeNode | undefined = this
+    // we build the node list from parent to child
+    const nodeList: TreeNode[] = []
+    while (node && !node.isRoot()) {
+      nodeList.unshift(node)
+      node = node.parent
+    }
+
+    let re = ''
+    for (var i = 0; i < nodeList.length; i++) {
+      node = nodeList[i]!
+      if (node.value.isParam()) {
+        var nodeRe = node.value.re
+        // Ensure we add a connecting slash
+        // if we already have something in the regexp and if the only part of
+        // the segment is an optional param, then the / must be put inside the
+        // non-capturing group
+        if (
+          // if we have a segment before or after
+          (re || i < nodeList.length - 1) &&
+          // if the only part of the segment is an optional (can be repeatable) param
+          node.value.subSegments.length === 1 &&
+          (node.value.subSegments.at(0) as TreePathParam).optional
+        ) {
+          // TODO: tweak if trailingSlash
+          re += `(?:\\/${
+            // we remove the ? at the end because we add it later
+            nodeRe.slice(0, -1)
+          })?`
+        } else {
+          re += (re ? '\\/' : '') + nodeRe
+        }
+      } else {
+        re += (re ? '\\/' : '') + escapeRegex(node.value.pathSegment)
+      }
+    }
+
+    // TODO: trailingSlash
+    return (
+      '/^' +
+      // Avoid adding a leading slash if the first segment
+      // is an optional segment that already includes it
+      (re.startsWith('(?:\\/') ? '' : '\\/') +
+      re +
+      '$/i'
+    )
+  }
+
+  get score(): number[][] {
+    const scores: number[][] = []
+    let node: TreeNode | undefined = this
+
+    while (node && !node.isRoot()) {
+      scores.unshift(node.value.score)
+      node = node.parent
+    }
+
+    return scores
+  }
+
+  /**
+   * Is this node a splat (catch-all) param
+   */
+  get isSplat(): boolean {
+    return this.value.isParam() && this.value.pathParams.some((p) => p.isSplat)
+  }
+
+  /**
+   * Returns an array of matcher parts that is consumed by
+   * MatcherPatternPathDynamic to render the path.
+   */
+  get matcherPatternPathDynamicParts(): TreeNodeValueMatcherPart {
+    const parts: TreeNodeValueMatcherPart = []
+    let node: TreeNode | undefined = this
+
+    while (node && !node.isRoot()) {
+      const subSegments = node.value.subSegments.map((segment) =>
+        typeof segment === 'string'
+          ? segment
+          : // param
+            segment.isSplat
+            ? 0
+            : 1
+      )
+
+      if (subSegments.length > 1) {
+        parts.unshift(subSegments)
+      } else if (subSegments.length === 1) {
+        parts.unshift(subSegments[0]!)
+      }
+      node = node.parent
+    }
+
+    return parts
+  }
+
+  /**
+   * Is this tree node matchable? A matchable node has at least one component
+   * and a name.
+   */
+  isMatchable(): this is TreeNode & { name: string } {
+    // a node is matchable if it has at least one component
+    // and the name is not false
+    return this.value.components.size > 0 && this.name !== false
   }
 
   /**

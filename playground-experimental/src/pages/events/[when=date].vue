@@ -1,0 +1,8 @@
+<script lang="ts" setup>
+const route = useRoute()
+</script>
+
+<template>
+  <h1>Date</h1>
+  <pre>{{ typeof route.params.when }} - {{ route.params.when }}</pre>
+</template>

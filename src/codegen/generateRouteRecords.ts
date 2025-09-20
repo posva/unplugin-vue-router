@@ -51,9 +51,6 @@ ${node
   const startIndent = ' '.repeat(indent * 2)
   const indentStr = ' '.repeat((indent + 1) * 2)
 
-  // TODO: should meta be defined a different way to allow preserving imports?
-  // const meta = node.value.overrides.meta
-
   // compute once since it's a getter
   const overrides = node.value.overrides
 
@@ -145,7 +142,7 @@ ${indentStr}},`
  * @param importsMap - the import list to fill
  * @returns
  */
-function generatePageImport(
+export function generatePageImport(
   filepath: string,
   importMode: ResolvedOptions['importMode'],
   importsMap: ImportsMap
@@ -168,14 +165,14 @@ function generatePageImport(
   return importName
 }
 
-function formatMeta(node: TreeNode, indent: string): string {
+export function formatMeta(node: TreeNode, indent: string): string {
   const meta = node.meta
   const formatted =
     meta &&
     meta
       .split('\n')
       .map((line) => indent + line)
-      .join('\n')
+      .join('\n') + ','
 
   return formatted ? '\n' + indent + 'meta: ' + formatted.trimStart() : ''
 }

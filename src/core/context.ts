@@ -1,13 +1,13 @@
 import { ResolvedOptions } from '../options'
 import { TreeNode, PrefixTree } from './tree'
-import { promises as fs } from 'fs'
+import { promises as fs } from 'node:fs'
 import { asRoutePath, ImportsMap, logTree, throttle } from './utils'
 import { generateRouteNamedMap } from '../codegen/generateRouteMap'
 import { generateRouteFileInfoMap } from '../codegen/generateRouteFileInfoMap'
-import { MODULE_ROUTES_PATH, MODULE_VUE_ROUTER_AUTO } from './moduleConstants'
+import { MODULE_ROUTES_PATH } from './moduleConstants'
 import { generateRouteRecord } from '../codegen/generateRouteRecords'
 import { glob } from 'tinyglobby'
-import { dirname, relative, resolve } from 'pathe'
+import { dirname, parse as parsePathe, relative, resolve } from 'pathe'
 import { ServerContext } from '../options'
 import { getRouteBlock } from './customBlock'
 import {
@@ -17,10 +17,18 @@ import {
 } from './RoutesFolderWatcher'
 import { generateDTS as _generateDTS } from '../codegen/generateDTS'
 import { generateVueRouterProxy as _generateVueRouterProxy } from '../codegen/vueRouterModule'
-import { definePageTransform, extractDefinePageNameAndPath } from './definePage'
+import { definePageTransform, extractDefinePageInfo } from './definePage'
 import { EditableTreeNode } from './extendRoutes'
 import { isPackageExists as isPackageInstalled } from 'local-pkg'
 import { ts } from '../utils'
+import { generateRouteResolver } from '../codegen/generateRouteResolver'
+import { type FSWatcher, watch as fsWatch } from 'chokidar'
+import {
+  generateParamParsersTypesDeclarations,
+  ParamParsersMap,
+  warnMissingParamParsers,
+} from '../codegen/generateParamParsers'
+import picomatch from 'picomatch'
 
 export function createRoutesContext(options: ResolvedOptions) {
   const { dts: preferDTS, root, routesFolder } = options
@@ -45,7 +53,8 @@ export function createRoutesContext(options: ResolvedOptions) {
   })
 
   // populated by the initial scan pages
-  const watchers: RoutesFolderWatcher[] = []
+  const watchers: Array<FSWatcher | RoutesFolderWatcher> = []
+  const paramParsersMap: ParamParsersMap = new Map()
 
   async function scanPages(startWatchers = true) {
     if (options.extensions.length < 1) {
@@ -59,9 +68,12 @@ export function createRoutesContext(options: ResolvedOptions) {
       return
     }
 
+    const PARAM_PARSER_GLOB = '*.{ts,js}'
+    const isParamParserMatch = picomatch(PARAM_PARSER_GLOB)
+
     // get the initial list of pages
-    await Promise.all(
-      routesFolder
+    await Promise.all([
+      ...routesFolder
         .map((folder) => resolveFolderOptions(options, folder))
         .map((folder) => {
           if (startWatchers) {
@@ -93,8 +105,52 @@ export function createRoutesContext(options: ResolvedOptions) {
                 )
             )
           )
+        }),
+      ...(options.experimental.paramParsers?.dir.map((folder) => {
+        if (startWatchers) {
+          watchers.push(
+            setupParamParserWatcher(
+              fsWatch('.', {
+                cwd: folder,
+                ignoreInitial: true,
+                ignorePermissionErrors: true,
+                ignored: (filePath, stats) => {
+                  // let folders pass, they are ignored by the glob pattern
+                  if (!stats || stats.isDirectory()) {
+                    return false
+                  }
+
+                  return !isParamParserMatch(relative(folder, filePath))
+                },
+              }),
+              folder
+            )
+          )
+        }
+
+        return glob(PARAM_PARSER_GLOB, {
+          cwd: folder,
+          onlyFiles: true,
+          expandDirectories: false,
+        }).then((paramParserFiles) => {
+          for (const file of paramParserFiles) {
+            const name = parsePathe(file).name
+            // TODO: could be simplified to only one import that starts with / for vite
+            const absolutePath = resolve(folder, file)
+            paramParsersMap.set(name, {
+              name,
+              typeName: `Param_${name}`,
+              absolutePath,
+              relativePath: relative(options.root, absolutePath),
+            })
+          }
+          logger.log(
+            'Parsed param parsers',
+            [...paramParsersMap].map((p) => p[0])
+          )
         })
-    )
+      }) || []),
+    ])
 
     for (const route of editableRoutes) {
       await options.extendRoute?.(route)
@@ -109,10 +165,7 @@ export function createRoutesContext(options: ResolvedOptions) {
     // TODO: cache the result of parsing the SFC (in the extractDefinePageAndName) so the transform can reuse the parsing
     node.hasDefinePage ||= content.includes('definePage')
     // TODO: track if it changed and to not always trigger HMR
-    const definedPageNameAndPath = extractDefinePageNameAndPath(
-      content,
-      filePath
-    )
+    const definedPageInfo = extractDefinePageInfo(content, filePath)
     // TODO: track if it changed and if generateRoutes should be called again
     const routeBlock = getRouteBlock(filePath, content, options)
     // TODO: should warn if hasDefinePage and customRouteBlock
@@ -120,7 +173,7 @@ export function createRoutesContext(options: ResolvedOptions) {
 
     node.setCustomRouteBlock(filePath, {
       ...routeBlock,
-      ...definedPageNameAndPath,
+      ...definedPageInfo,
     })
   }
 
@@ -135,9 +188,6 @@ export function createRoutesContext(options: ResolvedOptions) {
     if (triggerExtendRoute) {
       await options.extendRoute?.(new EditableTreeNode(node))
     }
-
-    // TODO: trigger HMR vue-router/auto
-    server?.updateRoutes()
   }
 
   async function updatePage({ filePath, routePath }: HandlerContext) {
@@ -156,8 +206,26 @@ export function createRoutesContext(options: ResolvedOptions) {
   function removePage({ filePath, routePath }: HandlerContext) {
     logger.log(`remove "${routePath}" for "${filePath}"`)
     routeTree.removeChild(filePath)
-    // TODO: HMR vue-router/auto
-    server?.updateRoutes()
+  }
+
+  function setupParamParserWatcher(watcher: FSWatcher, cwd: string) {
+    logger.log(`🤖 Scanning param parsers in ${cwd}`)
+    return watcher
+      .on('add', (file) => {
+        const name = parsePathe(file).name
+        const absolutePath = resolve(cwd, file)
+        paramParsersMap.set(name, {
+          name,
+          typeName: `Param_${name}`,
+          absolutePath,
+          relativePath: './' + relative(options.root, absolutePath),
+        })
+        writeConfigFiles()
+      })
+      .on('unlink', (file) => {
+        paramParsersMap.delete(parsePathe(file).name)
+        writeConfigFiles()
+      })
   }
 
   function setupWatcher(watcher: RoutesFolderWatcher) {
@@ -181,6 +249,57 @@ export function createRoutesContext(options: ResolvedOptions) {
     // unlinkDir event
   }
 
+  function generateResolver() {
+    const importsMap = new ImportsMap()
+
+    const resolverCode = generateRouteResolver(
+      routeTree,
+      options,
+      importsMap,
+      paramParsersMap
+    )
+
+    // generate the list of imports
+    let imports = importsMap.toString()
+    // add an empty line for readability
+    if (imports) {
+      imports += '\n'
+    }
+
+    const hmr = ts`
+export function handleHotUpdate(_router, _hotUpdateCallback) {
+  if (import.meta.hot) {
+    import.meta.hot.data.router = _router
+    import.meta.hot.data.router_hotUpdateCallback = _hotUpdateCallback
+  }
+}
+
+if (import.meta.hot) {
+  import.meta.hot.accept((mod) => {
+    const router = import.meta.hot.data.router
+    if (!router) {
+      import.meta.hot.invalidate('[unplugin-vue-router:HMR] Cannot replace the resolver because there is no active router. Reloading.')
+      return
+    }
+    router._hmrReplaceResolver(mod.resolver)
+    // call the hotUpdateCallback for custom updates
+    import.meta.hot.data.router_hotUpdateCallback?.(mod.resolver)
+    const route = router.currentRoute.value
+    router.replace({
+      path: route.path,
+      query: route.query,
+      hash: route.hash,
+      force: true
+    })
+  })
+}`
+
+    const newAutoRoutes = `${imports}${resolverCode}\n${hmr}`
+
+    // prepend it to the code
+    return newAutoRoutes
+  }
+
   function generateRoutes() {
     const importsMap = new ImportsMap()
 
@@ -190,7 +309,7 @@ export function createRoutesContext(options: ResolvedOptions) {
       importsMap
     )}\n`
 
-    let hmr = ts`
+    const hmr = ts`
 export function handleHotUpdate(_router, _hotUpdateCallback) {
   if (import.meta.hot) {
     import.meta.hot.data.router = _router
@@ -238,15 +357,25 @@ if (import.meta.hot) {
     return newAutoRoutes
   }
 
-  function generateDTS(): string {
-    return _generateDTS({
-      vueRouterModule: MODULE_VUE_ROUTER_AUTO,
+  function generateDTS() {
+    if (options.experimental.paramParsers?.dir.length) {
+      warnMissingParamParsers(routeTree, paramParsersMap)
+    }
+
+    const autoRoutes = _generateDTS({
       routesModule: MODULE_ROUTES_PATH,
-      routeNamedMap: generateRouteNamedMap(routeTree),
+      routeNamedMap: generateRouteNamedMap(routeTree, options, paramParsersMap),
       routeFileInfoMap: generateRouteFileInfoMap(routeTree, {
         root,
       }),
+      paramsTypesDeclaration:
+        generateParamParsersTypesDeclarations(paramParsersMap),
     })
+
+    // TODO: parser auto copmlete for definePage
+    // const paramParserListType = generateParamParserListTypes([...paramParsers])
+
+    return autoRoutes
   }
 
   // NOTE: this code needs to be generated because otherwise it doesn't go through transforms and `vue-router/auto-routes`
@@ -275,6 +404,10 @@ if (import.meta.hot) {
         await fs.writeFile(dts, content, 'utf-8')
         logger.timeLog('writeConfigFiles', 'wrote dts file')
         lastDTS = content
+        // TODO: only update routes if routes changed (this includes definePage changes)
+        // but do not update routes if only the component want updated
+        // currently, this doesn't trigger if definePage meta properties changed
+        server?.updateRoutes()
       }
     }
     logger.timeEnd('writeConfigFiles')
@@ -305,6 +438,7 @@ if (import.meta.hot) {
     stopWatcher,
 
     generateRoutes,
+    generateResolver,
     generateVueRouterProxy,
 
     definePageTransform(code: string, id: string) {
