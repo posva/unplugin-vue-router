@@ -140,7 +140,7 @@
   },
   "dependencies": {
     "@babel/generator": "^7.28.3",
-    "@vue-macros/common": "3.0.0",
+    "@vue-macros/common": "^3.0.0",
     "@vue/language-core": "^3.0.7",
     "ast-walker-scope": "^0.8.2",
     "chokidar": "^4.0.3",
