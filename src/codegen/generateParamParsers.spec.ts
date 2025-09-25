@@ -5,6 +5,7 @@ import {
   generateParamsTypes,
   generateParamParserOptions,
   generatePathParamsOptions,
+  generateParamParserCustomType,
   type ParamParsersMap,
 } from './generateParamParsers'
 import { PrefixTree } from '../core/tree'
@@ -462,5 +463,108 @@ describe('generatePathParamsOptions', () => {
       'page: [PARAM_PARSER_INT, /* repeatable: false */, /* optional: */ true]'
     )
     expect(result).toContain('tags: [/* no parser */, /* repeatable: */ true]')
+  })
+})
+
+describe('generateParamParserCustomType', () => {
+  it('returns never for empty param parsers map', () => {
+    const paramParsers: ParamParsersMap = new Map()
+    const result = generateParamParserCustomType(paramParsers)
+    expect(result).toBe('never')
+  })
+
+  it('returns single quoted parser name for one parser', () => {
+    const paramParsers: ParamParsersMap = new Map([
+      [
+        'date',
+        {
+          name: 'date',
+          typeName: 'Param_date',
+          relativePath: 'parsers/date',
+          absolutePath: '/path/to/parsers/date',
+        },
+      ],
+    ])
+
+    const result = generateParamParserCustomType(paramParsers)
+    expect(result).toBe("'date'")
+  })
+
+  it('returns union of quoted parser names for multiple parsers in alphabetical order on separate lines', () => {
+    const paramParsers: ParamParsersMap = new Map([
+      [
+        'uuid',
+        {
+          name: 'uuid',
+          typeName: 'Param_uuid',
+          relativePath: 'parsers/uuid',
+          absolutePath: '/path/to/parsers/uuid',
+        },
+      ],
+      [
+        'date',
+        {
+          name: 'date',
+          typeName: 'Param_date',
+          relativePath: 'parsers/date',
+          absolutePath: '/path/to/parsers/date',
+        },
+      ],
+    ])
+
+    const result = generateParamParserCustomType(paramParsers)
+    expect(result).toBe("  | 'date'\n  | 'uuid'")
+  })
+
+  it('handles parser names with special characters correctly', () => {
+    const paramParsers: ParamParsersMap = new Map([
+      [
+        'custom-parser',
+        {
+          name: 'custom-parser',
+          typeName: 'Param_custom-parser',
+          relativePath: 'parsers/custom-parser',
+          absolutePath: '/path/to/parsers/custom-parser',
+        },
+      ],
+    ])
+
+    const result = generateParamParserCustomType(paramParsers)
+    expect(result).toBe("'custom-parser'")
+  })
+
+  it('formats multiple parsers with proper indentation for three or more types', () => {
+    const paramParsers: ParamParsersMap = new Map([
+      [
+        'uuid',
+        {
+          name: 'uuid',
+          typeName: 'Param_uuid',
+          relativePath: 'parsers/uuid',
+          absolutePath: '/path/to/parsers/uuid',
+        },
+      ],
+      [
+        'date',
+        {
+          name: 'date',
+          typeName: 'Param_date',
+          relativePath: 'parsers/date',
+          absolutePath: '/path/to/parsers/date',
+        },
+      ],
+      [
+        'slug',
+        {
+          name: 'slug',
+          typeName: 'Param_slug',
+          relativePath: 'parsers/slug',
+          absolutePath: '/path/to/parsers/slug',
+        },
+      ],
+    ])
+
+    const result = generateParamParserCustomType(paramParsers)
+    expect(result).toBe("  | 'date'\n  | 'slug'\n  | 'uuid'")
   })
 })

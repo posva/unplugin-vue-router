@@ -34,9 +34,11 @@ declare module 'vue-router/auto-routes' {
 
 declare module 'vue-router' {
   import type { RouteNamedMap } from 'vue-router/auto-routes'
+  import type { ParamParserCustom } from 'vue-router/auto-resolver'
 
   export interface TypesConfig {
     RouteNamedMap: RouteNamedMap
+    ParamParsers: ParamParserCustom
   }
 }
 

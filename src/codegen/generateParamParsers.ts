@@ -87,6 +87,22 @@ export function generateParamParserOptions(
   return ''
 }
 
+export function generateParamParserCustomType(
+  paramParsers: ParamParsersMap
+): string {
+  const parserNames = Array.from(paramParsers.keys()).sort()
+
+  if (parserNames.length === 0) {
+    return 'never'
+  }
+
+  if (parserNames.length === 1) {
+    return `'${parserNames[0]}'`
+  }
+
+  return parserNames.map((name) => `  | '${name}'`).join('\n')
+}
+
 export function generatePathParamsOptions(
   params: TreePathParam[],
   importsMap: ImportsMap,

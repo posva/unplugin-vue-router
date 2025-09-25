@@ -5,6 +5,10 @@
 // It's recommended to commit this file.
 // Make sure to add this file to your tsconfig.json file as an "includes" or "files" entry.
 
+declare module 'vue-router/auto-resolver' {
+  export type ParamParserCustom = never
+}
+
 declare module 'vue-router/auto-routes' {
   import type {
     RouteRecordInfo,
