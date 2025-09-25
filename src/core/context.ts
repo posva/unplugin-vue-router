@@ -25,6 +25,7 @@ import { generateRouteResolver } from '../codegen/generateRouteResolver'
 import { type FSWatcher, watch as fsWatch } from 'chokidar'
 import {
   generateParamParsersTypesDeclarations,
+  generateParamParserCustomType,
   ParamParsersMap,
   warnMissingParamParsers,
 } from '../codegen/generateParamParsers'
@@ -370,6 +371,7 @@ if (import.meta.hot) {
       }),
       paramsTypesDeclaration:
         generateParamParsersTypesDeclarations(paramParsersMap),
+      customParamsType: generateParamParserCustomType(paramParsersMap),
     })
 
     // TODO: parser auto copmlete for definePage

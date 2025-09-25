@@ -20,11 +20,13 @@ export function generateDTS({
   routeNamedMap,
   routeFileInfoMap,
   paramsTypesDeclaration,
+  customParamsType,
 }: {
   routesModule: string
   routeNamedMap: string
   routeFileInfoMap: string
   paramsTypesDeclaration: string
+  customParamsType: string
 }) {
   return ts`
 /* eslint-disable */
@@ -42,7 +44,11 @@ ${paramsTypesDeclaration}
 
 `.trimStart()
     : ''
-}declare module '${routesModule}' {
+}declare module 'vue-router/auto-resolver' {
+  export type ParamParserCustom = ${customParamsType}
+}
+
+declare module '${routesModule}' {
   import type {
     RouteRecordInfo,
     ParamValue,
