@@ -23,6 +23,7 @@ export default defineConfig([
       './src/index.ts',
       './src/options.ts',
       './src/esbuild.ts',
+      './src/rolldown.ts',
       './src/rollup.ts',
       './src/vite.ts',
       './src/webpack.ts',
