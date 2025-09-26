@@ -83,10 +83,12 @@
       "require": "./dist/data-loaders/pinia-colada.cjs"
     },
     "./volar/sfc-route-blocks": {
-      "require": "./dist/volar/sfc-route-blocks.cjs"
+      "types": "./dist/volar/sfc-route-blocks.d.cts",
+      "default": "./dist/volar/sfc-route-blocks.cjs"
     },
     "./volar/sfc-typed-router": {
-      "require": "./dist/volar/sfc-typed-router.cjs"
+      "types": "./dist/volar/sfc-typed-router.d.cts",
+      "default": "./dist/volar/sfc-typed-router.cjs"
     },
     "./client": {
       "types": "./client.d.ts"
@@ -102,6 +104,12 @@
       ],
       "data-loaders/pinia-colada": [
         "./dist/data-loaders/pinia-colada.d.ts"
+      ],
+      "volar/sfc-route-blocks": [
+        "./dist/volar/sfc-route-blocks.d.cts"
+      ],
+      "volar/sfc-typed-router": [
+        "./dist/volar/sfc-typed-router.d.cts"
       ],
       "*": [
         "./dist/*",
