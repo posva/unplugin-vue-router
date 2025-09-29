@@ -108,4 +108,65 @@ describe('generateRouteFileInfoMap', () => {
         }"
       `)
   })
+
+  it('does not contain routes without components', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+    tree.insert('optional/[[id]]', 'optional/[[id]].vue')
+    tree.insert(
+      'optional-repeatable/[[id]]+',
+      'optional-repeatable/[[id]]+.vue'
+    )
+    tree.insert('repeatable/[id]+', 'repeatable/[id]+.vue')
+
+    expect(formatExports(generateRouteFileInfoMap(tree, { root: '' })))
+      .toMatchInlineSnapshot(`
+        "export interface _RouteFileInfoMap {
+          'optional/[[id]].vue': {
+            routes: '/optional/[[id]]'
+            views: never
+          }
+          'optional-repeatable/[[id]]+.vue': {
+            routes: '/optional-repeatable/[[id]]+'
+            views: never
+          }
+          'repeatable/[id]+.vue': {
+            routes: '/repeatable/[id]+'
+            views: never
+          }
+        }"
+      `)
+  })
+
+  it('does not contain nested routes without components', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+    tree.insert('parent', 'parent.vue')
+    tree.insert('parent/optional/[[id]]', 'parent/optional/[[id]].vue')
+    tree.insert(
+      'parent/optional-repeatable/[[id]]+',
+      'parent/optional-repeatable/[[id]]+.vue'
+    )
+    tree.insert('parent/repeatable/[id]+', 'parent/repeatable/[id]+.vue')
+
+    expect(formatExports(generateRouteFileInfoMap(tree, { root: '' })))
+      .toMatchInlineSnapshot(`
+        "export interface _RouteFileInfoMap {
+          'parent.vue': {
+            routes: '/parent' | '/parent/optional/[[id]]' | '/parent/optional-repeatable/[[id]]+' | '/parent/repeatable/[id]+'
+            views: 'default'
+          }
+          'parent/optional/[[id]].vue': {
+            routes: '/parent/optional/[[id]]'
+            views: never
+          }
+          'parent/optional-repeatable/[[id]]+.vue': {
+            routes: '/parent/optional-repeatable/[[id]]+'
+            views: never
+          }
+          'parent/repeatable/[id]+.vue': {
+            routes: '/parent/repeatable/[id]+'
+            views: never
+          }
+        }"
+      `)
+  })
 })
