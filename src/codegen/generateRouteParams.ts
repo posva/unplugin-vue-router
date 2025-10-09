@@ -11,6 +11,16 @@ export function generateRouteParams(node: TreeNode, isRaw: boolean): string {
   const nodeParams = node.pathParams
   return nodeParams.length > 0
     ? `{ ${nodeParams
+        .filter((param) => {
+          if (!param.paramName) {
+            console.warn(
+              `Warning: A parameter without a name was found in the route "${node.fullPath}" in segment "${node.path}".\n` +
+                `‼️ This is a bug, please report it at https://github.com/posva/unplugin-vue-router`
+            )
+            return false
+          }
+          return true
+        })
         .map(
           (param) =>
             `${param.paramName}${param.optional ? '?' : ''}: ` +
