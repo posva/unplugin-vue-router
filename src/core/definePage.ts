@@ -80,7 +80,23 @@ export function definePageTransform({
     return isExtractingDefinePage ? 'export default {}' : undefined
   }
 
-  const { ast, offset, definePageNodes } = getCodeAst(code, id)
+  let ast: Program | undefined
+  let offset: number
+  let definePageNodes: CallExpression[]
+
+  try {
+    const result = getCodeAst(code, id)
+    ast = result.ast
+    offset = result.offset
+    definePageNodes = result.definePageNodes
+  } catch (error) {
+    // Handle any syntax errors or parsing errors gracefully
+    warn(
+      `[${id}]: Failed to process definePage: ${error instanceof Error ? error.message : 'Unknown error'}`
+    )
+    return isExtractingDefinePage ? 'export default {}' : undefined
+  }
+
   if (!ast) return
 
   if (!definePageNodes.length) {
@@ -111,7 +127,14 @@ export function definePageTransform({
     const scriptBindings = ast.body ? getIdentifiers(ast.body) : []
 
     // this will throw if a property from the script setup is used in definePage
-    checkInvalidScopeReference(routeRecord, MACRO_DEFINE_PAGE, scriptBindings)
+    try {
+      checkInvalidScopeReference(routeRecord, MACRO_DEFINE_PAGE, scriptBindings)
+    } catch (error) {
+      warn(
+        `[${id}]: ${error instanceof Error ? error.message : 'Invalid scope reference in definePage'}`
+      )
+      return 'export default {}'
+    }
 
     s.remove(offset + routeRecord.end!, code.length)
     s.remove(0, offset + routeRecord.start!)
@@ -203,7 +226,21 @@ export function extractDefinePageInfo(
 ): DefinePageInfo | null | undefined {
   if (!sfcCode.includes(MACRO_DEFINE_PAGE)) return
 
-  const { ast, definePageNodes } = getCodeAst(sfcCode, id)
+  let ast: Program | undefined
+  let definePageNodes: CallExpression[]
+
+  try {
+    const result = getCodeAst(sfcCode, id)
+    ast = result.ast
+    definePageNodes = result.definePageNodes
+  } catch (error) {
+    // Handle any syntax errors or parsing errors gracefully
+    warn(
+      `[${id}]: Failed to extract definePage info: ${error instanceof Error ? error.message : 'Unknown error'}`
+    )
+    return undefined
+  }
+
   if (!ast) return
 
   if (!definePageNodes.length) {
