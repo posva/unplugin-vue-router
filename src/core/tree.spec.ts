@@ -987,4 +987,64 @@ describe('Tree', () => {
       }) // query param
     })
   })
+
+  describe('Empty parameter names', () => {
+    it('assigns default name "pathMatch" to empty parameter names', () => {
+      const tree = new PrefixTree(RESOLVED_OPTIONS)
+      let node = tree.insertParsedPath('/:()bar', 'test.vue')
+
+      expect(
+        'Invalid parameter in path "/:()bar": parameter name cannot be empty'
+      ).toHaveBeenWarned()
+      // The empty param gets assigned the default name "pathMatch"
+      expect(node.value.isParam()).toBe(true)
+      if (node.value.isParam()) {
+        expect(node.value.pathParams).toHaveLength(1)
+        expect(node.value.pathParams[0]).toMatchObject({
+          paramName: 'pathMatch',
+        })
+      }
+
+      // Empty param at the start - gets default name
+      node = tree.insertParsedPath('/:()', 'test1.vue')
+      expect(
+        'Invalid parameter in path "/:()": parameter name cannot be empty'
+      ).toHaveBeenWarned()
+      expect(node.value.isParam()).toBe(true)
+      if (node.value.isParam()) {
+        expect(node.value.pathParams).toHaveLength(1)
+        expect(node.value.pathParams[0]).toMatchObject({
+          paramName: 'pathMatch',
+        })
+      }
+
+      // Empty param with prefix - gets default name
+      node = tree.insertParsedPath('/foo/:()', 'test2.vue')
+      expect(
+        'Invalid parameter in path "/foo/:()": parameter name cannot be empty'
+      ).toHaveBeenWarned()
+      expect(node.value.isParam()).toBe(true)
+      if (node.value.isParam()) {
+        expect(node.value.pathParams).toHaveLength(1)
+        expect(node.value.pathParams[0]).toMatchObject({
+          paramName: 'pathMatch',
+        })
+      }
+
+      // Mixed: valid param, empty param, valid param - empty gets default name
+      node = tree.insertParsedPath('/:a/:()/:b', 'test3.vue')
+      expect(
+        'Invalid parameter in path "/:a/:()/:b": parameter name cannot be empty'
+      ).toHaveBeenWarned()
+      expect(node.value.isParam()).toBe(true)
+      if (node.value.isParam()) {
+        expect(node.value.pathParams).toHaveLength(3)
+        expect(node.value.pathParams[0]).toMatchObject({ paramName: 'a' })
+        expect(node.value.pathParams[1]).toMatchObject({
+          paramName: 'pathMatch',
+        })
+        expect(node.value.pathParams[2]).toMatchObject({ paramName: 'b' })
+      }
+    })
+  })
 })

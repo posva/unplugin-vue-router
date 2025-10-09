@@ -735,6 +735,13 @@ function parseRawPathSegment(
       state === ParseRawPathSegmentState.regexp ||
       state === ParseRawPathSegmentState.modifier
     ) {
+      // Check if the parameter name is empty and assign a default name
+      if (!currentTreeRouteParam.paramName) {
+        warn(
+          `Invalid parameter in path "${segment}": parameter name cannot be empty. Using default name "pathMatch" for ':()'.`
+        )
+        currentTreeRouteParam.paramName = 'pathMatch'
+      }
       // we consume the current param
       subSegments.push(currentTreeRouteParam)
       params.push(currentTreeRouteParam)
