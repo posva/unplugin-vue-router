@@ -149,16 +149,22 @@ describe('generateRouteFileInfoMap', () => {
       .toMatchInlineSnapshot(`
         "export interface _RouteFileInfoMap {
           'optional/[[id]].vue': {
-            routes: '/optional/[[id]]'
-            views: never
+            routes:
+              | '/optional/[[id]]'
+            views:
+              | never
           }
           'optional-repeatable/[[id]]+.vue': {
-            routes: '/optional-repeatable/[[id]]+'
-            views: never
+            routes:
+              | '/optional-repeatable/[[id]]+'
+            views:
+              | never
           }
           'repeatable/[id]+.vue': {
-            routes: '/repeatable/[id]+'
-            views: never
+            routes:
+              | '/repeatable/[id]+'
+            views:
+              | never
           }
         }"
       `)
@@ -178,20 +184,31 @@ describe('generateRouteFileInfoMap', () => {
       .toMatchInlineSnapshot(`
         "export interface _RouteFileInfoMap {
           'parent.vue': {
-            routes: '/parent' | '/parent/optional/[[id]]' | '/parent/optional-repeatable/[[id]]+' | '/parent/repeatable/[id]+'
-            views: 'default'
+            routes:
+              | '/parent'
+              | '/parent/optional/[[id]]'
+              | '/parent/optional-repeatable/[[id]]+'
+              | '/parent/repeatable/[id]+'
+            views:
+              | 'default'
           }
           'parent/optional/[[id]].vue': {
-            routes: '/parent/optional/[[id]]'
-            views: never
+            routes:
+              | '/parent/optional/[[id]]'
+            views:
+              | never
           }
           'parent/optional-repeatable/[[id]]+.vue': {
-            routes: '/parent/optional-repeatable/[[id]]+'
-            views: never
+            routes:
+              | '/parent/optional-repeatable/[[id]]+'
+            views:
+              | never
           }
           'parent/repeatable/[id]+.vue': {
-            routes: '/parent/repeatable/[id]+'
-            views: never
+            routes:
+              | '/parent/repeatable/[id]+'
+            views:
+              | never
           }
         }"
       `)

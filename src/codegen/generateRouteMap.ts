@@ -5,7 +5,7 @@ import {
   EXPERIMENTAL_generateRouteParams,
   generateRouteParams,
 } from './generateRouteParams'
-import { indent, formatMultilineUnion, stringToStringType } from '../utils'
+import { pad, formatMultilineUnion, stringToStringType } from '../utils'
 
 export function generateRouteNamedMap(
   node: TreeNode,
@@ -24,7 +24,7 @@ ${node
     // if the node has a filePath, it's a component, it has a routeName and it should be referenced in the RouteNamedMap
     // otherwise it should be skipped to avoid navigating to a route that doesn't render anything
     (node.value.components.size && node.isNamed()
-      ? indent(
+      ? pad(
           2,
           `${stringToStringType(node.name)}: ${generateRouteRecordInfo(node, options, paramParsersMap)},\n`
         )
