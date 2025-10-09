@@ -14,6 +14,11 @@ export interface TreeNodeOptions extends ResolvedOptions {
   treeNodeOptions?: TreeNodeValueOptions
 }
 
+/**
+ * Parts used by MatcherPatternPathDynamic to match a route.
+ *
+ * @internal
+ */
 export type TreeNodeValueMatcherPart = Array<
   string | number | Array<string | number>
 >
@@ -440,6 +445,10 @@ export class TreeNode {
     )
   }
 
+  /**
+   * Returns wether this tree node has a name. This allows to coerce the type
+   * of TreeNode
+   */
   isNamed(): this is TreeNodeNamed {
     return !!this.name
   }
