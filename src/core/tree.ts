@@ -9,6 +9,7 @@ import {
 import type { TreeNodeValue } from './treeNodeValue'
 import { CustomRouteBlock } from './customBlock'
 import { RouteMeta } from 'vue-router'
+import { comparePaths } from '../core/sortDts'
 
 export interface TreeNodeOptions extends ResolvedOptions {
   treeNodeOptions?: TreeNodeValueOptions
@@ -167,9 +168,7 @@ export class TreeNode {
    * @internal
    */
   static compare(a: TreeNode, b: TreeNode): number {
-    // for this case, ASCII, short list, it's better than Internation Collator
-    // https://stackoverflow.com/questions/77246375/why-localecompare-can-be-faster-than-collator-compare
-    return a.path.localeCompare(b.path, 'en')
+    return comparePaths(a.path, b.path)
   }
 
   /**

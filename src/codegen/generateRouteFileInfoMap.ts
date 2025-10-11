@@ -1,7 +1,6 @@
 import { relative } from 'pathe'
 import type { PrefixTree, TreeNode } from '../core/tree'
 import { formatMultilineUnion, stringToStringType } from '../utils'
-import { comparePaths } from '../core/sortDts'
 
 export function generateRouteFileInfoMap(
   node: PrefixTree,
@@ -40,18 +39,16 @@ export function generateRouteFileInfoMap(
   }
 
   const code = Array.from(routesInfo.entries())
-    .sort(([fa], [fb]) => comparePaths(fa, fb))
-    .map(([file, { routes, views }]) => {
-      const routesSorted = [...routes].sort(comparePaths)
-      const viewsSorted = [...views].sort(comparePaths)
-      return `
+    .map(
+      ([file, { routes, views }]) =>
+        `
   '${file}': {
     routes:
-      ${formatMultilineUnion(routesSorted.map(stringToStringType), 6)}
+      ${formatMultilineUnion(routes.map(stringToStringType), 6)}
     views:
-      ${formatMultilineUnion(viewsSorted.map(stringToStringType), 6)}
+      ${formatMultilineUnion(views.map(stringToStringType), 6)}
   }`
-    })
+    )
     .join('\n')
 
   return `export interface _RouteFileInfoMap {
