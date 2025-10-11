@@ -46,8 +46,8 @@ export function comparePaths(a: string, b: string): number {
     if (x === 'index.vue' || y === 'index.vue')
       return x === 'index.vue' ? -1 : 1
 
-    const fileX = i === A.length - 1 && x.includes('.')
-    const fileY = i === B.length - 1 && y.includes('.')
+    const fileX = i === A.length - 1 && x.includes('.vue')
+    const fileY = i === B.length - 1 && y.includes('.vue')
     if (fileX !== fileY) return fileX ? -1 : 1
 
     // Benchmarks show `Intl.Collator` is much faster than `localeCompare` here
