@@ -1,7 +1,18 @@
 import { relative } from 'pathe'
 import type { PrefixTree, TreeNode } from '../core/tree'
 import { formatMultilineUnion, stringToStringType } from '../utils'
+import { comparePaths } from '../core/sortDts'
 
+/**
+ * Builds a TypeScript interface string that maps route file paths to their associated route names and named views.
+ *
+ * Groups route entries by component file, sorts files, routes, and views for deterministic output, and returns the source text of an interface named `_RouteFileInfoMap`.
+ *
+ * @param node - The root prefix tree containing route nodes; must be a root node.
+ * @param root - The filesystem root directory used to compute relative component paths.
+ * @returns A TypeScript source string defining `_RouteFileInfoMap`, where each key is a component file path and each value has `routes` and `views` as unions of string literal types.
+ * @throws Error if `node` is not a root node.
+ */
 export function generateRouteFileInfoMap(
   node: PrefixTree,
   {
@@ -39,16 +50,18 @@ export function generateRouteFileInfoMap(
   }
 
   const code = Array.from(routesInfo.entries())
-    .map(
-      ([file, { routes, views }]) =>
-        `
+    .sort(([fa], [fb]) => comparePaths(fa, fb))
+    .map(([file, { routes, views }]) => {
+      const routesSorted = [...routes].sort(comparePaths)
+      const viewsSorted = [...views].sort(comparePaths)
+      return `
   '${file}': {
     routes:
-      ${formatMultilineUnion(routes.map(stringToStringType), 6)}
+      ${formatMultilineUnion(routesSorted.map(stringToStringType), 6)}
     views:
-      ${formatMultilineUnion(views.map(stringToStringType), 6)}
+      ${formatMultilineUnion(viewsSorted.map(stringToStringType), 6)}
   }`
-    )
+    })
     .join('\n')
 
   return `export interface _RouteFileInfoMap {
