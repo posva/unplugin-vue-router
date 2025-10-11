@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { comparePaths, sortPaths } from './sortDts'
+import { comparePaths, sortPaths } from './pathSorting'
 
 /**
  * Helper for snapshot-friendly, readable arrays of paths.
@@ -10,7 +10,7 @@ export function formatPaths(paths: string[]): string {
   return `[\n${lines.join(',\n')}\n]`
 }
 
-describe('sortDts', () => {
+describe('pathSorting', () => {
   it('orders REST-like routes hierarchically', () => {
     const input = [
       '/users/[id]/other',

@@ -9,7 +9,7 @@ import {
 import type { TreeNodeValue } from './treeNodeValue'
 import { CustomRouteBlock } from './customBlock'
 import { RouteMeta } from 'vue-router'
-import { comparePaths } from '../core/sortDts'
+import { comparePaths } from './pathSorting'
 
 export interface TreeNodeOptions extends ResolvedOptions {
   treeNodeOptions?: TreeNodeValueOptions
