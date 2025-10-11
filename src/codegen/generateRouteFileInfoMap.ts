@@ -42,13 +42,12 @@ export function generateRouteFileInfoMap(
   const code = Array.from(routesInfo.entries())
     .map(([file, { routes, views }]) => {
       const routesSorted = [...routes].sort(comparePaths)
-      const viewsSorted = [...new Set(views)].sort()
       return `
   '${file}': {
     routes:
       ${formatMultilineUnion(routesSorted.map(stringToStringType), 6)}
     views:
-      ${formatMultilineUnion(viewsSorted.map(stringToStringType), 6)}
+      ${formatMultilineUnion(views.map(stringToStringType), 6)}
   }`
     })
     .join('\n')
