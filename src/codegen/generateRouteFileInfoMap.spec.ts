@@ -51,38 +51,175 @@ describe('generateRouteFileInfoMap', () => {
   })
 
   it('is consistely sorted', () => {
+    /*
+     * Based off
+      * this tree:
+      * src/pages
+├── (auth)
+│   ├── another
+│   │   └── index.vue
+│   ├── deposit
+│   │   └── index.vue
+│   ├── foo
+│   │   ├── bar.vue
+│   │   ├── foo.vue
+│   │   └── index.vue
+│   ├── home
+│   │   └── index.vue
+│   ├── login-another
+│   │   └── index.vue
+│   └── settings
+│       ├── edit-account.vue
+│       ├── edit-email.vue
+│       ├── edit-password.vue
+│       ├── edit-phone-number.vue
+│       ├── index.vue
+│       ├── two-factor.vue
+│       └── verify-phone-number.vue
+└── (auth).vue
+    */
     const tree = new PrefixTree(DEFAULT_OPTIONS)
-    tree.insert('group', 'src/pages/group.vue')
-    tree.insert('group/b', 'src/pages/group/b.vue')
-    tree.insert('group/c', 'src/pages/c.vue')
-    tree.insert('group/a', 'src/pages/a.vue')
-    expect(formatExports(generateRouteFileInfoMap(tree, { root: '' })))
-      .toMatchInlineSnapshot(`
+    tree.insert('(auth)', '(auth).vue')
+    tree.insert('(auth)/another', '(auth)/another/index.vue')
+    tree.insert('(auth)/deposit', '(auth)/deposit/index.vue')
+    tree.insert('(auth)/foo/bar', '(auth)/foo/bar.vue')
+    tree.insert('(auth)/foo/foo', '(auth)/foo/foo.vue')
+    tree.insert('(auth)/foo', '(auth)/foo/index.vue')
+    tree.insert('(auth)/home', '(auth)/home/index.vue')
+    tree.insert('(auth)/login-another', '(auth)/login-another/index.vue')
+    tree.insert(
+      '(auth)/settings/edit-account',
+      '(auth)/settings/edit-account.vue'
+    )
+    tree.insert('(auth)/settings/edit-email', '(auth)/settings/edit-email.vue')
+    tree.insert(
+      '(auth)/settings/edit-password',
+      '(auth)/settings/edit-password.vue'
+    )
+    tree.insert(
+      '(auth)/settings/edit-phone-number',
+      '(auth)/settings/edit-phone-number.vue'
+    )
+    tree.insert('(auth)/settings', '(auth)/settings/index.vue')
+    tree.insert('(auth)/settings/two-factor', '(auth)/settings/two-factor.vue')
+    tree.insert(
+      '(auth)/settings/verify-phone-number',
+      '(auth)/settings/verify-phone-number.vue'
+    )
+
+    expect(
+      formatExports(generateRouteFileInfoMap(tree, { root: '' }))
+    ).toMatchInlineSnapshot(`
       "export interface _RouteFileInfoMap {
-        'src/pages/group.vue': {
+        '(auth).vue': {
           routes:
-            | '/group'
-            | '/group/a'
-            | '/group/b'
-            | '/group/c'
+            | '/(auth)'
+            | '/(auth)/another'
+            | '/(auth)/deposit'
+            | '/(auth)/foo'
+            | '/(auth)/foo/bar'
+            | '/(auth)/foo/foo'
+            | '/(auth)/home'
+            | '/(auth)/login-another'
+            | '/(auth)/settings'
+            | '/(auth)/settings/edit-account'
+            | '/(auth)/settings/edit-email'
+            | '/(auth)/settings/edit-password'
+            | '/(auth)/settings/edit-phone-number'
+            | '/(auth)/settings/two-factor'
+            | '/(auth)/settings/verify-phone-number'
           views:
             | 'default'
         }
-        'src/pages/a.vue': {
+        '(auth)/another/index.vue': {
           routes:
-            | '/group/a'
+            | '/(auth)/another'
           views:
             | never
         }
-        'src/pages/group/b.vue': {
+        '(auth)/deposit/index.vue': {
           routes:
-            | '/group/b'
+            | '/(auth)/deposit'
           views:
             | never
         }
-        'src/pages/c.vue': {
+        '(auth)/foo/index.vue': {
           routes:
-            | '/group/c'
+            | '/(auth)/foo'
+            | '/(auth)/foo/bar'
+            | '/(auth)/foo/foo'
+          views:
+            | 'default'
+        }
+        '(auth)/foo/bar.vue': {
+          routes:
+            | '/(auth)/foo/bar'
+          views:
+            | never
+        }
+        '(auth)/foo/foo.vue': {
+          routes:
+            | '/(auth)/foo/foo'
+          views:
+            | never
+        }
+        '(auth)/home/index.vue': {
+          routes:
+            | '/(auth)/home'
+          views:
+            | never
+        }
+        '(auth)/login-another/index.vue': {
+          routes:
+            | '/(auth)/login-another'
+          views:
+            | never
+        }
+        '(auth)/settings/index.vue': {
+          routes:
+            | '/(auth)/settings'
+            | '/(auth)/settings/edit-account'
+            | '/(auth)/settings/edit-email'
+            | '/(auth)/settings/edit-password'
+            | '/(auth)/settings/edit-phone-number'
+            | '/(auth)/settings/two-factor'
+            | '/(auth)/settings/verify-phone-number'
+          views:
+            | 'default'
+        }
+        '(auth)/settings/edit-account.vue': {
+          routes:
+            | '/(auth)/settings/edit-account'
+          views:
+            | never
+        }
+        '(auth)/settings/edit-email.vue': {
+          routes:
+            | '/(auth)/settings/edit-email'
+          views:
+            | never
+        }
+        '(auth)/settings/edit-password.vue': {
+          routes:
+            | '/(auth)/settings/edit-password'
+          views:
+            | never
+        }
+        '(auth)/settings/edit-phone-number.vue': {
+          routes:
+            | '/(auth)/settings/edit-phone-number'
+          views:
+            | never
+        }
+        '(auth)/settings/two-factor.vue': {
+          routes:
+            | '/(auth)/settings/two-factor'
+          views:
+            | never
+        }
+        '(auth)/settings/verify-phone-number.vue': {
+          routes:
+            | '/(auth)/settings/verify-phone-number'
           views:
             | never
         }
@@ -226,8 +363,8 @@ describe('generateRouteFileInfoMap', () => {
           'parent.vue': {
             routes:
               | '/parent'
-              | '/parent/optional/[[id]]'
               | '/parent/optional-repeatable/[[id]]+'
+              | '/parent/optional/[[id]]'
               | '/parent/repeatable/[id]+'
             views:
               | 'default'

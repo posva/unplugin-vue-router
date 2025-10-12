@@ -44,9 +44,9 @@ export function generateRouteFileInfoMap(
         `
   '${file}': {
     routes:
-      ${formatMultilineUnion(routes.map(stringToStringType), 6)}
+      ${formatMultilineUnion(routes.sort().map(stringToStringType), 6)}
     views:
-      ${formatMultilineUnion(views.map(stringToStringType), 6)}
+      ${formatMultilineUnion(views.sort().map(stringToStringType), 6)}
   }`
     )
     .join('\n')
