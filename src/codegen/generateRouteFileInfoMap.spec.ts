@@ -56,9 +56,8 @@ describe('generateRouteFileInfoMap', () => {
     tree.insert('group/b', 'src/pages/group/b.vue')
     tree.insert('group/c', 'src/pages/c.vue')
     tree.insert('group/a', 'src/pages/a.vue')
-    expect(
-      formatExports(generateRouteFileInfoMap(tree, { root: '' }))
-    ).toMatchInlineSnapshot(`
+    expect(formatExports(generateRouteFileInfoMap(tree, { root: '' })))
+      .toMatchInlineSnapshot(`
       "export interface _RouteFileInfoMap {
         'src/pages/group.vue': {
           routes:
