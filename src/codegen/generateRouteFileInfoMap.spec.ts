@@ -50,6 +50,47 @@ describe('generateRouteFileInfoMap', () => {
       `)
   })
 
+  it('is consistely sorted', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+    tree.insert('group', 'src/pages/group.vue')
+    tree.insert('group/b', 'src/pages/group/b.vue')
+    tree.insert('group/c', 'src/pages/c.vue')
+    tree.insert('group/a', 'src/pages/a.vue')
+    expect(
+      formatExports(generateRouteFileInfoMap(tree, { root: '' }))
+    ).toMatchInlineSnapshot(`
+      "export interface _RouteFileInfoMap {
+        'src/pages/group.vue': {
+          routes:
+            | '/group'
+            | '/group/a'
+            | '/group/b'
+            | '/group/c'
+          views:
+            | 'default'
+        }
+        'src/pages/a.vue': {
+          routes:
+            | '/group/a'
+          views:
+            | never
+        }
+        'src/pages/group/b.vue': {
+          routes:
+            | '/group/b'
+          views:
+            | never
+        }
+        'src/pages/c.vue': {
+          routes:
+            | '/group/c'
+          views:
+            | never
+        }
+      }"
+    `)
+  })
+
   it('works with children', () => {
     const tree = new PrefixTree(DEFAULT_OPTIONS)
     tree.insert('parent', 'src/pages/parent.vue')
