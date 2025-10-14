@@ -234,8 +234,8 @@ declare module 'vue-router/auto-routes' {
     'src/pages/u[name].vue': {
       routes:
         | '/u[name]'
-        | '/u[name]/[userId=int]'
         | '/u[name]/24'
+        | '/u[name]/[userId=int]'
       views:
         | 'default'
     }
