@@ -227,7 +227,8 @@ export interface Options {
     autoExportsDataLoaders?: string | string[]
 
     /**
-     * Enable experimental support for the new custom resolvers.
+     * Enable experimental support for the new custom resolvers and allows
+     * defining custom param matchers.
      */
     paramParsers?: boolean | ParamParsersOptions
   }
