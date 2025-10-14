@@ -197,8 +197,6 @@ async function main() {
           .concat([{ value: 'custom', title: 'custom' }]),
       })
 
-      console.log(release)
-
       if (release === 'custom') {
         version = (
           await prompts({
@@ -335,7 +333,13 @@ async function main() {
         : `${pkg.name}@${pkg.version}`
 
     versionsToPush.push(`refs/tags/${tagName}`)
-    await runIfNotDry('git', ['tag', `${tagName}`])
+    await runIfNotDry('git', [
+      'tag',
+      '-a',
+      `${tagName}`,
+      '-m',
+      `Release ${tagName}`,
+    ])
   }
 
   if (!noPublish) {
