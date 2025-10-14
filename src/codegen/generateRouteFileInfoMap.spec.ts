@@ -107,9 +107,8 @@ describe('generateRouteFileInfoMap', () => {
       '(auth)/settings/verify-phone-number.vue'
     )
 
-    expect(
-      formatExports(generateRouteFileInfoMap(tree, { root: '' }))
-    ).toMatchInlineSnapshot(`
+    expect(formatExports(generateRouteFileInfoMap(tree, { root: '' })))
+      .toMatchInlineSnapshot(`
       "export interface _RouteFileInfoMap {
         '(auth).vue': {
           routes:
