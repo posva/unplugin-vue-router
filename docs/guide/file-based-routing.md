@@ -124,6 +124,7 @@ src/pages/
 ```
 
 Resulting URLs:
+
 ```text
 - `/dashboard` -> renders `src/pages/(admin)/dashboard.vue`
 - `/settings` -> renders `src/pages/(admin)/settings.vue`
