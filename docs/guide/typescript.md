@@ -34,26 +34,18 @@ router.push('')
 ## Extra types
 
 ### `typed-router.d.ts` contents
-You can always take a look at the generated `typed-router.d.ts` file to inspect what are the generated types. `unplugin-vue-router` creates and exports interfaces and helper types from `'vue-router/auto-routes'`:
-- `RouteNamedMap` interface
-- `_RouteFileInfoMap` interface
-- `_RouteNamesForFilePath` helper type
 
-#### `RouteNamedMap`
-This interface maps route names to “route records”, containing the types for each route. A route record includes a route’s name, path, typed params and a list of its child route names.
+You can always take a look at the generated `typed-router.d.ts` file to inspect what are the generated types. `unplugin-vue-router` creates and exports a couple of types, among them, `RouteNamedMap` with all the route records, typed, in your application. Each route record contains the route's name, path, typed params and a list of its child route names.
 
-#### `_RouteFileInfoMap`
-This interface is used by the [`sfc-typed-router` Volar plugin](#using-the-sfc-typed-router-volar-plugin), if enabled. It maps page component file paths to all route names and views that could be displayed within these components.
-
-#### `_RouteNamesForFilePath`
-This is a helper type, used by the [`sfc-typed-router` Volar plugin](#using-the-sfc-typed-router-volar-plugin) to enhance typings for `useRoute()` and `$route`, if enabled. It returns the route names corresponding to a page component’s file path, or falls back to `keyof RouteNamedMap` in non-page components.
+Other types, prefixed with an underscore (`_`), are used internally, e.g. `_RouteFileInfoMap` by the [`sfc-typed-router` Volar plugin](#using-the-sfc-typed-router-volar-plugin) to enhance typings for `useRoute()` and `$route`, if enabled, and **are not meant to be used directly**.
 
 ### Manually typing dynamically added routes
+
+The `RouteNamedMap` interface contains all the routes in your application along with their metadata. You can augment it to add types for **dynamic routes** that are added during runtime.
+
 ```ts
 import type { RouteNamedMap } from 'vue-router/auto-routes'
 ```
-
-The `RouteNamedMap` interface contains all the routes in your application along with their metadata. You can augment it to add types for **dynamic routes** that are added during runtime.
 
 Note that, if you are using the [`sfc-typed-router` Volar plugin](#using-the-sfc-typed-router-volar-plugin), you should also augment the `_RouteFileInfoMap` interface for every dynamically added route corresponding to a page component.
 
@@ -120,55 +112,54 @@ import { useRoute, type RouteLocationNormalizedLoaded } from 'vue-router'
 // @errors: 2322 2339
 // @moduleResolution: bundler
 // These are all valid ways to get a typed route and return the
-// provided route’s and any of its child routes’ typings.
+// provided route's and any of its child routes' typings.
 // Note that `/users/[id]/edit` is a child route
 // of `/users/[id]` in this example.
 
-// Not recommended, since this leaves out any child routes’ typings.
+// Not recommended, since this leaves out any child routes' typings.
 const userRouteWithIdCasted =
   useRoute() as RouteLocationNormalizedLoaded<'/users/[id]'>
 userRouteWithIdCasted.params.id
 
-// Better way. Includes child routes’ typings, but no autocompletion.
+// Better way. Includes child routes' typings, but no autocompletion.
 const userRouteWithIdTypeParam = useRoute<'/users/[id]'>()
 userRouteWithIdTypeParam.params.id
 
 // 👇 This one is the easiest to write because it both
-//    autocompletes and includes child routes’ typings.
+//    autocompletes and includes child routes' typings.
 const userRouteWithIdParam = useRoute('/users/[id]')
 userRouteWithIdParam.name
 userRouteWithIdParam.params.id
 ```
 
 ### Using the `sfc-typed-router` Volar plugin
-This Volar plugin automatically types `useRoute()` and `$route` correctly in page components, so you don’t have to write code like `useRoute('/users/[id]')`, allowing you to write less code.
+
+This Volar plugin automatically types `useRoute()` and `$route` correctly in page components, so you don't have to write code like `useRoute('/users/[id]')`, allowing you to write less code.
 
 To start using the plugin, add the following to the `tsconfig.json` file that includes your Vue files:
+
 ```json
 {
   // ...
   "vueCompilerOptions": {
-    "plugins": [
-      "unplugin-vue-router/volar/sfc-typed-router"
-    ]
+    "plugins": ["unplugin-vue-router/volar/sfc-typed-router"]
   }
 }
 ```
 
-As long as this plugin isn’t enabled in Nuxt by default with `experimental.typedPages: true` or through any other experimental feature flag, you should manually add the plugin via `nuxt.config.ts`:
+As long as this plugin isn't enabled in Nuxt by default with `experimental.typedPages: true` or through any other experimental feature flag, you should manually add the plugin via `nuxt.config.ts`:
+
 ```ts
 export default defineNuxtConfig({
   // ...
   typescript: {
     tsConfig: {
       vueCompilerOptions: {
-        plugins: [
-          'unplugin-vue-router/volar/sfc-typed-router',
-        ],
+        plugins: ['unplugin-vue-router/volar/sfc-typed-router'],
       },
     },
   },
 })
 ```
 
-When using the `sfc-typed-router` Volar plugin, `useRoute()` and `$route` are typed automatically for page components under the hood, so you don’t have to do it manually.
+When using the `sfc-typed-router` Volar plugin, `useRoute()` and `$route` are typed automatically for page components under the hood, so you don't have to do it manually.
