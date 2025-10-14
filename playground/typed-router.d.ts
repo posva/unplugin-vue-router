@@ -490,8 +490,8 @@ declare module 'vue-router/auto-routes' {
     }
     'src/pages/index.vue': {
       routes:
-        | 'home'
         | '/from-root'
+        | 'home'
       views:
         | never
     }
@@ -701,9 +701,9 @@ declare module 'vue-router/auto-routes' {
         | '/named-views/parent'
         | '/named-views/parent/'
       views:
-        | 'default'
         | 'a'
         | 'b'
+        | 'default'
     }
     'src/pages/named-views/parent/index.vue': {
       routes:
