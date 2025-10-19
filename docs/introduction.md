@@ -146,9 +146,9 @@ Then, if you have an `env.d.ts` file like the one created by `npm vue create <my
 
 ::: code-group
 
-```ts [env.d.ts]
+```ts{2} [env.d.ts]
 /// <reference types="vite/client" />
-/// <reference types="unplugin-vue-router/client" /> // [!code ++]
+/// <reference types="unplugin-vue-router/client" />
 ```
 
 :::
