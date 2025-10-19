@@ -34,6 +34,10 @@ This new version requires Vue router 4.6.0 or higher. It includes support for th
 - types + runtime of param parsers on path ([00fa3b2](https://github.com/posva/unplugin-vue-router/commit/00fa3b2765ba50ecae05142e1c3554ad0002ecca))
 - warn possible bug ([b4b4332](https://github.com/posva/unplugin-vue-router/commit/b4b433277aef32a0742e80b27f70ec40c7a4a8e8))
 
+### BREAKING CHANGES
+
+- The deprecated import drom vue-router/auto has been removed. Direclty import from vue-router instead
+
 # [0.15.0](https://github.com/posva/unplugin-vue-router/compare/v0.14.0...v0.15.0) (2025-08-04)
 
 ### Features
