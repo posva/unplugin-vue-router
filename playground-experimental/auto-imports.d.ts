@@ -6,9 +6,9 @@
 // biome-ignore lint: disable
 export {}
 declare global {
-  const defineBasicLoader: typeof import('../src/data-loaders/entries/basic')['defineBasicLoader']
-  const onBeforeRouteLeave: typeof import('vue-router')['onBeforeRouteLeave']
-  const onBeforeRouteUpdate: typeof import('vue-router')['onBeforeRouteUpdate']
-  const useRoute: typeof import('vue-router')['useRoute']
-  const useRouter: typeof import('vue-router')['useRouter']
+  const defineBasicLoader: typeof import('../src/data-loaders/entries/basic').defineBasicLoader
+  const onBeforeRouteLeave: typeof import('vue-router').onBeforeRouteLeave
+  const onBeforeRouteUpdate: typeof import('vue-router').onBeforeRouteUpdate
+  const useRoute: typeof import('vue-router').useRoute
+  const useRouter: typeof import('vue-router').useRouter
 }
