@@ -9,7 +9,7 @@
   "devDependencies": {
     "@pinia/colada-nuxt": "^0.2.3",
     "@pinia/nuxt": "^0.11.2",
-    "nuxt": "^3.19.3",
+    "nuxt": "^4.2.0",
     "unplugin-vue-router": "workspace:*"
   },
   "dependencies": {
