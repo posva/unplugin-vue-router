@@ -539,13 +539,14 @@ const enum ParseFileSegmentState {
 }
 
 /**
- * Options passed to `parseSegment()`to control how a segment of a file path is parsed. e.g. in `/users/[id]`, `users`
- * and `[id]` are segments.
+ * Options passed to `parseSegment()`to control how a segment of a file path is
+ * parsed. e.g. in `/users/[id]`, `users` and `[id]` are segments.
  */
 export interface ParseSegmentOptions {
   /**
-   * Should we allow dot nesting in the param name. e.g. `users.[id]` will be parsed as `users/[id]` if this is `true`,
-   * nesting. Note this only works for the `file` format.
+   * Should we allow dot nesting in the param name. e.g. `users.[id]` will be
+   * parsed as `users/[id]` if this is `true`, nesting. Note this only works
+   * for the `file` format.
    *
    * @default `true`
    */

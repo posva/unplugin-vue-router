@@ -134,11 +134,13 @@ export interface Options {
    */
   exclude?: string[] | string
 
-  // NOTE: the comment below contains ZWJ characters to allow the sequence `**/*` to be displayed correctly
   /**
-   * Pattern to match files in the `routesFolder`. Defaults to `**‍/*` plus a combination of all the possible extensions,
-   * e.g. `**‍/*.{vue,md}` if `extensions` is set to `['.vue', '.md']`. This is relative to the {@link RoutesFolderOption['src']} and
-   * @default `['**‍/*']`
+   * Pattern to match files in the `routesFolder`. Defaults to `*\/*` plus a
+   * combination of all the possible extensions, e.g. `*\/*.{vue,md}` if
+   * `extensions` is set to `['.vue', '.md']`. This is relative to the {@link
+   * RoutesFolderOption['src']} and
+   *
+   * @default `['*\/*']`
    */
   filePatterns?: string[] | string
 
