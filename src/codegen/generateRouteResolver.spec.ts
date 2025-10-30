@@ -233,7 +233,7 @@ describe('generateRouteRecord', () => {
         paramParsersMap,
       })
     ).toMatchInlineSnapshot(`
-      "const r_0 = normalizeRouteRecord({
+      "const __route_0 = normalizeRouteRecord({
         name: '/a',
         path: new MatcherPatternPathStatic('/a'),
         components: {
@@ -251,7 +251,7 @@ describe('generateRouteRecord', () => {
         paramParsersMap,
       })
     ).toMatchInlineSnapshot(`
-      "const r_1 = normalizeRouteRecord({
+      "const __route_1 = normalizeRouteRecord({
         name: '/a/b/c',
         path: new MatcherPatternPathStatic('/a/b/c'),
         components: {
@@ -279,7 +279,7 @@ describe('generateRouteResolver', () => {
 
     expect(resolver).toMatchInlineSnapshot(`
       "
-      const r_0 = normalizeRouteRecord({
+      const __route_0 = normalizeRouteRecord({
         name: '/a',
         path: new MatcherPatternPathStatic('/a'),
         components: {
@@ -287,22 +287,22 @@ describe('generateRouteResolver', () => {
         },
       })
 
-      const r_1 = normalizeRouteRecord({
+      const __route_1 = normalizeRouteRecord({
         name: '/b/c',
         path: new MatcherPatternPathStatic('/b/c'),
         components: {
           'default': () => import('b/c.vue')
         },
       })
-      const r_2 = normalizeRouteRecord({
+      const __route_2 = normalizeRouteRecord({
         name: '/b/c/d',
         path: new MatcherPatternPathStatic('/b/c/d'),
         components: {
           'default': () => import('b/c/d.vue')
         },
-        parent: r_1,
+        parent: __route_1,
       })
-      const r_3 = normalizeRouteRecord({
+      const __route_3 = normalizeRouteRecord({
         name: '/b/e/f',
         path: new MatcherPatternPathStatic('/b/e/f'),
         components: {
@@ -311,10 +311,10 @@ describe('generateRouteResolver', () => {
       })
 
       export const resolver = createFixedResolver([
-        r_2,  // /b/c/d
-        r_3,  // /b/e/f
-        r_1,  // /b/c
-        r_0,  // /a
+        __route_2,  // /b/c/d
+        __route_3,  // /b/e/f
+        __route_1,  // /b/c
+        __route_0,  // /a
       ])
       "
     `)
@@ -345,70 +345,70 @@ describe('generateRouteResolver', () => {
 
     expect(resolver).toMatchInlineSnapshot(`
       "
-      const r_0 = normalizeRouteRecord({
+      const __route_0 = normalizeRouteRecord({
         name: '/a',
         path: new MatcherPatternPathStatic('/a'),
         components: {
           'default': () => import('a.vue')
         },
       })
-      const r_1 = normalizeRouteRecord({
+      const __route_1 = normalizeRouteRecord({
         name: '/a/(a-home)',
         path: new MatcherPatternPathStatic('/a'),
         components: {
           'default': () => import('a/(a-home).vue')
         },
-        parent: r_0,
+        parent: __route_0,
       })
-      const r_2 = normalizeRouteRecord({
+      const __route_2 = normalizeRouteRecord({
         name: '/a/b',
         path: new MatcherPatternPathStatic('/a/b'),
         components: {
           'default': () => import('a/b.vue')
         },
-        parent: r_0,
+        parent: __route_0,
       })
-      const r_3 = normalizeRouteRecord({
+      const __route_3 = normalizeRouteRecord({
         name: '/a/b/(b-home)',
         path: new MatcherPatternPathStatic('/a/b'),
         components: {
           'default': () => import('a/b/(b-home).vue')
         },
-        parent: r_2,
+        parent: __route_2,
       })
-      const r_4 = normalizeRouteRecord({
+      const __route_4 = normalizeRouteRecord({
         name: '/a/b/c',
         path: new MatcherPatternPathStatic('/a/b/c'),
         components: {
           'default': () => import('a/b/c.vue')
         },
-        parent: r_2,
+        parent: __route_2,
       })
-      const r_5 = normalizeRouteRecord({
+      const __route_5 = normalizeRouteRecord({
         name: '/a/b/e',
         path: new MatcherPatternPathStatic('/a/b/e'),
         components: {
           'default': () => import('a/b/e.vue')
         },
-        parent: r_2,
+        parent: __route_2,
       })
-      const r_6 = normalizeRouteRecord({
+      const __route_6 = normalizeRouteRecord({
         name: '/a/d',
         path: new MatcherPatternPathStatic('/a/d'),
         components: {
           'default': () => import('a/d.vue')
         },
-        parent: r_0,
+        parent: __route_0,
       })
 
       export const resolver = createFixedResolver([
-        r_3,  // /a/b
-        r_4,  // /a/b/c
-        r_5,  // /a/b/e
-        r_1,  // /a
-        r_2,  // /a/b
-        r_6,  // /a/d
-        r_0,  // /a
+        __route_3,  // /a/b
+        __route_4,  // /a/b/c
+        __route_5,  // /a/b/e
+        __route_1,  // /a
+        __route_2,  // /a/b
+        __route_6,  // /a/d
+        __route_0,  // /a
       ])
       "
     `)
@@ -524,7 +524,7 @@ describe('generateRouteResolver', () => {
 
     expect(resolver).toMatchInlineSnapshot(`
       "
-      const r_0 = normalizeRouteRecord({
+      const __route_0 = normalizeRouteRecord({
         name: '/a',
         path: new MatcherPatternPathStatic('/a'),
         components: {
@@ -532,22 +532,22 @@ describe('generateRouteResolver', () => {
         },
       })
 
-      const r_1 = normalizeRouteRecord({
+      const __route_1 = normalizeRouteRecord({
         name: '/b/c',
         path: new MatcherPatternPathStatic('/b/c'),
         components: {
           'default': () => import('b/c.vue')
         },
       })
-      const r_2 = normalizeRouteRecord({
+      const __route_2 = normalizeRouteRecord({
         name: '/b/c/d',
         path: new MatcherPatternPathStatic('/b/c/d'),
         components: {
           'default': () => import('b/c/d.vue')
         },
-        parent: r_1,
+        parent: __route_1,
       })
-      const r_3 = normalizeRouteRecord({
+      const __route_3 = normalizeRouteRecord({
         name: '/b/e/f',
         path: new MatcherPatternPathStatic('/b/e/f'),
         components: {
@@ -556,10 +556,10 @@ describe('generateRouteResolver', () => {
       })
 
       export const resolver = createFixedResolver([
-        r_2,  // /b/c/d
-        r_3,  // /b/e/f
-        r_1,  // /b/c
-        r_0,  // /a
+        __route_2,  // /b/c/d
+        __route_3,  // /b/e/f
+        __route_1,  // /b/c
+        __route_0,  // /a
       ])
       "
     `)
@@ -580,25 +580,25 @@ describe('generateRouteResolver', () => {
 
     expect(resolver).toMatchInlineSnapshot(`
       "
-      const r_0 = normalizeRouteRecord({
+      const __route_0 = normalizeRouteRecord({
         name: '/a',
         path: new MatcherPatternPathStatic('/a'),
         components: {
           'default': () => import('a.vue')
         },
       })
-      const r_1 = normalizeRouteRecord({
+      const __route_1 = normalizeRouteRecord({
         name: '/a/b/c/e',
         path: new MatcherPatternPathStatic('/a/b/c/e'),
         components: {
           'default': () => import('a/b/c/e.vue')
         },
-        parent: r_0,
+        parent: __route_0,
       })
 
       export const resolver = createFixedResolver([
-        r_1,  // /a/b/c/e
-        r_0,  // /a
+        __route_1,  // /a/b/c/e
+        __route_0,  // /a
       ])
       "
     `)
@@ -622,23 +622,23 @@ describe('generateRouteResolver', () => {
 
     expect(resolver).toMatchInlineSnapshot(`
       "
-      const r_0 = normalizeRouteRecord({
+      const __route_0 = normalizeRouteRecord({
         /* internal name: '/a/b' */
         meta: {
           "requiresAuth": true
         },
       })
-      const r_1 = normalizeRouteRecord({
+      const __route_1 = normalizeRouteRecord({
         name: '/a/b/c',
         path: new MatcherPatternPathStatic('/a/b/c'),
         components: {
           'default': () => import('a/b/c.vue')
         },
-        parent: r_0,
+        parent: __route_0,
       })
 
       export const resolver = createFixedResolver([
-        r_1,  // /a/b/c
+        __route_1,  // /a/b/c
       ])
       "
     `)
@@ -663,7 +663,7 @@ describe('generateRouteResolver', () => {
 
     expect(resolver).toMatchInlineSnapshot(`
       "
-      const r_0 = normalizeRouteRecord({
+      const __route_0 = normalizeRouteRecord({
         name: '/users',
         path: new MatcherPatternPathStatic('/users'),
         meta: {
@@ -676,7 +676,7 @@ describe('generateRouteResolver', () => {
       })
 
       export const resolver = createFixedResolver([
-        r_0,  // /users
+        __route_0,  // /users
       ])
       "
     `)
@@ -701,7 +701,7 @@ describe('generateRouteResolver', () => {
     expect(resolver).toMatchInlineSnapshot(`
       "
 
-      const r_0 = normalizeRouteRecord(
+      const __route_0 = normalizeRouteRecord(
         _mergeRouteRecord(
           {
             name: '/profile',
@@ -716,7 +716,7 @@ describe('generateRouteResolver', () => {
 
 
       export const resolver = createFixedResolver([
-        r_0,  // /profile
+        __route_0,  // /profile
       ])
       "
     `)
@@ -744,7 +744,7 @@ describe('generateRouteResolver', () => {
 
     expect(resolver).toMatchInlineSnapshot(`
       "
-      const r_0 = normalizeRouteRecord({
+      const __route_0 = normalizeRouteRecord({
         name: '/search',
         path: new MatcherPatternPathStatic('/search'),
         query: [
@@ -757,7 +757,7 @@ describe('generateRouteResolver', () => {
       })
 
       export const resolver = createFixedResolver([
-        r_0,  // /search
+        __route_0,  // /search
       ])
       "
     `)

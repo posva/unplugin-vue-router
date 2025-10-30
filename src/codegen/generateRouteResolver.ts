@@ -63,6 +63,8 @@ interface GenerateRouteResolverState {
   }[]
 }
 
+const ROUTE_RECORD_VAR_PREFIX = '__route_'
+
 export function generateRouteResolver(
   tree: PrefixTree,
   options: ResolvedOptions,
@@ -94,7 +96,7 @@ ${state.matchableRecords
   .sort((a, b) => compareRouteScore(a.score, b.score))
   .map(
     ({ varName, path }) =>
-      `  ${varName},  ${' '.repeat(String(state.id).length - varName.length + 2)}// ${path}`
+      `  ${varName},  ${' '.repeat(String(state.id).length - varName.length + ROUTE_RECORD_VAR_PREFIX.length)}// ${path}`
   )
   .join('\n')}
 ])
@@ -145,7 +147,7 @@ export function generateRouteRecord({
   }
 
   if (!shouldSkipNode) {
-    varName = `r_${state.id++}`
+    varName = `${ROUTE_RECORD_VAR_PREFIX}${state.id++}`
 
     let recordName: string
     let recordComponents: string
