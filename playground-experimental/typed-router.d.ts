@@ -103,6 +103,28 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/nested': RouteRecordInfo<
+      '/nested',
+      '/nested',
+      Record<never, never>,
+      Record<never, never>,
+      | '/nested/'
+      | '/nested/other'
+    >,
+    '/nested/': RouteRecordInfo<
+      '/nested/',
+      '/nested',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/nested/other': RouteRecordInfo<
+      '/nested/other',
+      '/nested/other',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/tests/[[optional]]/end': RouteRecordInfo<
       '/tests/[[optional]]/end',
       '/tests/:optional?/end',
@@ -222,6 +244,26 @@ declare module 'vue-router/auto-routes' {
     'src/page-outside.vue': {
       routes:
         | '/manually-added'
+      views:
+        | never
+    }
+    'src/pages/nested.vue': {
+      routes:
+        | '/nested'
+        | '/nested/'
+        | '/nested/other'
+      views:
+        | 'default'
+    }
+    'src/pages/nested/index.vue': {
+      routes:
+        | '/nested/'
+      views:
+        | never
+    }
+    'src/pages/nested/other.vue': {
+      routes:
+        | '/nested/other'
       views:
         | never
     }
