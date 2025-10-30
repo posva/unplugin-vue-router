@@ -1,3 +1,9 @@
+## [0.16.1](https://github.com/posva/unplugin-vue-router/compare/v0.16.0...v0.16.1) (2025-10-30)
+
+### Bug Fixes
+
+- **experimental:** reuse parent path for index routes ([332a89c](https://github.com/posva/unplugin-vue-router/commit/332a89c774ea984e21630113da6ed25a213dd510))
+
 # [0.16.0](https://github.com/posva/unplugin-vue-router/compare/v0.15.0...v0.16.0) (2025-10-14)
 
 This new version requires Vue router 4.6.0 or higher. It includes support for the new experimental custom resolvers by setting `experimental.paramParsers: true`.
