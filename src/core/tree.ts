@@ -9,6 +9,7 @@ import {
 import type { TreeNodeValue } from './treeNodeValue'
 import { CustomRouteBlock } from './customBlock'
 import { RouteMeta } from 'vue-router'
+import { ESCAPED_TRAILING_SLASH_RE } from './utils'
 
 export interface TreeNodeOptions extends ResolvedOptions {
   treeNodeOptions?: TreeNodeValueOptions
@@ -365,13 +366,13 @@ export class TreeNode {
       }
     }
 
-    // TODO: trailingSlash
     return (
       '/^' +
       // Avoid adding a leading slash if the first segment
       // is an optional segment that already includes it
       (re.startsWith('(?:\\/') ? '' : '\\/') +
-      re +
+      // TODO: trailingSlash
+      re.replace(ESCAPED_TRAILING_SLASH_RE, '') +
       '$/i'
     )
   }

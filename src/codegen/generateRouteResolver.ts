@@ -177,7 +177,7 @@ export function generateRouteRecord({
     })
     const routeRecordObject = `{
   ${recordName}
-  ${generateRouteRecordPath({ node, importsMap, paramParsersMap })}${
+  ${generateRouteRecordPath({ node, importsMap, paramParsersMap, parentVar })}${
     queryProperty ? `\n  ${queryProperty}` : ''
   }${formatMeta(node, '  ')}
   ${recordComponents}${parentVar ? `\n  parent: ${parentVar},` : ''}
@@ -248,14 +248,25 @@ export function generateRouteRecordPath({
   node,
   importsMap,
   paramParsersMap,
+  parentVar,
 }: {
   node: TreeNode
   importsMap: ImportsMap
   paramParsersMap: ParamParsersMap
+  parentVar?: string | null | undefined
 }) {
   if (!node.isMatchable()) {
     return ''
   }
+
+  // reuse the parent path matcher if it's exactly the same
+  // this allows defining index pages and letting the router
+  // recognize them by just checking the recorde.path === record.parent.path
+  // it's used for active route matching
+  if (parentVar && node.regexp === node.parent?.regexp) {
+    return `path: ${parentVar}.path,`
+  }
+
   const params = node.pathParams
   if (params.length > 0) {
     return `path: new MatcherPatternPathDynamic(

@@ -106,8 +106,9 @@ export function throttle(fn: () => void, wait: number, initialWait: number) {
   }
 }
 
-const LEADING_SLASH_RE = /^\//
-const TRAILING_SLASH_RE = /\/$/
+export const LEADING_SLASH_RE = /^\//
+export const TRAILING_SLASH_RE = /\/$/
+export const ESCAPED_TRAILING_SLASH_RE = /\\\/$/
 export function joinPath(...paths: string[]): string {
   let result = ''
   for (const path of paths) {

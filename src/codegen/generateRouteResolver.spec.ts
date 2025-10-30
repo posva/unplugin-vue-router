@@ -320,6 +320,101 @@ describe('generateRouteResolver', () => {
     `)
   })
 
+  it('reuses parent path matcher when possible', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+    const importsMap = new ImportsMap()
+    tree.insert('a', 'a.vue')
+    tree.insert('a/index', 'a/index.vue')
+    tree.insert('a/about', 'a/about.vue')
+
+    // with a param
+    tree.insert('p/[id]', 'p/[id].vue')
+    tree.insert('p/[id]/index', 'p/[id]/index.vue')
+    tree.insert('p/[id]/details', 'p/[id]/details.vue')
+
+    const resolver = generateRouteResolver(
+      tree,
+      DEFAULT_OPTIONS,
+      importsMap,
+      new Map()
+    )
+
+    expect(resolver).toMatchInlineSnapshot(`
+      "
+      const __route_0 = normalizeRouteRecord({
+        name: '/a',
+        path: new MatcherPatternPathStatic('/a'),
+        components: {
+          'default': () => import('a.vue')
+        },
+      })
+      const __route_1 = normalizeRouteRecord({
+        name: '/a/',
+        path: __route_0.path,
+        components: {
+          'default': () => import('a/index.vue')
+        },
+        parent: __route_0,
+      })
+      const __route_2 = normalizeRouteRecord({
+        name: '/a/about',
+        path: new MatcherPatternPathStatic('/a/about'),
+        components: {
+          'default': () => import('a/about.vue')
+        },
+        parent: __route_0,
+      })
+
+      const __route_3 = normalizeRouteRecord({
+        name: '/p/[id]',
+        path: new MatcherPatternPathDynamic(
+          /^\\/p\\/([^/]+?)$/i,
+          {
+            id: [/* no parser */],
+          },
+          ["p",1],
+          /* trailingSlash */
+        ),
+        components: {
+          'default': () => import('p/[id].vue')
+        },
+      })
+      const __route_4 = normalizeRouteRecord({
+        name: '/p/[id]/',
+        path: __route_3.path,
+        components: {
+          'default': () => import('p/[id]/index.vue')
+        },
+        parent: __route_3,
+      })
+      const __route_5 = normalizeRouteRecord({
+        name: '/p/[id]/details',
+        path: new MatcherPatternPathDynamic(
+          /^\\/p\\/([^/]+?)\\/details$/i,
+          {
+            id: [/* no parser */],
+          },
+          ["p",1,"details"],
+          /* trailingSlash */
+        ),
+        components: {
+          'default': () => import('p/[id]/details.vue')
+        },
+        parent: __route_3,
+      })
+
+      export const resolver = createFixedResolver([
+        __route_1,  // /a
+        __route_2,  // /a/about
+        __route_4,  // /p/:id
+        __route_5,  // /p/:id/details
+        __route_3,  // /p/:id
+        __route_0,  // /a
+      ])
+      "
+    `)
+  })
+
   it('generates correct nested layouts', () => {
     const tree = new PrefixTree(DEFAULT_OPTIONS)
     const importsMap = new ImportsMap()
@@ -354,7 +449,7 @@ describe('generateRouteResolver', () => {
       })
       const __route_1 = normalizeRouteRecord({
         name: '/a/(a-home)',
-        path: new MatcherPatternPathStatic('/a'),
+        path: __route_0.path,
         components: {
           'default': () => import('a/(a-home).vue')
         },
@@ -370,7 +465,7 @@ describe('generateRouteResolver', () => {
       })
       const __route_3 = normalizeRouteRecord({
         name: '/a/b/(b-home)',
-        path: new MatcherPatternPathStatic('/a/b'),
+        path: __route_2.path,
         components: {
           'default': () => import('a/b/(b-home).vue')
         },
