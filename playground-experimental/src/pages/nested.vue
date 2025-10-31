@@ -1,4 +1,8 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+definePage({
+  name: false,
+})
+</script>
 
 <template>
   <div>
@@ -24,11 +28,11 @@
     <h4>named locations</h4>
     <nav>
       <ul>
-        <li>
-          <RouterLink :to="{ name: '/nested' }" v-slot="{ href }">{{
-            href
-          }}</RouterLink>
-        </li>
+        <!-- <li> -->
+        <!--   <RouterLink :to="{ name: '/nested' }" v-slot="{ href }">{{ -->
+        <!--     href -->
+        <!--   }}</RouterLink> -->
+        <!-- </li> -->
         <li>
           <RouterLink :to="{ name: '/nested/' }" v-slot="{ href }">{{
             href

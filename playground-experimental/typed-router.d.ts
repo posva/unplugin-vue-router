@@ -103,14 +103,6 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/nested': RouteRecordInfo<
-      '/nested',
-      '/nested',
-      Record<never, never>,
-      Record<never, never>,
-      | '/nested/'
-      | '/nested/other'
-    >,
     '/nested/': RouteRecordInfo<
       '/nested/',
       '/nested',
@@ -249,7 +241,6 @@ declare module 'vue-router/auto-routes' {
     }
     'src/pages/nested.vue': {
       routes:
-        | '/nested'
         | '/nested/'
         | '/nested/other'
       views:

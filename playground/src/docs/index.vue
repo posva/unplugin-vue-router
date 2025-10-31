@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const route = useRoute('/docs/[lang]/good')
+const route = useRoute('/docs/[lang]/real/')
 route.params.lang
 </script>
 
