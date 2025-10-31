@@ -120,7 +120,81 @@ export function definePageTransform({
 
     const scriptBindings = ast.body ? getIdentifiers(ast.body) : []
 
-    // TODO: remove information that was extracted already like name, path, params
+    // Remove information that was extracted already like name, path, params
+    // These are processed separately by extractDefinePageInfo() and don't need
+    // to be in the virtual module
+    if (routeRecord.type === 'ObjectExpression') {
+      // Mark properties to remove
+      const propsToRemove = new Set<number>()
+      for (let i = 0; i < routeRecord.properties.length; i++) {
+        const prop = routeRecord.properties[i]
+        if (
+          prop.type === 'ObjectProperty' &&
+          prop.key.type === 'Identifier' &&
+          (prop.key.name === 'name' ||
+            prop.key.name === 'path' ||
+            prop.key.name === 'params')
+        ) {
+          propsToRemove.add(i)
+        }
+      }
+
+      // If all properties are being removed, remove the entire content inside the braces
+      if (propsToRemove.size === routeRecord.properties.length) {
+        // Remove everything between the opening and closing braces
+        const openBrace = routeRecord.start! + 1 // After the '{'
+        const closeBrace = routeRecord.end! - 1 // Before the '}'
+        s.remove(offset + openBrace, offset + closeBrace)
+      } else {
+        // Remove properties selectively in reverse order
+        for (let i = routeRecord.properties.length - 1; i >= 0; i--) {
+          if (propsToRemove.has(i)) {
+            const prop = routeRecord.properties[i]!
+            const propStart = offset + prop.start!
+            const propEnd = offset + prop.end!
+
+            // Find the next property that is NOT being removed
+            let nextKeptPropIdx = i + 1
+            while (
+              nextKeptPropIdx < routeRecord.properties.length &&
+              propsToRemove.has(nextKeptPropIdx)
+            ) {
+              nextKeptPropIdx++
+            }
+
+            const hasNextKeptProp =
+              nextKeptPropIdx < routeRecord.properties.length
+
+            if (hasNextKeptProp) {
+              // There's a property after this one that will be kept
+              // Remove this property and the comma/whitespace after it
+              const nextKeptProp = routeRecord.properties[nextKeptPropIdx]!
+              s.remove(propStart, offset + nextKeptProp.start!)
+            } else {
+              // This is the last property or all following properties are being removed
+              // Find the previous property that is NOT being removed
+              let prevKeptPropIdx = i - 1
+              while (
+                prevKeptPropIdx >= 0 &&
+                propsToRemove.has(prevKeptPropIdx)
+              ) {
+                prevKeptPropIdx--
+              }
+
+              if (prevKeptPropIdx >= 0) {
+                // There's a kept property before this one
+                // Remove from the end of previous kept property to end of this property
+                const prevKeptProp = routeRecord.properties[prevKeptPropIdx]!
+                s.remove(offset + prevKeptProp.end!, propEnd)
+              } else {
+                // This shouldn't happen if we've already handled the all-removed case
+                s.remove(propStart, propEnd)
+              }
+            }
+          }
+        }
+      }
+    }
 
     // this will throw if a property from the script setup is used in definePage
     try {

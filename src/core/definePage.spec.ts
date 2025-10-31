@@ -186,6 +186,40 @@ definePage({
     })
   })
 
+  it('removes extracted properties (name, path, params) from definePage module', async () => {
+    const codeWithAllProperties = vue`
+<script setup>
+definePage({
+  name: 'custom',
+  path: '/custom',
+  params: {
+    query: {
+      search: 'string'
+    }
+  },
+  meta: {
+    requiresAuth: true,
+    title: 'Custom Page'
+  },
+  alias: '/alternate'
+})
+</script>
+`
+    const result = (await definePageTransform({
+      code: codeWithAllProperties,
+      id: 'src/pages/custom.vue?definePage&vue',
+    })) as Exclude<TransformResult, string>
+
+    expect(result).toHaveProperty('code')
+    // Should only contain meta and alias, not name, path, or params
+    expect(result?.code).toMatchSnapshot()
+    expect(result?.code).not.toContain('name:')
+    expect(result?.code).not.toContain('path:')
+    expect(result?.code).not.toContain('params:')
+    expect(result?.code).toContain('meta:')
+    expect(result?.code).toContain('alias:')
+  })
+
   it('extracts all types of params', () => {
     const codeWithAllParams = vue`
 <script setup>
@@ -297,17 +331,15 @@ const b = 1
     // should be the sfc without the definePage call
     expect(result?.code).toMatchSnapshot()
 
+    // name and path are now removed from the extracted definePage module
+    // because they are processed separately by extractDefinePageInfo()
     expect(
       await definePageTransform({
         code: sampleCode,
         id: 'src/pages/definePage.vue?definePage&vue',
       })
     ).toMatchObject({
-      code: ts`
-export default {
-  name: 'custom',
-  path: '/custom',
-}`.trim(),
+      code: 'export default {}',
     })
 
     expect(

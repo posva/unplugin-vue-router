@@ -22,9 +22,9 @@ export default {
 }"
 `;
 
-exports[`definePage > imports > removes default unused imports 1`] = `"export default {name: 'ok'}"`;
+exports[`definePage > imports > removes default unused imports 1`] = `"export default {}"`;
 
-exports[`definePage > imports > removes unused star imports 1`] = `"export default {name: 'ok'}"`;
+exports[`definePage > imports > removes unused star imports 1`] = `"export default {}"`;
 
 exports[`definePage > imports > works when combining named and default imports 1`] = `
 "import my_var, {my_func} from './lib'
@@ -59,6 +59,16 @@ const b = 1
       "
 `;
 
+exports[`definePage > removes extracted properties (name, path, params) from definePage module 1`] = `
+"export default {
+  meta: {
+    requiresAuth: true,
+    title: 'Custom Page'
+  },
+  alias: '/alternate'
+}"
+`;
+
 exports[`definePage > works if file is named definePage 1`] = `
 "
 <script setup>
@@ -73,9 +83,4 @@ const b = 1
       "
 `;
 
-exports[`definePage > works with jsx 1`] = `
-"export default {
-      name: 'custom',
-      path: '/custom',
-    }"
-`;
+exports[`definePage > works with jsx 1`] = `"export default {}"`;
