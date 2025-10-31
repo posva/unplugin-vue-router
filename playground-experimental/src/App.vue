@@ -26,6 +26,9 @@ const targetRoute = ref('')
               href
             }}</RouterLink>
           </li>
+          <li>
+            <RouterLink to="/nested" #default="{ href }">{{ href }}</RouterLink>
+          </li>
         </ul>
       </nav>
     </div>
