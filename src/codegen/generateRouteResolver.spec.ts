@@ -606,6 +606,7 @@ describe('generateRouteResolver', () => {
   it('strips off empty parent records', () => {
     const tree = new PrefixTree(DEFAULT_OPTIONS)
     const importsMap = new ImportsMap()
+    // we want /a and /b/c but not /b
     tree.insert('a', 'a.vue')
     tree.insert('b/c', 'b/c.vue')
     tree.insert('b/c/d', 'b/c/d.vue')
@@ -655,6 +656,52 @@ describe('generateRouteResolver', () => {
         __route_3,  // /b/e/f
         __route_1,  // /b/c
         __route_0,  // /a
+      ])
+      "
+    `)
+  })
+
+  it('keeps non matchable parent records with name: false', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+    tree.insert('a', 'a.vue').value.setEditOverride('name', false)
+    tree.insert('a/index', 'a/index.vue')
+    tree.insert('a/b', 'a/b.vue')
+
+    const resolver = generateRouteResolver(
+      tree,
+      DEFAULT_OPTIONS,
+      new ImportsMap(),
+      new Map()
+    )
+    expect(resolver).toMatchInlineSnapshot(`
+      "
+      const __route_0 = normalizeRouteRecord({
+        /* (removed) name: false */
+        path: new MatcherPatternPathStatic('/a'),
+        components: {
+          'default': () => import('a.vue')
+        },
+      })
+      const __route_1 = normalizeRouteRecord({
+        name: '/a/',
+        path: __route_0.path,
+        components: {
+          'default': () => import('a/index.vue')
+        },
+        parent: __route_0,
+      })
+      const __route_2 = normalizeRouteRecord({
+        name: '/a/b',
+        path: new MatcherPatternPathStatic('/a/b'),
+        components: {
+          'default': () => import('a/b.vue')
+        },
+        parent: __route_0,
+      })
+
+      export const resolver = createFixedResolver([
+        __route_1,  // /a
+        __route_2,  // /a/b
       ])
       "
     `)
@@ -718,7 +765,7 @@ describe('generateRouteResolver', () => {
     expect(resolver).toMatchInlineSnapshot(`
       "
       const __route_0 = normalizeRouteRecord({
-        /* internal name: '/a/b' */
+        /* (internal) name: '/a/b' */
         meta: {
           "requiresAuth": true
         },

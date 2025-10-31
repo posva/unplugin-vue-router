@@ -249,8 +249,18 @@ export class TreeNode {
     return this.value.fullPath
   }
 
+  /**
+   * Object of components (filepaths) for this node.
+   */
   get components() {
     return Object.fromEntries(this.value.components.entries())
+  }
+
+  /**
+   * Does this node render any component?
+   */
+  get hasComponents() {
+    return this.value.components.size > 0
   }
 
   /**
@@ -377,6 +387,9 @@ export class TreeNode {
     )
   }
 
+  /**
+   * Score of the path used for sorting routes.
+   */
   get score(): number[][] {
     const scores: number[][] = []
     let node: TreeNode | undefined = this

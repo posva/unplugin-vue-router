@@ -125,13 +125,14 @@ export function generateRouteRecord({
 
   // we want to skip adding routes that add no options (components, meta, props, etc)
   // that simplifies the generated tree
-  const shouldSkipNode = !isMatchable && !node.meta
+  const shouldSkipNode = !isMatchable && !node.meta && !node.hasComponents
 
   let varName: string | null = null
   let recordDeclaration = ''
 
   // Handle definePage imports
   const definePageDataList: string[] = []
+  // TODO: optimize to only add the record merge when needed
   if (node.hasDefinePage) {
     for (const [name, filePath] of node.value.components) {
       const pageDataImport = `_definePage_${name}_${importsMap.size}`
@@ -150,7 +151,12 @@ export function generateRouteRecord({
     varName = `${ROUTE_RECORD_VAR_PREFIX}${state.id++}`
 
     let recordName: string
-    let recordComponents: string
+    const recordComponents = generateRouteRecordComponent(
+      node,
+      '  ',
+      options.importMode,
+      importsMap
+    )
 
     if (isMatchable) {
       state.matchableRecords.push({
@@ -159,15 +165,10 @@ export function generateRouteRecord({
         score: node.score,
       })
       recordName = `name: '${node.name}',`
-      recordComponents = generateRouteRecordComponent(
-        node,
-        '  ',
-        options.importMode,
-        importsMap
-      )
     } else {
-      recordName = node.name ? `/* internal name: '${node.name}' */` : ``
-      recordComponents = ''
+      recordName = node.name
+        ? `/* (internal) name: '${node.name}' */`
+        : `/* (removed) name: false */`
     }
 
     const queryProperty = generateRouteRecordQuery({
@@ -226,6 +227,11 @@ function generateRouteRecordComponent(
   importMode: ResolvedOptions['importMode'],
   importsMap: ImportsMap
 ): string {
+  // avoid generating an empty components object
+  if (!node.hasComponents) {
+    return ''
+  }
+
   const files = Array.from(node.value.components)
   return `components: {
 ${files
@@ -255,7 +261,7 @@ export function generateRouteRecordPath({
   paramParsersMap: ParamParsersMap
   parentVar?: string | null | undefined
 }) {
-  if (!node.isMatchable()) {
+  if (!node.isMatchable() && node.name) {
     return ''
   }
 
