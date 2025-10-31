@@ -10,12 +10,10 @@ import {
 import type { Thenable, TransformResult } from 'unplugin'
 import type {
   CallExpression,
-  Node,
   ObjectExpression,
   ObjectProperty,
   Program,
   Statement,
-  StringLiteral,
 } from '@babel/types'
 import { generate } from '@babel/generator'
 import { walkAST } from 'ast-walker-scope'
@@ -26,10 +24,6 @@ import { CustomRouteBlock } from './customBlock'
 
 const MACRO_DEFINE_PAGE = 'definePage'
 export const MACRO_DEFINE_PAGE_QUERY = /[?&]definePage\b/
-
-function isStringLiteral(node: Node | null | undefined): node is StringLiteral {
-  return node?.type === 'StringLiteral'
-}
 
 /**
  * Generate the ast from a code string and an id. Works with SFC and non-SFC files.
@@ -126,6 +120,8 @@ export function definePageTransform({
 
     const scriptBindings = ast.body ? getIdentifiers(ast.body) : []
 
+    // TODO: remove information that was extracted already like name, path, params
+
     // this will throw if a property from the script setup is used in definePage
     try {
       checkInvalidScopeReference(routeRecord, MACRO_DEFINE_PAGE, scriptBindings)
@@ -220,6 +216,10 @@ export interface DefinePageInfo {
   params?: CustomRouteBlock['params']
 }
 
+/**
+ * Extracts name, path, and params from definePage(). Those do not require
+ * extracting the whole definePage object as a different import
+ */
 export function extractDefinePageInfo(
   sfcCode: string,
   id: string
@@ -426,7 +426,9 @@ export function extractRouteAlias(
   } else {
     return aliasValue.type === 'StringLiteral'
       ? [aliasValue.value]
-      : aliasValue.elements.filter(isStringLiteral).map((el) => el.value)
+      : aliasValue.elements
+          .filter((node) => node?.type === 'StringLiteral')
+          .map((el) => el.value)
   }
 }
 
