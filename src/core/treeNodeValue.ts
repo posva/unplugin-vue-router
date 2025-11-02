@@ -579,7 +579,7 @@ const IS_VARIABLE_CHAR_RE = /[0-9a-zA-Z_]/
  */
 function parseFileSegment(
   segment: string,
-  { dotNesting = true }: ParseSegmentOptions = {}
+  { dotNesting }: ParseSegmentOptions
 ): [string, TreePathParam[], SubSegment[]] {
   let buffer = ''
   let paramParserBuffer = ''
