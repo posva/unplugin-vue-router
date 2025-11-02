@@ -697,6 +697,14 @@ describe('Tree', () => {
         expect(node.matcherPatternPathDynamicParts).toEqual([1, 'static'])
       })
 
+      it('sub segment first position', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          '[id].static',
+          '[id].static.vue'
+        )
+        expect(node.regexp).toBe('/^\\/([^/]+?)\\/static$/i')
+      })
+
       it('middle position', () => {
         const node = new PrefixTree(RESOLVED_OPTIONS).insert(
           'static/[id]/more',
@@ -710,6 +718,14 @@ describe('Tree', () => {
         ])
       })
 
+      it('sub segment middle position', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          'static.[id].more',
+          'static.[id].more.vue'
+        )
+        expect(node.regexp).toBe('/^\\/static\\/([^/]+?)\\/more$/i')
+      })
+
       it('last position', () => {
         const node = new PrefixTree(RESOLVED_OPTIONS).insert(
           'static/[id]',
@@ -717,6 +733,14 @@ describe('Tree', () => {
         )
         expect(node.regexp).toBe('/^\\/static\\/([^/]+?)$/i')
         expect(node.matcherPatternPathDynamicParts).toEqual(['static', 1])
+      })
+
+      it('sub segment last position', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          'static.[id]',
+          'static.[id].vue'
+        )
+        expect(node.regexp).toBe('/^\\/static\\/([^/]+?)$/i')
       })
     })
 
@@ -739,6 +763,14 @@ describe('Tree', () => {
         expect(node.matcherPatternPathDynamicParts).toEqual([1, 'static'])
       })
 
+      it('sub segment first position', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          '[[id]].static',
+          '[[id]].static.vue'
+        )
+        expect(node.regexp).toBe('/^(?:\\/([^/]+?))?\\/static$/i')
+      })
+
       it('middle position', () => {
         const node = new PrefixTree(RESOLVED_OPTIONS).insert(
           'static/[[id]]/more',
@@ -752,6 +784,14 @@ describe('Tree', () => {
         ])
       })
 
+      it('sub segment middle position', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          'static.[[id]].more',
+          'static.[[id]].more.vue'
+        )
+        expect(node.regexp).toBe('/^\\/static(?:\\/([^/]+?))?\\/more$/i')
+      })
+
       it('last position', () => {
         const node = new PrefixTree(RESOLVED_OPTIONS).insert(
           'static/[[id]]',
@@ -759,6 +799,14 @@ describe('Tree', () => {
         )
         expect(node.regexp).toBe('/^\\/static(?:\\/([^/]+?))?$/i')
         expect(node.matcherPatternPathDynamicParts).toEqual(['static', 1])
+      })
+
+      it('sub segment last position', () => {
+        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+          'static.[[id]]',
+          'static.[[id]].vue'
+        )
+        expect(node.regexp).toBe('/^\\/static(?:\\/([^/]+?))?$/i')
       })
     })
 

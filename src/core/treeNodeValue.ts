@@ -390,29 +390,45 @@ export class TreeNodeValueParam extends _TreeNodeValueBase {
     })
   }
 
+  /**
+   * Generates the regex pattern for the path segment.
+   */
   get re(): string {
-    const paramRe = this.subSegments
-      .filter(Boolean)
-      .map((segment) => {
-        if (typeof segment === 'string') {
-          return escapeRegex(segment)
-        }
+    let regexp = ''
+    for (var i = 0; i < this.subSegments.length; i++) {
+      var segment = this.subSegments[i]
+      // skip empty sub segments
+      if (!segment) continue
 
-        if (segment.isSplat) {
-          return '(.*)'
-        }
-
-        let re = segment.repeatable ? '(.+?)' : '([^/]+?)'
-
+      if (typeof segment === 'string') {
+        regexp += escapeRegex(segment)
+      } else if (segment.isSplat) {
+        regexp += '(.*)'
+      } else {
+        var re = segment.repeatable ? '(.+?)' : '([^/]+?)'
         if (segment.optional) {
-          re += '?'
+          // check ahead if there is a static segment after this one that starts with a slash
+          // TODO: trailingSlash behavior
+          var prevSegment = this.subSegments[i - 1]
+          // is there a slash right before us
+          if (
+            (!prevSegment ||
+              (typeof prevSegment === 'string' && prevSegment.endsWith('/'))) &&
+            // avoid the transformation when the optional param is the whole path
+            this.subSegments.length > 1
+          ) {
+            re = `(?:\\/${re})?`
+            // remove the escaped trailing slash from the previous static segment
+            regexp = regexp.slice(0, -2)
+          } else {
+            // just make the regexp group optional
+            re += '?'
+          }
         }
-
-        return re
-      })
-      .join('')
-
-    return paramRe
+        regexp += re
+      }
+    }
+    return regexp
   }
 
   override toString(): string {
