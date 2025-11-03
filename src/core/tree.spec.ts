@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { DEFAULT_OPTIONS, resolveOptions } from '../options'
-import { PrefixTree } from './tree'
+import { DEFAULT_OPTIONS, Options, resolveOptions } from '../options'
+import { PrefixTree, TreeNodeValueMatcherPart } from './tree'
 import { TreeNodeType, type TreePathParam } from './treeNodeValue'
 import { resolve } from 'pathe'
 import { mockWarn } from '../../tests/vitest-mock-warn'
@@ -671,267 +671,196 @@ describe('Tree', () => {
   })
 
   describe('path regexp', () => {
+    function checkRegexp(
+      path: string,
+      expectedRe: string,
+      {
+        options,
+        matcherParts,
+      }: {
+        options?: Options
+        matcherParts?: TreeNodeValueMatcherPart
+      }
+    ) {
+      const node = new PrefixTree(
+        options ? resolveOptions(options) : RESOLVED_OPTIONS
+      ).insert(path, path + '.vue')
+      expect(node.regexp).toBe(expectedRe)
+      if (matcherParts) {
+        expect(node.matcherPatternPathDynamicParts).toEqual(matcherParts)
+      }
+    }
+
     it('generates static paths', () => {
-      const node = new PrefixTree(RESOLVED_OPTIONS).insert('a', 'a.vue')
-      expect(node.regexp).toBe('/^\\/a$/i')
+      checkRegexp('abc', '/^\\/abc$/i', {})
     })
 
     it('works with multiple segments', () => {
-      const node = new PrefixTree(RESOLVED_OPTIONS).insert('a/b/c', 'a/b/c.vue')
-      expect(node.regexp).toBe('/^\\/a\\/b\\/c$/i')
+      checkRegexp('a/b/c', '/^\\/a\\/b\\/c$/i', {})
     })
 
     describe('basic params [id] in all positions', () => {
       it('only segment', () => {
-        const node = new PrefixTree(RESOLVED_OPTIONS).insert('[id]', '[id].vue')
-        expect(node.regexp).toBe('/^\\/([^/]+?)$/i')
-        expect(node.matcherPatternPathDynamicParts).toEqual([1])
+        checkRegexp('[id]', '/^\\/([^/]+?)$/i', {
+          matcherParts: [1],
+        })
       })
 
       it('first position', () => {
-        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
-          '[id]/static',
-          '[id]/static.vue'
-        )
-        expect(node.regexp).toBe('/^\\/([^/]+?)\\/static$/i')
-        expect(node.matcherPatternPathDynamicParts).toEqual([1, 'static'])
+        checkRegexp('[id]/static', '/^\\/([^/]+?)\\/static$/i', {
+          matcherParts: [1, 'static'],
+        })
       })
 
       it('sub segment first position', () => {
-        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
-          '[id].static',
-          '[id].static.vue'
-        )
-        expect(node.regexp).toBe('/^\\/([^/]+?)\\/static$/i')
+        checkRegexp('[id].static', '/^\\/([^/]+?)\\/static$/i', {})
       })
 
       it('middle position', () => {
-        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
-          'static/[id]/more',
-          'static/[id]/more.vue'
-        )
-        expect(node.regexp).toBe('/^\\/static\\/([^/]+?)\\/more$/i')
-        expect(node.matcherPatternPathDynamicParts).toEqual([
-          'static',
-          1,
-          'more',
-        ])
+        checkRegexp('static/[id]/more', '/^\\/static\\/([^/]+?)\\/more$/i', {
+          matcherParts: ['static', 1, 'more'],
+        })
       })
 
       it('sub segment middle position', () => {
-        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
-          'static.[id].more',
-          'static.[id].more.vue'
-        )
-        expect(node.regexp).toBe('/^\\/static\\/([^/]+?)\\/more$/i')
+        checkRegexp('static.[id].more', '/^\\/static\\/([^/]+?)\\/more$/i', {})
       })
 
       it('last position', () => {
-        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
-          'static/[id]',
-          'static/[id].vue'
-        )
-        expect(node.regexp).toBe('/^\\/static\\/([^/]+?)$/i')
-        expect(node.matcherPatternPathDynamicParts).toEqual(['static', 1])
+        checkRegexp('static/[id]', '/^\\/static\\/([^/]+?)$/i', {
+          matcherParts: ['static', 1],
+        })
       })
 
       it('sub segment last position', () => {
-        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
-          'static.[id]',
-          'static.[id].vue'
-        )
-        expect(node.regexp).toBe('/^\\/static\\/([^/]+?)$/i')
+        checkRegexp('static.[id]', '/^\\/static\\/([^/]+?)$/i', {})
       })
     })
 
     describe('optional params [[id]] in all positions', () => {
       it('only segment', () => {
-        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
-          '[[id]]',
-          '[[id]].vue'
-        )
-        expect(node.regexp).toBe('/^\\/([^/]+?)?$/i')
-        expect(node.matcherPatternPathDynamicParts).toEqual([1])
+        checkRegexp('[[id]]', '/^\\/([^/]+?)?$/i', {
+          matcherParts: [1],
+        })
       })
 
       it('first position', () => {
-        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
-          '[[id]]/static',
-          '[[id]]/static.vue'
-        )
-        expect(node.regexp).toBe('/^(?:\\/([^/]+?))?\\/static$/i')
-        expect(node.matcherPatternPathDynamicParts).toEqual([1, 'static'])
+        checkRegexp('[[id]]/static', '/^(?:\\/([^/]+?))?\\/static$/i', {
+          matcherParts: [1, 'static'],
+        })
       })
 
       it('sub segment first position', () => {
-        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
-          '[[id]].static',
-          '[[id]].static.vue'
-        )
-        expect(node.regexp).toBe('/^(?:\\/([^/]+?))?\\/static$/i')
+        checkRegexp('[[id]].static', '/^(?:\\/([^/]+?))?\\/static$/i', {})
       })
 
       it('middle position', () => {
-        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+        checkRegexp(
           'static/[[id]]/more',
-          'static/[[id]]/more.vue'
+          '/^\\/static(?:\\/([^/]+?))?\\/more$/i',
+          {
+            matcherParts: ['static', 1, 'more'],
+          }
         )
-        expect(node.regexp).toBe('/^\\/static(?:\\/([^/]+?))?\\/more$/i')
-        expect(node.matcherPatternPathDynamicParts).toEqual([
-          'static',
-          1,
-          'more',
-        ])
       })
 
       it('sub segment middle position', () => {
-        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+        checkRegexp(
           'static.[[id]].more',
-          'static.[[id]].more.vue'
+          '/^\\/static(?:\\/([^/]+?))?\\/more$/i',
+          {}
         )
-        expect(node.regexp).toBe('/^\\/static(?:\\/([^/]+?))?\\/more$/i')
       })
 
       it('last position', () => {
-        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
-          'static/[[id]]',
-          'static/[[id]].vue'
-        )
-        expect(node.regexp).toBe('/^\\/static(?:\\/([^/]+?))?$/i')
-        expect(node.matcherPatternPathDynamicParts).toEqual(['static', 1])
+        checkRegexp('static/[[id]]', '/^\\/static(?:\\/([^/]+?))?$/i', {
+          matcherParts: ['static', 1],
+        })
       })
 
       it('sub segment last position', () => {
-        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
-          'static.[[id]]',
-          'static.[[id]].vue'
-        )
-        expect(node.regexp).toBe('/^\\/static(?:\\/([^/]+?))?$/i')
+        checkRegexp('static.[[id]]', '/^\\/static(?:\\/([^/]+?))?$/i', {})
       })
     })
 
     describe('repeatable params [id]+ in all positions', () => {
       it('only segment', () => {
-        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
-          '[id]+',
-          '[id]+.vue'
-        )
-        expect(node.regexp).toBe('/^\\/(.+?)$/i')
-        expect(node.matcherPatternPathDynamicParts).toEqual([1])
+        checkRegexp('[id]+', '/^\\/(.+?)$/i', {
+          matcherParts: [1],
+        })
       })
 
       it('first position', () => {
-        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
-          '[id]+/static',
-          '[id]+/static.vue'
-        )
-        expect(node.regexp).toBe('/^\\/(.+?)\\/static$/i')
-        expect(node.matcherPatternPathDynamicParts).toEqual([1, 'static'])
+        checkRegexp('[id]+/static', '/^\\/(.+?)\\/static$/i', {
+          matcherParts: [1, 'static'],
+        })
       })
 
       it('middle position', () => {
-        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
-          'static/[id]+/more',
-          'static/[id]+/more.vue'
-        )
-        expect(node.regexp).toBe('/^\\/static\\/(.+?)\\/more$/i')
-        expect(node.matcherPatternPathDynamicParts).toEqual([
-          'static',
-          1,
-          'more',
-        ])
+        checkRegexp('static/[id]+/more', '/^\\/static\\/(.+?)\\/more$/i', {
+          matcherParts: ['static', 1, 'more'],
+        })
       })
 
       it('last position', () => {
-        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
-          'static/[id]+',
-          'static/[id]+.vue'
-        )
-        expect(node.regexp).toBe('/^\\/static\\/(.+?)$/i')
-        expect(node.matcherPatternPathDynamicParts).toEqual(['static', 1])
+        checkRegexp('static/[id]+', '/^\\/static\\/(.+?)$/i', {
+          matcherParts: ['static', 1],
+        })
       })
     })
 
     describe('optional repeatable params [[id]]+ in all positions', () => {
       it('only segment', () => {
-        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
-          '[[id]]+',
-          '[[id]]+.vue'
-        )
-        expect(node.regexp).toBe('/^\\/(.+?)?$/i')
-        expect(node.matcherPatternPathDynamicParts).toEqual([1])
+        checkRegexp('[[id]]+', '/^\\/(.+?)?$/i', {
+          matcherParts: [1],
+        })
       })
 
       it('first position', () => {
-        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
-          '[[id]]+/static',
-          '[[id]]+/static.vue'
-        )
-        expect(node.regexp).toBe('/^(?:\\/(.+?))?\\/static$/i')
-        expect(node.matcherPatternPathDynamicParts).toEqual([1, 'static'])
+        checkRegexp('[[id]]+/static', '/^(?:\\/(.+?))?\\/static$/i', {
+          matcherParts: [1, 'static'],
+        })
       })
 
       it('middle position', () => {
-        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
+        checkRegexp(
           'static/[[id]]+/more',
-          'static/[[id]]+/more.vue'
+          '/^\\/static(?:\\/(.+?))?\\/more$/i',
+          {
+            matcherParts: ['static', 1, 'more'],
+          }
         )
-        expect(node.regexp).toBe('/^\\/static(?:\\/(.+?))?\\/more$/i')
-        expect(node.matcherPatternPathDynamicParts).toEqual([
-          'static',
-          1,
-          'more',
-        ])
       })
 
       it('last position', () => {
-        const node = new PrefixTree(RESOLVED_OPTIONS).insert(
-          'static/[[id]]+',
-          'static/[[id]]+.vue'
-        )
-        expect(node.regexp).toBe('/^\\/static(?:\\/(.+?))?$/i')
-        expect(node.matcherPatternPathDynamicParts).toEqual(['static', 1])
+        checkRegexp('static/[[id]]+', '/^\\/static(?:\\/(.+?))?$/i', {
+          matcherParts: ['static', 1],
+        })
       })
     })
 
     it('works with multiple params', () => {
-      const node = new PrefixTree(RESOLVED_OPTIONS).insert('a/[b]/[c]', 'a.vue')
-      expect(node.regexp).toBe('/^\\/a\\/([^/]+?)\\/([^/]+?)$/i')
-      expect(node.matcherPatternPathDynamicParts).toEqual(['a', 1, 1])
+      checkRegexp('a/[b]/[c]', '/^\\/a\\/([^/]+?)\\/([^/]+?)$/i', {
+        matcherParts: ['a', 1, 1],
+      })
     })
 
     it('works with segments', () => {
-      const node = new PrefixTree(RESOLVED_OPTIONS).insert(
-        'a/a-[b]-c-[d]',
-        'a.vue'
-      )
-      expect(node.regexp).toBe('/^\\/a\\/a-([^/]+?)-c-([^/]+?)$/i')
-      expect(node.matcherPatternPathDynamicParts).toEqual([
-        'a',
-        ['a-', 1, '-c-', 1],
-      ])
+      checkRegexp('a/a-[b]-c-[d]', '/^\\/a\\/a-([^/]+?)-c-([^/]+?)$/i', {
+        matcherParts: ['a', ['a-', 1, '-c-', 1]],
+      })
     })
 
     it('works with a catch all route', () => {
-      const node = new PrefixTree(RESOLVED_OPTIONS).insert(
-        '[...all]',
-        '[...all].vue'
-      )
-      expect(node.regexp).toBe('/^\\/(.*)$/i')
-      expect(node.matcherPatternPathDynamicParts).toEqual([0])
+      checkRegexp('[...all]', '/^\\/(.*)$/i', {
+        matcherParts: [0],
+      })
     })
 
     it('works with a splat param with a prefix', () => {
-      const node = new PrefixTree(RESOLVED_OPTIONS).insert(
-        'a/some-[id]/[...all]',
-        'a/some-[id]/[...all].vue'
-      )
-      expect(node.regexp).toBe('/^\\/a\\/some-([^/]+?)\\/(.*)$/i')
-      expect(node.matcherPatternPathDynamicParts).toEqual([
-        'a',
-        ['some-', 1],
-        0,
-      ])
+      checkRegexp('a/some-[id]/[...all]', '/^\\/a\\/some-([^/]+?)\\/(.*)$/i', {
+        matcherParts: ['a', ['some-', 1], 0],
+      })
     })
   })
 
