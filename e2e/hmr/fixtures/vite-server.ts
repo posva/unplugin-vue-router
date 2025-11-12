@@ -10,8 +10,17 @@ type ViteFixtures = {
   devServer: ViteDevServer
   baseURL: string
   projectRoot: string
+}
 
-  applyEditFile: (sourceFilePath: string, newContentFilePath: string) => void
+export function applyEditFile(
+  sourceFilePath: string,
+  newContentFilePath: string
+) {
+  fs.writeFileSync(
+    path.join(projectRoot, sourceFilePath),
+    fs.readFileSync(path.join(projectRoot, newContentFilePath), 'utf8'),
+    'utf8'
+  )
 }
 
 const sourceDir = fileURLToPath(new URL('../playground', import.meta.url))
@@ -61,16 +70,6 @@ export const test = base.extend<ViteFixtures>({
     },
     { scope: 'worker' },
   ],
-
-  applyEditFile: async ({ projectRoot }) => {
-    return (sourceFilePath: string, newContentFilePath: string) => {
-      fs.writeFileSync(
-        path.join(projectRoot, sourceFilePath),
-        fs.readFileSync(path.join(projectRoot, newContentFilePath), 'utf8'),
-        'utf8'
-      )
-    }
-  },
 
   baseURL: async ({ devServer }, use) => {
     const http = devServer.httpServer!

@@ -1,5 +1,5 @@
 import { Page } from '@playwright/test'
-import { test, expect } from './fixtures/vite-server'
+import { test, expect, applyEditFile } from './fixtures/vite-server'
 
 test.describe('Pages HMR', () => {
   let hmrToken: number = -1
@@ -24,11 +24,7 @@ test.describe('Pages HMR', () => {
       .toBe(hmrToken)
   })
 
-  test('applies meta changes in <route> block', async ({
-    page,
-    baseURL,
-    applyEditFile,
-  }) => {
+  test('applies meta changes in <route> block', async ({ page, baseURL }) => {
     await page.goto(baseURL + '/')
 
     await expect(page.locator('[data-testid="meta-hello"]')).toHaveText('')
