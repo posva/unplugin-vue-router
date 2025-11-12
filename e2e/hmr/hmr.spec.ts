@@ -30,10 +30,10 @@ test.describe('Pages HMR', () => {
     applyEditFile,
   }) => {
     await page.goto(baseURL + '/')
-    await ensureHmrToken(page)
 
     await expect(page.locator('[data-testid="meta-hello"]')).toHaveText('')
 
+    await ensureHmrToken(page)
     applyEditFile('src/pages/(home).vue', 'edits/(home)-with-route-block.vue')
 
     await expect(page.locator('[data-testid="meta-hello"]')).toHaveText('world')
