@@ -2,6 +2,7 @@ import { test as base, expect } from '@playwright/test'
 import { createServer, type ViteDevServer } from 'vite'
 import { type AddressInfo } from 'node:net'
 import path from 'node:path'
+import fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { cpSync, rmSync } from 'node:fs'
 
@@ -9,6 +10,8 @@ type ViteFixtures = {
   devServer: ViteDevServer
   baseURL: string
   projectRoot: string
+
+  applyEditFile: (sourceFilePath: string, newContentFilePath: string) => void
 }
 
 const sourceDir = fileURLToPath(new URL('../playground', import.meta.url))
@@ -50,8 +53,6 @@ export const test = base.extend<ViteFixtures>({
 
       const http = server.httpServer
       if (!http) throw new Error('No httpServer from Vite')
-      const addr = http.address() as AddressInfo
-      const url = `http://127.0.0.1:${addr.port}`
 
       // Expose the running server & URL to tests
       await use(server)
@@ -60,6 +61,16 @@ export const test = base.extend<ViteFixtures>({
     },
     { scope: 'worker' },
   ],
+
+  applyEditFile: async ({ projectRoot }) => {
+    return (sourceFilePath: string, newContentFilePath: string) => {
+      fs.writeFileSync(
+        path.join(projectRoot, sourceFilePath),
+        fs.readFileSync(path.join(projectRoot, newContentFilePath), 'utf8'),
+        'utf8'
+      )
+    }
+  },
 
   baseURL: async ({ devServer }, use) => {
     const http = devServer.httpServer!
