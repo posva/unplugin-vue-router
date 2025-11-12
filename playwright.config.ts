@@ -5,7 +5,8 @@ export default defineConfig({
 
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  // no retries because we have a setup
+  retries: 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: [
     // for console logs
