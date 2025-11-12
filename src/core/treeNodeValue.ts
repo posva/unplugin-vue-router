@@ -148,7 +148,13 @@ class _TreeNodeValueBase {
   }
 
   toString(): string {
-    return this.pathSegment || '<index>'
+    // index.vue (home).vue
+    if (!this.pathSegment) {
+      return (
+        '<index>' + (this.rawSegment === 'index' ? '' : ' ' + this.rawSegment)
+      )
+    }
+    return this.pathSegment
   }
 
   isParam(): this is TreeNodeValueParam {

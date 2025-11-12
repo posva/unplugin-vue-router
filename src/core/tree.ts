@@ -468,7 +468,7 @@ export class TreeNode {
   }
 
   toString(): string {
-    return `${this.value}${
+    return `${this.isRoot() ? '·' : this.value}${
       // either we have multiple names
       this.value.components.size > 1 ||
       // or we have one name and it's not default
