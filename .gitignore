@@ -83,3 +83,10 @@ tsconfig.vitest-temp.json
 docs/.vitepress/cache
 vite.config.ts.timestamp-*
 .DS_Store
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/

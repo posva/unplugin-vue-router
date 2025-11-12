@@ -134,7 +134,8 @@ definePage({
 
 <template>
   <main>
-    <h1>Param: {{ $route.params.name }}</h1>
+    <!-- FIXME: it broke at some point -->
+    <!-- <h1>Param: {{ $route.params.name }}</h1> -->
     <h2>Param: {{ route.params.name }}</h2>
     <p v-show="false">{{ thing }}</p>
     <p v-if="isLoading">Loading user...</p>
