@@ -36,7 +36,7 @@ describe('RoutesFolderWatcher', () => {
     const rootDir = pathe.join(FIXTURES_ROOT, `test-${testId++}`)
     const srcDir = pathe.join(rootDir, routesFolderOptions.src)
     const options = resolveFolderOptions(
-      resolveOptions({ root: rootDir }),
+      resolveOptions({ root: rootDir, watch: true }),
       routesFolderOptions
     )
 
