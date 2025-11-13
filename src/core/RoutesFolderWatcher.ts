@@ -40,6 +40,7 @@ export class RoutesFolderWatcher {
       cwd: this.src,
       ignoreInitial: true,
       ignorePermissionErrors: true,
+      awaitWriteFinish: !!process.env.CI,
       ignored: (filePath, stats) => {
         // let folders pass, they are ignored by the glob pattern
         if (!stats || stats.isDirectory()) {
