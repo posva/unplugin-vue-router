@@ -33,8 +33,6 @@ export const test = base.extend<ViteFixtures>({
   // @ts-expect-error: type matched what is passed to use(server)
   devServer: [
     async ({}, use) => {
-      console.log(projectRoot)
-
       rmSync(fixtureDir, { force: true, recursive: true })
       cpSync(sourceDir, fixtureDir, {
         recursive: true,

@@ -1,7 +1,5 @@
 import { Page } from '@playwright/test'
 import { test, expect, applyEditFile } from './fixtures/vite-server'
-import path from 'node:path'
-import fs from 'node:fs'
 
 test.describe('Pages HMR', () => {
   let hmrToken: number = -1
@@ -26,23 +24,13 @@ test.describe('Pages HMR', () => {
       .toBe(hmrToken)
   })
 
-  test('applies meta changes in <route> block', async ({
-    page,
-    baseURL,
-    projectRoot,
-  }) => {
+  test('applies meta changes in <route> block', async ({ page, baseURL }) => {
     await page.goto(baseURL + '/')
 
     await expect(page.locator('[data-testid="meta-hello"]')).toHaveText('')
 
     await ensureHmrToken(page)
     applyEditFile('src/pages/(home).vue', 'edits/(home)-with-route-block.vue')
-
-    // check that the file changed
-    console.log(
-      'CONTENT',
-      fs.readFileSync(path.join(projectRoot, 'src/pages/(home).vue'), 'utf8')
-    )
 
     await expect(page.locator('[data-testid="meta-hello"]')).toHaveText('world')
   })
