@@ -189,6 +189,9 @@ export function createRoutesContext(options: ResolvedOptions) {
     if (triggerExtendRoute) {
       await options.extendRoute?.(new EditableTreeNode(node))
     }
+
+    // TODO: trigger HMR vue-router/auto-routes
+    server?.updateRoutes()
   }
 
   async function updatePage({ filePath, routePath }: HandlerContext) {
@@ -202,11 +205,15 @@ export function createRoutesContext(options: ResolvedOptions) {
     await options.extendRoute?.(new EditableTreeNode(node))
     // no need to manually trigger the update of vue-router/auto-routes because
     // the change of the vue file will trigger HMR
+    // server?.invalidate(filePath)
+    server?.updateRoutes()
   }
 
   function removePage({ filePath, routePath }: HandlerContext) {
     logger.log(`remove "${routePath}" for "${filePath}"`)
     routeTree.removeChild(filePath)
+    // TODO: trigger HMR vue-router/auto-routes
+    server?.updateRoutes()
   }
 
   function setupParamParserWatcher(watcher: FSWatcher, cwd: string) {
