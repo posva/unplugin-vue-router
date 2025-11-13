@@ -1,5 +1,5 @@
 import { defineConfig } from 'tsdown'
-import { commonOptions } from './tsdown.config'
+import { commonOptions } from './tsdown.config.ts'
 
 export default defineConfig([
   {
