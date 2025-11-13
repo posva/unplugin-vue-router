@@ -4,7 +4,6 @@ import { type AddressInfo } from 'node:net'
 import path from 'node:path'
 import fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import { cpSync, rmSync } from 'node:fs'
 
 type ViteFixtures = {
   devServer: ViteDevServer
@@ -33,8 +32,8 @@ export const test = base.extend<ViteFixtures>({
   // @ts-expect-error: type matched what is passed to use(server)
   devServer: [
     async ({}, use) => {
-      rmSync(fixtureDir, { force: true, recursive: true })
-      cpSync(sourceDir, fixtureDir, {
+      fs.rmSync(fixtureDir, { force: true, recursive: true })
+      fs.cpSync(sourceDir, fixtureDir, {
         recursive: true,
         filter: (src) => {
           return (
