@@ -7,9 +7,8 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   // no retries because we have a setup
   retries: 0,
-  // FIXME: handle concurrency for temp folders
-  workers: 1,
-  // workers: process.env.CI ? 1 : undefined,
+  // Each worker gets its own isolated temp folder
+  workers: process.env.CI ? 1 : undefined,
   reporter: [
     // for console logs
     ['list'],

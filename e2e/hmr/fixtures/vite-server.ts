@@ -9,29 +9,32 @@ type ViteFixtures = {
   devServer: ViteDevServer
   baseURL: string
   projectRoot: string
-}
-
-export function applyEditFile(
-  sourceFilePath: string,
-  newContentFilePath: string
-) {
-  fs.writeFileSync(
-    path.join(projectRoot, sourceFilePath),
-    fs.readFileSync(path.join(projectRoot, newContentFilePath), 'utf8'),
-    'utf8'
-  )
+  applyEditFile: (sourceFilePath: string, newContentFilePath: string) => void
 }
 
 const sourceDir = fileURLToPath(new URL('../playground', import.meta.url))
-const fixtureDir = fileURLToPath(new URL('../playground-tmp', import.meta.url))
-const projectRoot = path.resolve(fixtureDir)
 
 export const test = base.extend<ViteFixtures>({
-  projectRoot,
+  // @ts-expect-error: we need to compute projectRoot per worker
+  projectRoot: [
+    async ({}, use, testInfo) => {
+      const fixtureDir = fileURLToPath(
+        new URL(
+          `../playground-tmp-worker-${testInfo.workerIndex}`,
+          import.meta.url
+        )
+      )
+      const projectRoot = path.resolve(fixtureDir)
+      await use(projectRoot)
+    },
+    { scope: 'worker' },
+  ],
 
   // @ts-expect-error: type matched what is passed to use(server)
   devServer: [
-    async ({}, use) => {
+    async ({ projectRoot }, use) => {
+      const fixtureDir = projectRoot
+
       fs.rmSync(fixtureDir, { force: true, recursive: true })
       fs.cpSync(sourceDir, fixtureDir, {
         recursive: true,
@@ -72,6 +75,19 @@ export const test = base.extend<ViteFixtures>({
     const http = devServer.httpServer!
     const addr = http.address() as AddressInfo
     await use(`http://127.0.0.1:${addr.port}`)
+  },
+
+  applyEditFile: async ({ projectRoot }, use) => {
+    await use(function applyEdit(
+      sourceFilePath: string,
+      newContentFilePath: string
+    ) {
+      fs.writeFileSync(
+        path.join(projectRoot, sourceFilePath),
+        fs.readFileSync(path.join(projectRoot, newContentFilePath), 'utf8'),
+        'utf8'
+      )
+    })
   },
 })
 

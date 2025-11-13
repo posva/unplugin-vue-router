@@ -1,5 +1,5 @@
 import { Page } from '@playwright/test'
-import { test, expect, applyEditFile } from './fixtures/vite-server'
+import { test, expect } from './fixtures/vite-server'
 
 test.describe('Pages HMR', () => {
   let hmrToken: number = -1
@@ -24,7 +24,11 @@ test.describe('Pages HMR', () => {
       .toBe(hmrToken)
   })
 
-  test('applies meta changes in <route> block', async ({ page, baseURL }) => {
+  test('applies meta changes in <route> block', async ({
+    page,
+    baseURL,
+    applyEditFile,
+  }) => {
     await page.goto(baseURL + '/')
 
     await expect(page.locator('[data-testid="meta-hello"]')).toHaveText('')
@@ -38,7 +42,11 @@ test.describe('Pages HMR', () => {
     await expect(page.locator('[data-testid="meta-hello"]')).toHaveText('world')
   })
 
-  test('applies name changes via definePage', async ({ page, baseURL }) => {
+  test('applies name changes via definePage', async ({
+    page,
+    baseURL,
+    applyEditFile,
+  }) => {
     await page.goto(baseURL + '/hmr-name')
 
     await expect(page.locator('[data-testid="route-name"]')).toHaveText(
@@ -59,6 +67,7 @@ test.describe('Pages HMR', () => {
   test.skip('applies path changes via definePage', async ({
     page,
     baseURL,
+    applyEditFile,
   }) => {
     await page.goto(baseURL + '/hmr-path')
 
@@ -83,6 +92,7 @@ test.describe('Pages HMR', () => {
   test.skip('applies params parsers via definePage', async ({
     page,
     baseURL,
+    applyEditFile,
   }) => {
     await page.goto(baseURL + '/hmr-params-123')
 
@@ -108,6 +118,7 @@ test.describe('Pages HMR', () => {
   test.skip('applies meta changes via definePage', async ({
     page,
     baseURL,
+    applyEditFile,
   }) => {
     await page.goto(baseURL + '/hmr-meta')
 
@@ -122,7 +133,11 @@ test.describe('Pages HMR', () => {
     await expect(page.locator('[data-testid="meta-hello"]')).toHaveText('world')
   })
 
-  test.skip('applies alias via definePage', async ({ page, baseURL }) => {
+  test.skip('applies alias via definePage', async ({
+    page,
+    baseURL,
+    applyEditFile,
+  }) => {
     await page.goto(baseURL + '/hmr-alias')
 
     await expect(page.locator('[data-testid="route-path"]')).toHaveText(
@@ -143,7 +158,11 @@ test.describe('Pages HMR', () => {
     )
   })
 
-  test.skip('updates definePage properties', async ({ page, baseURL }) => {
+  test.skip('updates definePage properties', async ({
+    page,
+    baseURL,
+    applyEditFile,
+  }) => {
     await page.goto(baseURL + '/hmr-update')
 
     await expect(page.locator('[data-testid="meta-foo"]')).toHaveText('bar')
