@@ -40,6 +40,8 @@ export default defineConfig({
     VueRouter({
       root,
       logs: true,
+      // defaults to false on CI
+      watch: true,
       // getRouteName: getPascalCaseRouteName,
       experimental: {
         autoExportsDataLoaders: ['src/loaders/**/*', '@/loaders/**/*'],
