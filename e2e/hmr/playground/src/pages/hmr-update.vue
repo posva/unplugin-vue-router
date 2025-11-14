@@ -1,8 +1,8 @@
 <script setup lang="ts">
 definePage({
   meta: {
-    foo: 'bar'
-  }
+    foo: 'bar',
+  },
 })
 </script>
 

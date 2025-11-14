@@ -4,7 +4,7 @@ import { routes } from 'vue-router/auto-routes'
 
 definePage({
   meta: {
-    n: 26,
+    n: 24,
   },
 })
 

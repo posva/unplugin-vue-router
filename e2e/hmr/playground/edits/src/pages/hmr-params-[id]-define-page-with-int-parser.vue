@@ -2,9 +2,9 @@
 definePage({
   params: {
     path: {
-      id: 'int'
-    }
-  }
+      id: 'int',
+    },
+  },
 })
 </script>
 

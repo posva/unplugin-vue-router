@@ -1,6 +1,6 @@
 <script setup lang="ts">
 definePage({
-  alias: '/alias-path'
+  alias: '/alias-path',
 })
 </script>
 

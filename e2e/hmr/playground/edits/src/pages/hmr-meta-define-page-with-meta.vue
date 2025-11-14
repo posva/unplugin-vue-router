@@ -1,8 +1,8 @@
 <script setup lang="ts">
 definePage({
   meta: {
-    hello: 'world'
-  }
+    hello: 'world',
+  },
 })
 </script>
 

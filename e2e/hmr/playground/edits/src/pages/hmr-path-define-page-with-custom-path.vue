@@ -1,6 +1,6 @@
 <script setup lang="ts">
 definePage({
-  path: '/custom-path'
+  path: '/custom-path',
 })
 </script>
 
