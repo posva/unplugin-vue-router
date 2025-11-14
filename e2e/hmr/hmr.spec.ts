@@ -64,7 +64,7 @@ test.describe('Pages HMR', () => {
     )
   })
 
-  test.skip('applies path changes via definePage', async ({
+  test('applies path changes via definePage', async ({
     page,
     baseURL,
     applyEditFile,
@@ -81,8 +81,8 @@ test.describe('Pages HMR', () => {
       'edits/src/pages/hmr-path-define-page-with-custom-path.vue'
     )
 
-    // Navigate to the new custom path
-    await page.goto(baseURL + '/custom-path')
+    // Navigate to the new custom path without a full reload
+    await page.locator('[data-testid="custom-path-link"]').click()
 
     await expect(page.locator('[data-testid="route-path"]')).toHaveText(
       '/custom-path'
@@ -115,7 +115,7 @@ test.describe('Pages HMR', () => {
     )
   })
 
-  test.skip('applies meta changes via definePage', async ({
+  test('applies meta changes via definePage', async ({
     page,
     baseURL,
     applyEditFile,
@@ -158,7 +158,7 @@ test.describe('Pages HMR', () => {
     )
   })
 
-  test.skip('updates definePage properties', async ({
+  test('updates definePage properties', async ({
     page,
     baseURL,
     applyEditFile,

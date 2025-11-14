@@ -15,21 +15,6 @@ export default defineConfig({
       'unplugin-vue-router/runtime': fileURLToPath(
         new URL('../../../src/runtime.ts', import.meta.url)
       ),
-      'unplugin-vue-router/types': fileURLToPath(
-        new URL('../../../src/types.ts', import.meta.url)
-      ),
-      'unplugin-vue-router/data-loaders/basic': fileURLToPath(
-        new URL('../../../src/data-loaders/entries/basic.ts', import.meta.url)
-      ),
-      'unplugin-vue-router/data-loaders/pinia-colada': fileURLToPath(
-        new URL(
-          '../../../src/data-loaders/entries/pinia-colada.ts',
-          import.meta.url
-        )
-      ),
-      'unplugin-vue-router/data-loaders': fileURLToPath(
-        new URL('../../../src/data-loaders/entries/index.ts', import.meta.url)
-      ),
     },
   },
   build: {
@@ -39,14 +24,10 @@ export default defineConfig({
   plugins: [
     VueRouter({
       root,
-      logs: true,
+      // logs: true,
       // defaults to false on CI
       watch: true,
       // getRouteName: getPascalCaseRouteName,
-      experimental: {
-        autoExportsDataLoaders: ['src/loaders/**/*', '@/loaders/**/*'],
-        paramParsers: false,
-      },
     }),
     Vue(),
   ],

@@ -7,13 +7,24 @@ import {
 } from '../moduleConstants'
 
 export function createViteContext(server: ViteDevServer): ServerContext {
-  function invalidate(path: string) {
+  function invalidate(path: string): false | Promise<void> {
     const foundModule = server.moduleGraph.getModuleById(path)
     // console.log(`🟣 Invalidating module: ${path}, found: ${!!foundModule}`)
     if (foundModule) {
       return server.reloadModule(foundModule)
     }
     return !!foundModule
+  }
+
+  function invalidatePage(filepath: string): Promise<void> | false {
+    const pageModules = server.moduleGraph.getModulesByFile(filepath)
+    // console.log(`🟣 Invalidating page: ${filepath}, found: ${!!pageModule}`)
+    if (pageModules) {
+      return Promise.all(
+        [...pageModules].map((mod) => server.reloadModule(mod))
+      ).then(() => {})
+    }
+    return false
   }
 
   function reload() {
@@ -42,6 +53,7 @@ export function createViteContext(server: ViteDevServer): ServerContext {
 
   return {
     invalidate,
+    invalidatePage,
     updateRoutes,
     reload,
   }

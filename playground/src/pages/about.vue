@@ -1,15 +1,8 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { routes } from 'vue-router/auto-routes'
-
 definePage({
   meta: {
     n: 24,
   },
-})
-
-onMounted(() => {
-  console.log('routes', routes.find((record) => record.name === '/about')?.meta)
 })
 </script>
 

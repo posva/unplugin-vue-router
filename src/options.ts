@@ -269,8 +269,30 @@ export const DEFAULT_OPTIONS = {
 } satisfies Options
 
 export interface ServerContext {
-  invalidate: (module: string) => void
+  /**
+   * Invalidates a module by its id.
+   * @param module - module id to invalidate
+   *
+   * @returns A promise that resolves when the module is invalidated, or `false` if the module was not found.
+   */
+  invalidate: (module: string) => Promise<void> | false
+
+  /**
+   * Invalidates all modules associated with a page file.
+   * @param filepath - file path of the page to invalidate
+   *
+   * @returns A promise that resolves when the page is invalidated, or `false` if no modules were found for the page.
+   */
+  invalidatePage: (filepath: string) => Promise<void> | false
+
+  /**
+   * Triggers HMR for the routes module.
+   */
   updateRoutes: () => Promise<void>
+
+  /**
+   * Triggers a full page reload.
+   */
   reload: () => void
 }
 

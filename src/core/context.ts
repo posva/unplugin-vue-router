@@ -176,6 +176,8 @@ export function createRoutesContext(options: ResolvedOptions) {
       ...routeBlock,
       ...definedPageInfo,
     })
+
+    server?.invalidatePage(filePath)
   }
 
   async function addPage(
@@ -190,7 +192,6 @@ export function createRoutesContext(options: ResolvedOptions) {
       await options.extendRoute?.(new EditableTreeNode(node))
     }
 
-    // TODO: trigger HMR vue-router/auto-routes
     server?.updateRoutes()
   }
 
@@ -212,7 +213,6 @@ export function createRoutesContext(options: ResolvedOptions) {
   function removePage({ filePath, routePath }: HandlerContext) {
     logger.log(`remove "${routePath}" for "${filePath}"`)
     routeTree.removeChild(filePath)
-    // TODO: trigger HMR vue-router/auto-routes
     server?.updateRoutes()
   }
 
