@@ -1,3 +1,15 @@
+## [0.16.2](https://github.com/posva/unplugin-vue-router/compare/v0.16.1...v0.16.2) (2025-11-14)
+
+### Bug Fixes
+
+- **experimental:** connecting slash with optional params ([e7d78cb](https://github.com/posva/unplugin-vue-router/commit/e7d78cbd4c2866d6335946359c620508be213bc4))
+- **experimental:** keep non matchable records with name: false ([980143d](https://github.com/posva/unplugin-vue-router/commit/980143d734ef222d081b09bbc66942bb293b9510))
+- **hmr:** invalidate all modules related to pages on update ([2fdcbde](https://github.com/posva/unplugin-vue-router/commit/2fdcbde51f0b97bbd3906933cf5780a607546f0e)), closes [#748](https://github.com/posva/unplugin-vue-router/issues/748)
+
+### Features
+
+- improve tree log ([474d12f](https://github.com/posva/unplugin-vue-router/commit/474d12fe4a73861867404ca15f719718c9f8dd71))
+
 ## [0.16.1](https://github.com/posva/unplugin-vue-router/compare/v0.16.0...v0.16.1) (2025-10-30)
 
 ### Bug Fixes
