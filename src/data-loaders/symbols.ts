@@ -5,6 +5,12 @@
 export const LOADER_SET_KEY = Symbol('loaders')
 
 /**
+ * Retrieves promises for loaders which are still being collected.
+ * @internal
+ */
+export const LOADER_SET_PROMISES_KEY = Symbol('loadersPromise')
+
+/**
  * Retrieves the internal version of loader entries.
  * @internal
  */
