@@ -1,3 +1,38 @@
+# [0.17.0](https://github.com/posva/unplugin-vue-router/compare/v0.16.2...v0.17.0) (2025-11-14)
+
+### Code Refactoring
+
+- remove deprecated export vue-router/auto ([9c3e4f2](https://github.com/posva/unplugin-vue-router/commit/9c3e4f2e51c0ee00b8c5c39464f246000ceba708))
+
+### BREAKING CHANGES
+
+- This export was creating multiple issues and was not
+  needed. It was deprecated long time ago and has now been removed. In
+  most cases you should be able to just import from `vue-router` instead,
+  but other exports must be adapted:
+
+  - `definePage` shouldn't be imported, it's a macro with no runtime
+  - `DataLoaderPlugin` and `NavigationResult` must be imported from
+    `unplugin-vue-router/data-loaders`
+  - `defineBasicLoader` must be imported from `unplugin-vue-router/data-loaders/basic`
+  - `defineColadaLoader` must be imported from `unplugin-vue-router/data-loaders/pinia-colada`
+
+    Here is the old declaration of `vue-router/auto` for reference:
+
+  ```ts
+  declare module 'vue-router/auto' {
+    // reexport all types that are not augmented by unplugin-vue-router
+    export * from 'vue-router'
+
+    export { definePage } from 'unplugin-vue-router/runtime'
+    // Experimental Data Fetching
+    export {
+      DataLoaderPlugin,
+      NavigationResult,
+    } from 'unplugin-vue-router/data-loaders'
+  }
+  ```
+
 ## [0.16.2](https://github.com/posva/unplugin-vue-router/compare/v0.16.1...v0.16.2) (2025-11-14)
 
 ### Bug Fixes
