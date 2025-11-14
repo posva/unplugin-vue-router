@@ -7,9 +7,11 @@
     "./typed-router.d.ts",
     "./auto-imports.d.ts"
   ],
+  "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
     "baseUrl": ".",
     "composite": true,
+    "noEmit": true,
     "moduleResolution": "Bundler",
     "paths": {
       "@/*": ["./src/*"],

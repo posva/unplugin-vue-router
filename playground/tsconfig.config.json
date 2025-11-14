@@ -1,7 +1,10 @@
 {
   "extends": "@vue/tsconfig/tsconfig.json",
   "include": ["vite.config.*", "vitest.config.*", "cypress.config.*"],
+  "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
+    "noEmit": false,
+    "emitDeclarationOnly": true,
     "composite": true,
     "types": ["node"]
   }
