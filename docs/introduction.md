@@ -170,28 +170,6 @@ If you don't have an `env.d.ts` file, you can create one and add the unplugin-vu
 
 :::
 
-::: warning
-
-unplugin-vue-router adds a virtual `vue-router/auto` module that exports everything from `vue-router` with some extra features from `unplugin-vue-router/runtime` and `unplugin-vue-router/data-loaders`.
-
-**DO NOT use `vue-router/auto` in new projects**.
-
-It's kept for compatibility with existing projects that use it and **will be removed in the near future**.
-
-::: tip
-You can exclude `vue-router/auto` from VSCode import suggestions by adding this setting to your `.vscode/settings.json`:
-
-```json
-{
-  "typescript.tsdk": "node_modules/typescript/lib",
-  "typescript.preferences.autoImportFileExcludePatterns": ["vue-router/auto$"]
-}
-```
-
-This will ensure VSCode does not suggest `vue-router/auto` for imports. Alternatively, you can also configure [auto imports](#auto-imports).
-
-:::
-
 ### Migrating an existing project
 
 Move your page components to `src/pages` and rename them accordingly. Here is an example of migration.

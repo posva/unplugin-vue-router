@@ -16,10 +16,8 @@ import {
   resolveFolderOptions,
 } from './RoutesFolderWatcher'
 import { generateDTS as _generateDTS } from '../codegen/generateDTS'
-import { generateVueRouterProxy as _generateVueRouterProxy } from '../codegen/vueRouterModule'
 import { definePageTransform, extractDefinePageInfo } from './definePage'
 import { EditableTreeNode } from './extendRoutes'
-import { isPackageExists as isPackageInstalled } from 'local-pkg'
 import { ts } from '../utils'
 import { generateRouteResolver } from '../codegen/generateRouteResolver'
 import { type FSWatcher, watch as fsWatch } from 'chokidar'
@@ -387,15 +385,6 @@ if (import.meta.hot) {
     return autoRoutes
   }
 
-  // NOTE: this code needs to be generated because otherwise it doesn't go through transforms and `vue-router/auto-routes`
-  // cannot be resolved.
-  const isPiniaColadaInstalled = isPackageInstalled('@pinia/colada')
-  function generateVueRouterProxy() {
-    return _generateVueRouterProxy(MODULE_ROUTES_PATH, options, {
-      addPiniaColada: isPiniaColadaInstalled,
-    })
-  }
-
   let lastDTS: string | undefined
   async function _writeConfigFiles() {
     logger.time('writeConfigFiles')
@@ -448,7 +437,6 @@ if (import.meta.hot) {
 
     generateRoutes,
     generateResolver,
-    generateVueRouterProxy,
 
     definePageTransform(code: string, id: string) {
       return definePageTransform({

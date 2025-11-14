@@ -2,7 +2,6 @@ import { createUnplugin, type UnpluginOptions } from 'unplugin'
 import { createRoutesContext } from './core/context'
 import {
   MODULE_ROUTES_PATH,
-  MODULE_VUE_ROUTER_AUTO,
   getVirtualId as _getVirtualId,
   asVirtualId as _asVirtualId,
   routeBlockQueryRE,
@@ -64,7 +63,6 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
         filter: {
           id: {
             include: [
-              new RegExp(`^${MODULE_VUE_ROUTER_AUTO}$`),
               new RegExp(`^${MODULE_ROUTES_PATH}$`),
               new RegExp(`^${MODULE_RESOLVER_PATH}$`),
               routeBlockQueryRE,
@@ -72,13 +70,9 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
           },
         },
         handler(id) {
-          // vue-router/auto
           // vue-router/auto-routes
-          if (
-            id === MODULE_ROUTES_PATH ||
-            id === MODULE_VUE_ROUTER_AUTO ||
-            id === MODULE_RESOLVER_PATH
-          ) {
+          // vue-router/auto-resolver
+          if (id === MODULE_ROUTES_PATH || id === MODULE_RESOLVER_PATH) {
             // must be a virtual module
             return asVirtualId(id)
           }
@@ -116,7 +110,6 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
             include: [
               // virtualized ids only
               new RegExp(`^${ROUTE_BLOCK_ID}$`),
-              new RegExp(`^${VIRTUAL_PREFIX}${MODULE_VUE_ROUTER_AUTO}$`),
               new RegExp(`^${VIRTUAL_PREFIX}${MODULE_ROUTES_PATH}$`),
               new RegExp(`^${VIRTUAL_PREFIX}${MODULE_RESOLVER_PATH}$`),
             ],
@@ -146,11 +139,6 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
           if (resolvedId === MODULE_RESOLVER_PATH) {
             ROUTES_LAST_LOAD_TIME.update()
             return ctx.generateResolver()
-          }
-
-          // vue-router/auto
-          if (resolvedId === MODULE_VUE_ROUTER_AUTO) {
-            return ctx.generateVueRouterProxy()
           }
 
           return // ok TS...
