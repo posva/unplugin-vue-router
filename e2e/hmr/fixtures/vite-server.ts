@@ -10,17 +10,19 @@ type ViteFixtures = {
   baseURL: string
   projectRoot: string
   applyEditFile: (sourceFilePath: string, newContentFilePath: string) => void
+  playgroundName: string
 }
 
-const sourceDir = fileURLToPath(new URL('../playground', import.meta.url))
-
 export const test = base.extend<ViteFixtures>({
+  // @ts-expect-error: all options are scoped per worker
+  playgroundName: ['', { scope: 'worker', option: true }],
+
   // @ts-expect-error: we need to compute projectRoot per worker
   projectRoot: [
-    async ({}, use, testInfo) => {
+    async ({ playgroundName }, use, testInfo) => {
       const fixtureDir = fileURLToPath(
         new URL(
-          `../playground-tmp-worker-${testInfo.workerIndex}`,
+          `../playground-tmp-${playgroundName}-worker-${testInfo.workerIndex}`,
           import.meta.url
         )
       )
@@ -32,8 +34,9 @@ export const test = base.extend<ViteFixtures>({
 
   // @ts-expect-error: type matched what is passed to use(server)
   devServer: [
-    async ({ projectRoot }, use) => {
+    async ({ projectRoot, playgroundName }, use) => {
       const fixtureDir = projectRoot
+      const sourceDir = fileURLToPath(new URL(`../playground`, import.meta.url))
 
       fs.rmSync(fixtureDir, { force: true, recursive: true })
       fs.cpSync(sourceDir, fixtureDir, {
@@ -50,7 +53,7 @@ export const test = base.extend<ViteFixtures>({
       // Start a real Vite dev server with your plugin(s) & config.
       // If you already have vite.config.ts, omit configFile:false and rely on it.
       const server = await createServer({
-        configFile: path.join(fixtureDir, 'vite.config.ts'),
+        configFile: path.join(fixtureDir, `vite.config.${playgroundName}.ts`),
         // If you need to inline the plugin directly, you could do:
         // configFile: false,
         // plugins: [myPlugin()],

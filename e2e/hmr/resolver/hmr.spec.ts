@@ -1,5 +1,10 @@
-import { Page } from '@playwright/test'
-import { test, expect } from './fixtures/vite-server'
+import { type Page } from '@playwright/test'
+import { test, expect } from '../fixtures/vite-server'
+
+async function navigate(page: Page, to: string) {
+  await page.getByTestId('navigator').getByRole('textbox').fill(to)
+  await page.getByTestId('navigator').getByRole('button').click()
+}
 
 test.describe('Pages HMR', () => {
   let hmrToken: number = -1
@@ -31,7 +36,7 @@ test.describe('Pages HMR', () => {
   }) => {
     await page.goto(baseURL + '/')
 
-    await expect(page.locator('[data-testid="meta-hello"]')).toHaveText('')
+    await expect(page.getByTestId('meta-hello')).toHaveText('')
 
     await ensureHmrToken(page)
     applyEditFile(
@@ -39,7 +44,7 @@ test.describe('Pages HMR', () => {
       'edits/src/pages/(home)-route-block-with-meta.vue'
     )
 
-    await expect(page.locator('[data-testid="meta-hello"]')).toHaveText('world')
+    await expect(page.getByTestId('meta-hello')).toHaveText('world')
   })
 
   test('applies name changes via definePage', async ({
@@ -49,9 +54,7 @@ test.describe('Pages HMR', () => {
   }) => {
     await page.goto(baseURL + '/hmr-name')
 
-    await expect(page.locator('[data-testid="route-name"]')).toHaveText(
-      '/hmr-name'
-    )
+    await expect(page.getByTestId('route-name')).toHaveText('/hmr-name')
 
     await ensureHmrToken(page)
     applyEditFile(
@@ -59,9 +62,7 @@ test.describe('Pages HMR', () => {
       'edits/src/pages/hmr-name-define-page-with-custom-name.vue'
     )
 
-    await expect(page.locator('[data-testid="route-name"]')).toHaveText(
-      'CustomName'
-    )
+    await expect(page.getByTestId('route-name')).toHaveText('CustomName')
   })
 
   test('applies path changes via definePage', async ({
@@ -71,9 +72,7 @@ test.describe('Pages HMR', () => {
   }) => {
     await page.goto(baseURL + '/hmr-path')
 
-    await expect(page.locator('[data-testid="route-path"]')).toHaveText(
-      '/hmr-path'
-    )
+    await expect(page.getByTestId('route')).toHaveText('/hmr-path')
 
     await ensureHmrToken(page)
     applyEditFile(
@@ -82,11 +81,9 @@ test.describe('Pages HMR', () => {
     )
 
     // Navigate to the new custom path without a full reload
-    await page.locator('[data-testid="custom-path-link"]').click()
+    await navigate(page, '/custom-path')
 
-    await expect(page.locator('[data-testid="route-path"]')).toHaveText(
-      '/custom-path'
-    )
+    await expect(page.getByTestId('route')).toHaveText('/custom-path')
   })
 
   test.skip('applies params parsers via definePage', async ({
@@ -97,10 +94,8 @@ test.describe('Pages HMR', () => {
     await page.goto(baseURL + '/hmr-params-123')
 
     // Initially params are strings
-    await expect(page.locator('[data-testid="param-id"]')).toHaveText('123')
-    await expect(page.locator('[data-testid="param-type"]')).toHaveText(
-      'string'
-    )
+    await expect(page.getByTestId('param-id')).toHaveText('123')
+    await expect(page.getByTestId('param-type')).toHaveText('string')
 
     await ensureHmrToken(page)
     applyEditFile(
@@ -109,10 +104,8 @@ test.describe('Pages HMR', () => {
     )
 
     // After HMR, params should be parsed as numbers
-    await expect(page.locator('[data-testid="param-id"]')).toHaveText('123')
-    await expect(page.locator('[data-testid="param-type"]')).toHaveText(
-      'number'
-    )
+    await expect(page.getByTestId('param-id')).toHaveText('123')
+    await expect(page.getByTestId('param-type')).toHaveText('number')
   })
 
   test('applies meta changes via definePage', async ({
@@ -122,7 +115,7 @@ test.describe('Pages HMR', () => {
   }) => {
     await page.goto(baseURL + '/hmr-meta')
 
-    await expect(page.locator('[data-testid="meta-hello"]')).toHaveText('')
+    await expect(page.getByTestId('meta-hello')).toHaveText('')
 
     await ensureHmrToken(page)
     applyEditFile(
@@ -130,7 +123,7 @@ test.describe('Pages HMR', () => {
       'edits/src/pages/hmr-meta-define-page-with-meta.vue'
     )
 
-    await expect(page.locator('[data-testid="meta-hello"]')).toHaveText('world')
+    await expect(page.getByTestId('meta-hello')).toHaveText('world')
   })
 
   test.skip('applies alias via definePage', async ({
@@ -140,9 +133,7 @@ test.describe('Pages HMR', () => {
   }) => {
     await page.goto(baseURL + '/hmr-alias')
 
-    await expect(page.locator('[data-testid="route-path"]')).toHaveText(
-      '/hmr-alias'
-    )
+    await expect(page.getByTestId('route')).toHaveText('/hmr-alias')
 
     await ensureHmrToken(page)
     applyEditFile(
@@ -150,12 +141,13 @@ test.describe('Pages HMR', () => {
       'edits/src/pages/hmr-alias-define-page-with-alias.vue'
     )
 
-    // Navigate to the alias path
-    await page.goto(baseURL + '/alias-path')
+    // we need to go to a different page first to avoid a duplicated navigation
+    await navigate(page, '/')
+    await expect(page.getByTestId('route')).toHaveText('/')
+    await navigate(page, '/alias-path')
 
-    await expect(page.locator('[data-testid="route-path"]')).toHaveText(
-      '/alias-path'
-    )
+
+    await expect(page.getByTestId('route')).toHaveText('/alias-path')
   })
 
   test('updates definePage properties', async ({
@@ -165,7 +157,7 @@ test.describe('Pages HMR', () => {
   }) => {
     await page.goto(baseURL + '/hmr-update')
 
-    await expect(page.locator('[data-testid="meta-foo"]')).toHaveText('bar')
+    await expect(page.getByTestId('meta-foo')).toHaveText('bar')
 
     await ensureHmrToken(page)
     applyEditFile(
@@ -173,6 +165,6 @@ test.describe('Pages HMR', () => {
       'edits/src/pages/hmr-update-define-page-with-updated-meta.vue'
     )
 
-    await expect(page.locator('[data-testid="meta-foo"]')).toHaveText('updated')
+    await expect(page.getByTestId('meta-foo')).toHaveText('updated')
   })
 })

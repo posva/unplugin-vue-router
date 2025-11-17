@@ -34,8 +34,20 @@ export default defineConfig({
     // },
     //
     {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
+      name: 'hmr-routes',
+      testMatch: 'e2e/hmr/routes/hmr.spec.ts',
+      use: {
+        ...devices['Desktop Safari'],
+        playgroundName: 'routes',
+      },
+    },
+    {
+      name: 'hmr-resolver',
+      testMatch: 'e2e/hmr/resolver/hmr.spec.ts',
+      use: {
+        ...devices['Desktop Safari'],
+        playgroundName: 'resolver',
+      },
     },
   ],
 })
