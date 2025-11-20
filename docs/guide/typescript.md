@@ -73,14 +73,14 @@ declare module 'vue-router/auto-routes' {
       { path: ParamValue<false> },
       // this is a union of all children route names
       // if the route does not have nested routes, pass `never` or omit this generic entirely
-      | 'custom-dynamic-child-name'
+      'custom-dynamic-child-name'
     >
     'custom-dynamic-child-name': RouteRecordInfo<
       'custom-dynamic-child-name',
       '/added-during-runtime/[...path]/child',
       { path: ParamValue<true> },
       { path: ParamValue<false> },
-      | never
+      never
     >
   }
 
@@ -132,14 +132,19 @@ userRouteWithIdParam.name
 userRouteWithIdParam.params.id
 ```
 
-### Using the `sfc-typed-router` Volar plugin
+### Automatically typed `useRoute()`
 
-This Volar plugin automatically types `useRoute()` and `$route` correctly in page components, so you don't have to write code like `useRoute('/users/[id]')`, allowing you to write less code.
+The `sfc-typed-router` Volar plugin automatically types `useRoute()` and `$route` correctly in page components, so you don't have to write code like `useRoute('/users/[id]')`, allowing you to write less code.
 
 To start using the plugin, add the following to the `tsconfig.json` file that includes your Vue files:
 
 ```json
 {
+  "compilerOptions": {
+    // needed for the plugin to correctly resolve paths
+    "baseUrl": "."
+    // ...
+  },
   // ...
   "vueCompilerOptions": {
     "plugins": ["unplugin-vue-router/volar/sfc-typed-router"]
