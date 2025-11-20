@@ -146,7 +146,6 @@ test.describe('Pages HMR', () => {
     await expect(page.getByTestId('route')).toHaveText('/')
     await navigate(page, '/alias-path')
 
-
     await expect(page.getByTestId('route')).toHaveText('/alias-path')
   })
 
