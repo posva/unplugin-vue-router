@@ -1,7 +1,8 @@
 import { relative } from 'pathe'
 import type { VueLanguagePlugin } from '@vue/language-core'
-import { replaceAll, toString } from 'muggle-string'
+import { replaceSourceRange, toString } from 'muggle-string'
 import { augmentVlsCtx } from '../utils/augment-vls-ctx'
+import type ts from 'typescript'
 
 /*
   Future ideas:
@@ -13,21 +14,11 @@ import { augmentVlsCtx } from '../utils/augment-vls-ctx'
   - (low priority) Enhance typing of `to` route in `beforeEnter` route guards defined in `definePage`
 */
 
-const plugin: VueLanguagePlugin = (ctx) => {
+const plugin: VueLanguagePlugin = ({
+  compilerOptions,
+  modules: { typescript: ts },
+}) => {
   const RE = {
-    USE_ROUTE: {
-      /**
-       * Targets the spot between `useRoute` and `()`
-       */
-      BEFORE_PARENTHESES: /(?<=useRoute)(\s*)(?=\(\))/g,
-      /**
-       * Targets the spot right before `useRoute()`
-       */
-      BEFORE: /(?=useRoute(\s*)\(\))/g,
-      /** Targets the spot right after `useRoute()` */
-      AFTER: /(?<=useRoute(\s*)\(\))/g,
-    },
-
     DOLLAR_ROUTE: {
       /**
        * When using `$route` in a template, it is referred
@@ -39,7 +30,7 @@ const plugin: VueLanguagePlugin = (ctx) => {
 
   return {
     version: 2.1,
-    resolveEmbeddedCode(fileName, _sfc, embeddedCode) {
+    resolveEmbeddedCode(fileName, sfc, embeddedCode) {
       if (!embeddedCode.id.startsWith('script_')) {
         return
       }
@@ -47,31 +38,54 @@ const plugin: VueLanguagePlugin = (ctx) => {
       // TODO: Do we want to apply this to EVERY .vue file or only to components that the user wrote themselves?
 
       // NOTE: this might not work if different from the root passed to VueRouter unplugin
-      const relativeFilePath = ctx.compilerOptions.baseUrl
-        ? relative(ctx.compilerOptions.baseUrl, fileName)
+      const relativeFilePath = compilerOptions.baseUrl
+        ? relative(compilerOptions.baseUrl, fileName)
         : fileName
 
       const useRouteNameType = `import('vue-router/auto-routes')._RouteNamesForFilePath<'${relativeFilePath}'>`
       const useRouteNameTypeParam = `<${useRouteNameType}>`
       const typedCall = `useRoute${useRouteNameTypeParam}`
 
-      if (embeddedCode.id.startsWith('script_ts')) {
-        // Inserts type param into `useRoute()` calls.
-        // We only apply this mutation on <script setup> blocks with lang="ts".
-        replaceAll(
-          embeddedCode.content,
-          RE.USE_ROUTE.BEFORE_PARENTHESES,
-          useRouteNameTypeParam
-        )
-      } else if (embeddedCode.id.startsWith('script_js')) {
-        // Typecasts `useRoute()` calls.
-        // We only apply this mutation on plain JS <script setup> blocks.
-        replaceAll(embeddedCode.content, RE.USE_ROUTE.BEFORE, `(`)
-        replaceAll(
-          embeddedCode.content,
-          RE.USE_ROUTE.AFTER,
-          ` as ReturnType<typeof ${typedCall}>)`
-        )
+      if (sfc.scriptSetup) {
+        visit(sfc.scriptSetup.ast)
+      }
+
+      function visit(node: ts.Node) {
+        if (
+          ts.isCallExpression(node) &&
+          ts.isIdentifier(node.expression) &&
+          node.expression.text === 'useRoute' &&
+          !node.typeArguments &&
+          !node.arguments.length
+        ) {
+          if (!sfc.scriptSetup!.lang.startsWith('js')) {
+            replaceSourceRange(
+              embeddedCode.content,
+              sfc.scriptSetup!.name,
+              node.expression.end,
+              node.expression.end,
+              useRouteNameTypeParam
+            )
+          } else {
+            const start = node.getStart(sfc.scriptSetup!.ast)
+            replaceSourceRange(
+              embeddedCode.content,
+              sfc.scriptSetup!.name,
+              start,
+              start,
+              `(`
+            )
+            replaceSourceRange(
+              embeddedCode.content,
+              sfc.scriptSetup!.name,
+              node.end,
+              node.end,
+              ` as ReturnType<typeof ${typedCall}>)`
+            )
+          }
+        } else {
+          ts.forEachChild(node, visit)
+        }
       }
 
       const contentStr = toString(embeddedCode.content)
@@ -80,7 +94,9 @@ const plugin: VueLanguagePlugin = (ctx) => {
 
       // Augment `__VLS_ctx.$route` to override the typings of `$route` in template blocks
       if (contentStr.match(RE.DOLLAR_ROUTE.VLS_CTX)) {
-        vlsCtxAugmentations.push(`$route: ReturnType<typeof ${typedCall}>;`)
+        vlsCtxAugmentations.push(
+          `{} as { $route: ReturnType<typeof ${typedCall}> }`
+        )
       }
 
       // We can try augmenting the types for `RouterView` below.
@@ -88,13 +104,8 @@ const plugin: VueLanguagePlugin = (ctx) => {
       //   vlsCtxAugmentations.push(`RouterView: 'test';`)
       // }
 
-      if (vlsCtxAugmentations.length > 0) {
-        augmentVlsCtx(
-          embeddedCode.content,
-          () => ` & {
-  ${vlsCtxAugmentations.join('\n  ')}
-}`
-        )
+      if (vlsCtxAugmentations.length) {
+        augmentVlsCtx(embeddedCode.content, vlsCtxAugmentations)
       }
     },
   }
