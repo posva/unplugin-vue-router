@@ -4,9 +4,9 @@ import type { Code } from '@vue/language-core'
  * Augments the VLS context (volar) with additianal type information.
  *
  * @param content - content retrieved from the volar pluign
- * @param  getCodes - function that computes the code to add to the VLS context.
+ * @param codes - codes to add to the VLS context
  */
-export function augmentVlsCtx(content: Code[], getCodes: () => ` & ${string}`) {
+export function augmentVlsCtx(content: Code[], codes: Code[]) {
   let from = -1
   let to = -1
 
@@ -19,7 +19,7 @@ export function augmentVlsCtx(content: Code[], getCodes: () => ` & ${string}`) {
 
     if (from === -1 && code.startsWith(`const __VLS_ctx`)) {
       from = i
-    } else if (from !== -1 && code === `;\n`) {
+    } else if (from !== -1 && code === `}`) {
       to = i
       break
     }
@@ -30,5 +30,5 @@ export function augmentVlsCtx(content: Code[], getCodes: () => ` & ${string}`) {
   }
 
   // TODO: getCodes should return a Code[] type but unsure of how to build that
-  content.splice(to, 0, getCodes())
+  content.splice(to, 0, ...codes.map((code) => `...${code},\n`))
 }
