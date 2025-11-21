@@ -1,81 +1,19 @@
 import type { UnpluginOptions } from 'unplugin'
-import type { VariableDeclarator, ImportDeclaration } from 'estree'
-import type { AstNode } from 'rollup'
-
-function nameFromDeclaration(node?: VariableDeclarator) {
-  return node?.id.type === 'Identifier' ? node.id.name : ''
-}
-
-function getRouterDeclaration(nodes?: VariableDeclarator[]) {
-  return nodes?.find(
-    (x) =>
-      x.init?.type === 'CallExpression' &&
-      x.init.callee.type === 'Identifier' &&
-      x.init.callee.name === 'createRouter'
-  )
-}
-
-function getHandleHotUpdateDeclaration(node?: ImportDeclaration, modulePath?: string) {
-  return (
-    node?.type === 'ImportDeclaration' &&
-    node.source.value === modulePath &&
-    node.specifiers.some(
-      (x) =>
-        x.type === 'ImportSpecifier' &&
-        x.imported.type === 'Identifier' &&
-        x.imported.name === 'handleHotUpdate'
-    )
-  )
-}
-
-function hasHandleHotUpdateCall(ast: AstNode) {
-  function traverse(node: any) {
-    if (!node) return false;
-
-    if (
-      node.type === 'CallExpression' &&
-      node.callee.type === 'Identifier' &&
-      node.callee.name === 'handleHotUpdate'
-    ) {
-      return true;
-    }
-
-    // e.g.: autoRouter.handleHotUpdate()
-    if (
-      node.type === 'CallExpression' &&
-      node.callee.type === 'MemberExpression' &&
-      node.callee.property.type === 'Identifier' &&
-      node.callee.property.name === 'handleHotUpdate'
-    ) {
-      return true;
-    }
-
-    if (typeof node !== 'object') return false;
-
-    for (const key in node) {
-      if (key === 'type' || key === 'loc' || key === 'range') continue;
-
-      const child = node[key];
-      if (Array.isArray(child)) {
-        for (const item of child) {
-          if (traverse(item)) return true;
-        }
-      } else if (typeof child === 'object' && child !== null) {
-        if (traverse(child)) return true;
-      }
-    }
-
-    return false;
-  }
-
-  return traverse(ast);
-}
+import type { VariableDeclarator } from 'estree'
+import {
+  nameFromDeclaration,
+  getRouterDeclaration,
+  getHandleHotUpdateDeclaration,
+  hasHandleHotUpdateCall,
+} from './ast'
 
 interface AutoHmrPluginOptions {
   modulePath: string
 }
 
-export function createAutoHmrPlugin({ modulePath }: AutoHmrPluginOptions): UnpluginOptions {
+export function createAutoHmrPlugin({
+  modulePath,
+}: AutoHmrPluginOptions): UnpluginOptions {
   return {
     name: 'unplugin-vue-router-auto-hmr',
     enforce: 'post',
@@ -102,11 +40,13 @@ export function createAutoHmrPlugin({ modulePath }: AutoHmrPluginOptions): Unplu
           node.type === 'VariableDeclaration'
         ) {
           if (!routerName) {
-            routerDeclaration = getRouterDeclaration(node.type === 'VariableDeclaration'
+            routerDeclaration = getRouterDeclaration(
+              node.type === 'VariableDeclaration'
               ? node.declarations
               : node.declaration?.type === 'VariableDeclaration'
                 ? node.declaration?.declarations
-                : undefined)
+                  : undefined
+            )
 
             routerName = nameFromDeclaration(routerDeclaration)
           }
@@ -133,11 +73,11 @@ export function createAutoHmrPlugin({ modulePath }: AutoHmrPluginOptions): Unplu
         }
 
         return {
-          code: handleHotUpdateCode.join('\n')
+          code: handleHotUpdateCode.join('\n'),
         }
       }
 
       return
-    }
+    },
   }
 }
