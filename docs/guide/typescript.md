@@ -142,7 +142,7 @@ To start using the plugin, add the following to the `tsconfig.json` file that in
 {
   "compilerOptions": {
     // needed for the plugin to correctly resolve paths
-    "baseUrl": "."
+    "rootDir": "."
     // ...
   },
   // ...

@@ -9,7 +9,7 @@
     "./auto-imports.d.ts"
   ],
   "compilerOptions": {
-    "baseUrl": ".",
+    "rootDir": ".",
     "composite": true,
     "noEmit": true,
     "moduleResolution": "Bundler",
