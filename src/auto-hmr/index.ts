@@ -1,4 +1,3 @@
-import type { UnpluginOptions } from 'unplugin'
 import type { VariableDeclarator } from 'estree'
 import {
   nameFromDeclaration,
@@ -6,23 +5,56 @@ import {
   getHandleHotUpdateDeclaration,
   hasHandleHotUpdateCall,
 } from './ast'
+import { StringFilter, FilterPattern, type UnpluginOptions } from 'unplugin'
+import { createFilter } from 'unplugin-utils'
 
-interface AutoHmrPluginOptions {
-  modulePath: string
+export interface AutoHmrOptions {
+  /**
+   * Whether to enable auto HMR for Vue Router.
+   * @default `true`
+   */
+  enabled?: boolean
+
+  /**
+   * Filter to determine which files to process.
+   */
+  filter?: Exclude<StringFilter, FilterPattern>
+
+  /**
+   * Name of the module to import the handleHotUpdate function from.
+   * @default `'vue-router/auto-routes'`
+   */
+  modulePath?: string
 }
 
+export const DEFAULT_AUTO_HMR_OPTIONS = {
+  enabled: true,
+  modulePath: 'vue-router/auto-routes',
+  filter: {
+    include: ['**/router.{js,ts}', '**/router/index.{js,ts}'],
+    exclude: [],
+  },
+} satisfies AutoHmrOptions
+
 export function createAutoHmrPlugin({
-  modulePath,
-}: AutoHmrPluginOptions): UnpluginOptions {
+  filter,
+  modulePath = DEFAULT_AUTO_HMR_OPTIONS.modulePath,
+}: AutoHmrOptions): UnpluginOptions {
   const hasCreateRouterFnCallRegex =
     /\w+\s*=\s*(?:experimental_)?createRouter\(/
+
+  const shouldProcessId = createFilter(
+    filter?.include ?? DEFAULT_AUTO_HMR_OPTIONS.filter.include,
+    filter?.exclude ?? DEFAULT_AUTO_HMR_OPTIONS.filter.exclude
+  )
 
   return {
     name: 'unplugin-vue-router-auto-hmr',
     enforce: 'post',
-
     transform(code, id) {
       if (id.startsWith('\x00')) return
+
+      if (!shouldProcessId(id)) return
 
       if (!hasCreateRouterFnCallRegex.test(code)) {
         return
@@ -43,9 +75,9 @@ export function createAutoHmrPlugin({
           if (!routerName) {
             routerDeclaration = getRouterDeclaration(
               node.type === 'VariableDeclaration'
-              ? node.declarations
-              : node.declaration?.type === 'VariableDeclaration'
-                ? node.declaration?.declarations
+                ? node.declarations
+                : node.declaration?.type === 'VariableDeclaration'
+                  ? node.declaration?.declarations
                   : undefined
             )
 
@@ -78,7 +110,7 @@ export function createAutoHmrPlugin({
         }
       }
 
-      return
+      return undefined
     },
   }
 }

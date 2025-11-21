@@ -169,12 +169,10 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
     )
   }
 
-  if (options.autoHmr) {
-    plugins.push(
-      createAutoHmrPlugin({
-        modulePath: MODULE_ROUTES_PATH,
-      })
-    )
+  // If the autoHmr configuration item is not configured or only filter is set,
+  // it will also be regarded as enabled.
+  if (options.autoHmr?.enabled ?? true) {
+    plugins.push(createAutoHmrPlugin(options.autoHmr))
   }
 
   return plugins
