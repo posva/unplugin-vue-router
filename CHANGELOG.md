@@ -1,3 +1,9 @@
+## [0.17.1](https://github.com/posva/unplugin-vue-router/compare/v0.17.0...v0.17.1) (2025-11-21)
+
+### Bug Fixes
+
+- **volar:** use rootDir ([ca89fcf](https://github.com/posva/unplugin-vue-router/commit/ca89fcf7b1c31394d1db655f1add168eb3598105))
+
 # [0.17.0](https://github.com/posva/unplugin-vue-router/compare/v0.16.2...v0.17.0) (2025-11-14)
 
 ### Code Refactoring
@@ -10,7 +16,6 @@
   needed. It was deprecated long time ago and has now been removed. In
   most cases you should be able to just import from `vue-router` instead,
   but other exports must be adapted:
-
   - `definePage` shouldn't be imported, it's a macro with no runtime
   - `DataLoaderPlugin` and `NavigationResult` must be imported from
     `unplugin-vue-router/data-loaders`
