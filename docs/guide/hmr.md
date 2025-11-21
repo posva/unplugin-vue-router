@@ -52,5 +52,4 @@ if (import.meta.hot) {
 }
 ```
 
-
 This is **optional**, you can also just reload the page.

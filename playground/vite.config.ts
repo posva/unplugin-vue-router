@@ -7,8 +7,9 @@ import VueRouter from '../src/vite'
 import { VueRouterAutoImports } from '../src'
 import Vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
-import Inspect from 'vite-plugin-inspect'
 import VueDevtools from 'vite-plugin-vue-devtools'
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 export default defineConfig({
   clearScreen: false,
@@ -51,12 +52,14 @@ export default defineConfig({
       // getRouteName: getPascalCaseRouteName,
       experimental: {
         autoExportsDataLoaders: ['src/loaders/**/*', '@/loaders/**/*'],
+        paramParsers: false,
       },
       extendRoute(route) {
         route.params.forEach((param) => {
           // transform kebab-case to camelCase
-          param.paramName = param.paramName.replace(/-([a-z])/g, (g) =>
-            g[1].toUpperCase()
+          param.paramName = param.paramName.replace(
+            /-([a-z])/g,
+            (g) => g[1]?.toUpperCase() || ''
           )
         })
 
@@ -161,6 +164,5 @@ export default defineConfig({
     // currently the devtools use 0.8.8 but we care more about
     // inspecting virtual files
     VueDevtools(),
-    Inspect(),
   ],
 })

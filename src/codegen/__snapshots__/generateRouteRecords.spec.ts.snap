@@ -321,6 +321,17 @@ exports[`generateRouteRecord > names > creates single word names 1`] = `
 ]"
 `;
 
+exports[`generateRouteRecord > names > handles empty names 1`] = `
+"[
+  {
+    path: '/about',
+    /* no name */
+    component: () => import('about.vue'),
+    /* no children */
+  }
+]"
+`;
+
 exports[`generateRouteRecord > names > works with nested views 1`] = `
 "[
   {
@@ -643,7 +654,7 @@ exports[`generateRouteRecord > route block > adds meta data 1`] = `
     meta: {
       "auth": true,
       "title": "Home"
-    }
+    },
   }
 ]"
 `;
@@ -661,7 +672,7 @@ exports[`generateRouteRecord > route block > handles named views with empty rout
     meta: {
       "auth": true,
       "title": "Home"
-    }
+    },
   }
 ]"
 `;
@@ -684,7 +695,7 @@ exports[`generateRouteRecord > route block > merges deep meta properties 1`] = `
           3
         ]
       }
-    }
+    },
   }
 ]"
 `;
@@ -699,7 +710,7 @@ exports[`generateRouteRecord > route block > merges multiple meta properties 1`]
     meta: {
       "one": true,
       "two": true
-    }
+    },
   }
 ]"
 `;

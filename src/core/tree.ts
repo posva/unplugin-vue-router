@@ -1,15 +1,36 @@
 import { type ResolvedOptions } from '../options'
 import {
   createTreeNodeValue,
+  escapeRegex,
   TreeNodeValueOptions,
-  TreeRouteParam,
+  TreePathParam,
+  TreeQueryParam,
 } from './treeNodeValue'
 import type { TreeNodeValue } from './treeNodeValue'
 import { CustomRouteBlock } from './customBlock'
 import { RouteMeta } from 'vue-router'
+import { ESCAPED_TRAILING_SLASH_RE } from './utils'
 
 export interface TreeNodeOptions extends ResolvedOptions {
   treeNodeOptions?: TreeNodeValueOptions
+}
+
+/**
+ * Parts used by MatcherPatternPathDynamic to match a route.
+ *
+ * @internal
+ */
+export type TreeNodeValueMatcherPart = Array<
+  string | number | Array<string | number>
+>
+
+/**
+ * Makes the `name` property required and a string. Used for readability
+ *
+ * @internal
+ */
+export type TreeNodeNamed = TreeNode & {
+  name: Extract<TreeNode['name'], string>
 }
 
 export class TreeNode {
@@ -130,16 +151,40 @@ export class TreeNode {
     this.value.setOverride(filePath, routeBlock)
   }
 
-  getSortedChildren(): TreeNode[] {
-    return Array.from(this.children.values()).sort((a, b) =>
-      a.path.localeCompare(b.path)
-    )
+  /**
+   * Generator that yields all descendants without sorting.
+   * Use with Array.from() for now, native .map() support in Node 22+.
+   */
+  *getChildrenDeep(): Generator<TreeNode> {
+    for (const child of this.children.values()) {
+      yield child
+      yield* child.getChildrenDeep()
+    }
   }
 
-  getSortedChildrenDeep(): TreeNode[] {
-    return Array.from(this.children.values())
-      .flatMap((child) => [child, ...child.getSortedChildrenDeep()])
-      .sort((a, b) => a.path.localeCompare(b.path))
+  /**
+   * Comparator function for sorting TreeNodes.
+   *
+   * @internal
+   */
+  static compare(a: TreeNode, b: TreeNode): number {
+    // for this case, ASCII, short list, it's better than Internation Collator
+    // https://stackoverflow.com/questions/77246375/why-localecompare-can-be-faster-than-collator-compare
+    return a.path.localeCompare(b.path, 'en')
+  }
+
+  /**
+   * Get the children of this node sorted by their path.
+   */
+  getChildrenSorted(): TreeNode[] {
+    return Array.from(this.children.values()).sort(TreeNode.compare)
+  }
+
+  /**
+   * Calls {@link getChildrenDeep} and sorts the result by path in the end.
+   */
+  getChildrenDeepSorted(): TreeNode[] {
+    return Array.from(this.getChildrenDeep()).sort(TreeNode.compare)
   }
 
   /**
@@ -205,10 +250,29 @@ export class TreeNode {
   }
 
   /**
+   * Object of components (filepaths) for this node.
+   */
+  get components() {
+    return Object.fromEntries(this.value.components.entries())
+  }
+
+  /**
+   * Does this node render any component?
+   */
+  get hasComponents() {
+    return this.value.components.size > 0
+  }
+
+  /**
    * Returns the route name of the node. If the name was overridden, it returns the override.
    */
   get name() {
-    return this.value.overrides.name || this.options.getRouteName(this)
+    const overrideName = this.value.overrides.name
+    // allows passing a null or empty name so the route is not named
+    // and isn't listed in the route map
+    return overrideName === undefined
+      ? this.options.getRouteName(this)
+      : overrideName
   }
 
   /**
@@ -232,13 +296,31 @@ export class TreeNode {
       : ''
   }
 
-  get params(): TreeRouteParam[] {
-    const params = this.value.isParam() ? [...this.value.params] : []
+  /**
+   * Array of route params for this node. It includes **all** the params from the parents as well.
+   */
+  get params(): (TreePathParam | TreeQueryParam)[] {
+    const params = [...this.value.params]
+    let node = this.parent
+    // add all the params from the parents
+    while (node) {
+      params.unshift(...node.value.params)
+      node = node.parent
+    }
+
+    return params
+  }
+
+  /**
+   * Array of route params coming from the path. It includes all the params from the parents as well.
+   */
+  get pathParams(): TreePathParam[] {
+    const params = this.value.isParam() ? [...this.value.pathParams] : []
     let node = this.parent
     // add all the params from the parents
     while (node) {
       if (node.value.isParam()) {
-        params.unshift(...node.value.params)
+        params.unshift(...node.value.pathParams)
       }
       node = node.parent
     }
@@ -247,18 +329,146 @@ export class TreeNode {
   }
 
   /**
+   * Array of query params extracted from definePage. Only returns query params from this specific node.
+   */
+  get queryParams(): TreeQueryParam[] {
+    return this.value.queryParams
+  }
+
+  /**
+   * Generates a regexp based on this node and its parents. This regexp is used by the custom resolver
+   */
+  get regexp(): string {
+    let node: TreeNode | undefined = this
+    // we build the node list from parent to child
+    const nodeList: TreeNode[] = []
+    while (node && !node.isRoot()) {
+      nodeList.unshift(node)
+      node = node.parent
+    }
+
+    let re = ''
+    for (var i = 0; i < nodeList.length; i++) {
+      node = nodeList[i]!
+      if (node.value.isParam()) {
+        var nodeRe = node.value.re
+        // Ensure we add a connecting slash
+        // if we already have something in the regexp and if the only part of
+        // the segment is an optional param, then the / must be put inside the
+        // non-capturing group
+        if (
+          // if we have a segment before or after
+          (re || i < nodeList.length - 1) &&
+          // if the only part of the segment is an optional (can be repeatable) param
+          node.value.subSegments.length === 1 &&
+          (node.value.subSegments.at(0) as TreePathParam).optional
+        ) {
+          // TODO: tweak if trailingSlash
+          re += `(?:\\/${
+            // we remove the ? at the end because we add it later
+            nodeRe.slice(0, -1)
+          })?`
+        } else {
+          re += (re ? '\\/' : '') + nodeRe
+        }
+      } else {
+        re += (re ? '\\/' : '') + escapeRegex(node.value.pathSegment)
+      }
+    }
+
+    return (
+      '/^' +
+      // Avoid adding a leading slash if the first segment
+      // is an optional segment that already includes it
+      (re.startsWith('(?:\\/') ? '' : '\\/') +
+      // TODO: trailingSlash
+      re.replace(ESCAPED_TRAILING_SLASH_RE, '') +
+      '$/i'
+    )
+  }
+
+  /**
+   * Score of the path used for sorting routes.
+   */
+  get score(): number[][] {
+    const scores: number[][] = []
+    let node: TreeNode | undefined = this
+
+    while (node && !node.isRoot()) {
+      scores.unshift(node.value.score)
+      node = node.parent
+    }
+
+    return scores
+  }
+
+  /**
+   * Is this node a splat (catch-all) param
+   */
+  get isSplat(): boolean {
+    return this.value.isParam() && this.value.pathParams.some((p) => p.isSplat)
+  }
+
+  /**
+   * Returns an array of matcher parts that is consumed by
+   * MatcherPatternPathDynamic to render the path.
+   */
+  get matcherPatternPathDynamicParts(): TreeNodeValueMatcherPart {
+    const parts: TreeNodeValueMatcherPart = []
+    let node: TreeNode | undefined = this
+
+    while (node && !node.isRoot()) {
+      const subSegments = node.value.subSegments.map((segment) =>
+        typeof segment === 'string'
+          ? segment
+          : // param
+            segment.isSplat
+            ? 0
+            : 1
+      )
+
+      if (subSegments.length > 1) {
+        parts.unshift(subSegments)
+      } else if (subSegments.length === 1) {
+        parts.unshift(subSegments[0]!)
+      }
+      node = node.parent
+    }
+
+    return parts
+  }
+
+  /**
+   * Is this tree node matchable? A matchable node has at least one component
+   * and a name.
+   */
+  isMatchable(): this is TreeNode & { name: string } {
+    // a node is matchable if it has at least one component
+    // and the name is not false
+    return this.value.components.size > 0 && this.name !== false
+  }
+
+  /**
    * Returns wether this tree node is the root node of the tree.
    *
    * @returns true if the node is the root node
    */
-  isRoot() {
+  isRoot(): this is PrefixTree {
     return (
       !this.parent && this.value.fullPath === '/' && !this.value.components.size
     )
   }
 
+  /**
+   * Returns wether this tree node has a name. This allows to coerce the type
+   * of TreeNode
+   */
+  isNamed(): this is TreeNodeNamed {
+    return !!this.name
+  }
+
   toString(): string {
-    return `${this.value}${
+    return `${this.isRoot() ? '·' : this.value}${
       // either we have multiple names
       this.value.components.size > 1 ||
       // or we have one name and it's not default

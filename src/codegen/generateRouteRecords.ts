@@ -2,6 +2,7 @@ import { getLang } from '@vue-macros/common'
 import type { TreeNode } from '../core/tree'
 import { ImportsMap } from '../core/utils'
 import { type ResolvedOptions } from '../options'
+import { pad, stringToStringType } from '../utils'
 
 /**
  * Generate the route records for the given node.
@@ -21,7 +22,7 @@ export function generateRouteRecord(
   if (node.isRoot()) {
     return `[
 ${node
-  .getSortedChildren()
+  .getChildrenSorted()
   .map((child) => generateRouteRecord(child, options, importsMap, indent + 1))
   .join(',\n')}
 ]`
@@ -48,11 +49,8 @@ ${node
     }
   }
 
-  const startIndent = ' '.repeat(indent * 2)
-  const indentStr = ' '.repeat((indent + 1) * 2)
-
-  // TODO: should meta be defined a different way to allow preserving imports?
-  // const meta = node.value.overrides.meta
+  const startIndent = pad(indent * 2)
+  const indentStr = pad((indent + 1) * 2)
 
   // compute once since it's a getter
   const overrides = node.value.overrides
@@ -62,8 +60,11 @@ ${node
 ${indentStr}path: '${node.path}',
 ${indentStr}${
     node.value.components.size
-      ? `name: '${node.name}',`
-      : `/* internal name: '${node.name}' */`
+      ? node.isNamed()
+        ? `name: ${stringToStringType(node.name)},`
+        : `/* no name */`
+      : // node.name can still be false and we don't want that to result in string literal 'false'
+        `/* internal name: ${typeof node.name === 'string' ? stringToStringType(node.name) : node.name} */`
   }
 ${
   // component
@@ -89,7 +90,7 @@ ${overrides.props != null ? indentStr + `props: ${overrides.props},\n` : ''}${
     node.children.size > 0
       ? `children: [
 ${node
-  .getSortedChildren()
+  .getChildrenSorted()
   .map((child) => generateRouteRecord(child, options, importsMap, indent + 2))
   .join(',\n')}
 ${indentStr}],`
@@ -143,7 +144,7 @@ ${indentStr}},`
  * @param importsMap - the import list to fill
  * @returns
  */
-function generatePageImport(
+export function generatePageImport(
   filepath: string,
   importMode: ResolvedOptions['importMode'],
   importsMap: ImportsMap
@@ -166,14 +167,14 @@ function generatePageImport(
   return importName
 }
 
-function formatMeta(node: TreeNode, indent: string): string {
+export function formatMeta(node: TreeNode, indent: string): string {
   const meta = node.meta
   const formatted =
     meta &&
     meta
       .split('\n')
       .map((line) => indent + line)
-      .join('\n')
+      .join('\n') + ','
 
   return formatted ? '\n' + indent + 'meta: ' + formatted.trimStart() : ''
 }

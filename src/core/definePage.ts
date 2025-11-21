@@ -10,23 +10,20 @@ import {
 import type { Thenable, TransformResult } from 'unplugin'
 import type {
   CallExpression,
-  Node,
+  ObjectExpression,
   ObjectProperty,
   Program,
   Statement,
-  StringLiteral,
 } from '@babel/types'
+import { generate } from '@babel/generator'
 import { walkAST } from 'ast-walker-scope'
-import { CustomRouteBlock } from './customBlock'
 import { warn } from './utils'
 import { ParsedStaticImport, findStaticImports, parseStaticImport } from 'mlly'
+import type { ParamParserType } from 'unplugin-vue-router/runtime'
+import { CustomRouteBlock } from './customBlock'
 
 const MACRO_DEFINE_PAGE = 'definePage'
 export const MACRO_DEFINE_PAGE_QUERY = /[?&]definePage\b/
-
-function isStringLiteral(node: Node | null | undefined): node is StringLiteral {
-  return node?.type === 'StringLiteral'
-}
 
 /**
  * Generate the ast from a code string and an id. Works with SFC and non-SFC files.
@@ -77,7 +74,23 @@ export function definePageTransform({
     return isExtractingDefinePage ? 'export default {}' : undefined
   }
 
-  const { ast, offset, definePageNodes } = getCodeAst(code, id)
+  let ast: Program | undefined
+  let offset: number
+  let definePageNodes: CallExpression[]
+
+  try {
+    const result = getCodeAst(code, id)
+    ast = result.ast
+    offset = result.offset
+    definePageNodes = result.definePageNodes
+  } catch (error) {
+    // Handle any syntax errors or parsing errors gracefully
+    warn(
+      `[${id}]: Failed to process definePage: ${error instanceof Error ? error.message : 'Unknown error'}`
+    )
+    return isExtractingDefinePage ? 'export default {}' : undefined
+  }
+
   if (!ast) return
 
   if (!definePageNodes.length) {
@@ -107,8 +120,17 @@ export function definePageTransform({
 
     const scriptBindings = ast.body ? getIdentifiers(ast.body) : []
 
+    // TODO: remove information that was extracted already like name, path, params
+
     // this will throw if a property from the script setup is used in definePage
-    checkInvalidScopeReference(routeRecord, MACRO_DEFINE_PAGE, scriptBindings)
+    try {
+      checkInvalidScopeReference(routeRecord, MACRO_DEFINE_PAGE, scriptBindings)
+    } catch (error) {
+      warn(
+        `[${id}]: ${error instanceof Error ? error.message : 'Invalid scope reference in definePage'}`
+      )
+      return 'export default {}'
+    }
 
     s.remove(offset + routeRecord.end!, code.length)
     s.remove(0, offset + routeRecord.start!)
@@ -186,13 +208,39 @@ export function definePageTransform({
   }
 }
 
-export function extractDefinePageNameAndPath(
+type DefinePageParamsInfo = NonNullable<CustomRouteBlock['params']>
+
+export interface DefinePageInfo {
+  name?: string | false
+  path?: string
+  params?: CustomRouteBlock['params']
+}
+
+/**
+ * Extracts name, path, and params from definePage(). Those do not require
+ * extracting the whole definePage object as a different import
+ */
+export function extractDefinePageInfo(
   sfcCode: string,
   id: string
-): { name?: string; path?: string } | null | undefined {
+): DefinePageInfo | null | undefined {
   if (!sfcCode.includes(MACRO_DEFINE_PAGE)) return
 
-  const { ast, definePageNodes } = getCodeAst(sfcCode, id)
+  let ast: Program | undefined
+  let definePageNodes: CallExpression[]
+
+  try {
+    const result = getCodeAst(sfcCode, id)
+    ast = result.ast
+    definePageNodes = result.definePageNodes
+  } catch (error) {
+    // Handle any syntax errors or parsing errors gracefully
+    warn(
+      `[${id}]: Failed to extract definePage info: ${error instanceof Error ? error.message : 'Unknown error'}`
+    )
+    return undefined
+  }
+
   if (!ast) return
 
   if (!definePageNodes.length) {
@@ -216,15 +264,21 @@ export function extractDefinePageNameAndPath(
     )
   }
 
-  const routeInfo: Pick<CustomRouteBlock, 'name' | 'path'> = {}
+  const routeInfo: DefinePageInfo = {}
 
   for (const prop of routeRecord.properties) {
     if (prop.type === 'ObjectProperty' && prop.key.type === 'Identifier') {
       if (prop.key.name === 'name') {
-        if (prop.value.type !== 'StringLiteral') {
-          warn(`route name must be a string literal. Found in "${id}".`)
+        if (
+          prop.value.type !== 'StringLiteral' &&
+          (prop.value.type !== 'BooleanLiteral' || prop.value.value !== false)
+        ) {
+          warn(
+            `route name must be a string literal or false. Found in "${id}".`
+          )
         } else {
-          routeInfo.name = prop.value.value
+          // TODO: why does TS not narrow down the type?
+          routeInfo.name = prop.value.value as string | false
         }
       } else if (prop.key.name === 'path') {
         if (prop.value.type !== 'StringLiteral') {
@@ -232,11 +286,131 @@ export function extractDefinePageNameAndPath(
         } else {
           routeInfo.path = prop.value.value
         }
+      } else if (prop.key.name === 'params') {
+        if (prop.value.type === 'ObjectExpression') {
+          routeInfo.params = extractParamsInfo(prop.value, id)
+        }
       }
     }
   }
 
   return routeInfo
+}
+
+function extractParamsInfo(
+  paramsObj: ObjectExpression,
+  id: string
+): DefinePageParamsInfo {
+  const params: DefinePageParamsInfo = {}
+
+  for (const prop of paramsObj.properties) {
+    if (prop.type === 'ObjectProperty' && prop.key.type === 'Identifier') {
+      if (prop.key.name === 'query' && prop.value.type === 'ObjectExpression') {
+        params.query = extractQueryParams(prop.value, id)
+      } else if (
+        prop.key.name === 'path' &&
+        prop.value.type === 'ObjectExpression'
+      ) {
+        params.path = extractPathParams(prop.value, id)
+      }
+    }
+  }
+
+  return params
+}
+
+function extractQueryParams(
+  queryObj: ObjectExpression,
+  _id: string
+): NonNullable<DefinePageInfo['params']>['query'] {
+  const queryParams: NonNullable<DefinePageInfo['params']>['query'] = {}
+
+  for (const prop of queryObj.properties) {
+    if (prop.type === 'ObjectProperty' && prop.key.type === 'Identifier') {
+      const paramName = prop.key.name
+
+      // we normalize short form for convenience
+      if (prop.value.type === 'StringLiteral') {
+        queryParams[paramName] = {
+          parser: prop.value.value as ParamParserType,
+        }
+      } else if (prop.value.type === 'ObjectExpression') {
+        // Full form: param: { parser: 'int', default: 1, format: 'value' }
+        const paramInfo: (typeof queryParams)[string] = {}
+
+        for (const paramProp of prop.value.properties) {
+          if (
+            paramProp.type === 'ObjectProperty' &&
+            paramProp.key.type === 'Identifier'
+          ) {
+            if (
+              paramProp.key.name === 'parser' &&
+              paramProp.value.type === 'StringLiteral'
+            ) {
+              paramInfo.parser = paramProp.value.value as ParamParserType
+            } else if (
+              paramProp.key.name === 'format' &&
+              paramProp.value.type === 'StringLiteral'
+            ) {
+              paramInfo.format = paramProp.value.value as 'value' | 'array'
+            } else if (paramProp.key.name === 'default') {
+              if (typeof paramProp.value.extra?.raw === 'string') {
+                paramInfo.default = paramProp.value.extra.raw
+              } else if (paramProp.value.type === 'NumericLiteral') {
+                paramInfo.default = String(paramProp.value.value)
+              } else if (paramProp.value.type === 'StringLiteral') {
+                paramInfo.default = JSON.stringify(paramProp.value.value)
+              } else if (paramProp.value.type === 'BooleanLiteral') {
+                paramInfo.default = String(paramProp.value.value)
+              } else if (paramProp.value.type === 'NullLiteral') {
+                paramInfo.default = 'null'
+              } else if (
+                paramProp.value.type === 'UnaryExpression' &&
+                (paramProp.value.operator === '-' ||
+                  paramProp.value.operator === '+' ||
+                  paramProp.value.operator === '!' ||
+                  paramProp.value.operator === '~') &&
+                paramProp.value.argument.type === 'NumericLiteral'
+              ) {
+                // support negative numeric literals: -1, -1.5
+                paramInfo.default = `${paramProp.value.operator}${paramProp.value.argument.value}`
+              } else if (paramProp.value.type === 'ArrowFunctionExpression') {
+                paramInfo.default = generate(paramProp.value).code
+              } else {
+                warn(
+                  `Unrecognized default value in definePage() for query param "${paramName}". Typeof value: "${paramProp.value.type}". This is a bug or a missing type of value, open an issue on https://github.com/posva/unplugin-vue-router and provide the definePage() code.`
+                )
+              }
+            }
+          }
+        }
+
+        queryParams[paramName] = paramInfo
+      }
+    }
+  }
+
+  return queryParams
+}
+
+function extractPathParams(
+  pathObj: ObjectExpression,
+  _id: string
+): NonNullable<DefinePageInfo['params']>['path'] {
+  const pathParams: NonNullable<DefinePageInfo['params']>['path'] = {}
+
+  for (const prop of pathObj.properties) {
+    if (
+      prop.type === 'ObjectProperty' &&
+      prop.key.type === 'Identifier' &&
+      prop.value.type === 'StringLiteral'
+    ) {
+      // TODO: we should check if the value is a valid parser type
+      pathParams[prop.key.name] = prop.value.value as ParamParserType
+    }
+  }
+
+  return pathParams
 }
 
 // TODO: use
@@ -252,7 +426,9 @@ export function extractRouteAlias(
   } else {
     return aliasValue.type === 'StringLiteral'
       ? [aliasValue.value]
-      : aliasValue.elements.filter(isStringLiteral).map((el) => el.value)
+      : aliasValue.elements
+          .filter((node) => node?.type === 'StringLiteral')
+          .map((el) => el.value)
   }
 }
 

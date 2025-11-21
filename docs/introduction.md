@@ -120,21 +120,21 @@ declare module 'vue-router/auto-routes' {
       '/',
       Record<never, never>,
       Record<never, never>,
-      never
+      | never
     >
     '/about': RouteRecordInfo<
       '/about',
       '/about',
       Record<never, never>,
       Record<never, never>,
-      never
+      | never
     >
     '/users/[id]': RouteRecordInfo<
       '/users/[id]',
       '/users/:id',
       { id: ParamValue<true> },
       { id: ParamValue<false> },
-      never
+      | never
     >
   }
 }
@@ -146,9 +146,9 @@ Then, if you have an `env.d.ts` file like the one created by `npm vue create <my
 
 ::: code-group
 
-```ts [env.d.ts]
+```ts{2} [env.d.ts]
 /// <reference types="vite/client" />
-/// <reference types="unplugin-vue-router/client" /> // [!code ++]
+/// <reference types="unplugin-vue-router/client" />
 ```
 
 :::
@@ -167,24 +167,6 @@ If you don't have an `env.d.ts` file, you can create one and add the unplugin-vu
   }
 }
 ```
-
-:::
-
-::: warning
-
-unplugin-vue-router will add a virtual `vue-router/auto` module that exports everything from `vue-router` with some extra features from `unplugin-vue-router/runtime` and `unplugin-vue-router/data-loaders`. It's recommended to avoid using `vue-router/auto` in new projects. It's kept for compatibility with existing projects that use it and will likely be removed in the future.
-
-::: tip
-You can exclude `vue-router/auto` from VSCode import suggestions by adding this setting to your `.vscode/settings.json`:
-
-```json
-{
-  "typescript.tsdk": "node_modules/typescript/lib",
-  "typescript.preferences.autoImportFileExcludePatterns": ["vue-router/auto$"]
-}
-```
-
-This will ensure VSCode does not suggest `vue-router/auto` for imports. Alternatively, you can also configure [auto imports](#auto-imports).
 
 :::
 

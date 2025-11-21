@@ -24,6 +24,8 @@ if (import.meta.hot) {
   addRedirects()
 }
 
+/* prettier-ignore */
+
 // manual extension of route types
 declare module 'vue-router/auto-routes' {
   export interface RouteNamedMap {
@@ -32,14 +34,14 @@ declare module 'vue-router/auto-routes' {
       '/added-during-runtime/[...path]',
       { path: ParamValue<true> },
       { path: ParamValue<false> },
-      'custom-dynamic-child-name'
+      | 'custom-dynamic-child-name'
     >
     'custom-dynamic-child-name': RouteRecordInfo<
       'custom-dynamic-child-name',
       '/added-during-runtime/[...path]/child',
       { path: ParamValue<true> },
       { path: ParamValue<false> },
-      never
+      | never
     >
   }
 }

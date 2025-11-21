@@ -2,12 +2,14 @@ import { createUnplugin, type UnpluginOptions } from 'unplugin'
 import { createRoutesContext } from './core/context'
 import {
   MODULE_ROUTES_PATH,
-  MODULE_VUE_ROUTER_AUTO,
   getVirtualId as _getVirtualId,
   asVirtualId as _asVirtualId,
   routeBlockQueryRE,
   ROUTE_BLOCK_ID,
   ROUTES_LAST_LOAD_TIME,
+  VIRTUAL_PREFIX,
+  DEFINE_PAGE_QUERY_RE,
+  MODULE_RESOLVER_PATH,
 } from './core/moduleConstants'
 import {
   Options,
@@ -16,10 +18,8 @@ import {
   mergeAllExtensions,
 } from './options'
 import { createViteContext } from './core/vite'
-import { createFilter } from 'unplugin-utils'
 import { join } from 'pathe'
 import { appendExtensionListToPattern } from './core/utils'
-import { MACRO_DEFINE_PAGE_QUERY } from './core/definePage'
 import { createAutoExportPlugin } from './data-loaders/auto-exports'
 import { createAutoHmrPlugin } from './auto-hmr'
 
@@ -51,17 +51,8 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
     mergeAllExtensions(options)
   )
 
-  // this is a larger filter that includes a bit too many files
-  // the RouteFolderWatcher will filter it down to the actual files
-  const filterPageComponents = createFilter(
-    [
-      ...options.routesFolder.flatMap((routeOption) =>
-        pageFilePattern.map((pattern) => join(routeOption.src, pattern))
-      ),
-      // importing the definePage block
-      /\?.*\bdefinePage\&vue\b/,
-    ],
-    options.exclude
+  const IDS_TO_INCLUDE = options.routesFolder.flatMap((routeOption) =>
+    pageFilePattern.map((pattern) => join(routeOption.src, pattern))
   )
 
   const plugins: UnpluginOptions[] = [
@@ -69,124 +60,96 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
       name: 'unplugin-vue-router',
       enforce: 'pre',
 
-      resolveId(id) {
-        if (
+      resolveId: {
+        filter: {
+          id: {
+            include: [
+              new RegExp(`^${MODULE_ROUTES_PATH}$`),
+              new RegExp(`^${MODULE_RESOLVER_PATH}$`),
+              routeBlockQueryRE,
+            ],
+          },
+        },
+        handler(id) {
           // vue-router/auto-routes
-          id === MODULE_ROUTES_PATH ||
-          // NOTE: it wasn't possible to override or add new exports to vue-router
-          // so we need to override it with a different package name
-          id === MODULE_VUE_ROUTER_AUTO
-        ) {
-          // virtual module
-          return asVirtualId(id)
-        }
+          // vue-router/auto-resolver
+          if (id === MODULE_ROUTES_PATH || id === MODULE_RESOLVER_PATH) {
+            // must be a virtual module
+            return asVirtualId(id)
+          }
 
-        // this allows us to skip the route block module as a whole since we already parse it
-        if (routeBlockQueryRE.test(id)) {
+          // otherwisse we know it matched the routeBlockQueryRE
+          // this allows us to skip the route block module as a whole since we already parse it
           return ROUTE_BLOCK_ID
-        }
-
-        // nothing to do, just for TS
-        return
+        },
       },
 
-      buildStart() {
-        return ctx.scanPages(options.watch)
+      async buildStart() {
+        await ctx.scanPages(options.watch)
       },
 
       buildEnd() {
         ctx.stopWatcher()
       },
 
-      // we only need to transform page components
-      transformInclude(id) {
-        // console.log('filtering ' + id, filterPageComponents(id) ? '✅' : '❌')
-        return filterPageComponents(id)
+      transform: {
+        filter: {
+          id: {
+            include: [...IDS_TO_INCLUDE, DEFINE_PAGE_QUERY_RE],
+            exclude: options.exclude,
+          },
+        },
+        handler(code, id) {
+          // remove the `definePage()` from the file or isolate it
+          return ctx.definePageTransform(code, id)
+        },
       },
 
-      transform(code, id) {
-        // console.log('👋  Transforming', id)
-        // remove the `definePage()` from the file or isolate it
-        return ctx.definePageTransform(code, id)
-      },
-
-      // loadInclude is necessary for webpack
-      loadInclude(id) {
-        if (id === ROUTE_BLOCK_ID) return true
-        const resolvedId = getVirtualId(id)
-        return (
-          resolvedId === MODULE_ROUTES_PATH ||
-          resolvedId === MODULE_VUE_ROUTER_AUTO
-        )
-      },
-
-      load(id) {
-        // remove the <route> block as it's parsed by the plugin
-        // stub it with an empty module
-        if (id === ROUTE_BLOCK_ID) {
-          return {
-            code: `export default {}`,
-            map: null,
+      load: {
+        filter: {
+          id: {
+            include: [
+              // virtualized ids only
+              new RegExp(`^${ROUTE_BLOCK_ID}$`),
+              new RegExp(`^${VIRTUAL_PREFIX}${MODULE_ROUTES_PATH}$`),
+              new RegExp(`^${VIRTUAL_PREFIX}${MODULE_RESOLVER_PATH}$`),
+            ],
+          },
+        },
+        handler(id) {
+          // remove the <route> block as it's parsed by the plugin
+          // stub it with an empty module
+          if (id === ROUTE_BLOCK_ID) {
+            return {
+              code: `export default {}`,
+              map: null,
+            }
           }
-        }
 
-        // we need to use a virtual module so that vite resolves the vue-router/auto-routes
-        // dependency correctly
-        const resolvedId = getVirtualId(id)
+          // we need to use a virtual module so that vite resolves the vue-router/auto-routes
+          // dependency correctly
+          const resolvedId = getVirtualId(id)
 
-        // vue-router/auto-routes
-        if (resolvedId === MODULE_ROUTES_PATH) {
-          ROUTES_LAST_LOAD_TIME.update()
-          return ctx.generateRoutes()
-        }
+          // vue-router/auto-routes
+          if (resolvedId === MODULE_ROUTES_PATH) {
+            ROUTES_LAST_LOAD_TIME.update()
+            return ctx.generateRoutes()
+          }
 
-        // vue-router/auto
-        if (resolvedId === MODULE_VUE_ROUTER_AUTO) {
-          return ctx.generateVueRouterProxy()
-        }
+          // vue-router/auto-resolver
+          if (resolvedId === MODULE_RESOLVER_PATH) {
+            ROUTES_LAST_LOAD_TIME.update()
+            return ctx.generateResolver()
+          }
 
-        return // ok TS...
+          return // ok TS...
+        },
       },
 
-      // improves DX
+      // for HMR
       vite: {
         configureServer(server) {
           ctx.setServerContext(createViteContext(server))
-        },
-
-        handleHotUpdate: {
-          order: 'post',
-          handler({ server, file, modules }) {
-            // console.log(`🔥 HMR ${file}`)
-            const moduleList = server.moduleGraph.getModulesByFile(file)
-            const definePageModule = Array.from(moduleList || []).find(
-              (mod) => {
-                return mod?.id && MACRO_DEFINE_PAGE_QUERY.test(mod.id)
-              }
-            )
-
-            if (definePageModule) {
-              // console.log(`Updating ${definePageModule.file}`)
-              const routesModule = server.moduleGraph.getModuleById(
-                asVirtualId(MODULE_ROUTES_PATH)
-              )
-
-              if (!routesModule) {
-                console.error('🔥 HMR routes module not found')
-                return
-              }
-
-              return [
-                ...modules,
-                // TODO: only if the definePage changed
-                definePageModule,
-                // TODO: only if ether the definePage or the route block changed
-                routesModule,
-              ]
-            }
-
-            return // for ts
-          },
         },
       },
     },
@@ -196,7 +159,10 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
   if (options.experimental.autoExportsDataLoaders) {
     plugins.push(
       createAutoExportPlugin({
-        filterPageComponents,
+        transformFilter: {
+          include: IDS_TO_INCLUDE,
+          exclude: options.exclude,
+        },
         loadersPathsGlobs: options.experimental.autoExportsDataLoaders,
         root: options.root,
       })

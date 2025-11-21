@@ -2,7 +2,6 @@ import { defineConfig } from 'vitest/config'
 import Vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'url'
 
-const __dirname = new URL('.', import.meta.url).pathname
 export default defineConfig({
   resolve: {
     alias: [
@@ -20,12 +19,17 @@ export default defineConfig({
       },
     ],
   },
+
   plugins: [Vue()],
 
   test: {
     setupFiles: ['./tests/router-mock.ts'],
-    include: ['src/**/*.spec.ts'],
-    exclude: ['src/**/*.test-d.ts'],
+    include: ['{src,e2e}/**/*.spec.ts'],
+    exclude: [
+      'src/**/*.test-d.ts',
+      // exclude playwright e2e tests
+      'e2e/hmr',
+    ],
     // open: false,
     coverage: {
       include: ['src/**/*.ts'],

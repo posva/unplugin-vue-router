@@ -10,6 +10,7 @@ import type {
   IS_SSR_KEY,
 } from './symbols'
 import { type NavigationResult } from './navigation-guard'
+import { type RouteLocationNormalizedLoaded } from 'vue-router'
 
 /**
  * Map type for the entries used by data loaders.

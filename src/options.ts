@@ -134,11 +134,13 @@ export interface Options {
    */
   exclude?: string[] | string
 
-  // NOTE: the comment below contains ZWJ characters to allow the sequence `**/*` to be displayed correctly
   /**
-   * Pattern to match files in the `routesFolder`. Defaults to `**‍/*` plus a combination of all the possible extensions,
-   * e.g. `**‍/*.{vue,md}` if `extensions` is set to `['.vue', '.md']`. This is relative to the {@link RoutesFolderOption['src']} and
-   * @default `['**‍/*']`
+   * Pattern to match files in the `routesFolder`. Defaults to `*\/*` plus a
+   * combination of all the possible extensions, e.g. `*\/*.{vue,md}` if
+   * `extensions` is set to `['.vue', '.md']`. This is relative to the {@link
+   * RoutesFolderOption['src']} and
+   *
+   * @default `['*\/*']`
    */
   filePatterns?: string[] | string
 
@@ -231,8 +233,27 @@ export interface Options {
      * page component.
      */
     autoExportsDataLoaders?: string | string[]
+
+    /**
+     * Enable experimental support for the new custom resolvers and allows
+     * defining custom param matchers.
+     */
+    paramParsers?: boolean | ParamParsersOptions
   }
 }
+
+export interface ParamParsersOptions {
+  /**
+   * Folder(s) to scan for param matchers. Set to an empty array to disable the feature.
+   *
+   * @default `['src/params']`
+   */
+  dir?: string | string[]
+}
+
+export const DEFAULT_PARAM_PARSERS_OPTIONS = {
+  dir: ['src/params'],
+} satisfies Required<ParamParsersOptions>
 
 export const DEFAULT_OPTIONS = {
   extensions: ['.vue'],
@@ -254,8 +275,30 @@ export const DEFAULT_OPTIONS = {
 } satisfies Options
 
 export interface ServerContext {
-  invalidate: (module: string) => void
+  /**
+   * Invalidates a module by its id.
+   * @param module - module id to invalidate
+   *
+   * @returns A promise that resolves when the module is invalidated, or `false` if the module was not found.
+   */
+  invalidate: (module: string) => Promise<void> | false
+
+  /**
+   * Invalidates all modules associated with a page file.
+   * @param filepath - file path of the page to invalidate
+   *
+   * @returns A promise that resolves when the page is invalidated, or `false` if no modules were found for the page.
+   */
+  invalidatePage: (filepath: string) => Promise<void> | false
+
+  /**
+   * Triggers HMR for the routes module.
+   */
   updateRoutes: () => Promise<void>
+
+  /**
+   * Triggers a full page reload.
+   */
   reload: () => void
 }
 
@@ -309,14 +352,39 @@ export function resolveOptions(options: Options) {
     src: resolve(root, routeOption.src),
   }))
 
-  const experimental = { ...options.experimental }
+  const paramParsers = options.experimental?.paramParsers
+    ? options.experimental.paramParsers === true
+      ? DEFAULT_PARAM_PARSERS_OPTIONS
+      : {
+          ...DEFAULT_PARAM_PARSERS_OPTIONS,
+          ...options.experimental.paramParsers,
+        }
+    : // this way we can do paramParsers?.dir
+      undefined
 
-  if (experimental.autoExportsDataLoaders) {
-    experimental.autoExportsDataLoaders = (
-      Array.isArray(experimental.autoExportsDataLoaders)
-        ? experimental.autoExportsDataLoaders
-        : [experimental.autoExportsDataLoaders]
-    ).map((path) => resolve(root, path))
+  const paramParsersDir = (
+    paramParsers?.dir
+      ? isArray(paramParsers.dir)
+        ? paramParsers.dir
+        : [paramParsers.dir]
+      : []
+  ).map((dir) => resolve(root, dir))
+
+  const autoExportsDataLoaders = options.experimental?.autoExportsDataLoaders
+    ? (isArray(options.experimental.autoExportsDataLoaders)
+        ? options.experimental.autoExportsDataLoaders
+        : [options.experimental.autoExportsDataLoaders]
+      ).map((path) => resolve(root, path))
+    : undefined
+
+  const experimental = {
+    ...options.experimental,
+    autoExportsDataLoaders,
+    // keep undefined if paramParsers is not set
+    paramParsers: paramParsers && {
+      ...paramParsers,
+      dir: paramParsersDir,
+    },
   }
 
   if (options.extensions) {
@@ -357,6 +425,9 @@ export function resolveOptions(options: Options) {
   }
 }
 
+/**
+ * @internal
+ */
 export type ResolvedOptions = ReturnType<typeof resolveOptions>
 
 /**

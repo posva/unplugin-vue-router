@@ -15,10 +15,15 @@ export const commonOptions = {
 export default defineConfig([
   {
     ...commonOptions,
+    outputOptions: {
+      // TODO: check if everthing works with this to remove the warning
+      // exports: 'named',
+    },
     entry: [
       './src/index.ts',
       './src/options.ts',
       './src/esbuild.ts',
+      './src/rolldown.ts',
       './src/rollup.ts',
       './src/vite.ts',
       './src/webpack.ts',

@@ -41,7 +41,7 @@ export const useUserData = defineBasicLoader(
 </script>
 
 <script lang="ts" setup>
-const route = useRoute('/users/[id]')
+const route = useRoute()
 
 const { data: user, isLoading, error } = useUserData()
 const { data: user2 } = useOldData()

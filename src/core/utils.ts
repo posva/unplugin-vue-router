@@ -1,5 +1,5 @@
 import { TreeNode } from './tree'
-import type { RouteRecordOverride, TreeRouteParam } from './treeNodeValue'
+import type { RouteRecordOverride, TreePathParam } from './treeNodeValue'
 import { pascalCase } from 'scule'
 import {
   ResolvedOptions,
@@ -106,8 +106,9 @@ export function throttle(fn: () => void, wait: number, initialWait: number) {
   }
 }
 
-const LEADING_SLASH_RE = /^\//
-const TRAILING_SLASH_RE = /\/$/
+export const LEADING_SLASH_RE = /^\//
+export const TRAILING_SLASH_RE = /\/$/
+export const ESCAPED_TRAILING_SLASH_RE = /\\\/$/
 export function joinPath(...paths: string[]): string {
   let result = ''
   for (const path of paths) {
@@ -119,7 +120,7 @@ export function joinPath(...paths: string[]): string {
   return result || '/'
 }
 
-function paramToName({ paramName, modifier, isSplat }: TreeRouteParam) {
+function paramToName({ paramName, modifier, isSplat }: TreePathParam) {
   return `${isSplat ? '$' : ''}${
     paramName.charAt(0).toUpperCase() + paramName.slice(1)
   }${
@@ -199,6 +200,17 @@ export function mergeRouteRecordOverride(
       merged[key] = newAlias.concat(a.alias || [], b.alias || [])
     } else if (key === 'meta') {
       merged[key] = mergeDeep(a[key] || {}, b[key] || {})
+    } else if (key === 'params') {
+      merged[key] = {
+        path: {
+          ...a[key]?.path,
+          ...b[key]?.path,
+        },
+        query: {
+          ...a[key]?.query,
+          ...b[key]?.query,
+        },
+      }
     } else {
       // @ts-expect-error: TS cannot see it's the same key
       merged[key] = b[key] ?? a[key]
@@ -319,6 +331,22 @@ export class ImportsMap {
     return this
   }
 
+  /**
+   * Check if the given path has the given import name.
+   *
+   * @param path - the path to check
+   * @param name - the import name to check
+   */
+  has(path: string, name: string): boolean {
+    return this.map.has(path) && this.map.get(path)!.has(name)
+  }
+
+  /**
+   * Add a default import. Alias for `add(path, { name: 'default', as })`.
+   *
+   * @param path - the path to import from
+   * @param as - the name to import as
+   */
   addDefault(path: string, as: string): this {
     return this.add(path, { name: 'default', as })
   }

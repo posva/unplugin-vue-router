@@ -6,7 +6,9 @@
 export type { Options } from './options'
 export type { TreeNode } from './core/tree'
 export type {
-  TreeNodeValueParam,
+  TreeNodeValue,
   TreeNodeValueStatic,
+  TreeNodeValueParam,
+  TreeNodeValueGroup,
 } from './core/treeNodeValue'
 export type { EditableTreeNode } from './core/extendRoutes'

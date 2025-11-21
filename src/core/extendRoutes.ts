@@ -47,6 +47,8 @@ export class EditableTreeNode {
       // but in other places we need to instruct the path is at the root so we change it afterwards
       addBackLeadingSlash = !this.node.isRoot()
     }
+    // TODO: if options.experimental.paramParsers, should insert the raw path as [thing]
+    // and warn if a path contains a :
     const node = this.node.insertParsedPath(path, filePath)
     const editable = new EditableTreeNode(node)
     if (addBackLeadingSlash) {
@@ -85,7 +87,7 @@ export class EditableTreeNode {
    * nothing.
    * @see {@link isPassThrough}
    */
-  get name(): string {
+  get name(): string | false {
     return this.node.name
   }
 
@@ -169,11 +171,11 @@ export class EditableTreeNode {
   }
 
   /**
-   * Array of the route params and all of its parent's params. Note that changing the params will not update the path,
-   * you need to update both.
+   * Array of the route params and all of its parent's params. Note that
+   * changing the params will not update the path, you need to update both.
    */
   get params() {
-    return this.node.params
+    return this.node.pathParams
   }
 
   /**
