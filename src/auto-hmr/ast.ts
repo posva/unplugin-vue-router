@@ -29,15 +29,18 @@ export function getHandleHotUpdateDeclaration(node?: ImportDeclaration, modulePa
 }
 
 export function hasHandleHotUpdateCall(ast: AstNode) {
+  const visited = new WeakSet()
+
   function traverse(node: any) {
-    if (!node) return false;
+    if (!node || typeof node !== 'object' || visited.has(node)) return false
+    visited.add(node)
 
     if (
       node.type === 'CallExpression' &&
       node.callee.type === 'Identifier' &&
       node.callee.name === 'handleHotUpdate'
     ) {
-      return true;
+      return true
     }
 
     // e.g.: autoRouter.handleHotUpdate()
@@ -47,25 +50,25 @@ export function hasHandleHotUpdateCall(ast: AstNode) {
       node.callee.property.type === 'Identifier' &&
       node.callee.property.name === 'handleHotUpdate'
     ) {
-      return true;
+      return true
     }
 
-    if (typeof node !== 'object') return false;
+    if (typeof node !== 'object') return false
 
     for (const key in node) {
-      if (key === 'type' || key === 'loc' || key === 'range') continue;
+      if (key === 'type' || key === 'loc' || key === 'range') continue
 
-      const child = node[key];
+      const child = node[key]
       if (Array.isArray(child)) {
         for (const item of child) {
-          if (traverse(item)) return true;
+          if (traverse(item)) return true
         }
       } else if (typeof child === 'object' && child !== null) {
-        if (traverse(child)) return true;
+        if (traverse(child)) return true
       }
     }
 
-    return false;
+    return false
   }
 
   return traverse(ast);
