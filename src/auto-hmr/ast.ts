@@ -10,7 +10,8 @@ export function getRouterDeclaration(nodes?: VariableDeclarator[]) {
     (x) =>
       x.init?.type === 'CallExpression' &&
       x.init.callee.type === 'Identifier' &&
-      x.init.callee.name === 'createRouter'
+      (x.init.callee.name === 'createRouter' ||
+        x.init.callee.name === 'experimental_createRouter')
   )
 }
 

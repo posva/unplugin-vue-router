@@ -14,6 +14,9 @@ interface AutoHmrPluginOptions {
 export function createAutoHmrPlugin({
   modulePath,
 }: AutoHmrPluginOptions): UnpluginOptions {
+  const hasCreateRouterFnCallRegex =
+    /\w+\s*=\s*(?:experimental_)?createRouter\(/
+
   return {
     name: 'unplugin-vue-router-auto-hmr',
     enforce: 'post',
@@ -21,9 +24,7 @@ export function createAutoHmrPlugin({
     transform(code, id) {
       if (id.startsWith('\x00')) return
 
-      // If you don't use automatically generated routes,
-      // maybe it will be meaningless to deal with hmr?
-      if (!code.includes('createRouter(') && !code.includes(modulePath)) {
+      if (!hasCreateRouterFnCallRegex.test(code)) {
         return
       }
 
