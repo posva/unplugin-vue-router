@@ -3,15 +3,7 @@
  */
 import { App, defineComponent, nextTick } from 'vue'
 import { defineColadaLoader } from './defineColadaLoader'
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  afterEach,
-  beforeAll,
-  afterAll,
-} from 'vitest'
+import { describe, it, expect, vi, afterEach } from 'vitest'
 import {
   DataLoaderPlugin,
   DataLoaderPluginOptions,
@@ -19,8 +11,8 @@ import {
   setCurrentContext,
   UseDataLoader,
 } from 'unplugin-vue-router/data-loaders'
-import { testDefineLoader } from '../../tests/data-loaders'
-import { getRouter } from 'vue-router-mock'
+import { getRouter, testDefineLoader } from '../../tests/data-loaders'
+// import { getRouter } from 'vue-router-mock'
 import { enableAutoUnmount, mount } from '@vue/test-utils'
 import RouterViewMock from '../../tests/data-loaders/RouterViewMock.vue'
 import { setActivePinia, createPinia, getActivePinia } from 'pinia'
@@ -38,17 +30,6 @@ describe(
   { timeout: process.env.CI ? 1000 : 100 },
   () => {
     enableAutoUnmount(afterEach)
-
-    // we use fake timers to ensure debugging tests do not rely on timers
-    const now = new Date(2000, 0, 1).getTime() // 1 Jan 2000 in local time as number of milliseconds
-    beforeAll(() => {
-      vi.useFakeTimers()
-      vi.setSystemTime(now)
-    })
-
-    afterAll(() => {
-      vi.useRealTimers()
-    })
 
     testDefineLoader(
       ({ fn, key, ...options }) =>
@@ -106,6 +87,7 @@ describe(
         global: {
           plugins: [
             [DataLoaderPlugin, { router, ...pluginOptions }],
+            router,
             createPinia(),
             PiniaColada,
           ],
@@ -250,7 +232,7 @@ describe(
 
       const wrapper = mount(RouterViewMock, {
         global: {
-          plugins: [[DataLoaderPlugin, { router }], pinia, PiniaColada],
+          plugins: [[DataLoaderPlugin, { router }], router, pinia, PiniaColada],
         },
       })
 
@@ -306,7 +288,7 @@ describe(
 
       const wrapper = mount(RouterViewMock, {
         global: {
-          plugins: [[DataLoaderPlugin, { router }], pinia, PiniaColada],
+          plugins: [[DataLoaderPlugin, { router }], router, pinia, PiniaColada],
         },
       })
 
@@ -366,7 +348,7 @@ describe(
 
       mount(RouterViewMock, {
         global: {
-          plugins: [[DataLoaderPlugin, { router }], pinia, PiniaColada],
+          plugins: [[DataLoaderPlugin, { router }], router, pinia, PiniaColada],
         },
       })
 

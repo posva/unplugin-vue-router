@@ -24,16 +24,16 @@ export function setupRouterMock() {
     return
   }
 
-  const router = createRouterMock({
-    useRealNavigation: true,
-  })
-
-  beforeEach(() => {
-    router.reset()
-    injectRouterMock(router)
-  })
-
-  config.plugins.VueWrapper.install(VueRouterMock)
+  // const router = createRouterMock({
+  //   useRealNavigation: true,
+  // })
+  //
+  // beforeEach(() => {
+  //   router.reset()
+  //   injectRouterMock(router)
+  // })
+  //
+  // config.plugins.VueWrapper.install(VueRouterMock)
 }
 
 setupRouterMock()

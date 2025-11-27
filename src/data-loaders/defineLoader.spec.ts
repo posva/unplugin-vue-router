@@ -9,15 +9,7 @@ import {
   SERVER_INITIAL_DATA_KEY,
   defineBasicLoader,
 } from './defineLoader'
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  afterEach,
-  beforeAll,
-  afterAll,
-} from 'vitest'
+import { describe, it, expect, vi, afterEach } from 'vitest'
 import {
   DataLoaderPlugin,
   DataLoaderPluginOptions,
@@ -25,8 +17,8 @@ import {
   UseDataLoader,
   setCurrentContext,
 } from 'unplugin-vue-router/data-loaders'
-import { testDefineLoader } from '../../tests/data-loaders'
-import { getRouter } from 'vue-router-mock'
+import { getRouter, testDefineLoader } from '../../tests/data-loaders'
+// import { getRouter } from 'vue-router-mock'
 import { enableAutoUnmount, mount } from '@vue/test-utils'
 import RouterViewMock from '../../tests/data-loaders/RouterViewMock.vue'
 import { mockPromise } from '../../tests/utils'
@@ -58,17 +50,6 @@ describe(
   { timeout: process.env.CI ? 1000 : 100 },
   () => {
     enableAutoUnmount(afterEach)
-
-    // we use fake timers to ensure debugging tests do not rely on timers
-    const now = new Date(2000, 0, 1).getTime() // 1 Jan 2000 in local time as number of milliseconds
-    beforeAll(() => {
-      vi.useFakeTimers()
-      vi.setSystemTime(now)
-    })
-
-    afterAll(() => {
-      vi.useRealTimers()
-    })
 
     testDefineLoader(
       ({ fn, ...options }) => defineBasicLoader(fn, { ...options }),
@@ -117,7 +98,7 @@ describe(
 
       const wrapper = mount(RouterViewMock, {
         global: {
-          plugins: [[DataLoaderPlugin, { router, ...pluginOptions }]],
+          plugins: [[DataLoaderPlugin, { router, ...pluginOptions }], router],
         },
       })
 
@@ -171,6 +152,7 @@ describe(
                   router,
                 },
               ],
+              router,
             ],
           },
         })
@@ -248,6 +230,7 @@ describe(
                   router,
                 },
               ],
+              router,
             ],
           },
         })

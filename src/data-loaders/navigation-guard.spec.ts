@@ -11,12 +11,14 @@ import {
   afterAll,
   afterEach,
   beforeAll,
+  beforeEach,
   describe,
   expect,
   it,
+  MockInstance,
   vi,
 } from 'vitest'
-import { getRouter } from 'vue-router-mock'
+import { getRouter, createRouterMock, injectRouterMock } from 'vue-router-mock'
 import {
   ABORT_CONTROLLER_KEY,
   LOADER_SET_KEY,
@@ -55,6 +57,21 @@ function mockedLoader<T = string | NavigationResult>(
 describe('navigation-guard', () => {
   let globalApp: App | undefined
 
+  const router = createRouterMock({
+    useRealNavigation: true,
+    spy: {
+      create: (fn) => vi.fn(fn),
+      reset: (spy: MockInstance) => spy.mockClear(),
+    },
+  })
+
+  beforeEach(() => {
+    router.reset()
+    injectRouterMock(router)
+  })
+
+  // config.plugins.VueWrapper.install(VueRouterMock)
+
   function setupApp(options: Omit<DataLoaderPluginOptions, 'router'>) {
     const app = createApp({ render: () => null })
     const selectNavigationResult = vi
@@ -65,6 +82,7 @@ describe('navigation-guard', () => {
       selectNavigationResult,
       ...options,
     })
+    app.use(router)
     // invalidate current context
     setCurrentContext(undefined)
     globalApp = app

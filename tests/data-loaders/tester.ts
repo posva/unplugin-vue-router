@@ -10,9 +10,18 @@ import {
   type Plugin,
   ref,
 } from 'vue'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
-import { getRouter } from 'vue-router-mock'
+// import { getRouter, type RouterMock } from 'vue-router-mock'
 import {
   setCurrentContext,
   DataLoaderPlugin,
@@ -26,8 +35,46 @@ import { mockPromise } from '../utils'
 import RouterViewMock from '../data-loaders/RouterViewMock.vue'
 import ComponentWithNestedLoader from '../data-loaders/ComponentWithNestedLoader.vue'
 import { dataOneSpy, dataTwoSpy } from '../data-loaders/loaders'
-import type { RouteLocationNormalizedLoaded } from 'vue-router'
+import {
+  createMemoryHistory,
+  createRouter,
+  NavigationFailureType,
+  type RouteLocationNormalizedLoaded,
+  type Router,
+} from 'vue-router'
 import { mockWarn } from '../vitest-mock-warn'
+
+let router: Router | null = null
+let pendingNavigation: ReturnType<Router['push']> | null = null
+export function getRouter(): Router {
+  router ??= createRouter({
+    history: createMemoryHistory(),
+    routes: [
+      {
+        path: '/',
+        component: defineComponent({ template: '<div>home</div>' }),
+      },
+      {
+        path: '/:pathMatch(.*)',
+        component: defineComponent({ template: '<div>not found</div>' }),
+      },
+    ],
+  })
+  const originialPush = router.push.bind(router)
+  const originalReplace = router.replace.bind(router)
+  router.push = (...args) => {
+    return (pendingNavigation = originialPush(...args))
+  }
+  router.replace = (...args) => {
+    return (pendingNavigation = originalReplace(...args))
+  }
+
+  return router
+}
+
+export function getPendingNavigation(): typeof pendingNavigation {
+  return pendingNavigation
+}
 
 export function testDefineLoader<Context = void>(
   loaderFactory: (
@@ -69,6 +116,16 @@ export function testDefineLoader<Context = void>(
 
   mockWarn()
 
+  // we use fake timers to ensure debugging tests do not rely on timers
+  beforeAll(() => {
+    vi.useFakeTimers()
+    vi.setSystemTime(0)
+  })
+
+  afterAll(() => {
+    vi.useRealTimers()
+  })
+
   beforeEach(async () => {
     dataOneSpy.mockClear()
     dataTwoSpy.mockClear()
@@ -77,32 +134,45 @@ export function testDefineLoader<Context = void>(
     }
   })
 
+  afterEach(() => {
+    router = null
+  })
+
   function singleLoaderOneRoute(
     useData: UseDataLoader,
-    pluginOptions?: Omit<DataLoaderPluginOptions, 'router'>
+    pluginOptions?: Omit<DataLoaderPluginOptions, 'router'>,
+    opts: {
+      router?: Router
+      addToMetaLoaders?: boolean
+      component?:
+        | ReturnType<typeof defineComponent>
+        | (() => Promise<ReturnType<typeof defineComponent>>)
+    } = {}
   ) {
     let useDataResult: ReturnType<UseDataLoader>
-    const component = defineComponent({
-      setup() {
-        useDataResult = useData()
+    const component =
+      opts.component ??
+      defineComponent({
+        setup() {
+          useDataResult = useData()
 
-        const { data, error, isLoading } = useDataResult
-        return { data, error, isLoading }
-      },
-      template: `\
+          const { data, error, isLoading } = useDataResult
+          return { data, error, isLoading }
+        },
+        template: `\
 <div>
   <p id="route">{{ $route.path }}</p>
   <p id="data">{{ data }}</p>
   <p id="error">{{ error }}</p>
   <p id="isLoading">{{ isLoading }}</p>
 </div>`,
-    })
-    const router = getRouter()
+      })
+    const router = opts.router ?? getRouter()
     router.addRoute({
       name: '_test',
       path: '/fetch',
       meta: {
-        loaders: [useData],
+        loaders: opts.addToMetaLoaders === false ? [] : [useData],
       },
       component,
     })
@@ -112,6 +182,7 @@ export function testDefineLoader<Context = void>(
         plugins: [
           [DataLoaderPlugin, { router, ...pluginOptions }],
           ...(plugins?.(customContext!) || []),
+          router,
         ],
       },
     })
@@ -463,6 +534,101 @@ export function testDefineLoader<Context = void>(
         l1.reject(new Error('nope'))
         await expect(p).rejects.toThrow('nope')
       })
+
+      it(`works with canceled duplicated navigations, commit: ${commit}`, async () => {
+        if (commit === 'immediate') {
+          return
+        }
+        const router = getRouter()
+        await router.push('/')
+
+        let calls = 0
+        const l = mockedLoader({ lazy: false, commit })
+        l.spy.mockImplementation(async () => {
+          // we want to delay this longer than the time we wait before triggering the 2nd navigation
+          await new Promise((r) => setTimeout(r, 50))
+          // console.log('⏰💰 loader 50ms', Date.now())
+          return `calls: ${++calls}`
+        })
+        const beforeEachSpy = vi.fn()
+        router.beforeEach(beforeEachSpy)
+        const afterEach = vi.fn()
+        router.afterEach(afterEach)
+
+        let useDataResult: ReturnType<typeof l.loader>
+        const Comp = defineComponent({
+          setup() {
+            useDataResult = l.loader()
+
+            const { data, error, isLoading } = useDataResult
+            // this page component should not try to render without the loader having run
+            expect(data.value).toBeDefined()
+            return { data, error, isLoading }
+          },
+          template: `\
+<div>
+  <p id="route">{{ $route.path }}</p>
+  <p id="data">{{ data }}</p>
+  <p id="error">{{ error }}</p>
+  <p id="isLoading">{{ isLoading }}</p>
+</div>`,
+        })
+        const component = async () => {
+          await new Promise((r) => setTimeout(r, 10))
+          // console.log('⏰ component 10ms', Date.now())
+          return {
+            default: Comp,
+            useLoader: l.loader,
+          }
+        }
+        singleLoaderOneRoute(
+          l.loader,
+          {},
+          { component, router, addToMetaLoaders: false }
+        )
+
+        // double immediate navigation should cancel the first one
+        const nav1 = router.push('/fetch')
+        // advance enough to have two navigations but not let the async component load
+        await vi.advanceTimersByTimeAsync(5)
+        expect(beforeEachSpy).toHaveBeenCalledTimes(1)
+        // console.log('waited 5', Date.now())
+        const nav2 = router.push('/fetch')
+        // let the new navigation start
+        await vi.advanceTimersByTimeAsync(0)
+        expect(beforeEachSpy).toHaveBeenCalledTimes(2)
+        // expect(l.spy).toHaveBeenCalledTimes(0)
+
+        // finish the async loading of the first navigation
+        await vi.advanceTimersByTimeAsync(5)
+        await nav1
+        // console.log('nav 1 done', Date.now())
+        // the navigation should not have let the route change
+        expect(router.currentRoute.value.path).toBe('/')
+        // expect(l.spy).toHaveBeenCalledTimes(1)
+
+        // Let the loader finish
+        // FIXME: should be 55. We are waiting the async loading twice
+        // It's because we don't use record.mods
+        await vi.advanceTimersByTimeAsync(65)
+        await nav2
+        expect(router.currentRoute.value.path).toBe('/fetch')
+        // expect(wrapper.get('#data').text()).toContain('calls: ')
+        expect(afterEach).toHaveBeenCalledTimes(2)
+        expect(afterEach).toHaveBeenNthCalledWith(
+          1,
+          expect.objectContaining({ path: '/fetch' }),
+          expect.objectContaining({ path: '/' }),
+          expect.objectContaining({ type: NavigationFailureType.cancelled })
+        )
+        expect(afterEach).toHaveBeenNthCalledWith(
+          2,
+          expect.objectContaining({ path: '/fetch' }),
+          expect.objectContaining({ path: '/' }),
+          // no failure
+          undefined
+        )
+      })
     }
   )
 
@@ -771,7 +937,7 @@ export function testDefineLoader<Context = void>(
     resolveCall2()
     resolveCall3()
     await vi.runAllTimersAsync()
-    await router.getPendingNavigation()
+    await getPendingNavigation()
 
     // it preserves the initial value
     expect(data.value).toEqual('ok')
@@ -791,7 +957,7 @@ export function testDefineLoader<Context = void>(
     expect(useDataPromise).toBeInstanceOf(Promise)
     resolve()
     const data = await useDataPromise
-    // await router.getPendingNavigation()
+    // await getPendingNavigation()
     expect(spy).toHaveBeenCalledTimes(1)
     expect(data).toEqual('resolved')
     expect(spy).toHaveBeenCalledTimes(1)
@@ -836,6 +1002,7 @@ export function testDefineLoader<Context = void>(
         plugins: [
           [DataLoaderPlugin, { router }],
           ...(plugins?.(customContext!) || []),
+          router,
         ],
       },
     })
@@ -876,6 +1043,7 @@ export function testDefineLoader<Context = void>(
         plugins: [
           [DataLoaderPlugin, { router }],
           ...(plugins?.(customContext!) || []),
+          router,
         ],
       },
     })
@@ -920,6 +1088,7 @@ export function testDefineLoader<Context = void>(
         plugins: [
           [DataLoaderPlugin, { router }],
           ...(plugins?.(customContext!) || []),
+          router,
         ],
       },
     })
@@ -953,6 +1122,7 @@ export function testDefineLoader<Context = void>(
         plugins: [
           [DataLoaderPlugin, { router }],
           ...(plugins?.(customContext!) || []),
+          router,
         ],
       },
     })
@@ -999,6 +1169,7 @@ export function testDefineLoader<Context = void>(
           plugins: [
             [DataLoaderPlugin, { router }],
             ...(plugins?.(customContext!) || []),
+            router,
           ],
         },
       })
@@ -1096,6 +1267,7 @@ export function testDefineLoader<Context = void>(
         plugins: [
           [DataLoaderPlugin, { router }],
           ...(plugins?.(customContext!) || []),
+          router,
         ],
       },
     })
@@ -1153,6 +1325,7 @@ export function testDefineLoader<Context = void>(
           plugins: [
             [DataLoaderPlugin, { router }],
             ...(plugins?.(customContext!) || []),
+            router,
           ],
         },
       }
