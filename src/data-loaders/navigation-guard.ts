@@ -105,48 +105,46 @@ export function setupLoaderGuard({
     const lazyLoadingPromises: Promise<unknown>[] = []
 
     for (const record of to.matched) {
-      // we only need to do this once per record as these changes are preserved
-      // by the router
-      if (!record.meta[LOADER_SET_KEY]) {
-        // setup an empty array to skip the check next time
-        record.meta[LOADER_SET_KEY] = new Set(record.meta.loaders || [])
+      // we used to do this only once but then it would skip during aborted navigations
+      // https://github.com/posva/unplugin-vue-router/issues/567
+      // setup an empty array to skip the check next time
+      record.meta[LOADER_SET_KEY] ??= new Set(record.meta.loaders || [])
 
-        // add all the loaders from the components to the set
-        for (const componentName in record.components) {
-          const component: unknown = record.components[componentName]
+      // add all the loaders from the components to the set
+      for (const componentName in record.components) {
+        const component: unknown = record.components[componentName]
 
-          // we only add async modules because otherwise the component doesn't have any loaders and the user should add
-          // them with the `loaders` array
-          const promise = (
-            isAsyncModule(component)
-              ? component()
-              : // we also support __loaders exported as an option to get around some temporary limitations
-                Promise.resolve(
-                  component as Record<string, unknown> | (() => unknown)
-                )
-          ).then((viewModule) => {
-            // avoid checking functional components
-            if (typeof viewModule === 'function') return
+        // we only add async modules because otherwise the component doesn't have any loaders and the user should add
+        // them with the `loaders` array
+        const promise = (
+          isAsyncModule(component)
+            ? component()
+            : // we also support __loaders exported as an option to get around some temporary limitations
+              Promise.resolve(
+                component as Record<string, unknown> | (() => unknown)
+              )
+        ).then((viewModule) => {
+          // avoid checking functional components
+          if (typeof viewModule === 'function') return
 
-            for (const exportName in viewModule) {
-              const exportValue = viewModule[exportName]
+          for (const exportName in viewModule) {
+            const exportValue = viewModule[exportName]
 
-              if (isDataLoader(exportValue)) {
-                record.meta[LOADER_SET_KEY]!.add(exportValue)
+            if (isDataLoader(exportValue)) {
+              record.meta[LOADER_SET_KEY]!.add(exportValue)
+            }
+          }
+          // TODO: remove once nuxt doesn't wrap with `e => e.default` async pages
+          if (Array.isArray(viewModule.__loaders)) {
+            for (const loader of viewModule.__loaders) {
+              if (isDataLoader(loader)) {
+                record.meta[LOADER_SET_KEY]!.add(loader)
               }
             }
-            // TODO: remove once nuxt doesn't wrap with `e => e.default` async pages
-            if (Array.isArray(viewModule.__loaders)) {
-              for (const loader of viewModule.__loaders) {
-                if (isDataLoader(loader)) {
-                  record.meta[LOADER_SET_KEY]!.add(loader)
-                }
-              }
-            }
-          })
+          }
+        })
 
-          lazyLoadingPromises.push(promise)
-        }
+        lazyLoadingPromises.push(promise)
       }
     }
 
@@ -155,6 +153,7 @@ export function setupLoaderGuard({
       for (const record of to.matched) {
         // merge the whole set of loaders
         for (const loader of record.meta[LOADER_SET_KEY]!) {
+          // the LOADER_SET_KEY is always defined here and is never deleted
           to.meta[LOADER_SET_KEY]!.add(loader)
         }
       }
@@ -164,13 +163,13 @@ export function setupLoaderGuard({
   })
 
   const removeDataLoaderGuard = router.beforeResolve((to, from) => {
-    // if we reach this guard, all properties have been set
-    const loaders = Array.from(to.meta[LOADER_SET_KEY]!) as UseDataLoader[]
-
     // TODO: could we benefit anywhere here from verifying the signal is aborted and not call the loaders at all
     // if (to.meta[ABORT_CONTROLLER_KEY]!.signal.aborted) {
     //   return to.meta[ABORT_CONTROLLER_KEY]!.signal.reason ?? false
     // }
+
+    // if we reach this guard, all properties have been set
+    const loaders: UseDataLoader[] = Array.from(to.meta[LOADER_SET_KEY]!)
 
     // unset the context so all loaders are executed as root loaders
     setCurrentContext([])
