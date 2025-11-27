@@ -101,65 +101,10 @@ export function setupLoaderGuard({
     // allow loaders to add navigation results
     to.meta[NAVIGATION_RESULTS_KEY] = []
 
-    // Collect all the lazy loaded components to await them in parallel
-    const lazyLoadingPromises: Promise<unknown>[] = []
-
+    // setup the sets for loaders in each record based on the meta.loaders
     for (const record of to.matched) {
-      // we used to do this only once but then it would skip during aborted navigations
-      // https://github.com/posva/unplugin-vue-router/issues/567
-      // setup an empty array to skip the check next time
       record.meta[LOADER_SET_KEY] ??= new Set(record.meta.loaders || [])
-
-      // add all the loaders from the components to the set
-      for (const componentName in record.components) {
-        const component: unknown = record.components[componentName]
-
-        // we only add async modules because otherwise the component doesn't have any loaders and the user should add
-        // them with the `loaders` array
-        const promise = (
-          isAsyncModule(component)
-            ? component()
-            : // we also support __loaders exported as an option to get around some temporary limitations
-              Promise.resolve(
-                component as Record<string, unknown> | (() => unknown)
-              )
-        ).then((viewModule) => {
-          // avoid checking functional components
-          if (typeof viewModule === 'function') return
-
-          for (const exportName in viewModule) {
-            const exportValue = viewModule[exportName]
-
-            if (isDataLoader(exportValue)) {
-              record.meta[LOADER_SET_KEY]!.add(exportValue)
-            }
-          }
-          // TODO: remove once nuxt doesn't wrap with `e => e.default` async pages
-          if (Array.isArray(viewModule.__loaders)) {
-            for (const loader of viewModule.__loaders) {
-              if (isDataLoader(loader)) {
-                record.meta[LOADER_SET_KEY]!.add(loader)
-              }
-            }
-          }
-        })
-
-        lazyLoadingPromises.push(promise)
-      }
     }
-
-    return Promise.all(lazyLoadingPromises).then(() => {
-      // group all the loaders in a single set
-      for (const record of to.matched) {
-        // merge the whole set of loaders
-        for (const loader of record.meta[LOADER_SET_KEY]!) {
-          // the LOADER_SET_KEY is always defined here and is never deleted
-          to.meta[LOADER_SET_KEY]!.add(loader)
-        }
-      }
-      // we return nothing to remove the value to allow the navigation
-      // same as return true
-    })
   })
 
   const removeDataLoaderGuard = router.beforeResolve((to, from) => {
@@ -169,6 +114,41 @@ export function setupLoaderGuard({
     // }
 
     // if we reach this guard, all properties have been set
+    // we can collect all loaders from records, modules and components
+    for (const record of to.matched) {
+      // colect all loaders from the record's meta
+      for (const loader of record.meta[LOADER_SET_KEY]!) {
+        to.meta[LOADER_SET_KEY]!.add(loader)
+      }
+
+      // add all the loaders from the components to the set
+      for (const componentName in record.mods) {
+        const viewModule = record.mods[componentName] as Record<string, unknown>
+
+        // avoid checking functional components
+        for (const exportName in viewModule) {
+          const exportValue = viewModule[exportName]
+
+          if (isDataLoader(exportValue)) {
+            to.meta[LOADER_SET_KEY]!.add(exportValue)
+            // loaderSet.add(exportValue)
+          }
+        }
+        // TODO: remove once nuxt doesn't wrap with `e => e.default` async pages
+        const component = record.components?.[componentName] as
+          | undefined
+          | Record<string, unknown>
+        if (component && Array.isArray(component.__loaders)) {
+          for (const loader of component.__loaders) {
+            if (isDataLoader(loader)) {
+              to.meta[LOADER_SET_KEY]!.add(loader)
+              // loaderSet.add(loader)
+            }
+          }
+        }
+      }
+    }
+
     const loaders: UseDataLoader[] = Array.from(to.meta[LOADER_SET_KEY]!)
 
     // unset the context so all loaders are executed as root loaders
