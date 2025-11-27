@@ -37,6 +37,7 @@ export default defineConfig({
         'src/**/*.d.ts',
         'src/**/*.test-d.ts',
         'src/**/*.spec.ts',
+        'src/volar',
         // entry points
         'src/index.ts',
         'src/esbuild.ts',

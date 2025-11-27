@@ -44,7 +44,6 @@ const plugin: VueLanguagePlugin = ({
 
       const useRouteNameType = `import('vue-router/auto-routes')._RouteNamesForFilePath<'${relativeFilePath}'>`
       const useRouteNameTypeParam = `<${useRouteNameType}>`
-      const typedCall = `useRoute${useRouteNameTypeParam}`
 
       if (sfc.scriptSetup) {
         visit(sfc.scriptSetup.ast)
@@ -80,7 +79,7 @@ const plugin: VueLanguagePlugin = ({
               sfc.scriptSetup!.name,
               node.end,
               node.end,
-              ` as ReturnType<typeof ${typedCall}>)`
+              ` as ReturnType<typeof useRoute${useRouteNameTypeParam}>)`
             )
           }
         } else {
@@ -95,7 +94,7 @@ const plugin: VueLanguagePlugin = ({
       // Augment `__VLS_ctx.$route` to override the typings of `$route` in template blocks
       if (contentStr.match(RE.DOLLAR_ROUTE.VLS_CTX)) {
         vlsCtxAugmentations.push(
-          `{} as { $route: ReturnType<typeof ${typedCall}> }`
+          `{} as { $route: ReturnType<typeof import('vue-router').useRoute${useRouteNameTypeParam}> }`
         )
       }
 
