@@ -1,3 +1,13 @@
+## [0.17.2](https://github.com/posva/unplugin-vue-router/compare/v0.17.1...v0.17.2) (2025-11-27)
+
+### Bug Fixes
+
+- **loaders:** await lazy loaded pages from aborted navigations ([20117fc](https://github.com/posva/unplugin-vue-router/commit/20117fcdac3ec06c226ea1b1d8b2ab75d9200348)), closes [#5678](https://github.com/posva/unplugin-vue-router/issues/5678) [#714](https://github.com/posva/unplugin-vue-router/issues/714)
+
+### Features
+
+- replace emoji with ascii ([a87a99c](https://github.com/posva/unplugin-vue-router/commit/a87a99c072a839588b6b753dd8cff2ea99544b02)), closes [#760](https://github.com/posva/unplugin-vue-router/issues/760)
+
 ## [0.17.1](https://github.com/posva/unplugin-vue-router/compare/v0.17.0...v0.17.1) (2025-11-21)
 
 ### Bug Fixes
