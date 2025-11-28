@@ -1,3 +1,10 @@
+# [0.18.0](https://github.com/posva/unplugin-vue-router/compare/v0.17.2...v0.18.0) (2025-11-28)
+
+### Features
+
+- use the official virtual prefix \0 ([c85dd85](https://github.com/posva/unplugin-vue-router/commit/c85dd85343fbaaae3a293f3fd86c74c6bcc0f3eb)), closes [#608](https://github.com/posva/unplugin-vue-router/issues/608)
+- **warn:** catch non exposed loaders through NavigationResult ([191681e](https://github.com/posva/unplugin-vue-router/commit/191681e1be78fe38f644a07cf5d53da42ca91e3e)), closes [#759](https://github.com/posva/unplugin-vue-router/issues/759)
+
 ## [0.17.2](https://github.com/posva/unplugin-vue-router/compare/v0.17.1...v0.17.2) (2025-11-27)
 
 ### Bug Fixes
