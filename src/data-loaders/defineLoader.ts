@@ -227,7 +227,7 @@ export function defineBasicLoader<Data>(
           }
         }
       })
-      .catch((e) => {
+      .catch((error: unknown) => {
         // console.log(
         //   '‼️ rejected',
         //   to.fullPath,
@@ -237,17 +237,17 @@ export function defineBasicLoader<Data>(
         if (entry.pendingLoad === currentLoad) {
           // help users find non-exposed loaders during development
           if (process.env.NODE_ENV !== 'production') {
-            if (e instanceof NavigationResult) {
+            if (error instanceof NavigationResult) {
               warnNonExposedLoader({ to, options, useDataLoader })
             }
           }
           // in this case, commit will never be called so we should just drop the error
           // console.log(`🚨 error in "${options.key}"`, e)
-          entry.stagedError = e
+          entry.stagedError = error
           // propagate error if non lazy or during SSR
           // NOTE: Cannot be handled at the guard level because of nested loaders
           if (!toLazyValue(options.lazy, to, from) || isSSR) {
-            throw e
+            throw error
           }
         }
       })
