@@ -1,6 +1,5 @@
 import { fileURLToPath, URL } from 'url'
 import { defineConfig } from 'vite'
-import { join } from 'node:path'
 import Markdown from 'unplugin-vue-markdown/vite'
 // @ts-ignore: the plugin should not be checked in the playground
 import VueRouter from '../src/vite'
@@ -8,8 +7,6 @@ import { VueRouterAutoImports } from '../src'
 import Vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
 import VueDevtools from 'vite-plugin-vue-devtools'
-
-const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 export default defineConfig({
   clearScreen: false,
@@ -102,7 +99,10 @@ export default defineConfig({
         }
       },
       beforeWriteFiles(root) {
-        root.insert('/from-root', join(__dirname, './src/pages/index.vue'))
+        root.insert(
+          '/from-root',
+          fileURLToPath(new URL('./src/pages/index.vue', import.meta.url))
+        )
       },
       routesFolder: [
         // can add multiple routes folders
