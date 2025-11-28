@@ -1106,7 +1106,6 @@ export function testDefineLoader<Context = void>(
   it(`nested loader correctly aborts top level loader`, async () => {
     const alwaysAbortsLoader = loaderFactory({
       fn: async () => {
-        console.log('BBB')
         const controller = new AbortController()
         controller.abort()
         controller.signal.throwIfAborted()
@@ -1115,8 +1114,6 @@ export function testDefineLoader<Context = void>(
       },
       key: 'nested',
     })
-
-    console.log('HUUUh', alwaysAbortsLoader)
 
     const rootLoader = loaderFactory({
       fn: async () => {
