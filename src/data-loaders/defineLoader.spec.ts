@@ -253,5 +253,97 @@ describe(
         expect(nestedPending.value).toEqual(false)
       })
     })
+
+    describe('warns', () => {
+      // this might happen if the user forgets to export a loader
+      // https://github.com/posva/unplugin-vue-router/issues/759
+      it('warns if a NavigationResult is committed', async () => {
+        const router = getRouter()
+        const l1 = mockedLoader({ key: 'my-key' })
+        router.addRoute({
+          name: '_test',
+          path: '/fetch',
+          component: defineComponent({
+            setup() {
+              const { data } = l1.loader()
+              return { data }
+            },
+            template: `<p>{{ !!data }}</p>`,
+          }),
+          meta: {
+            // oops! no loader exported
+            loaders: [],
+          },
+        })
+        const wrapper = mount(RouterViewMock, {
+          global: {
+            plugins: [
+              [
+                DataLoaderPlugin,
+                {
+                  router,
+                },
+              ],
+              router,
+            ],
+          },
+        })
+
+        l1.spy.mockResolvedValueOnce(new NavigationResult('/?redirected=true'))
+
+        await router.push('/fetch')
+        await vi.advanceTimersByTimeAsync(1)
+        expect(router.currentRoute.value.fullPath).toBe('/fetch')
+        // no data
+        expect(wrapper.text()).toBe('false')
+
+        expect('NavigationResult').toHaveBeenWarned()
+        expect('key: "my-key"').toHaveBeenWarned()
+      })
+
+      it('warns if a NavigationResult is throw on a non exposed loader', async () => {
+        const router = getRouter()
+        const l1 = mockedLoader({ key: 'my-key' })
+        router.addRoute({
+          name: '_test',
+          path: '/fetch',
+          component: defineComponent({
+            setup() {
+              const { data } = l1.loader()
+              return { data }
+            },
+            template: `<p>{{ !!data }}</p>`,
+          }),
+          meta: {
+            // oops! no loader exported
+            loaders: [],
+          },
+        })
+        const wrapper = mount(RouterViewMock, {
+          global: {
+            plugins: [
+              [
+                DataLoaderPlugin,
+                {
+                  router,
+                },
+              ],
+              router,
+            ],
+          },
+        })
+
+        l1.spy.mockRejectedValue(new NavigationResult('/?redirected=true'))
+
+        await router.push('/fetch')
+        await vi.advanceTimersByTimeAsync(1)
+        expect(router.currentRoute.value.fullPath).toBe('/fetch')
+        // no data
+        expect(wrapper.text()).toBe('false')
+
+        expect('NavigationResult').toHaveBeenWarned()
+        expect('key: "my-key"').toHaveBeenWarned()
+      })
+    })
   }
 )

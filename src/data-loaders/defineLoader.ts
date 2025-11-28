@@ -23,6 +23,7 @@ import {
   getCurrentContext,
   setCurrentContext,
   IS_SSR_KEY,
+  LOADER_SET_KEY,
 } from 'unplugin-vue-router/data-loaders'
 
 import { shallowRef } from 'vue'
@@ -31,6 +32,7 @@ import {
   toLazyValue,
 } from './createDataLoader'
 import type { ErrorDefault } from './types-config'
+import { warn } from '../core/utils'
 
 /**
  * Creates a data loader composable that can be exported by pages to attach the data loading to a route. In this version `data` is always defined.
@@ -215,6 +217,10 @@ export function defineBasicLoader<Data>(
           // let the navigation guard collect the result
           if (d instanceof NavigationResult) {
             to.meta[NAVIGATION_RESULTS_KEY]!.push(d)
+            // help users find non-exposed loaders during development
+            if (process.env.NODE_ENV !== 'production') {
+              warnNonExposedLoader({ to, options, useDataLoader })
+            }
           } else {
             entry.staged = d
             entry.stagedError = null
@@ -229,6 +235,12 @@ export function defineBasicLoader<Data>(
         //   e
         // )
         if (entry.pendingLoad === currentLoad) {
+          // help users find non-exposed loaders during development
+          if (process.env.NODE_ENV !== 'production') {
+            if (e instanceof NavigationResult) {
+              warnNonExposedLoader({ to, options, useDataLoader })
+            }
+          }
           // in this case, commit will never be called so we should just drop the error
           // console.log(`🚨 error in "${options.key}"`, e)
           entry.stagedError = e
@@ -410,6 +422,32 @@ export function defineBasicLoader<Data>(
   }
 
   return useDataLoader
+}
+
+/**
+ * Dev only warning for loaders that return/throw NavigationResult but are not exposed
+ *
+ * @param to - [TODO:description]
+ * @param options - [TODO:description]
+ * @param useDataLoader - [TODO:description]
+ */
+function warnNonExposedLoader({
+  to,
+  options,
+  useDataLoader,
+}: {
+  to: RouteLocationNormalizedLoaded
+  options: DefineDataLoaderOptions_LaxData
+  useDataLoader: UseDataLoader
+}) {
+  const loaders = to.meta[LOADER_SET_KEY]
+  console.log(options.key)
+  if (loaders && !loaders.has(useDataLoader)) {
+    warn(
+      'A loader returned a NavigationResult but is not registered on the route. Did you forget to "export" it from the page component?' +
+        (options.key ? ` (loader key: "${options.key}")` : '')
+    )
+  }
 }
 
 export interface DefineDataLoaderOptions_LaxData
