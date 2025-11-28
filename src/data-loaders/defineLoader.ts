@@ -441,7 +441,6 @@ function warnNonExposedLoader({
   useDataLoader: UseDataLoader
 }) {
   const loaders = to.meta[LOADER_SET_KEY]
-  console.log(options.key)
   if (loaders && !loaders.has(useDataLoader)) {
     warn(
       'A loader returned a NavigationResult but is not registered on the route. Did you forget to "export" it from the page component?' +
