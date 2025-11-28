@@ -1103,6 +1103,69 @@ export function testDefineLoader<Context = void>(
     expect(wrapper.text()).toBe('ok,one ok')
   })
 
+  it(`nested loader correctly aborts top level loader`, async () => {
+    const alwaysAbortsLoader = loaderFactory({
+      fn: async () => {
+        console.log('BBB')
+        const controller = new AbortController()
+        controller.abort()
+        controller.signal.throwIfAborted()
+
+        return { result: 'unreachable' }
+      },
+      key: 'nested',
+    })
+
+    console.log('HUUUh', alwaysAbortsLoader)
+
+    const rootLoader = loaderFactory({
+      fn: async () => {
+        const data = await alwaysAbortsLoader()
+
+        // should not reach here
+        return (data as { result: string }).result
+      },
+      key: 'root',
+    })
+    const router = getRouter()
+    router.addRoute({
+      name: '_test',
+      path: '/fetch',
+      component: defineComponent({
+        setup() {
+          const { data } = alwaysAbortsLoader()
+          const { data: root } = rootLoader()
+
+          return { root, data }
+        },
+        template: `<p>{{ root }</p>`,
+      }),
+      meta: {
+        loaders: [rootLoader, alwaysAbortsLoader],
+      },
+    })
+    mount(RouterViewMock, {
+      global: {
+        plugins: [
+          [DataLoaderPlugin, { router }],
+          ...(plugins?.(customContext!) || []),
+          router,
+        ],
+      },
+    })
+
+    const l1 = mockedLoader({ key: 'nested' })
+
+    router.push('/fetch?p=one')
+    await vi.runOnlyPendingTimersAsync()
+    l1.resolve('ok')
+    await vi.runOnlyPendingTimersAsync()
+    // // should have navigated and called the nested loader once
+    // expect(l1.spy).toHaveBeenCalledTimes(1)
+    // expect(router.currentRoute.value.fullPath).toBe('/fetch?p=one')
+    // expect(wrapper.text()).toBe('ok,one ok')
+  })
+
   it('keeps the old data until all loaders are resolved', async () => {
     const router = getRouter()
     const l1 = mockedLoader({ commit: 'after-load', key: 'l1' })
