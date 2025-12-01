@@ -547,13 +547,7 @@ export function testDefineLoader<Context = void>(
           alwaysAbortsLoader.spy.mockImplementation(async () => {
             const controller = new AbortController()
             controller.abort(reason)
-            // controller.abort(new Error('nope'))
-            try {
-              controller.signal.throwIfAborted()
-            } catch (err) {
-              console.log('err', err)
-              throw err
-            }
+            controller.signal.throwIfAborted()
             return 'ko'
           })
 
