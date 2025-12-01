@@ -521,8 +521,9 @@ export function testDefineLoader<Context = void>(
         const { router } = singleLoaderOneRoute(
           loaderFactory({
             fn: async (to) => {
-              const data = await l1.loader()
-              return `${data},${to.query.p}`
+              await l1.loader()
+              // never reached
+              return `ko,${to.query.p}`
             },
             key: 'root',
           })
@@ -534,6 +535,72 @@ export function testDefineLoader<Context = void>(
         l1.reject(new Error('nope'))
         await expect(p).rejects.toThrow('nope')
       })
+
+      // https://github.com/posva/unplugin-vue-router/issues/763
+      for (const reason of [undefined, new Error('custom abort reason')]) {
+        it(`propagates abortions with ${reason ? 'Error' : 'undefined'} from nested loaders, commit: ${commit}`, async () => {
+          const alwaysAbortsLoader = mockedLoader({
+            key: 'nested',
+            commit,
+            lazy: false,
+          })
+          alwaysAbortsLoader.spy.mockImplementation(async () => {
+            const controller = new AbortController()
+            controller.abort(reason)
+            // controller.abort(new Error('nope'))
+            try {
+              controller.signal.throwIfAborted()
+            } catch (err) {
+              console.log('err', err)
+              throw err
+            }
+            return 'ko'
+          })
+
+          const rootLoader = mockedLoader({
+            key: 'root',
+          })
+          rootLoader.spy.mockImplementation(async () => {
+            await alwaysAbortsLoader.loader()
+            // never gets here
+            return 'ko'
+          })
+
+          const router = getRouter()
+          router.addRoute({
+            name: '_test',
+            path: '/fetch',
+            component: defineComponent({
+              setup() {
+                const { data: nested } = alwaysAbortsLoader.loader()
+                const { data: root } = rootLoader.loader()
+
+                return { root, nested }
+              },
+              template: `<p>{{ root }}, {{ nested }}</p>`,
+            }),
+            meta: {
+              loaders: [rootLoader.loader, alwaysAbortsLoader.loader],
+            },
+          })
+          mount(RouterViewMock, {
+            global: {
+              plugins: [
+                [DataLoaderPlugin, { router }],
+                ...(plugins?.(customContext!) || []),
+                router,
+              ],
+            },
+          })
+
+          await expect(router.push('/fetch?p=one')).rejects.toThrowError(
+            reason ?? 'signal is aborted without reason'
+          )
+          expect(router.currentRoute.value.fullPath).toBe('/')
+          expect(rootLoader.spy).toHaveBeenCalledTimes(1)
+          expect(alwaysAbortsLoader.spy).toHaveBeenCalledTimes(1)
+        })
+      }
 
       it(`works with canceled duplicated navigations, commit: ${commit}`, async () => {
         if (commit === 'immediate') {
@@ -1101,66 +1168,6 @@ export function testDefineLoader<Context = void>(
     expect(l1.spy).toHaveBeenCalledTimes(1)
     expect(router.currentRoute.value.fullPath).toBe('/fetch?p=one')
     expect(wrapper.text()).toBe('ok,one ok')
-  })
-
-  it(`nested loader correctly aborts top level loader`, async () => {
-    const alwaysAbortsLoader = loaderFactory({
-      fn: async () => {
-        const controller = new AbortController()
-        controller.abort()
-        controller.signal.throwIfAborted()
-
-        return { result: 'unreachable' }
-      },
-      key: 'nested',
-    })
-
-    const rootLoader = loaderFactory({
-      fn: async () => {
-        const data = await alwaysAbortsLoader()
-
-        // should not reach here
-        return (data as { result: string }).result
-      },
-      key: 'root',
-    })
-    const router = getRouter()
-    router.addRoute({
-      name: '_test',
-      path: '/fetch',
-      component: defineComponent({
-        setup() {
-          const { data } = alwaysAbortsLoader()
-          const { data: root } = rootLoader()
-
-          return { root, data }
-        },
-        template: `<p>{{ root }</p>`,
-      }),
-      meta: {
-        loaders: [rootLoader, alwaysAbortsLoader],
-      },
-    })
-    mount(RouterViewMock, {
-      global: {
-        plugins: [
-          [DataLoaderPlugin, { router }],
-          ...(plugins?.(customContext!) || []),
-          router,
-        ],
-      },
-    })
-
-    const l1 = mockedLoader({ key: 'nested' })
-
-    router.push('/fetch?p=one')
-    await vi.runOnlyPendingTimersAsync()
-    l1.resolve('ok')
-    await vi.runOnlyPendingTimersAsync()
-    // // should have navigated and called the nested loader once
-    // expect(l1.spy).toHaveBeenCalledTimes(1)
-    // expect(router.currentRoute.value.fullPath).toBe('/fetch?p=one')
-    // expect(wrapper.text()).toBe('ok,one ok')
   })
 
   it('keeps the old data until all loaders are resolved', async () => {
