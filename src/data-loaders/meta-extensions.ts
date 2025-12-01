@@ -17,8 +17,8 @@ import { type RouteLocationNormalizedLoaded } from 'vue-router'
  * @internal
  */
 export type _DefineLoaderEntryMap<
-  DataLoaderEntry extends
-    DataLoaderEntryBase<unknown> = DataLoaderEntryBase<unknown>,
+  DataLoaderEntry extends DataLoaderEntryBase<unknown> =
+    DataLoaderEntryBase<unknown>,
 > = WeakMap<
   // Depending on the `defineLoader()` they might use a different thing as key
   // e.g. an function for basic defineLoader, a doc instance for VueFire

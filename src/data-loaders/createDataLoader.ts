@@ -134,8 +134,7 @@ export interface _DefineDataLoaderOptionsBase_Common {
  * Options for a data loader that returns a data that is possibly `undefined`. Available for data loaders
  * implementations so they can be used in `defineLoader()` overloads.
  */
-export interface DefineDataLoaderOptionsBase_LaxData
-  extends _DefineDataLoaderOptionsBase_Common {
+export interface DefineDataLoaderOptionsBase_LaxData extends _DefineDataLoaderOptionsBase_Common {
   lazy?:
     | boolean
     // TODO: allow passing information related to the existing data
@@ -159,8 +158,7 @@ export interface DefineDataLoaderOptionsBase_LaxData
  * Options for a data loader making the data defined without it being possibly `undefined`. Available for data loaders
  * implementations so they can be used in `defineLoader()` overloads.
  */
-export interface DefineDataLoaderOptionsBase_DefinedData
-  extends _DefineDataLoaderOptionsBase_Common {
+export interface DefineDataLoaderOptionsBase_DefinedData extends _DefineDataLoaderOptionsBase_Common {
   lazy?: false
   server?: true
   errors?: false
@@ -202,7 +200,7 @@ export interface DefineDataLoader<Context extends DataLoaderContextBase> {
  * @see {@link DefineDataLoader}
  */
 export interface UseDataLoader<Data = unknown, TError = unknown> {
-  [IS_USE_DATA_LOADER_KEY]: true
+  [IS_USE_DATA_LOADER_KEY]: true;
 
   /**
    * Data Loader composable returned by `defineLoader()`.

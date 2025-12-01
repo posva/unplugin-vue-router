@@ -545,7 +545,9 @@ export interface _DefineDataColadaLoaderOptions_Common<
 export interface DefineDataColadaLoaderOptions_LaxData<
   Name extends keyof RouteMap,
   Data,
-> extends _DefineDataColadaLoaderOptions_Common<Name, Data>,
+>
+  extends
+    _DefineDataColadaLoaderOptions_Common<Name, Data>,
     DefineDataLoaderOptionsBase_LaxData {}
 
 /**
@@ -554,7 +556,9 @@ export interface DefineDataColadaLoaderOptions_LaxData<
 export interface DefineDataColadaLoaderOptions_DefinedData<
   Name extends keyof RouteMap,
   Data,
-> extends _DefineDataColadaLoaderOptions_Common<Name, Data>,
+>
+  extends
+    _DefineDataColadaLoaderOptions_Common<Name, Data>,
     DefineDataLoaderOptionsBase_DefinedData {}
 
 /**
@@ -574,7 +578,9 @@ export interface UseDataLoaderColadaResult<
   TData,
   TError = ErrorDefault,
   TDataInitial extends TData | undefined = TData | undefined,
-> extends UseDataLoaderResult<TData | TDataInitial, ErrorDefault>,
+>
+  extends
+    UseDataLoaderResult<TData | TDataInitial, ErrorDefault>,
     Pick<
       UseQueryReturn<TData, TError, TDataInitial>,
       'isPending' | 'status' | 'asyncStatus' | 'state'
@@ -600,8 +606,10 @@ export interface UseDataLoaderColadaResult<
 /**
  * Data Loader composable returned by `defineColadaLoader()`.
  */
-export interface UseDataLoaderColada_LaxData<Data>
-  extends UseDataLoader<Data | undefined, ErrorDefault> {
+export interface UseDataLoaderColada_LaxData<Data> extends UseDataLoader<
+  Data | undefined,
+  ErrorDefault
+> {
   /**
    * Data Loader composable returned by `defineColadaLoader()`.
    *
@@ -635,8 +643,10 @@ export interface UseDataLoaderColada_LaxData<Data>
 /**
  * Data Loader composable returned by `defineColadaLoader()`.
  */
-export interface UseDataLoaderColada_DefinedData<TData>
-  extends UseDataLoader<TData, ErrorDefault> {
+export interface UseDataLoaderColada_DefinedData<TData> extends UseDataLoader<
+  TData,
+  ErrorDefault
+> {
   /**
    * Data Loader composable returned by `defineColadaLoader()`.
    *
