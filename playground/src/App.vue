@@ -8,6 +8,9 @@ import type {
 import { ref, watch } from 'vue'
 import { routes } from 'vue-router/auto-routes'
 import { useMutationState, useQueryClient } from '@tanstack/vue-query'
+import { PiniaColadaDevtools } from '@pinia/colada-devtools'
+
+const isProduction = process.env.NODE_ENV === 'production'
 
 console.log(`We have ${routes.length} routes.`)
 
@@ -130,6 +133,8 @@ function _test() {
   <RouterView />
   <hr />
   <RouterView name="named" />
+
+  <PiniaColadaDevtools v-if="!isProduction" />
 </template>
 
 <style scoped>
