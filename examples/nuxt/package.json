@@ -13,7 +13,7 @@
     "unplugin-vue-router": "workspace:*"
   },
   "dependencies": {
-    "@pinia/colada": "^0.17.8",
+    "@pinia/colada": "^0.17.9",
     "pinia": "^3.0.4"
   }
 }

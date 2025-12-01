@@ -7,6 +7,7 @@
     "build": "vite build"
   },
   "devDependencies": {
+    "@pinia/colada-devtools": "^0.1.9",
     "@tanstack/vue-query-devtools": "^6.1.0",
     "@vitejs/plugin-vue": "^6.0.2",
     "@vue/compiler-sfc": "^3.5.24",
@@ -16,6 +17,7 @@
     "vite": "^7.2.4"
   },
   "dependencies": {
+    "@pinia/colada": "^0.17.9",
     "@tanstack/vue-query": "^5.91.2",
     "mande": "^2.0.9",
     "pinia": "^3.0.4",
