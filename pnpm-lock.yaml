@@ -208,6 +208,9 @@ importers:
         specifier: ^3.0.4
         version: 3.0.4(typescript@5.9.3)(vue@3.5.25(typescript@5.9.3))
     devDependencies:
+      '@pinia/colada-devtools':
+        specifier: ^0.1.9
+        version: 0.1.9
       '@pinia/colada-nuxt':
         specifier: ^0.2.4
         version: 0.2.4(@pinia/colada@0.18.0(pinia@3.0.4(typescript@5.9.3)(vue@3.5.25(typescript@5.9.3)))(vue@3.5.25(typescript@5.9.3)))(magicast@0.5.1)

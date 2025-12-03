@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useState } from '#imports'
+import { PiniaColadaDevtools } from '@pinia/colada-devtools'
 
 const state = useState('custom-date', () => new Date().toUTCString())
 </script>
@@ -24,4 +25,6 @@ const state = useState('custom-date', () => new Date().toUTCString())
     }}</NuxtLink>
   </nav>
   <NuxtPage />
+
+  <PiniaColadaDevtools />
 </template>

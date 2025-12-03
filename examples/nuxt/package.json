@@ -7,6 +7,7 @@
     "preview": "nuxt preview"
   },
   "devDependencies": {
+    "@pinia/colada-devtools": "^0.1.9",
     "@pinia/colada-nuxt": "^0.2.4",
     "@pinia/nuxt": "^0.11.3",
     "nuxt": "^4.2.1",
