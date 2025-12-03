@@ -365,5 +365,87 @@ describe(
       // FIXME:
       // expect(nestedQuery).toHaveBeenCalledTimes(2)
     })
+
+    it.todo('marks loader queries as inactive when navigating away from the page', async () => {
+      // Create two loaders with different keys
+      const useLoader1 = defineColadaLoader({
+        query: async () => 'data-1',
+        key: ['page-1'],
+      })
+
+      const useLoader2 = defineColadaLoader({
+        query: async () => 'data-2',
+        key: ['page-2'],
+      })
+
+      // Create components for each page
+      const page1 = defineComponent({
+        setup() {
+          const { data, error, isLoading } = useLoader1()
+          return { data, error, isLoading }
+        },
+        template: `<div><p id="data">{{ data }}</p></div>`,
+      })
+
+      const page2 = defineComponent({
+        setup() {
+          const { data, error, isLoading } = useLoader2()
+          return { data, error, isLoading }
+        },
+        template: `<div><p id="data">{{ data }}</p></div>`,
+      })
+
+      // Set up router with both routes
+      const router = getRouter()
+      router.addRoute({
+        name: 'page1',
+        path: '/page1',
+        meta: { loaders: [useLoader1] },
+        component: page1,
+      })
+      router.addRoute({
+        name: 'page2',
+        path: '/page2',
+        meta: { loaders: [useLoader2] },
+        component: page2,
+      })
+
+      // Create pinia instance and mount
+      const pinia = createPinia()
+
+      const wrapper = mount(RouterViewMock, {
+        global: {
+          plugins: [[DataLoaderPlugin, { router }], router, pinia, PiniaColada],
+        },
+      })
+
+      const queryCache = useQueryCache(pinia)
+
+      // trigger both loaders
+      await router.push('/page1')
+      await router.push('/page2')
+
+      // We went to the other page
+      // expect(wrapper.find('#data').text()).toBe('data-2')
+
+      const entry1 = queryCache.getEntries({ key: ['page-1'] }).at(0)!
+      expect(entry1).toBeDefined()
+      const entry2 = queryCache.getEntries({ key: ['page-2'] }).at(0)!
+      expect(entry2).toBeDefined()
+
+      expect(entry1).toHaveProperty('active', true)
+      expect(entry1.deps.size).toBe(1)
+      console.log('entry 1', entry1.deps.size)
+      console.log('entry 2', entry2.deps.size)
+      console.log('---')
+      console.log([...entry1.deps].at(0) === [...entry2.deps].at(0))
+      expect(entry2).toHaveProperty('active', false)
+      expect(entry1.deps.size).toBe(0)
+
+      await router.push('/page1')
+      expect(wrapper.find('#data').text()).toBe('data-1')
+      expect(entry1).toHaveProperty('active', true)
+      expect(entry2).toHaveProperty('active', false)
+    })
   }
 )
