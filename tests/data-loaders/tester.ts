@@ -32,7 +32,7 @@ import {
   type DefineDataLoaderOptionsBase_LaxData,
   type UseDataLoader,
 } from 'unplugin-vue-router/data-loaders'
-import { mockPromise } from '../utils'
+import { delay, mockPromise } from '../utils'
 import RouterViewMock from '../data-loaders/RouterViewMock.vue'
 import ComponentWithNestedLoader from '../data-loaders/ComponentWithNestedLoader.vue'
 import { dataOneSpy, dataTwoSpy } from '../data-loaders/loaders'
@@ -120,7 +120,8 @@ export function testDefineLoader<Context = void>(
   // we use fake timers to ensure debugging tests do not rely on timers
   beforeAll(() => {
     vi.useFakeTimers()
-    vi.setSystemTime(0)
+    // must be > 0 to avoid unrealistic scenarios and false negatives
+    vi.setSystemTime(100)
   })
 
   afterAll(() => {
@@ -207,7 +208,12 @@ export function testDefineLoader<Context = void>(
   }
 
   const COMMIT_MODES: ['immediate', 'after-load'] = ['immediate', 'after-load']
-  const LAZY_MODES: [true, false, () => true, () => false] = [true, false, (): true => true, (): false => false]
+  const LAZY_MODES: [true, false, () => true, () => false] = [
+    true,
+    false,
+    (): true => true,
+    (): false => false,
+  ]
   // for debugging specific modes more easily
   // COMMIT_MODES.splice(0, COMMIT_MODES.length, 'after-load')
   // LAZY_MODES.splice(0, LAZY_MODES.length, false)
@@ -333,41 +339,49 @@ export function testDefineLoader<Context = void>(
         expect(data.value).toEqual('resolved 3')
       })
 
-      it(`always reloads if the previous result is an error`, async () => {
+      it(`always reloads if the previous result is an error commit: ${commit}, lazy: ${lazy}`, async () => {
         let calls = 0
-        const spy = vi.fn(async () => {
+        const l = mockedLoader({ lazy, commit })
+        l.spy.mockImplementation(async () => {
+          // we delay lazy loaders because they don't block the navigation so
+          // we want to let them finish after navigation so the loader
+          // implementation reuses the ongoing fetch
+          if (toValue(lazy)) {
+            await delay(10)
+          }
           if (calls++ === 0) {
             throw new Error('nope')
           } else {
             return 'ok'
           }
         })
-        const { useData, router } = singleLoaderOneRoute(
-          loaderFactory({
-            fn: spy,
-            lazy,
-            commit,
-          })
-        )
-        expect(spy).toHaveBeenCalledTimes(0)
+        const { useData, router } = singleLoaderOneRoute(l.loader)
+        expect(l.spy).toHaveBeenCalledTimes(0)
+
+        let navigationPromise: Promise<unknown> = router.push('/fetch')
 
         // only the non lazy loader propagates the error to the navigation
         if (toValue(lazy)) {
-          await expect(router.push('/fetch')).resolves.toBeUndefined()
+          await expect(navigationPromise).resolves.toBeUndefined()
+          await vi.advanceTimersByTimeAsync(10)
         } else {
-          await expect(router.push('/fetch')).rejects.toThrow('nope')
+          // await vi.advanceTimersByTimeAsync(10)
+          await expect(navigationPromise).rejects.toThrow('nope')
         }
-        // await vi.runAllTimersAsync()
-        expect(spy).toHaveBeenCalledTimes(1)
+
+        await nextTick()
+        expect(l.spy).toHaveBeenCalledTimes(1)
 
         // for lazy loaders we need to navigate to trigger the loader
         // so we add a hash to enforce that
-        await expect(router.push('/fetch#two')).resolves.toBeUndefined()
+        navigationPromise = router.push('/fetch#one')
+        await vi.advanceTimersByTimeAsync(10)
+        await expect(navigationPromise).resolves.toBeUndefined()
         // await vi.runAllTimersAsync()
-        expect(spy).toHaveBeenCalledTimes(2)
+        expect(l.spy).toHaveBeenCalledTimes(2)
         const { data, error } = useData()
-        expect(data.value).toBe('ok')
         expect(error.value).toBe(null)
+        expect(data.value).toBe('ok')
       })
 
       it('keeps the existing error until the new data is resolved', async () => {

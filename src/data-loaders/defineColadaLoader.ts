@@ -24,6 +24,7 @@ import {
   PENDING_LOCATION_KEY,
   STAGED_NO_VALUE,
   IS_SSR_KEY,
+  DATA_LOADERS_EFFECT_SCOPE_KEY,
   NavigationResult,
   assign,
   getCurrentContext,
@@ -39,6 +40,7 @@ import {
   type UseQueryReturn,
   useQuery,
   defineQuery,
+  useQueryCache,
 } from '@pinia/colada'
 import {
   _DefineDataLoaderOptionsBase_Common,
@@ -214,7 +216,12 @@ export function defineColadaLoader<Data>(
       entry.ext = useDefinedQuery()
       // remove the data loader effect scope so that queries
       // can be marked as inactive
-      // entry.ext.entry.deps.delete(router[DATA_LOADERS_EFFECT_SCOPE_KEY])
+      useQueryCache()
+        .getEntries({
+          exact: true,
+          key: toValueWithParameters(options.key, to),
+        })[0]
+        ?.deps.delete(router[DATA_LOADERS_EFFECT_SCOPE_KEY])
 
       // avoid double reload since calling `useQuery()` will trigger a refresh
       // and we might also do it below for nested loaders
@@ -439,8 +446,9 @@ export function defineColadaLoader<Data>(
       }
     }
 
-    const { data, error, isLoading, ext } = entry
-    // const ext = useDefinedQuery()
+    const { data, error, isLoading } = entry
+    // this lets pinia colada track queries
+    const ext = useDefinedQuery()
 
     // TODO: add watchers only once alongside the entry
     // update the data when pinia colada updates it e.g. after visibility change

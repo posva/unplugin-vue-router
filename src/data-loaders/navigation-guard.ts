@@ -11,6 +11,7 @@ import {
 import {
   ABORT_CONTROLLER_KEY,
   APP_KEY,
+  DATA_LOADERS_EFFECT_SCOPE_KEY,
   IS_SSR_KEY,
   LOADER_ENTRIES_KEY,
   LOADER_SET_KEY,
@@ -76,6 +77,7 @@ export function setupLoaderGuard({
   // Access to `app.runWithContext()`
   router[APP_KEY] = app
 
+  router[DATA_LOADERS_EFFECT_SCOPE_KEY] = scope
   router[IS_SSR_KEY] = !!isSSR
 
   // global loading state for loaders used in `useIsDataLoading`

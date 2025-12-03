@@ -366,7 +366,7 @@ describe(
       // expect(nestedQuery).toHaveBeenCalledTimes(2)
     })
 
-    it.todo('marks loader queries as inactive when navigating away from the page', async () => {
+    it('marks loader queries as inactive when navigating away from the page', async () => {
       // Create two loaders with different keys
       const useLoader1 = defineColadaLoader({
         query: async () => 'data-1',
@@ -426,26 +426,24 @@ describe(
       await router.push('/page2')
 
       // We went to the other page
-      // expect(wrapper.find('#data').text()).toBe('data-2')
+      expect(wrapper.find('#data').text()).toBe('data-2')
 
       const entry1 = queryCache.getEntries({ key: ['page-1'] }).at(0)!
-      expect(entry1).toBeDefined()
       const entry2 = queryCache.getEntries({ key: ['page-2'] }).at(0)!
+      expect(entry1).toBeDefined()
       expect(entry2).toBeDefined()
 
-      expect(entry1).toHaveProperty('active', true)
-      expect(entry1.deps.size).toBe(1)
-      console.log('entry 1', entry1.deps.size)
-      console.log('entry 2', entry2.deps.size)
-      console.log('---')
-      console.log([...entry1.deps].at(0) === [...entry2.deps].at(0))
-      expect(entry2).toHaveProperty('active', false)
       expect(entry1.deps.size).toBe(0)
+      expect(entry1.active).toBe(false)
+      expect(entry2.deps.size).toBe(1)
+      expect(entry2.active).toBe(true)
 
       await router.push('/page1')
       expect(wrapper.find('#data').text()).toBe('data-1')
-      expect(entry1).toHaveProperty('active', true)
-      expect(entry2).toHaveProperty('active', false)
+      expect(entry2.deps.size).toBe(0)
+      expect(entry2.active).toBe(false)
+      expect(entry1.deps.size).toBe(1)
+      expect(entry1.active).toBe(true)
     })
   }
 )

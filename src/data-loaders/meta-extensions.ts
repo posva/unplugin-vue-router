@@ -1,4 +1,4 @@
-import { type App } from 'vue'
+import type { EffectScope, App } from 'vue'
 import type { DataLoaderEntryBase, UseDataLoader } from './createDataLoader'
 import type {
   APP_KEY,
@@ -8,6 +8,7 @@ import type {
   ABORT_CONTROLLER_KEY,
   NAVIGATION_RESULTS_KEY,
   IS_SSR_KEY,
+  DATA_LOADERS_EFFECT_SCOPE_KEY,
 } from './symbols'
 import { type NavigationResult } from './navigation-guard'
 import { type RouteLocationNormalizedLoaded } from 'vue-router'
@@ -54,6 +55,12 @@ declare module 'vue-router' {
      * @internal
      */
     [IS_SSR_KEY]: boolean
+
+    /**
+     * The effect scope used to run data loaders.
+     * @internal
+     */
+    [DATA_LOADERS_EFFECT_SCOPE_KEY]: EffectScope
   }
 
   export interface RouteMeta {

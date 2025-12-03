@@ -52,3 +52,9 @@ export const NAVIGATION_RESULTS_KEY = Symbol()
  * @internal
  */
 export const IS_SSR_KEY = Symbol()
+
+/**
+ * Symbol used to get the effect scope used for data loaders.
+ * @internal
+ */
+export const DATA_LOADERS_EFFECT_SCOPE_KEY = Symbol()
