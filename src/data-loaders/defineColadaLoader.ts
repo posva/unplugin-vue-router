@@ -23,13 +23,13 @@ import {
   NAVIGATION_RESULTS_KEY,
   PENDING_LOCATION_KEY,
   STAGED_NO_VALUE,
+  IS_SSR_KEY,
   NavigationResult,
   assign,
   getCurrentContext,
   isSubsetOf,
   setCurrentContext,
   trackRoute,
-  IS_SSR_KEY,
 } from 'unplugin-vue-router/data-loaders'
 import {} from './utils'
 import { type ShallowRef, shallowRef, watch } from 'vue'
@@ -38,6 +38,7 @@ import {
   type UseQueryOptions,
   type UseQueryReturn,
   useQuery,
+  defineQuery,
 } from '@pinia/colada'
 import {
   _DefineDataLoaderOptionsBase_Common,
@@ -107,6 +108,46 @@ export function defineColadaLoader<Data>(
 
   let isInitial = true
 
+  const useDefinedQuery = defineQuery(() => {
+    const router = useRouter()
+
+    const entries = router[LOADER_ENTRIES_KEY]! as _DefineLoaderEntryMap<
+      DataLoaderColadaEntry<unknown>
+    >
+    const entry = entries.get(loader)!
+
+    return useQuery({
+      ...options,
+      query: (): Promise<Data> => {
+        const route = entry.route.value
+        const [trackedRoute, params, query, hash] = trackRoute(route)
+        entry.tracked.set(
+          joinKeys(serializeQueryKey(options.key, trackedRoute)),
+          {
+            ready: false,
+            params,
+            query,
+            hash,
+          }
+        )
+
+        // needed for automatic refetching and nested loaders
+        // https://github.com/posva/unplugin-vue-router/issues/583
+        return router[APP_KEY].runWithContext(() =>
+          loader(trackedRoute, {
+            // TODO: provide the query signal too
+            signal: route.meta[ABORT_CONTROLLER_KEY]?.signal,
+          })
+        )
+      },
+      key: () => toValueWithParameters(options.key, entry.route.value),
+      // TODO: cleanup if gc
+      // onDestroy() {
+      //   entries.delete(loader)
+      // }
+    })
+  })
+
   function load(
     to: RouteLocationNormalizedLoaded,
     router: Router,
@@ -168,40 +209,13 @@ export function defineColadaLoader<Data>(
     // set the current context before loading so nested loaders can use it
     setCurrentContext([entry, router, to])
 
-    const app = router[APP_KEY]
-
     if (!entry.ext) {
       // console.log(`🚀 creating query for "${key}"`)
-      entry.ext = useQuery({
-        ...options,
-        query: (): Promise<Data> => {
-          const route = entry.route.value
-          const [trackedRoute, params, query, hash] = trackRoute(route)
-          entry.tracked.set(
-            joinKeys(serializeQueryKey(options.key, trackedRoute)),
-            {
-              ready: false,
-              params,
-              query,
-              hash,
-            }
-          )
+      entry.ext = useDefinedQuery()
+      // remove the data loader effect scope so that queries
+      // can be marked as inactive
+      // entry.ext.entry.deps.delete(router[DATA_LOADERS_EFFECT_SCOPE_KEY])
 
-          // needed for automatic refetching and nested loaders
-          // https://github.com/posva/unplugin-vue-router/issues/583
-          return app.runWithContext(() =>
-            loader(trackedRoute, {
-              // TODO: provide the query signal too
-              signal: route.meta[ABORT_CONTROLLER_KEY]?.signal,
-            })
-          )
-        },
-        key: () => toValueWithParameters(options.key, entry.route.value),
-        // TODO: cleanup if gc
-        // onDestroy() {
-        //   entries.delete(loader)
-        // }
-      })
       // avoid double reload since calling `useQuery()` will trigger a refresh
       // and we might also do it below for nested loaders
       if (entry.ext.asyncStatus.value === 'loading') {
@@ -428,6 +442,7 @@ export function defineColadaLoader<Data>(
     }
 
     const { data, error, isLoading, ext } = entry
+    // const ext = useDefinedQuery()
 
     // TODO: add watchers only once alongside the entry
     // update the data when pinia colada updates it e.g. after visibility change
