@@ -218,9 +218,7 @@ export function defineColadaLoader<Data>(
 
       // avoid double reload since calling `useQuery()` will trigger a refresh
       // and we might also do it below for nested loaders
-      if (entry.ext.asyncStatus.value === 'loading') {
-        reload = false
-      }
+      reload = false
     }
     // TODO: should also reload in the case of nested loaders if a nested loader has been invalidated
 
