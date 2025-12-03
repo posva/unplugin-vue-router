@@ -218,7 +218,6 @@ export function testDefineLoader<Context = void>(
   // COMMIT_MODES.splice(0, COMMIT_MODES.length, 'after-load')
   // LAZY_MODES.splice(0, LAZY_MODES.length, false)
 
-
   describe.each(COMMIT_MODES)('commit: %s', (commit) => {
     describe.each(LAZY_MODES)('lazy: %s', (lazy) => {
       it(`can resolve a "null" value`, async () => {
@@ -1256,6 +1255,7 @@ export function testDefineLoader<Context = void>(
       })
       const app: App = wrapper.vm.$.appContext.app
 
+      // we catch because in non-lazy loaders, throwing an error propagates it
       const p = router.push('/fetch').catch(() => {})
       await vi.runOnlyPendingTimersAsync()
       l1.resolve('ko')
