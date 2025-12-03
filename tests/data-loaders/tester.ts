@@ -9,6 +9,7 @@ import {
   nextTick,
   type Plugin,
   ref,
+  toValue,
 } from 'vue'
 import {
   afterAll,
@@ -205,10 +206,12 @@ export function testDefineLoader<Context = void>(
     }
   }
 
-  const COMMIT_MODES = ['immediate', 'after-load'] as const
-  const LAZY_MODES = [true, false, (): true => true, (): false => false] as const
-  // const COMMIT_MODES = ['after-load'] as const
-  // const LAZY_MODES = [false] as const
+  const COMMIT_MODES: ['immediate', 'after-load'] = ['immediate', 'after-load']
+  const LAZY_MODES: [true, false, () => true, () => false] = [true, false, (): true => true, (): false => false]
+  // for debugging specific modes more easily
+  // COMMIT_MODES.splice(0, COMMIT_MODES.length, 'after-load')
+  // LAZY_MODES.splice(0, LAZY_MODES.length, false)
+
 
   describe.each(COMMIT_MODES)('commit: %s', (commit) => {
     describe.each(LAZY_MODES)('lazy: %s', (lazy) => {
@@ -349,12 +352,11 @@ export function testDefineLoader<Context = void>(
         expect(spy).toHaveBeenCalledTimes(0)
 
         // only the non lazy loader propagates the error to the navigation
-        // if (lazy) {
-        //   await expect(router.push('/fetch')).resolves.toBeUndefined()
-        // } else {
-        //   await expect(router.push('/fetch')).rejects.toThrow('nope')
-        // }
-        await router.push('/fetch').catch(() => {})
+        if (toValue(lazy)) {
+          await expect(router.push('/fetch')).resolves.toBeUndefined()
+        } else {
+          await expect(router.push('/fetch')).rejects.toThrow('nope')
+        }
         // await vi.runAllTimersAsync()
         expect(spy).toHaveBeenCalledTimes(1)
 
