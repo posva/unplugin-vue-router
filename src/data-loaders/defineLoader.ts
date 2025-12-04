@@ -323,6 +323,8 @@ export function defineBasicLoader<Data>(
       this.staged = STAGED_NO_VALUE
       // preserve error until data is committed
       this.stagedError = this.error.value
+      // we do not restore the stagedNavigationResult intentionally because
+      // commit can be called too early depending on the commit value
       this.pendingTo = null
       this.to = to
       // we intentionally keep pendingLoad so it can be reused until the navigation is finished
