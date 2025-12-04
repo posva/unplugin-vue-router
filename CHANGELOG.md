@@ -1,3 +1,20 @@
+# [0.19.0](https://github.com/posva/unplugin-vue-router/compare/v0.18.0...v0.19.0) (2025-12-04)
+
+### Bug Fixes
+
+- **colada:** always avoid double reload ([70efd16](https://github.com/posva/unplugin-vue-router/commit/70efd164f0498a5f43c55f09acdefba3a2f66564))
+- **colada:** avoid tracking loader effect scope ([e5d5c23](https://github.com/posva/unplugin-vue-router/commit/e5d5c23cb181764c269a43971e9265a7910a3b9f)), closes [#744](https://github.com/posva/unplugin-vue-router/issues/744)
+- **loaders:** throw returned NavigationResult from parent loaders ([8134519](https://github.com/posva/unplugin-vue-router/commit/81345194a5dc420a0c0849723fe6f4b7017c345a)), closes [#584](https://github.com/posva/unplugin-vue-router/issues/584)
+- **warn:** do not warn on known errors ([#678](https://github.com/posva/unplugin-vue-router/issues/678)) ([e208778](https://github.com/posva/unplugin-vue-router/commit/e208778ec942fd21ea1d8441826d2a0807eb9976))
+
+### Features
+
+- **loaders:** the initial value of error is now null ([875243f](https://github.com/posva/unplugin-vue-router/commit/875243f734303b02737cfe73685ad02a6d2dae44))
+
+### BREAKING CHANGES
+
+- **loaders:** the initial value of errors as undefined was a mistake (differently from data which does start as undefined). The initial state of a loader should be pending, data: undefined, and error: null
+
 # [0.18.0](https://github.com/posva/unplugin-vue-router/compare/v0.17.2...v0.18.0) (2025-11-28)
 
 ### Features
