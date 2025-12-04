@@ -251,7 +251,7 @@ export function testDefineLoader<Context = void>(
         expect(error.value).toEqual(new Error('ok'))
       })
 
-      it('can return a NavigationResult without affecting initial data', async () => {
+      it(`can return a NavigationResult without affecting initial data, commit: ${commit} lazy: ${lazy}`, async () => {
         let calls = 0
         const spy = vi.fn(async (to: RouteLocationNormalizedLoaded) => {
           return calls++ === 0 ? new NavigationResult('/other') : to.query.p
@@ -405,6 +405,24 @@ export function testDefineLoader<Context = void>(
         await vi.runAllTimersAsync()
         // not anymore
         expect(data.value).toBe('resolved')
+      })
+
+      it(`should not warn when throwing a known error, commit: ${commit} lazy: ${lazy}`, async () => {
+        class CustomError extends Error {
+          override name = 'CustomError'
+        }
+        const l = mockedLoader({ commit, lazy, errors: [CustomError] })
+        l.spy.mockRejectedValueOnce(new CustomError('expected error'))
+        const { useData, router } = singleLoaderOneRoute(l.loader)
+
+        await router.push('/fetch')
+        expect(router.currentRoute.value.path).toBe('/fetch')
+
+        const { data, error } = useData()
+        expect(error.value).toBeInstanceOf(CustomError)
+        expect(data.value).toBe(undefined)
+
+        expect('no staged data').not.toHaveBeenWarned()
       })
     })
 

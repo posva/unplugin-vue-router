@@ -65,6 +65,11 @@ export interface DataLoaderEntryBase<
    */
   stagedError: TError | null
 
+  /**
+   * NavigationResult that was returned by a loader. Used to avoid treating it as data.
+   */
+  stagedNavigationResult: NavigationResult | null
+
   // entry instance
 
   /**
