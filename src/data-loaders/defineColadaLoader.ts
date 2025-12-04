@@ -168,7 +168,7 @@ export function defineColadaLoader<Data>(
         // force the type to match
         data: shallowRef<Data | undefined>(),
         isLoading: shallowRef(false),
-        error: shallowRef<any>(),
+        error: shallowRef<unknown>(null),
         to,
 
         options,

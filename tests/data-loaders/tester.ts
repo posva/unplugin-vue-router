@@ -1408,10 +1408,10 @@ export function testDefineLoader<Context = void>(
       await p
       const { data: one, error: e1 } = app.runWithContext(() => l1.loader())
       const { data: two, error: e2 } = app.runWithContext(() => l2.loader())
-      expect(one.value).toBeUndefined()
-      expect(e1.value).toBeUndefined()
-      expect(two.value).toBeUndefined()
-      expect(e2.value).toBeUndefined()
+      expect(one.value).toBe(undefined)
+      expect(e1.value).toBe(null)
+      expect(two.value).toBe(undefined)
+      expect(e2.value).toBe(null)
     }
   )
 

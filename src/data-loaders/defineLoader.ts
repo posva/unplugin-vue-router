@@ -141,7 +141,7 @@ export function defineBasicLoader<Data>(
         // force the type to match
         data: shallowRef<Data | undefined>(),
         isLoading: shallowRef(false),
-        error: shallowRef<ErrorDefault | null>(),
+        error: shallowRef<ErrorDefault | null>(null),
         to,
 
         options,
