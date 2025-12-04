@@ -1,6 +1,7 @@
 export { defineBasicLoader } from '../defineLoader'
 export type {
   DataLoaderContext,
+  DataLoaderBasicEntry,
   UseDataLoaderBasic_LaxData,
   UseDataLoaderBasic_DefinedData,
   DefineDataLoaderOptions_LaxData,

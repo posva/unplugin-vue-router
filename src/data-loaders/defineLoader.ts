@@ -24,6 +24,7 @@ import {
   setCurrentContext,
   IS_SSR_KEY,
   LOADER_SET_KEY,
+  _DefineLoaderEntryMap,
 } from 'unplugin-vue-router/data-loaders'
 
 import { shallowRef } from 'vue'
@@ -127,7 +128,11 @@ export function defineBasicLoader<Data>(
     from?: RouteLocationNormalizedLoaded,
     parent?: DataLoaderEntryBase
   ): Promise<void> {
-    const entries = router[LOADER_ENTRIES_KEY]!
+    // we cast here because we can manipulate our ownn type of entries
+    const entries = router[LOADER_ENTRIES_KEY]! as _DefineLoaderEntryMap<
+      DataLoaderBasicEntry<unknown>
+    >
+
     const isSSR = router[IS_SSR_KEY]
 
     // ensure the entry exists
@@ -149,8 +154,9 @@ export function defineBasicLoader<Data>(
         pendingTo: null,
         staged: STAGED_NO_VALUE,
         stagedError: null,
+        stagedNavigationResult: null,
         commit,
-      })
+      } satisfies DataLoaderBasicEntry<Data, ErrorDefault>)
     }
     const entry = entries.get(loader)!
 
@@ -202,6 +208,7 @@ export function defineBasicLoader<Data>(
     entry.staged = STAGED_NO_VALUE
     // preserve error until data is committed
     entry.stagedError = error.value
+    entry.stagedNavigationResult = null
 
     // Promise.resolve() allows loaders to also be sync
     const currentLoad = Promise.resolve(
@@ -217,6 +224,7 @@ export function defineBasicLoader<Data>(
           // let the navigation guard collect the result
           if (d instanceof NavigationResult) {
             to.meta[NAVIGATION_RESULTS_KEY]!.push(d)
+            entry.stagedNavigationResult = d
             // help users find non-exposed loaders during development
             if (process.env.NODE_ENV !== 'production') {
               warnNonExposedLoader({ to, options, useDataLoader })
@@ -287,7 +295,7 @@ export function defineBasicLoader<Data>(
   }
 
   function commit(
-    this: DataLoaderEntryBase,
+    this: DataLoaderBasicEntry<Data, ErrorDefault>,
     to: RouteLocationNormalizedLoaded
   ) {
     if (this.pendingTo === to) {
@@ -334,7 +342,7 @@ export function defineBasicLoader<Data>(
 
     const entries = router[LOADER_ENTRIES_KEY]!
     let entry = entries.get(loader) as
-      | DataLoaderEntryBase<Data, ErrorDefault>
+      | DataLoaderBasicEntry<Data, ErrorDefault>
       | undefined
 
     // console.log(`-- useDataLoader called ${options.key} --`)
@@ -368,7 +376,7 @@ export function defineBasicLoader<Data>(
       )
     }
 
-    entry = entries.get(loader)! as DataLoaderEntryBase<Data, ErrorDefault>
+    entry = entries.get(loader)! as DataLoaderBasicEntry<Data, ErrorDefault>
 
     // add ourselves to the parent entry children
     if (parentEntry) {
@@ -398,7 +406,12 @@ export function defineBasicLoader<Data>(
       .pendingLoad!.then(() => {
         // nested loaders might wait for all loaders to be ready before setting data
         // so we need to return the staged value if it exists as it will be the latest one
-        return entry!.staged === STAGED_NO_VALUE ? data.value : entry!.staged
+        return entry.staged === STAGED_NO_VALUE
+          ? // exclude navigation results from the returned data
+            entry.stagedNavigationResult
+            ? Promise.reject(entry.stagedNavigationResult)
+            : data.value
+          : entry.staged
       })
       // we only want the error if we are nesting the loader
       // otherwise this will end up in "Unhandled promise rejection"
@@ -427,9 +440,9 @@ export function defineBasicLoader<Data>(
 /**
  * Dev only warning for loaders that return/throw NavigationResult but are not exposed
  *
- * @param to - [TODO:description]
- * @param options - [TODO:description]
- * @param useDataLoader - [TODO:description]
+ * @param to - target location
+ * @param options - options used to define the loader
+ * @param useDataLoader - the data loader composable
  */
 function warnNonExposedLoader({
   to,
@@ -512,3 +525,11 @@ export type UseDataLoaderBasic<Data> = UseDataLoaderBasic_LaxData<Data>
 
 export interface UseDataLoaderBasic_DefinedData<Data>
   extends UseDataLoader<Data, ErrorDefault> {}
+
+export interface DataLoaderBasicEntry<
+  TData,
+  TError = unknown,
+  TDataInitial extends TData | undefined = TData | undefined,
+> extends DataLoaderEntryBase<TData, TError, TDataInitial> {
+  stagedNavigationResult: NavigationResult | null
+}

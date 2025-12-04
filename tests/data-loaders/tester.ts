@@ -616,6 +616,143 @@ export function testDefineLoader<Context = void>(
       })
     }
 
+    // https://github.com/posva/unplugin-vue-router/issues/584
+    it(`skips child loaders if parent returns a NavigationResult, commit: ${commit}`, async () => {
+      // Parent loader that redirects
+      const parentLoader = mockedLoader({
+        key: 'parent',
+        commit,
+        lazy: false,
+      })
+      parentLoader.spy.mockResolvedValue(new NavigationResult('/redirect'))
+
+      const childLoader = mockedLoader({
+        key: 'child',
+        commit,
+        lazy: false,
+      })
+      let calls = 0
+      childLoader.spy.mockImplementation(async () => {
+        const parentData = await parentLoader.loader()
+        console.log('parent data in child loader:', parentData)
+        calls++
+        // never called
+        return 'child'
+      })
+
+      const router = getRouter()
+      router.addRoute({
+        name: '_test',
+        path: '/fetch',
+        component: defineComponent({
+          setup() {
+            const { data: parent } = parentLoader.loader()
+            const { data: child } = childLoader.loader()
+            return { parent, child }
+          },
+          template: `<p>{{ parent }}, {{ child }}</p>`,
+        }),
+        meta: {
+          loaders: [parentLoader.loader, childLoader.loader],
+        },
+      })
+
+      mount(RouterViewMock, {
+        global: {
+          plugins: [
+            [DataLoaderPlugin, { router }],
+            ...(plugins?.(customContext!) || []),
+            router,
+          ],
+        },
+      })
+
+      await router.push('/fetch?p=test')
+      expect(router.currentRoute.value.path).toBe('/redirect')
+
+      // we still call the loaders themselves because they are registered
+      expect(parentLoader.spy).toHaveBeenCalledTimes(1)
+      expect(childLoader.spy).toHaveBeenCalledTimes(1)
+      expect(calls).toBe(0)
+    })
+
+    it(`can catch parent NavigationResult in child loaders, commit: ${commit}`, async () => {
+      // Parent loader that redirects
+      const parentLoader = mockedLoader({
+        key: 'parent',
+        commit,
+        lazy: false,
+      })
+      parentLoader.spy.mockResolvedValue(new NavigationResult('/redirect'))
+
+      const childLoader = mockedLoader({
+        key: 'child',
+        commit,
+        lazy: false,
+      })
+      let calls = 0
+      childLoader.spy.mockImplementation(async () => {
+        await expect(parentLoader.loader()).rejects.toThrow(NavigationResult)
+        calls++
+        return 'child'
+      })
+
+      const grandchildLoader = mockedLoader({
+        key: 'grandchild',
+        commit,
+        lazy: false,
+      })
+      grandchildLoader.spy.mockImplementation(async () => {
+        // we caught it so the loader ran but the navigation is stil aborted
+        await expect(childLoader.loader()).resolves.toBe('child')
+        calls++
+        return 'grandchild'
+      })
+
+      const router = getRouter()
+      router.addRoute({
+        name: '_test',
+        path: '/fetch',
+        component: defineComponent({
+          setup() {
+            const { data: parent } = parentLoader.loader()
+            const { data: child } = childLoader.loader()
+            const { data: grandchild } = grandchildLoader.loader()
+            return { parent, child, grandchild }
+          },
+          template: `<p>{{ parent }}, {{ child }}, {{ grandchild }}</p>`,
+        }),
+        meta: {
+          loaders: [
+            parentLoader.loader,
+            childLoader.loader,
+            grandchildLoader.loader,
+          ],
+        },
+      })
+
+      mount(RouterViewMock, {
+        global: {
+          plugins: [
+            [DataLoaderPlugin, { router }],
+            ...(plugins?.(customContext!) || []),
+            router,
+          ],
+        },
+      })
+
+      await router.push('/fetch?p=test')
+      expect(router.currentRoute.value.path).toBe('/redirect')
+
+      // we still call the loaders themselves because they are registered
+      expect(parentLoader.spy).toHaveBeenCalledTimes(1)
+      expect(childLoader.spy).toHaveBeenCalledTimes(1)
+      expect(grandchildLoader.spy).toHaveBeenCalledTimes(1)
+
+      // ensure the expects within the loaders ran
+      expect(calls).toBe(2)
+    })
+
     it(`works with canceled duplicated navigations, commit: ${commit}`, async () => {
       if (commit === 'immediate') {
         return

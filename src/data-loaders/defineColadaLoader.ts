@@ -503,9 +503,12 @@ export function defineColadaLoader<Data>(
       .pendingLoad!.then(() => {
         // nested loaders might wait for all loaders to be ready before setting data
         // so we need to return the staged value if it exists as it will be the latest one
-        return entry!.staged === STAGED_NO_VALUE
-          ? ext!.data.value
-          : entry!.staged
+        return entry.staged === STAGED_NO_VALUE
+          ? // exclude navigation results from the returned data
+            ext.data.value instanceof NavigationResult
+            ? Promise.reject(ext.data.value)
+            : ext.data.value
+          : entry.staged
       })
       // we only want the error if we are nesting the loader
       // otherwise this will end up in "Unhandled promise rejection"
