@@ -211,7 +211,7 @@ export function defineQueryLoader<Data, isLazy extends boolean>(
     if (this.pendingTo === to && !this.error.value) {
       console.log('👉 commit', this.staged)
       if (process.env.NODE_ENV === 'development') {
-        if (this.staged === STAGED_NO_VALUE && this.stagedError === null) {
+        if (this.staged === STAGED_NO_VALUE) {
           console.warn(
             `Loader "${options.queryKey?.join(
               '/'
