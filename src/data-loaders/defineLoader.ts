@@ -196,7 +196,7 @@ export function defineBasicLoader<Data>(
     // save the current context to restore it later
     const currentContext = getCurrentContext()
 
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV !== 'production') {
       if (parent !== currentContext[0]) {
         console.warn(
           `❌👶 "${options.key}" has a different parent than the current context. This shouldn't be happening. Please report a bug with a reproduction to https://github.com/posva/unplugin-vue-router/`
@@ -300,8 +300,12 @@ export function defineBasicLoader<Data>(
   ) {
     if (this.pendingTo === to) {
       // console.log('👉 commit', this.staged)
-      if (process.env.NODE_ENV === 'development') {
-        if (this.staged === STAGED_NO_VALUE) {
+      if (process.env.NODE_ENV !== 'production') {
+        if (
+          this.staged === STAGED_NO_VALUE &&
+          this.stagedError === null &&
+          this.stagedNavigationResult === null
+        ) {
           console.warn(
             `Loader "${options.key}"'s "commit()" was called but there is no staged data.`
           )
@@ -530,6 +534,4 @@ export interface DataLoaderBasicEntry<
   TData,
   TError = unknown,
   TDataInitial extends TData | undefined = TData | undefined,
-> extends DataLoaderEntryBase<TData, TError, TDataInitial> {
-  stagedNavigationResult: NavigationResult | null
-}
+> extends DataLoaderEntryBase<TData, TError, TDataInitial> {}

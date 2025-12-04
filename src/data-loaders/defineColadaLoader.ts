@@ -180,6 +180,7 @@ export function defineColadaLoader<Data>(
         },
         staged: STAGED_NO_VALUE,
         stagedError: null,
+        stagedNavigationResult: null,
         commit,
 
         tracked: new Map(),
@@ -201,7 +202,7 @@ export function defineColadaLoader<Data>(
     // save the current context to restore it later
     const currentContext = getCurrentContext()
 
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV !== 'production') {
       if (parent !== currentContext[0]) {
         console.warn(
           `❌👶 "${key}" has a different parent than the current context. This shouldn't be happening. Please report a bug with a reproduction to https://github.com/posva/unplugin-vue-router/`
@@ -263,6 +264,7 @@ export function defineColadaLoader<Data>(
     entry.staged = STAGED_NO_VALUE
     // preserve error until data is committed
     entry.stagedError = error.value
+    entry.stagedNavigationResult = null
 
     const currentLoad = ext[reload ? 'refetch' : 'refresh']()
       .then(() => {
@@ -295,6 +297,8 @@ export function defineColadaLoader<Data>(
             const newData = ext.data.value
             if (newData instanceof NavigationResult) {
               to.meta[NAVIGATION_RESULTS_KEY]!.push(newData)
+              entry.stagedNavigationResult = newData
+              // NOTE: we currently don't restore the navigation result from the queryCache
             } else {
               entry.staged = newData
               entry.stagedError = null
@@ -353,8 +357,12 @@ export function defineColadaLoader<Data>(
     // console.log(`👉 commit "${key}"`)
     if (this.pendingTo === to) {
       // console.log(' ->', this.staged)
-      if (process.env.NODE_ENV === 'development') {
-        if (this.staged === STAGED_NO_VALUE) {
+      if (process.env.NODE_ENV !== 'production') {
+        if (
+          this.staged === STAGED_NO_VALUE &&
+          this.stagedError === null &&
+          this.stagedNavigationResult === null
+        ) {
           console.warn(
             `Loader "${key}"'s "commit()" was called but there is no staged data.`
           )
@@ -364,7 +372,7 @@ export function defineColadaLoader<Data>(
       if (this.staged !== STAGED_NO_VALUE) {
         this.data.value = this.staged
         if (
-          process.env.NODE_ENV === 'development' &&
+          process.env.NODE_ENV !== 'production' &&
           !this.tracked.has(joinKeys(key))
         ) {
           console.warn(
@@ -505,8 +513,8 @@ export function defineColadaLoader<Data>(
         // so we need to return the staged value if it exists as it will be the latest one
         return entry.staged === STAGED_NO_VALUE
           ? // exclude navigation results from the returned data
-            ext.data.value instanceof NavigationResult
-            ? Promise.reject(ext.data.value)
+            entry.stagedNavigationResult
+            ? Promise.reject(entry.stagedNavigationResult)
             : ext.data.value
           : entry.staged
       })
