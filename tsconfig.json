@@ -14,8 +14,6 @@
     "dist"
   ],
   "compilerOptions": {
-    // this makes auto import canonical (e.g. 'src/utils' instead of '../utils')
-    // "baseUrl": ".",
     "rootDir": ".",
     "jsx": "preserve",
     "target": "ESNext",
