@@ -33,6 +33,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/[a].[b]': RouteRecordInfo<
+      '/[a].[b]',
+      '/:a/:b',
+      { a: string, b: string },
+      { a: string, b: string },
+      | never
+    >,
     'not-found': RouteRecordInfo<
       'not-found',
       '/:path(.*)',
@@ -124,6 +131,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/opt.[[num=int]]': RouteRecordInfo<
+      '/opt.[[num=int]]',
+      '/opt/:num?',
+      { num?: number | null },
+      { num: number | null },
+      | never
+    >,
     '/tests/[[optional]]/end': RouteRecordInfo<
       '/tests/[[optional]]/end',
       '/tests/:optional?/end',
@@ -183,6 +197,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/(home).vue': {
       routes:
         | '/(home)'
+      views:
+        | never
+    }
+    'src/pages/[a].[b].vue': {
+      routes:
+        | '/[a].[b]'
       views:
         | never
     }
@@ -268,6 +288,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/nested/other.vue': {
       routes:
         | '/nested/other'
+      views:
+        | never
+    }
+    'src/pages/opt.[[num=int]].vue': {
+      routes:
+        | '/opt.[[num=int]]'
       views:
         | never
     }
