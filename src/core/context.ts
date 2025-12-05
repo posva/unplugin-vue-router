@@ -300,10 +300,10 @@ if (import.meta.hot) {
   })
 }`
 
-    const newAutoRoutes = `${imports}${resolverCode}\n${hmr}`
+    const newAutoResolver = `${imports}${resolverCode}\n${hmr}`
 
     // prepend it to the code
-    return newAutoRoutes
+    return newAutoResolver
   }
 
   function generateRoutes() {
