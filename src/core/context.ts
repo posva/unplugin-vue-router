@@ -5,7 +5,7 @@ import { asRoutePath, ImportsMap, logTree, throttle } from './utils'
 import { generateRouteNamedMap } from '../codegen/generateRouteMap'
 import { generateRouteFileInfoMap } from '../codegen/generateRouteFileInfoMap'
 import { MODULE_ROUTES_PATH } from './moduleConstants'
-import { generateRouteRecord } from '../codegen/generateRouteRecords'
+import { generateRouteRecords } from '../codegen/generateRouteRecords'
 import { glob } from 'tinyglobby'
 import { dirname, parse as parsePathe, relative, resolve } from 'pathe'
 import { ServerContext } from '../options'
@@ -309,7 +309,7 @@ if (import.meta.hot) {
   function generateRoutes() {
     const importsMap = new ImportsMap()
 
-    const routeList = `export const routes = ${generateRouteRecord(
+    const routeList = `export const routes = ${generateRouteRecords(
       routeTree,
       options,
       importsMap

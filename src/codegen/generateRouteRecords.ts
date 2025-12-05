@@ -13,7 +13,7 @@ import { pad, stringToStringType } from '../utils'
  * @param indent - the indent level
  * @returns the code of the routes as a string
  */
-export function generateRouteRecord(
+export function generateRouteRecords(
   node: TreeNode,
   options: ResolvedOptions,
   importsMap: ImportsMap,
@@ -23,7 +23,7 @@ export function generateRouteRecord(
     return `[
 ${node
   .getChildrenSorted()
-  .map((child) => generateRouteRecord(child, options, importsMap, indent + 1))
+  .map((child) => generateRouteRecords(child, options, importsMap, indent + 1))
   .join(',\n')}
 ]`
   }
@@ -91,7 +91,7 @@ ${overrides.props != null ? indentStr + `props: ${overrides.props},\n` : ''}${
       ? `children: [
 ${node
   .getChildrenSorted()
-  .map((child) => generateRouteRecord(child, options, importsMap, indent + 2))
+  .map((child) => generateRouteRecords(child, options, importsMap, indent + 2))
   .join(',\n')}
 ${indentStr}],`
       : '/* no children */'
