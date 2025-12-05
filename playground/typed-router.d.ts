@@ -184,6 +184,13 @@ declare module 'vue-router/auto-routes' {
       { lang: ParamValue<false> },
       | never
     >,
+    '/emoji-🤡': RouteRecordInfo<
+      '/emoji-🤡',
+      '/emoji-🤡',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/feature-1/': RouteRecordInfo<
       '/feature-1/',
       '/feature-1',
@@ -609,6 +616,12 @@ declare module 'vue-router/auto-routes' {
     'src/docs/real/index.md': {
       routes:
         | '/docs/[lang]/real/'
+      views:
+        | never
+    }
+    'src/pages/emoji-🤡.vue': {
+      routes:
+        | '/emoji-🤡'
       views:
         | never
     }

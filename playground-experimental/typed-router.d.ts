@@ -82,6 +82,13 @@ declare module 'vue-router/auto-routes' {
       { section: string | null },
       | never
     >,
+    '/emoji-🤡': RouteRecordInfo<
+      '/emoji-🤡',
+      '/emoji-🤡',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/events/[when=date]': RouteRecordInfo<
       '/events/[when=date]',
       '/events/:when',
@@ -218,6 +225,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/blog/info/[[section]].vue': {
       routes:
         | '/blog/info/[[section]]'
+      views:
+        | never
+    }
+    'src/pages/emoji-🤡.vue': {
+      routes:
+        | '/emoji-🤡'
       views:
         | never
     }
