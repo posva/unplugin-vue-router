@@ -558,6 +558,7 @@ const enum ParseFileSegmentState {
   param, // within []
   paramParser, // [param=type]
   modifier, // after the ]
+  charCode, // [x+HH] hex character code
 }
 
 /**
@@ -633,6 +634,19 @@ function parseFileSegment(
       params.push(currentTreeRouteParam)
       subSegments.push(currentTreeRouteParam)
       currentTreeRouteParam = createEmptyRouteParam()
+    } else if (state === ParseFileSegmentState.charCode) {
+      if (buffer.length !== 2) {
+        throw new SyntaxError(
+          `Invalid character code in segment "${segment}". Hex code must be exactly 2 digits, got "${buffer}"`
+        )
+      }
+      const hexCode = parseInt(buffer, 16)
+      if (!Number.isInteger(hexCode) || hexCode < 0 || hexCode > 255) {
+        throw new SyntaxError(
+          `Invalid hex code "${buffer}" in segment "${segment}"`
+        )
+      }
+      pathSegment += String.fromCharCode(hexCode)
     }
     buffer = ''
   }
@@ -675,8 +689,19 @@ function parseFileSegment(
         currentTreeRouteParam.isSplat = true
         pos += 2 // skip the other 2 dots
       } else if (c === '=') {
+        // TODO: better error if param name is empty
         state = ParseFileSegmentState.paramParser
         paramParserBuffer = ''
+      } else if (
+        c === '+' &&
+        buffer === 'x' &&
+        !currentTreeRouteParam.isSplat &&
+        !currentTreeRouteParam.optional
+      ) {
+        // Found [x+ pattern - switch to hex character code parsing
+        // This is NOT a parameter, it's a special character encoding
+        buffer = ''
+        state = ParseFileSegmentState.charCode
       } else {
         buffer += c
       }
@@ -700,15 +725,24 @@ function parseFileSegment(
       } else {
         paramParserBuffer += c
       }
+    } else if (state === ParseFileSegmentState.charCode) {
+      // Parsing hex character code: [x+HH] where HH is 2 hex digits
+      if (c === ']') {
+        consumeBuffer()
+        state = ParseFileSegmentState.static
+      } else {
+        buffer += c
+      }
     }
   }
 
   if (
     state === ParseFileSegmentState.param ||
     state === ParseFileSegmentState.paramOptional ||
-    state === ParseFileSegmentState.paramParser
+    state === ParseFileSegmentState.paramParser ||
+    state === ParseFileSegmentState.charCode
   ) {
-    throw new Error(`Invalid segment: "${segment}"`)
+    throw new SyntaxError(`Invalid segment: "${segment}"`)
   }
 
   if (buffer) {

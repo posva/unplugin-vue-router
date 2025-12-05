@@ -300,4 +300,32 @@ describe('EditableTreeNode', () => {
     expect(parent.fullPath).toBe('/bar')
     expect(child.fullPath).toBe('/bar/child')
   })
+
+  describe('special characters (same as raw [x+hh])', () => {
+    it('supports hex encoding in path format with single segment', () => {
+      const tree = new PrefixTree(RESOLVED_OPTIONS)
+      const editable = new EditableTreeNode(tree)
+
+      const child = editable.insert('.well-known', 'file.vue')
+      expect(child).toBeDefined()
+
+      expect(child.fullPath).toBe('/.well-known')
+      expect(child.path).toBe('/.well-known')
+    })
+
+    it('special character within a param', () => {
+      const tree = new PrefixTree(RESOLVED_OPTIONS)
+      const editable = new EditableTreeNode(tree)
+
+      const child = editable.insert(':id.test', 'file.vue')
+
+      expect(child.fullPath).toBe('/:id.test')
+      expect(child.params).toMatchObject([
+        {
+          paramName: 'id',
+          modifier: '',
+        },
+      ])
+    })
+  })
 })

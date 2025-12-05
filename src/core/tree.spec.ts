@@ -140,6 +140,146 @@ describe('Tree', () => {
     })
   })
 
+  describe('special character encoding [x+hh]', () => {
+    it('parses single hex character code', () => {
+      const tree = new PrefixTree(RESOLVED_OPTIONS)
+      const child = tree.insert('[x+2E]well-known', '[x+2E]well-known.vue')
+      expect(child).toBeDefined()
+
+      expect(child.value).toMatchObject({
+        rawSegment: '[x+2E]well-known',
+        pathSegment: '.well-known',
+      })
+      expect(child.fullPath).toBe('/.well-known')
+      expect(child.value.params).toEqual([])
+      expect(child.value.isStatic()).toBe(true)
+    })
+
+    it('parses multiple hex character codes in separate brackets', () => {
+      const tree = new PrefixTree(RESOLVED_OPTIONS)
+      const child = tree.insert('[x+2E][x+2F]test', '[x+2E][x+2F]test.vue')
+
+      expect(child.value).toMatchObject({
+        rawSegment: '[x+2E][x+2F]test',
+        pathSegment: './test',
+      })
+      expect(child.fullPath).toBe('/./test')
+      expect(child.value.isStatic()).toBe(true)
+    })
+
+    it('parses hex codes mixed with static prefix', () => {
+      const tree = new PrefixTree(RESOLVED_OPTIONS)
+      const child = tree.insert('prefix-[x+2E]-suffix', 'file.vue')
+
+      expect(child.value).toMatchObject({
+        rawSegment: 'prefix-[x+2E]-suffix',
+        pathSegment: 'prefix-.-suffix',
+      })
+      expect(child.fullPath).toBe('/prefix-.-suffix')
+      expect(child.value.isStatic()).toBe(true)
+    })
+
+    it('creates smiley route path', () => {
+      const tree = new PrefixTree(RESOLVED_OPTIONS)
+      const smileyNode = tree.insert(
+        'smileys/[x+3A]-[x+29]',
+        'smileys/[x+3A]-[x+29].vue'
+      )
+
+      expect(smileyNode.value).toMatchObject({
+        pathSegment: ':-)',
+      })
+      expect(smileyNode.fullPath).toBe('/smileys/:-)')
+      expect(smileyNode.value.isStatic()).toBe(true)
+    })
+
+    it('allows lowercase hex codes', () => {
+      const tree = new PrefixTree(RESOLVED_OPTIONS)
+      tree.insert('[x+2e]test', '[x+2e]test.vue')
+      const child = tree.children.get('[x+2e]test')!
+
+      expect(child.value.pathSegment).toBe('.test')
+    })
+
+    it('allows mixed case hex codes', () => {
+      const tree = new PrefixTree(RESOLVED_OPTIONS)
+      const child = tree.insert('[x+2F][x+2e]', 'file.vue')
+      expect(child.value.pathSegment).toBe('/.')
+    })
+
+    it('throws on invalid hex code (non-hex characters)', () => {
+      const tree = new PrefixTree(RESOLVED_OPTIONS)
+
+      expect(() => tree.insert('[x+ZZ]', '[x+ZZ].vue')).toThrow(
+        /Invalid hex code "ZZ"/
+      )
+    })
+
+    it('throws on incomplete hex code (single digit)', () => {
+      const tree = new PrefixTree(RESOLVED_OPTIONS)
+
+      expect(() => tree.insert('[x+2]', '[x+2].vue')).toThrow(
+        /must be exactly 2 digits/
+      )
+    })
+
+    it('throws on too many digits in hex code', () => {
+      const tree = new PrefixTree(RESOLVED_OPTIONS)
+
+      expect(() => tree.insert('[x+2EE]', '[x+2EE].vue')).toThrow(
+        /code must be exactly 2 digits/
+      )
+    })
+
+    it('throws on empty hex code', () => {
+      const tree = new PrefixTree(RESOLVED_OPTIONS)
+
+      expect(() => tree.insert('[x+]', '[x+].vue')).toThrow(
+        /must be exactly 2 digits/
+      )
+    })
+
+    it('throws on unclosed hex code bracket', () => {
+      const tree = new PrefixTree(RESOLVED_OPTIONS)
+
+      expect(() => tree.insert('[x+2E', '[x+2E.vue')).toThrow(/Invalid segment/)
+    })
+
+    it('does not interfere with regular params', () => {
+      const tree = new PrefixTree(RESOLVED_OPTIONS)
+      tree.insert('[id]-[x+2E]-[name]', '[id]-[x+2E]-[name].vue')
+      const child = tree.children.get('[id]-[x+2E]-[name]')!
+
+      expect(child.value.isParam()).toBe(true)
+      expect(child.value.params).toHaveLength(2)
+      expect(child.value.params[0]).toMatchObject({ paramName: 'id' })
+      expect(child.value.params[1]).toMatchObject({ paramName: 'name' })
+      expect(child.value.pathSegment).toContain('-.-')
+      expect(child.value.pathSegment).toContain(':id')
+      expect(child.value.pathSegment).toContain(':name')
+    })
+
+    it('does not treat param starting with x as hex code', () => {
+      const tree = new PrefixTree(RESOLVED_OPTIONS)
+      tree.insert('[xid]', '[xid].vue')
+      const child = tree.children.get('[xid]')!
+
+      expect(child.value.isParam()).toBe(true)
+      expect(child.value.params[0]).toMatchObject({ paramName: 'xid' })
+      expect(child.value.pathSegment).toBe(':xid')
+    })
+
+    it('treats param named exactly x as normal param', () => {
+      const tree = new PrefixTree(RESOLVED_OPTIONS)
+      tree.insert('[x]', '[x].vue')
+      const child = tree.children.get('[x]')!
+
+      expect(child.value.isParam()).toBe(true)
+      expect(child.value.params[0]).toMatchObject({ paramName: 'x' })
+      expect(child.value.pathSegment).toBe(':x')
+    })
+  })
+
   it('separate param names from static segments', () => {
     const tree = new PrefixTree(RESOLVED_OPTIONS)
     tree.insert('[id]_a', '[id]_a.vue')
