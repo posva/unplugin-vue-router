@@ -603,9 +603,13 @@ function parseFileSegment(
 
   function consumeBuffer() {
     if (state === ParseFileSegmentState.static) {
-      // add the buffer to the path segment as is
-      pathSegment += buffer
-      subSegments.push(buffer)
+      // Encode static segments for URL safety, but preserve slashes from dotNesting
+      const encodedBuffer = buffer
+        .split('/')
+        .map((part) => encodeURIComponent(part))
+        .join('/')
+      pathSegment += encodedBuffer
+      subSegments.push(encodedBuffer)
     } else if (state === ParseFileSegmentState.modifier) {
       currentTreeRouteParam.paramName = buffer
       currentTreeRouteParam.parser = paramParserBuffer || null

@@ -61,6 +61,36 @@ exports[`generateRouteRecord > correctly names index files 1`] = `
 ]"
 `;
 
+exports[`generateRouteRecord > encodes special characters in path segments 1`] = `
+"[
+  {
+    path: '/caf%C3%A9',
+    name: '/café',
+    component: () => import('café.vue'),
+    /* no children */
+  },
+  {
+    path: '/my%20page',
+    name: '/my page',
+    component: () => import('my page.vue'),
+    /* no children */
+  },
+  {
+    path: '/users',
+    /* internal name: '/users' */
+    /* no component */
+    children: [
+      {
+        path: 'hello%20world',
+        name: '/users/hello world',
+        component: () => import('users/hello world.vue'),
+        /* no children */
+      }
+    ],
+  }
+]"
+`;
+
 exports[`generateRouteRecord > generate custom imports 1`] = `
 "[
   {

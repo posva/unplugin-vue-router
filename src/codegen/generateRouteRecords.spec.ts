@@ -105,6 +105,14 @@ describe('generateRouteRecord', () => {
     expect(generateRouteRecordSimple(tree)).toMatchSnapshot()
   })
 
+  it('encodes special characters in path segments', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+    tree.insert('my page', 'my page.vue')
+    tree.insert('users/hello world', 'users/hello world.vue')
+    tree.insert('café', 'café.vue')
+    expect(generateRouteRecordSimple(tree)).toMatchSnapshot()
+  })
+
   it('generate static imports', () => {
     const options = resolveOptions({
       ...DEFAULT_OPTIONS,
