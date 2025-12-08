@@ -2,14 +2,14 @@ import { basename } from 'pathe'
 import { describe, expect, it } from 'vitest'
 import { PrefixTree, TreeNode } from '../core/tree'
 import { resolveOptions } from '../options'
-import { generateRouteRecord } from './generateRouteRecords'
+import { generateRouteRecords } from './generateRouteRecords'
 import { ImportsMap } from '../core/utils'
 
 const DEFAULT_OPTIONS = resolveOptions({})
 
 describe('generateRouteRecord', () => {
   function generateRouteRecordSimple(tree: TreeNode) {
-    return generateRouteRecord(
+    return generateRouteRecords(
       tree,
       {
         ...DEFAULT_OPTIONS,
@@ -115,7 +115,7 @@ describe('generateRouteRecord', () => {
     tree.insert('b', 'b.vue')
     tree.insert('nested/file/c', 'nested/file/c.vue')
     const importList = new ImportsMap()
-    expect(generateRouteRecord(tree, options, importList)).toMatchSnapshot()
+    expect(generateRouteRecords(tree, options, importList)).toMatchSnapshot()
 
     expect(importList.toString()).toMatchSnapshot()
   })
@@ -131,7 +131,7 @@ describe('generateRouteRecord', () => {
     tree.insert('b', 'b.vue')
     tree.insert('nested/file/c', 'nested/file/c.vue')
     const importList = new ImportsMap()
-    expect(generateRouteRecord(tree, options, importList)).toMatchSnapshot()
+    expect(generateRouteRecords(tree, options, importList)).toMatchSnapshot()
 
     expect(importList.toString()).toMatchSnapshot()
   })
