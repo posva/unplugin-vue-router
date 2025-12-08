@@ -9,4 +9,3 @@ const route = useRoute()
     <pre>{{ route }}</pre>
   </div>
 </template>
-
