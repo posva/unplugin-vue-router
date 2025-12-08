@@ -185,7 +185,7 @@
     "@pinia/colada": "^0.18.0",
     "@playwright/test": "^1.57.0",
     "@posva/prompts": "^2.4.4",
-    "@shikijs/vitepress-twoslash": "3.18.0",
+    "@shikijs/vitepress-twoslash": "3.19.0",
     "@tanstack/vue-query": "^5.92.1",
     "@types/babel__generator": "^7.27.0",
     "@types/node": "^24.10.1",
