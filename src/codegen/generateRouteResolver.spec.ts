@@ -904,4 +904,20 @@ describe('generateRouteResolver', () => {
       "
     `)
   })
+
+  it('encodes special characters in route resolver paths', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+    tree.insert('my page', 'my page.vue')
+    tree.insert('users/hello world', 'users/hello world.vue')
+    tree.insert('café', 'café.vue')
+
+    const resolver = generateRouteResolver(
+      tree,
+      DEFAULT_OPTIONS,
+      new ImportsMap(),
+      new Map()
+    )
+
+    expect(resolver).toMatchSnapshot()
+  })
 })

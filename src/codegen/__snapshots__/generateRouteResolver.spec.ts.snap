@@ -1,0 +1,35 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`generateRouteResolver > encodes special characters in route resolver paths 1`] = `
+"
+const __route_0 = normalizeRouteRecord({
+  name: '/café',
+  path: new MatcherPatternPathStatic('/caf%C3%A9'),
+  components: {
+    'default': () => import('café.vue')
+  },
+})
+
+const __route_1 = normalizeRouteRecord({
+  name: '/my page',
+  path: new MatcherPatternPathStatic('/my%20page'),
+  components: {
+    'default': () => import('my page.vue')
+  },
+})
+
+const __route_2 = normalizeRouteRecord({
+  name: '/users/hello world',
+  path: new MatcherPatternPathStatic('/users/hello%20world'),
+  components: {
+    'default': () => import('users/hello world.vue')
+  },
+})
+
+export const resolver = createFixedResolver([
+  __route_2,  // /users/hello%20world
+  __route_0,  // /caf%C3%A9
+  __route_1,  // /my%20page
+])
+"
+`;
