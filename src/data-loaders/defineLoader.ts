@@ -468,16 +468,14 @@ function warnNonExposedLoader({
   }
 }
 
-export interface DefineDataLoaderOptions_LaxData
-  extends DefineDataLoaderOptionsBase_LaxData {
+export interface DefineDataLoaderOptions_LaxData extends DefineDataLoaderOptionsBase_LaxData {
   /**
    * Key to use for SSR state. This will be used to read the initial data from `initialData`'s object.
    */
   key?: string
 }
 
-export interface DefineDataLoaderOptions_DefinedData
-  extends DefineDataLoaderOptionsBase_DefinedData {
+export interface DefineDataLoaderOptions_DefinedData extends DefineDataLoaderOptionsBase_DefinedData {
   key?: string
 }
 
@@ -521,16 +519,20 @@ declare module 'vue-router' {
   }
 }
 
-export interface UseDataLoaderBasic_LaxData<Data>
-  extends UseDataLoader<Data | undefined, ErrorDefault> {}
+export interface UseDataLoaderBasic_LaxData<Data> extends UseDataLoader<
+  Data | undefined,
+  ErrorDefault
+> {}
 
 /**
  * @deprecated use {@link UseDataLoaderBasic_LaxData} instead
  */
 export type UseDataLoaderBasic<Data> = UseDataLoaderBasic_LaxData<Data>
 
-export interface UseDataLoaderBasic_DefinedData<Data>
-  extends UseDataLoader<Data, ErrorDefault> {}
+export interface UseDataLoaderBasic_DefinedData<Data> extends UseDataLoader<
+  Data,
+  ErrorDefault
+> {}
 
 export interface DataLoaderBasicEntry<
   TData,

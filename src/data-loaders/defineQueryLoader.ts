@@ -340,7 +340,8 @@ export function defineQueryLoader<Data, isLazy extends boolean>(
 }
 
 export interface DefineQueryLoaderOptions<isLazy extends boolean, Data>
-  extends DefineDataLoaderOptionsBase_LaxData<isLazy>,
+  extends
+    DefineDataLoaderOptionsBase_LaxData<isLazy>,
     // NOTE: queryFn is always needed and passed as the first argument
     Omit<QueryObserverOptions<Data>, 'queryFn'> {}
 

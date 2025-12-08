@@ -14,11 +14,11 @@
     "@vue/tsconfig": "^0.8.1",
     "json-server": "^0.17.4",
     "unplugin-vue-router": "workspace:*",
-    "vite": "^7.2.6"
+    "vite": "^7.2.7"
   },
   "dependencies": {
     "@pinia/colada": "^0.18.0",
-    "@tanstack/vue-query": "^5.92.0",
+    "@tanstack/vue-query": "^5.92.1",
     "mande": "^2.0.9",
     "pinia": "^3.0.4",
     "vue": "^3.5.25",
