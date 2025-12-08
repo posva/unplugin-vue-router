@@ -277,8 +277,7 @@ type _ExtractDocumentType<Doc> =
   Doc extends DocumentReference<infer D, any> ? D : unknown
 
 export interface DefineVueFireDataLoaderOptions<isLazy extends boolean>
-  extends DefineDataLoaderOptionsBase<isLazy>,
-    UseDocumentOptions {
+  extends DefineDataLoaderOptionsBase<isLazy>, UseDocumentOptions {
   /**
    * Key to use for SSR state.
    */

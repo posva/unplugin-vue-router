@@ -11,8 +11,9 @@ export const enum TreeNodeType {
   param,
 }
 
-export interface RouteRecordOverride
-  extends Partial<Pick<RouteRecordRaw, 'meta' | 'props' | 'alias' | 'path'>> {
+export interface RouteRecordOverride extends Partial<
+  Pick<RouteRecordRaw, 'meta' | 'props' | 'alias' | 'path'>
+> {
   name?: string | undefined | false
 
   /**
@@ -25,8 +26,7 @@ export interface RouteRecordOverride
   }
 }
 
-export interface RouteRecordOverrideQueryParamOptions
-  extends CustomRouteBlockQueryParamOptions {
+export interface RouteRecordOverrideQueryParamOptions extends CustomRouteBlockQueryParamOptions {
   default?: string
 }
 
