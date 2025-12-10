@@ -181,9 +181,6 @@ export function setupLoaderGuard({
           ? undefined
           : // return the non-lazy loader to commit changes after all loaders are done
             ret.catch((reason) => {
-              // errors: false, always abort the navigation
-              if (!errors) throw reason
-
               // errors: true, accept globally defined errors
               if (errors === true) {
                 // is the error a globally expected error
@@ -194,10 +191,11 @@ export function setupLoaderGuard({
                 )
                   return
               } else if (
+                errors && // errors != false
                 // use local error option if it exists first and then the global one
-                Array.isArray(errors)
+                (Array.isArray(errors)
                   ? errors.some((Err) => reason instanceof Err)
-                  : errors(reason)
+                  : errors(reason))
               ) {
                 return
               }
