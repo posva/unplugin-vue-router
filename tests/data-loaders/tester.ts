@@ -221,7 +221,7 @@ export function testDefineLoader<Context = void>(
 
   describe.each(COMMIT_MODES)('commit: %s', (commit) => {
     describe.each(LAZY_MODES)('lazy: %s', (lazy) => {
-      it(`can resolve a "null" value`, async () => {
+      it(`can resolve a "null" value after an error`, async () => {
         const spy = vi
           .fn<(...args: unknown[]) => Promise<unknown>>()
           .mockResolvedValueOnce(null)
