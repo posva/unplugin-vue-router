@@ -36,6 +36,8 @@
 
 ### Bug Fixes
 
+If you are using the [Volar plugin](https://uvr.esm.is/guide/typescript.html#automatically-typed-useroute) to automatically type `useRoute()`, please update to this version and **set your `rootDir` option in your `tsconfig.json` to match your project root**. This will ensure the plugin works correctly.
+
 - **volar:** use rootDir ([ca89fcf](https://github.com/posva/unplugin-vue-router/commit/ca89fcf7b1c31394d1db655f1add168eb3598105))
 
 # [0.17.0](https://github.com/posva/unplugin-vue-router/compare/v0.16.2...v0.17.0) (2025-11-14)
