@@ -39,6 +39,7 @@ import { dataOneSpy, dataTwoSpy } from '../data-loaders/loaders'
 import {
   createMemoryHistory,
   createRouter,
+  isNavigationFailure,
   NavigationFailureType,
   type RouteLocationNormalizedLoaded,
   type Router,
@@ -633,6 +634,78 @@ export function testDefineLoader<Context = void>(
         expect(alwaysAbortsLoader.spy).toHaveBeenCalledTimes(1)
       })
     }
+
+    describe('thrown errors in a aborted loader', () => {
+      it(`navigation does not reject if the loader throws the passed signal, commit: ${commit}`, async () => {
+        const loader = mockedLoader({
+          key: 'id',
+          commit,
+          lazy: false,
+        })
+
+        loader.spy.mockImplementation(
+          async (
+            _to: RouteLocationNormalizedLoaded,
+            { signal }: { signal?: AbortSignal }
+          ) => {
+            await delay(10)
+            signal?.throwIfAborted()
+            return 'ko'
+          }
+        )
+
+        const { router } = singleLoaderOneRoute(loader.loader)
+        const onError = vi.fn()
+        router.onError(onError)
+
+        const navigationPromise = router.push('/fetch')
+        // let the loaders start
+        await vi.advanceTimersByTimeAsync(5)
+
+        await expect(router.push('/?other')).resolves.toBeUndefined()
+        await vi.advanceTimersByTimeAsync(5)
+
+        const failure = await navigationPromise
+        expect(failure).toBeDefined()
+        expect(
+          isNavigationFailure(failure, NavigationFailureType.aborted)
+        ).toBe(true)
+        expect(router.currentRoute.value.fullPath).toBe('/?other')
+        // the error was not propagated
+        expect(onError).not.toHaveBeenCalled()
+      })
+
+      it(`navigation rejects if the loader throws an error, commit: ${commit}`, async () => {
+        const loader = mockedLoader({
+          key: 'id',
+          commit,
+          lazy: false,
+        })
+
+        loader.spy.mockImplementation(async () => {
+          await delay(10)
+          throw new Error('ko')
+        })
+
+        const { router } = singleLoaderOneRoute(loader.loader)
+        const onError = vi.fn()
+        router.onError(onError)
+
+        const navigationPromise = expect(router.push('/fetch')).rejects.toThrow(
+          'ko'
+        )
+        // let the loaders start
+        await vi.advanceTimersByTimeAsync(5)
+
+        await expect(router.push('/?other')).resolves.toBeUndefined()
+        await vi.advanceTimersByTimeAsync(5)
+
+        await navigationPromise
+        expect(router.currentRoute.value.fullPath).toBe('/?other')
+        // the error was not propagated
+        expect(onError).toHaveBeenCalledTimes(1)
+      })
+    })
 
     // https://github.com/posva/unplugin-vue-router/issues/584
     it(`skips child loaders if parent returns a NavigationResult, commit: ${commit}`, async () => {

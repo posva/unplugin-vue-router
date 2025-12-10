@@ -152,6 +152,7 @@ export function setupLoaderGuard({
     }
 
     const loaders: UseDataLoader[] = Array.from(to.meta[LOADER_SET_KEY]!)
+    const { signal } = to.meta[ABORT_CONTROLLER_KEY]!
 
     // unset the context so all loaders are executed as root loaders
     setCurrentContext([])
@@ -217,11 +218,16 @@ export function setupLoaderGuard({
       })
       .catch((error) =>
         error instanceof NavigationResult
-          ? error.value
-          : // let the error propagate to router.onError()
-            // we use never because the rejection means we never resolve a value and using anything else
-            // will not be valid from the navigation guard's perspective
-            Promise.reject<never>(error)
+          ? // TODO: why? add comment explaining
+            error.value
+          : // we don't want to propagate an error if it was our own abort signal
+            // this includes cancelled navigations + signal.throwIfAborted() calls
+            signal.aborted && error === signal.reason
+            ? false
+            : // let the error propagate to router.onError()
+              // we use never because the rejection means we never resolve a value and using anything else
+              // will not be valid from the navigation guard's perspective
+              Promise.reject<never>(error)
       )
       .finally(() => {
         // unset the context so mounting happens without an active context
