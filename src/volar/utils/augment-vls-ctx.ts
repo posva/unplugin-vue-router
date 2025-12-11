@@ -8,7 +8,6 @@ import type { Code } from '@vue/language-core'
  */
 export function augmentVlsCtx(content: Code[], codes: Code[]) {
   let from = -1
-  let to = -1
 
   for (let i = 0; i < content.length; i++) {
     const code = content[i]
@@ -19,16 +18,24 @@ export function augmentVlsCtx(content: Code[], codes: Code[]) {
 
     if (from === -1 && code.startsWith(`const __VLS_ctx`)) {
       from = i
-    } else if (from !== -1 && code === `}`) {
-      to = i
-      break
+    } else if (from !== -1) {
+      if (code === `}`) {
+        content.splice(i, 0, ...codes.map((code) => `...${code},\n`))
+        break
+      } else if (code === `;\n`) {
+        content.splice(
+          from + 1,
+          i - from,
+          `{\n`,
+          `...`,
+          ...content.slice(from + 1, i),
+          `,\n`,
+          ...codes.map((code) => `...${code},\n`),
+          `}`,
+          `;\n`
+        )
+        break
+      }
     }
   }
-
-  if (to === -1) {
-    return
-  }
-
-  // TODO: getCodes should return a Code[] type but unsure of how to build that
-  content.splice(to, 0, ...codes.map((code) => `...${code},\n`))
 }
