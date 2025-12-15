@@ -4,6 +4,7 @@ import {
   CustomRouteBlockQueryParamOptions,
 } from './customBlock'
 import { joinPath, mergeRouteRecordOverride, warn } from './utils'
+import { encodePath } from '../utils/encoding'
 
 export const enum TreeNodeType {
   static,
@@ -606,7 +607,7 @@ function parseFileSegment(
       // Encode static segments for URL safety, but preserve slashes from dotNesting
       const encodedBuffer = buffer
         .split('/')
-        .map((part) => encodeURIComponent(part))
+        .map((part) => encodePath(part))
         .join('/')
       pathSegment += encodedBuffer
       subSegments.push(encodedBuffer)

@@ -920,4 +920,27 @@ describe('generateRouteResolver', () => {
 
     expect(resolver).toMatchSnapshot()
   })
+
+  it('does not encode RFC 3986 valid path characters', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+
+    // @ character (common in profile/user routes)
+    tree.insert('@profile', '@profile.vue')
+    tree.insert('user@domain', 'user@domain.vue')
+
+    // Other valid sub-delimiters
+    tree.insert('hello!', 'hello!.vue')
+    tree.insert("it's-fine", "it's-fine.vue")
+    tree.insert('item(1)', 'item(1).vue')
+    tree.insert('foo*bar', 'foo*bar.vue')
+
+    const resolver = generateRouteResolver(
+      tree,
+      DEFAULT_OPTIONS,
+      new ImportsMap(),
+      new Map()
+    )
+
+    expect(resolver).toMatchSnapshot()
+  })
 })

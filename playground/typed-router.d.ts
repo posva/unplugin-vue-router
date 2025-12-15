@@ -186,7 +186,7 @@ declare module 'vue-router/auto-routes' {
     >,
     '/emoji-🤡': RouteRecordInfo<
       '/emoji-🤡',
-      '/emoji-🤡',
+      '/emoji-%F0%9F%A4%A1',
       Record<never, never>,
       Record<never, never>,
       | never

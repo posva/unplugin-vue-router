@@ -61,6 +61,49 @@ exports[`generateRouteRecord > correctly names index files 1`] = `
 ]"
 `;
 
+exports[`generateRouteRecord > does not encode RFC 3986 valid path characters 1`] = `
+"[
+  {
+    path: '/@profile',
+    name: '/@profile',
+    component: () => import('@profile.vue'),
+    /* no children */
+  },
+  {
+    path: '/foo*bar',
+    name: '/foo*bar',
+    component: () => import('foo*bar.vue'),
+    /* no children */
+  },
+  {
+    path: '/hello!',
+    name: '/hello!',
+    component: () => import('hello!.vue'),
+    /* no children */
+  },
+  {
+    path: '/it's-fine',
+    name: '/it's-fine',
+    component: () => import('it's-fine.vue'),
+    /* no children */
+  },
+  {
+    path: '/item(1)',
+    name: '/item(1)',
+    component: () => import('item(1).vue'),
+    /* no children */
+  },
+  {
+    path: '/user',
+    name: '/user',
+    components: {
+      'domain': () => import('user@domain.vue')
+    },
+    /* no children */
+  }
+]"
+`;
+
 exports[`generateRouteRecord > encodes special characters in path segments 1`] = `
 "[
   {
