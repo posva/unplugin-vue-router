@@ -454,12 +454,6 @@ describe(
 
       const router = getRouter()
       router.addRoute({
-        path: '/',
-        component: defineComponent({
-          template: `<div><p id="home">Home</p></div>`,
-        }),
-      })
-      router.addRoute({
         name: 'loader',
         path: '/loader/:id',
         meta: { loaders: [useLoaderWithParam] },
@@ -487,13 +481,13 @@ describe(
       expect(wrapper.find('#data').text()).toBe('data-1')
 
       await router.push('/')
-      expect(wrapper.find('#home').text()).toBe('Home')
+      expect(wrapper.text()).toBe('home')
 
       await router.push('/loader/2')
       expect(wrapper.find('#data').text()).toBe('data-2')
 
       await router.push('/')
-      expect(wrapper.find('#home').text()).toBe('Home')
+      expect(wrapper.text()).toBe('home')
 
       const entry1 = queryCache.get(['page-loader', '1'])!
       const entry2 = queryCache.get(['page-loader', '2'])!
