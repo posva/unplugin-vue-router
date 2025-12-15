@@ -24,7 +24,7 @@
     "url": "https://github.com/posva/unplugin-vue-router/issues"
   },
   "license": "MIT",
-  "repository": "/posva/unplugin-vue-router",
+  "repository": "posva/unplugin-vue-router",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
   "types": "dist/index.d.mts",
