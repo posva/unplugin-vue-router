@@ -1,3 +1,21 @@
+## [0.19.1](/compare/v0.19.0...v0.19.1) (2025-12-15)
+
+
+### Bug Fixes
+
+* **colada:** avoid tracking loaders effect a0a7a2f, closes #744
+* encode path 7e8027b
+* **loaders:** avoids Uncaught PromiseRejection if the signal is thrown 166ffe0, closes #768
+* only encode when needed afaf086
+* update VLS context type argumentation (#769) 583509f, closes #769
+
+
+### Features
+
+* x+hh for special characters df29c44, closes #576
+
+
+
 # [0.19.0](https://github.com/posva/unplugin-vue-router/compare/v0.18.0...v0.19.0) (2025-12-04)
 
 ### Bug Fixes
