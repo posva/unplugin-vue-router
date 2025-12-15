@@ -307,10 +307,10 @@ async function main() {
         ],
         { cwd: pkg.path },
       )
-      // NOTE: lint-staged is set up to format the markdown
-      // await runIfNotDry(`pnpm`, ['exec', 'prettier', '--write', 'CHANGELOG.md'], {
-      //   cwd: pkg.path,
-      // })
+      // TODO: lint-staged should be set up to format the markdown
+      await runIfNotDry(`pnpm`, ['exec', 'prettier', '--write', 'CHANGELOG.md'], {
+        cwd: pkg.path,
+      })
       // NOTE: pnpm publish automatically copies the LICENSE file
     }),
   )
