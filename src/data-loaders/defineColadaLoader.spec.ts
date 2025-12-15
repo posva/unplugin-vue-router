@@ -445,5 +445,67 @@ describe(
       expect(entry1.deps.size).toBe(1)
       expect(entry1.active).toBe(true)
     })
+
+    it('marks loader queries as inactive when navigating between pages with different parameters', async () => {
+      const useLoaderWithParam = defineColadaLoader({
+        query: async (to) => `data-${to.params.id}`,
+        key: (to) => ['page-loader', to.params.id as string],
+      })
+
+      const router = getRouter()
+      router.addRoute({
+        path: '/',
+        component: defineComponent({
+          template: `<div><p id="home">Home</p></div>`,
+        }),
+      })
+      router.addRoute({
+        name: 'loader',
+        path: '/loader/:id',
+        meta: { loaders: [useLoaderWithParam] },
+        component: defineComponent({
+          setup() {
+            const { data, error, isLoading } = useLoaderWithParam()
+            return { data, error, isLoading }
+          },
+          template: `<div><p id="data">{{ data }}</p></div>`,
+        }),
+      })
+
+      const pinia = createPinia()
+
+      const wrapper = mount(RouterViewMock, {
+        global: {
+          plugins: [[DataLoaderPlugin, { router }], router, pinia, PiniaColada],
+        },
+      })
+
+      const queryCache = useQueryCache(pinia)
+
+      // navigate back and forth between two loader pages
+      await router.push('/loader/1')
+      expect(wrapper.find('#data').text()).toBe('data-1')
+
+      await router.push('/')
+      expect(wrapper.find('#home').text()).toBe('Home')
+
+      await router.push('/loader/2')
+      expect(wrapper.find('#data').text()).toBe('data-2')
+
+      await router.push('/')
+      expect(wrapper.find('#home').text()).toBe('Home')
+
+      const entry1 = queryCache.get(['page-loader', '1'])!
+      const entry2 = queryCache.get(['page-loader', '2'])!
+
+      expect(entry1).toBeDefined()
+      expect(entry2).toBeDefined()
+
+      // Both entries should be inactive with no deps
+      expect(entry1.deps.size).toBe(0)
+      expect(entry1.active).toBe(false)
+      expect(entry2.deps.size).toBe(0)
+      expect(entry2.active).toBe(false)
+    })
   }
 )
