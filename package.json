@@ -25,91 +25,33 @@
   },
   "license": "MIT",
   "repository": "posva/unplugin-vue-router",
-  "main": "dist/index.cjs",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.mts",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
   "exports": {
-    ".": {
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs"
-    },
-    "./vite": {
-      "import": "./dist/vite.mjs",
-      "require": "./dist/vite.cjs"
-    },
-    "./webpack": {
-      "import": "./dist/webpack.mjs",
-      "require": "./dist/webpack.cjs"
-    },
-    "./rolldown": {
-      "import": "./dist/rolldown.mjs",
-      "require": "./dist/rolldown.cjs"
-    },
-    "./rollup": {
-      "import": "./dist/rollup.mjs",
-      "require": "./dist/rollup.cjs"
-    },
-    "./esbuild": {
-      "import": "./dist/esbuild.mjs",
-      "require": "./dist/esbuild.cjs"
-    },
-    "./options": {
-      "import": "./dist/options.mjs",
-      "require": "./dist/options.cjs"
-    },
-    "./runtime": {
-      "import": "./dist/runtime.mjs",
-      "require": "./dist/runtime.cjs"
-    },
-    "./types": {
-      "types": {
-        "import": "./dist/types.d.mts",
-        "require": "./dist/types.d.cts"
-      }
-    },
-    "./data-loaders": {
-      "import": "./dist/data-loaders/index.mjs",
-      "require": "./dist/data-loaders/index.cjs"
-    },
-    "./data-loaders/basic": {
-      "import": "./dist/data-loaders/basic.mjs",
-      "require": "./dist/data-loaders/basic.cjs"
-    },
-    "./data-loaders/pinia-colada": {
-      "import": "./dist/data-loaders/pinia-colada.mjs",
-      "require": "./dist/data-loaders/pinia-colada.cjs"
-    },
-    "./volar/sfc-route-blocks": {
-      "types": "./dist/volar/sfc-route-blocks.d.cts",
-      "default": "./dist/volar/sfc-route-blocks.cjs"
-    },
-    "./volar/sfc-typed-router": {
-      "types": "./dist/volar/sfc-typed-router.d.cts",
-      "default": "./dist/volar/sfc-typed-router.cjs"
-    },
+    ".": "./dist/index.mjs",
+    "./data-loaders": "./dist/data-loaders.mjs",
+    "./data-loaders/basic": "./dist/data-loaders/basic.mjs",
+    "./data-loaders/pinia-colada": "./dist/data-loaders/pinia-colada.mjs",
+    "./esbuild": "./dist/esbuild.mjs",
+    "./options": "./dist/options.mjs",
+    "./rolldown": "./dist/rolldown.mjs",
+    "./rollup": "./dist/rollup.mjs",
+    "./runtime": "./dist/runtime.mjs",
+    "./types": "./dist/types.mjs",
+    "./vite": "./dist/vite.mjs",
+    "./volar/sfc-route-blocks": "./dist/volar/sfc-route-blocks.mjs",
+    "./volar/sfc-typed-router": "./dist/volar/sfc-typed-router.mjs",
+    "./webpack": "./dist/webpack.mjs",
+    "./package.json": "./package.json",
     "./client": {
       "types": "./client.d.ts"
     }
   },
   "typesVersions": {
     "*": {
-      "data-loaders": [
-        "./dist/data-loaders/index.d.mts"
-      ],
-      "data-loaders/basic": [
-        "./dist/data-loaders/basic.d.mts"
-      ],
-      "data-loaders/pinia-colada": [
-        "./dist/data-loaders/pinia-colada.d.mts"
-      ],
-      "volar/sfc-route-blocks": [
-        "./dist/volar/sfc-route-blocks.d.cts"
-      ],
-      "volar/sfc-typed-router": [
-        "./dist/volar/sfc-typed-router.d.cts"
-      ],
       "*": [
-        "./dist/*",
+        "./dist/*.d.mts",
         "./*"
       ]
     }
@@ -119,10 +61,11 @@
     "client.d.ts",
     "route.schema.json"
   ],
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
   "scripts": {
-    "build": "pnpm run --stream \"/^build:/\"",
-    "build:core": "tsdown",
-    "build:runtime": "tsdown --config tsdown-runtime.config.ts",
+    "build": "tsdown",
     "dev": "pnpm run vitest --ui",
     "vitest": "vitest --typecheck",
     "playwright": "playwright test",
@@ -162,6 +105,7 @@
     "muggle-string": "^0.4.1",
     "pathe": "^2.0.3",
     "picomatch": "^4.0.3",
+    "rolldown-string": "^0.2.1",
     "scule": "^1.3.0",
     "tinyglobby": "^0.2.15",
     "unplugin": "^2.3.11",
@@ -206,7 +150,7 @@
     "rollup": "^4.53.3",
     "semver": "^7.7.3",
     "ts-expect": "^1.3.0",
-    "tsdown": "0.17.4",
+    "tsdown": "^0.18.1",
     "typescript": "^5.9.3",
     "unplugin-auto-import": "^20.3.0",
     "unplugin-vue-markdown": "^29.2.0",
