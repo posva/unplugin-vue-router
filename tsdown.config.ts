@@ -1,4 +1,4 @@
-import { defineConfig, type Options } from 'tsdown'
+import { defineConfig, type UserConfig } from 'tsdown'
 
 export const commonOptions = {
   format: ['cjs', 'esm'],
@@ -10,7 +10,7 @@ export const commonOptions = {
     '@pinia/colada',
     'pinia',
   ],
-} satisfies Options
+} satisfies UserConfig
 
 export default defineConfig([
   {

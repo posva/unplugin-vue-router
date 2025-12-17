@@ -1,6 +1,6 @@
 import { createFilter } from 'unplugin-utils'
 import type { Plugin } from 'vite'
-import MagicString from 'magic-string'
+import { withMagicString } from 'rolldown-string'
 import { findStaticImports, parseStaticImport } from 'mlly'
 import { resolve } from 'pathe'
 import { StringFilter, type UnpluginOptions } from 'unplugin'
@@ -79,21 +79,15 @@ export function AutoExportLoaders({
         id: transformFilter,
       },
 
-      handler(code) {
+      handler: withMagicString((s) => {
+        const code = s.toString()
         const loadersToExports = extractLoadersToExport(code, filterPaths, root)
-
         if (loadersToExports.length <= 0) return
 
-        const s = new MagicString(code)
         s.append(
           `\nexport const __loaders = [\n${loadersToExports.join(',\n')}\n];\n`
         )
-
-        return {
-          code: s.toString(),
-          map: s.generateMap(),
-        }
-      },
+      }),
     },
   }
 }
