@@ -1,33 +1,20 @@
-import { defineConfig, type UserConfig } from 'tsdown'
+import { defineConfig } from 'tsdown'
 
-export const commonOptions = {
-  format: ['cjs', 'esm'],
-  external: [
-    '@vue/compiler-sfc',
-    'vue',
-    'vue-router',
-    'vue-demi',
-    '@pinia/colada',
-    'pinia',
-  ],
-} satisfies UserConfig
-
-export default defineConfig([
-  {
-    ...commonOptions,
-    outputOptions: {
-      // TODO: check if everthing works with this to remove the warning
-      // exports: 'named',
-    },
-    entry: [
-      './src/index.ts',
-      './src/options.ts',
-      './src/esbuild.ts',
-      './src/rolldown.ts',
-      './src/rollup.ts',
-      './src/vite.ts',
-      './src/webpack.ts',
-      './src/types.ts',
-    ],
+export default defineConfig({
+  entry: {
+    '*': './src/*.ts',
+    'data-loaders': './src/data-loaders/entries/index.ts',
+    'data-loaders/*': './src/data-loaders/entries/!(index).ts',
+    'volar/*': './src/volar/entries/*.ts',
   },
-])
+  exports: {
+    customExports(exports) {
+      exports['./client'] = {
+        types: './client.d.ts',
+      }
+      return exports
+    },
+  },
+  inlineOnly: [],
+  external: ['vue', 'vue-router', '@pinia/colada'],
+})
