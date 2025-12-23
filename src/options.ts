@@ -243,7 +243,12 @@ export interface ParamParsersOptions {
    * @default `['src/params']`
    */
   dir?: string | string[]
-  getName?: (path: string) => string
+  /**
+   * Method to generate the name of the param matcher.
+   * 
+   * @default `(file) => path.parse(file).name`
+   */
+  getName?: (file: string) => string
 }
 
 export const DEFAULT_PARAM_PARSERS_OPTIONS = {
