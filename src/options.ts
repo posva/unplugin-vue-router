@@ -245,7 +245,7 @@ export interface ParamParsersOptions {
   dir?: string | string[]
   /**
    * Method to generate the name of the param matcher.
-   * 
+   *
    * @default `(file) => path.parse(file).name`
    */
   getName?: (file: string) => string
