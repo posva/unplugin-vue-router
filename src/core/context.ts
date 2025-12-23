@@ -51,6 +51,10 @@ export function createRoutesContext(options: ResolvedOptions) {
     },
   })
 
+  const getParamParserName =
+    options.experimental.paramParsers?.getName ||
+    ((file: string) => parsePathe(file).name)
+
   // populated by the initial scan pages
   const watchers: Array<FSWatcher | RoutesFolderWatcher> = []
   const paramParsersMap: ParamParsersMap = new Map()
@@ -133,10 +137,7 @@ export function createRoutesContext(options: ResolvedOptions) {
           expandDirectories: false,
         }).then((paramParserFiles) => {
           for (const file of paramParserFiles) {
-            const getName =
-              options.experimental.paramParsers?.getName ||
-              ((file: string) => parsePathe(file).name)
-            const name = getName(file)
+            const name = getParamParserName(file)
             // TODO: could be simplified to only one import that starts with / for vite
             const absolutePath = resolve(folder, file)
             paramParsersMap.set(name, {
@@ -221,7 +222,7 @@ export function createRoutesContext(options: ResolvedOptions) {
     logger.log(`🤖 Scanning param parsers in ${cwd}`)
     return watcher
       .on('add', (file) => {
-        const name = parsePathe(file).name
+        const name = getParamParserName(file)
         const absolutePath = resolve(cwd, file)
         paramParsersMap.set(name, {
           name,
@@ -232,7 +233,7 @@ export function createRoutesContext(options: ResolvedOptions) {
         writeConfigFiles()
       })
       .on('unlink', (file) => {
-        paramParsersMap.delete(parsePathe(file).name)
+        paramParsersMap.delete(getParamParserName(file))
         writeConfigFiles()
       })
   }
