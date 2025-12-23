@@ -133,7 +133,8 @@ export function createRoutesContext(options: ResolvedOptions) {
           expandDirectories: false,
         }).then((paramParserFiles) => {
           for (const file of paramParserFiles) {
-            const name = parsePathe(file).name
+            const getName = options.experimental.paramParsers?.getName || ((file: string) => parsePathe(file).name);
+            const name = getName(file);
             // TODO: could be simplified to only one import that starts with / for vite
             const absolutePath = resolve(folder, file)
             paramParsersMap.set(name, {

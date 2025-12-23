@@ -243,11 +243,13 @@ export interface ParamParsersOptions {
    * @default `['src/params']`
    */
   dir?: string | string[]
+  getName?: (path: string) => string
 }
 
 export const DEFAULT_PARAM_PARSERS_OPTIONS = {
   dir: ['src/params'],
-} satisfies Required<ParamParsersOptions>
+  getName: undefined,
+} satisfies ParamParsersOptions
 
 export const DEFAULT_OPTIONS = {
   extensions: ['.vue'],
