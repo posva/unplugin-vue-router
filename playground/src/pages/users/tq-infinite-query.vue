@@ -10,19 +10,62 @@ const {
   isLoading,
   fetchNextPage,
   hasNextPage,
+  status,
+  fetchStatus,
+  error,
 } = useInfiniteQuery({
   queryKey: ['cat-facts', 'feed'],
-  queryFn: async ({ pageParam }) =>
-    factsApi.get<CatFacts>({ query: { page: pageParam, limit: 10 } }),
+  queryFn: async ({ pageParam }) => {
+    console.log('Loading more')
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+    // if (facts.value?.pageParams?.at(-1) > 2) {
+    //   throw new Error('Simulated error on page > 2')
+    // }
+    return factsApi.get<CatFacts>({ query: { page: pageParam, limit: 10 } })
+  },
   initialPageParam: 1,
 
-  getNextPageParam: (lastPage) => {
+  placeholderData() {
+    return {
+      pages: [
+        {
+          current_page: 1,
+          data: [],
+          first_page_url: '',
+          from: 1,
+          last_page: 1,
+          last_page_url: '',
+          next_page_url:
+            'https://cat-fact.herokuapp.com/facts/feed?page=2&limit=10',
+        },
+      ],
+      pageParams: [1],
+    }
+  },
+
+  getNextPageParam: (lastPage, allPages, lastParam, allParams) => {
+    console.log('Last page:', lastPage, allPages, lastParam, allParams)
+    // return null
     // if there is no next page, return null
     if (!lastPage.next_page_url) return null
     // otherwise return the next page number
     return lastPage.current_page + 1
   },
+
+  retry: false,
+  staleTime: 0,
+  refetchOnMount: true,
+  refetchOnReconnect: true,
+  refetchOnWindowFocus: true,
 })
+
+watch(
+  hasNextPage,
+  (has) => {
+    console.log('Has next page:', has)
+  },
+  { flush: 'sync', immediate: true }
+)
 
 const mergedPages = computed(() => {
   return facts.value?.pages?.flatMap((page) => page.data) || []
@@ -53,9 +96,24 @@ watch(loadMoreEl, (el) => {
 
 <template>
   <div>
-    <button :disabled="isLoading" @click="fetchNextPage()">
+    <button
+      @click="
+        fetchNextPage({
+          cancelRefetch: false,
+          // throwOnError: true
+        })
+      "
+    >
       Load more (or scroll down)
     </button>
+
+    <p>
+      isLoading: {{ isLoading }} <br />
+      fetchStatus: {{ fetchStatus }} <br />
+      status: {{ status }} <br />
+      error: {{ error?.message }}
+    </p>
+
     <template v-if="facts?.pages">
       <p>We have loaded {{ facts.pages.length }} facts</p>
       <details>
