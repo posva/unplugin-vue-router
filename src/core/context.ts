@@ -28,6 +28,7 @@ import {
   warnMissingParamParsers,
 } from '../codegen/generateParamParsers'
 import picomatch from 'picomatch'
+import { camelCase } from 'scule'
 
 export function createRoutesContext(options: ResolvedOptions) {
   const { dts: preferDTS, root, routesFolder } = options
@@ -133,10 +134,11 @@ export function createRoutesContext(options: ResolvedOptions) {
           expandDirectories: false,
         }).then((paramParserFiles) => {
           for (const file of paramParserFiles) {
-            const name = parsePathe(file).name
+            const fileName = parsePathe(file).name
+            const name = camelCase(fileName)
             // TODO: could be simplified to only one import that starts with / for vite
             const absolutePath = resolve(folder, file)
-            paramParsersMap.set(name, {
+            paramParsersMap.set(fileName, {
               name,
               typeName: `Param_${name}`,
               absolutePath,
@@ -218,9 +220,10 @@ export function createRoutesContext(options: ResolvedOptions) {
     logger.log(`🤖 Scanning param parsers in ${cwd}`)
     return watcher
       .on('add', (file) => {
-        const name = parsePathe(file).name
+        const fileName = parsePathe(file).name
+        const name = camelCase(fileName)
         const absolutePath = resolve(cwd, file)
-        paramParsersMap.set(name, {
+        paramParsersMap.set(fileName, {
           name,
           typeName: `Param_${name}`,
           absolutePath,

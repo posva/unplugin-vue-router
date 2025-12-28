@@ -567,4 +567,54 @@ describe('generateParamParserCustomType', () => {
     const result = generateParamParserCustomType(paramParsers)
     expect(result).toBe("  | 'date'\n  | 'slug'\n  | 'uuid'")
   })
+
+  it('converts kebab-case filenames to valid camelCase identifiers', () => {
+    // Setup: Param parsers with kebab-case filenames should have camelCase names
+    const importsMap = new ImportsMap()
+    const paramParsers: ParamParsersMap = new Map([
+      [
+        'user-id', // Map key is original kebab-case (used in routes like [id=user-id])
+        {
+          name: 'userId', // Converted to camelCase for identifiers
+          typeName: 'Param_userId', // Valid TypeScript type name
+          relativePath: 'parsers/user-id',
+          absolutePath: '/path/to/parsers/user-id',
+        },
+      ],
+      [
+        'date-with-dashes',
+        {
+          name: 'dateWithDashes',
+          typeName: 'Param_dateWithDashes',
+          relativePath: 'parsers/date-with-dashes',
+          absolutePath: '/path/to/parsers/date-with-dashes',
+        },
+      ],
+    ])
+
+    expect(generateParamParsersTypesDeclarations(paramParsers)).toMatchInlineSnapshot(`
+      "type Param_userId = ReturnType<NonNullable<typeof import('./parsers/user-id').parser['get']>>
+      type Param_dateWithDashes = ReturnType<NonNullable<typeof import('./parsers/date-with-dashes').parser['get']>>"
+    `)
+
+    const param: TreePathParam = {
+      paramName: 'id',
+      modifier: '',
+      optional: false,
+      repeatable: false,
+      isSplat: false,
+      parser: 'user-id', // Route uses original kebab-case name
+    }
+    expect(generateParamParserOptions(param, importsMap, paramParsers)).toBe('PARAM_PARSER__userId') // Generated variable is camelCase
+
+    expect(importsMap.toString()).toMatchInlineSnapshot(`
+      "import { parser as PARAM_PARSER__userId } from '/path/to/parsers/user-id'
+      "
+    `)
+
+    expect(generateParamParserCustomType(paramParsers)).toMatchInlineSnapshot(`
+      "  | 'date-with-dashes'
+        | 'user-id'"
+    `)
+  })
 })
