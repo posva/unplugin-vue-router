@@ -509,6 +509,185 @@ describe('generateRouteResolver', () => {
     `)
   })
 
+  it('handles nested routes under layouts with skipped intermediate nodes', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+    const importsMap = new ImportsMap()
+
+    // Create the file structure from issue #775
+    tree.insert('(layout)', '(layout).vue')
+    tree.insert('(layout)/(home)', '(layout)/(home).vue')
+    tree.insert('(layout)/about/(about)', '(layout)/about/(about).vue')
+
+    const resolver = generateRouteResolver(
+      tree,
+      DEFAULT_OPTIONS,
+      importsMap,
+      new Map()
+    )
+
+    // The about route should have path='/about', not path='/'
+    expect(resolver).toMatchInlineSnapshot(`
+      "
+      const __route_0 = normalizeRouteRecord({
+        name: '/(layout)',
+        path: new MatcherPatternPathStatic('/'),
+        components: {
+          'default': () => import('(layout).vue')
+        },
+      })
+      const __route_1 = normalizeRouteRecord({
+        name: '/(layout)/(home)',
+        path: __route_0.path,
+        components: {
+          'default': () => import('(layout)/(home).vue')
+        },
+        parent: __route_0,
+      })
+      const __route_2 = normalizeRouteRecord({
+        name: '/(layout)/about/(about)',
+        path: new MatcherPatternPathStatic('/about'),
+        components: {
+          'default': () => import('(layout)/about/(about).vue')
+        },
+        parent: __route_0,
+      })
+
+      export const resolver = createFixedResolver([
+        __route_2,  // /about
+        __route_1,  // /
+        __route_0,  // /
+      ])
+      "
+    `)
+  })
+
+  it('handles nested group routes with same name at different levels', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+    const importsMap = new ImportsMap()
+
+    // Test case: settings page with nested group layout
+    tree.insert('(layout)', '(layout).vue')
+    tree.insert('(layout)/(home)', '(layout)/(home).vue')
+    tree.insert(
+      '(layout)/(settings)/settings',
+      '(layout)/(settings)/settings.vue'
+    )
+    tree.insert(
+      '(layout)/(settings)/settings/(general-settings)',
+      '(layout)/(settings)/settings/(general-settings).vue'
+    )
+
+    const resolver = generateRouteResolver(
+      tree,
+      DEFAULT_OPTIONS,
+      importsMap,
+      new Map()
+    )
+
+    // Both routes should be at /settings path
+    expect(resolver).toMatchInlineSnapshot(`
+      "
+      const __route_0 = normalizeRouteRecord({
+        name: '/(layout)',
+        path: new MatcherPatternPathStatic('/'),
+        components: {
+          'default': () => import('(layout).vue')
+        },
+      })
+      const __route_1 = normalizeRouteRecord({
+        name: '/(layout)/(home)',
+        path: __route_0.path,
+        components: {
+          'default': () => import('(layout)/(home).vue')
+        },
+        parent: __route_0,
+      })
+      const __route_2 = normalizeRouteRecord({
+        name: '/(layout)/(settings)/settings',
+        path: new MatcherPatternPathStatic('/settings'),
+        components: {
+          'default': () => import('(layout)/(settings)/settings.vue')
+        },
+        parent: __route_0,
+      })
+      const __route_3 = normalizeRouteRecord({
+        name: '/(layout)/(settings)/settings/(general-settings)',
+        path: __route_2.path,
+        components: {
+          'default': () => import('(layout)/(settings)/settings/(general-settings).vue')
+        },
+        parent: __route_2,
+      })
+
+      export const resolver = createFixedResolver([
+        __route_3,  // /settings
+        __route_2,  // /settings
+        __route_1,  // /
+        __route_0,  // /
+      ])
+      "
+    `)
+  })
+
+  it('handles nested group route without intermediate layout file', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+    const importsMap = new ImportsMap()
+
+    // Test case: only nested (general-settings) without settings.vue
+    // The intermediate settings directory should be skipped
+    tree.insert('(layout)', '(layout).vue')
+    tree.insert('(layout)/(home)', '(layout)/(home).vue')
+    tree.insert(
+      '(layout)/(settings)/settings/(general-settings)',
+      '(layout)/(settings)/settings/(general-settings).vue'
+    )
+
+    const resolver = generateRouteResolver(
+      tree,
+      DEFAULT_OPTIONS,
+      importsMap,
+      new Map()
+    )
+
+    // The route should have path '/settings', not '/'
+    expect(resolver).toContain(
+      "path: new MatcherPatternPathStatic('/settings')"
+    )
+    expect(resolver).toMatchInlineSnapshot(`
+      "
+      const __route_0 = normalizeRouteRecord({
+        name: '/(layout)',
+        path: new MatcherPatternPathStatic('/'),
+        components: {
+          'default': () => import('(layout).vue')
+        },
+      })
+      const __route_1 = normalizeRouteRecord({
+        name: '/(layout)/(home)',
+        path: __route_0.path,
+        components: {
+          'default': () => import('(layout)/(home).vue')
+        },
+        parent: __route_0,
+      })
+      const __route_2 = normalizeRouteRecord({
+        name: '/(layout)/(settings)/settings/(general-settings)',
+        path: new MatcherPatternPathStatic('/settings'),
+        components: {
+          'default': () => import('(layout)/(settings)/settings/(general-settings).vue')
+        },
+        parent: __route_0,
+      })
+
+      export const resolver = createFixedResolver([
+        __route_2,  // /settings
+        __route_1,  // /
+        __route_0,  // /
+      ])
+      "
+    `)
+  })
+
   describe('route prioritization in resolver', () => {
     function getRouteOrderFromResolver(tree: PrefixTree): string[] {
       const resolver = generateRouteResolver(

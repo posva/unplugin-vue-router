@@ -76,6 +76,7 @@ export function generateRouteResolver(
     generateRouteRecord({
       node,
       parentVar: null,
+      parentNode: null,
       state,
       options,
       importsMap,
@@ -109,6 +110,7 @@ ${state.matchableRecords
 export function generateRouteRecord({
   node,
   parentVar,
+  parentNode,
   state,
   options,
   importsMap,
@@ -116,6 +118,7 @@ export function generateRouteRecord({
 }: {
   node: TreeNode
   parentVar: string | null | undefined
+  parentNode: TreeNode | null | undefined
   state: GenerateRouteResolverState
   options: ResolvedOptions
   importsMap: ImportsMap
@@ -178,7 +181,7 @@ export function generateRouteRecord({
     })
     const routeRecordObject = `{
   ${recordName}
-  ${generateRouteRecordPath({ node, importsMap, paramParsersMap, parentVar })}${
+  ${generateRouteRecordPath({ node, importsMap, paramParsersMap, parentVar, parentNode })}${
     queryProperty ? `\n  ${queryProperty}` : ''
   }${formatMeta(node, '  ')}
   ${recordComponents}${parentVar ? `\n  parent: ${parentVar},` : ''}
@@ -206,6 +209,8 @@ const ${varName} = normalizeRouteRecord(${routeRecordObject})
       node: child,
       // If we skipped this node, pass the parent var from above, otherwise use our var
       parentVar: shouldSkipNode ? parentVar : varName,
+      // Track the actual node that parentVar represents
+      parentNode: shouldSkipNode ? parentNode : node,
       state,
       options,
       importsMap,
@@ -255,11 +260,13 @@ export function generateRouteRecordPath({
   importsMap,
   paramParsersMap,
   parentVar,
+  parentNode,
 }: {
   node: TreeNode
   importsMap: ImportsMap
   paramParsersMap: ParamParsersMap
   parentVar?: string | null | undefined
+  parentNode?: TreeNode | null | undefined
 }) {
   if (!node.isMatchable() && node.name) {
     return ''
@@ -269,7 +276,8 @@ export function generateRouteRecordPath({
   // this allows defining index pages and letting the router
   // recognize them by just checking the recorde.path === record.parent.path
   // it's used for active route matching
-  if (parentVar && node.regexp === node.parent?.regexp) {
+  // Compare against parentNode (which corresponds to parentVar) instead of node.parent
+  if (parentVar && parentNode && node.regexp === parentNode.regexp) {
     return `path: ${parentVar}.path,`
   }
 
