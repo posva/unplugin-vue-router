@@ -10,7 +10,7 @@
     "@pinia/colada-devtools": "^0.1.9",
     "@tanstack/vue-query-devtools": "^6.1.2",
     "@vitejs/plugin-vue": "^6.0.3",
-    "@vue/compiler-sfc": "^3.5.25",
+    "@vue/compiler-sfc": "^3.5.26",
     "@vue/tsconfig": "^0.8.1",
     "json-server": "^0.17.4",
     "unplugin-vue-router": "workspace:*",
@@ -21,7 +21,7 @@
     "@tanstack/vue-query": "^5.92.1",
     "mande": "^2.0.9",
     "pinia": "^3.0.4",
-    "vue": "^3.5.25",
+    "vue": "^3.5.26",
     "vue-router": "^4.6.4"
   }
 }
