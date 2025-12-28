@@ -227,6 +227,7 @@ describe('generateRouteRecord', () => {
       generateRouteRecord({
         node: tree.insert('a', 'a.vue'),
         parentVar: null,
+        parentNode: null,
         state: DEFAULT_STATE,
         options: DEFAULT_OPTIONS,
         importsMap,
@@ -245,6 +246,7 @@ describe('generateRouteRecord', () => {
       generateRouteRecord({
         node: tree.insert('a/b/c', 'a/b/c.vue'),
         parentVar: null,
+        parentNode: null,
         state: DEFAULT_STATE,
         options: DEFAULT_OPTIONS,
         importsMap,
