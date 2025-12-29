@@ -1,3 +1,10 @@
+## [0.19.2](https://github.com/posva/unplugin-vue-router/compare/v0.19.1...v0.19.2) (2025-12-29)
+
+### Bug Fixes
+
+- allow kebab-case param parsers ([da618d5](https://github.com/posva/unplugin-vue-router/commit/da618d5481b6f759fc61faa3aa1c7ed44483287d)), closes [#774](https://github.com/posva/unplugin-vue-router/issues/774)
+- compare to correct parent regexp when skipping ([82bd0e8](https://github.com/posva/unplugin-vue-router/commit/82bd0e844a635b24aa2c215d8d1a52e7f0e17946)), closes [#775](https://github.com/posva/unplugin-vue-router/issues/775)
+
 ## [0.19.1](/compare/v0.19.0...v0.19.1) (2025-12-15)
 
 ### Bug Fixes
