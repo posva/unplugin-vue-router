@@ -690,6 +690,67 @@ describe('generateRouteResolver', () => {
     `)
   })
 
+  it('handles route groups nested under a named route', () => {
+    const tree = new PrefixTree(DEFAULT_OPTIONS)
+    const importsMap = new ImportsMap()
+
+    // Test case: route group nested under a named route
+    // Structure:
+    // nested-routes.vue
+    // nested-routes/(route-groups)/a.vue
+    // nested-routes/(route-groups)/b.vue
+    tree.insert('nested-routes', 'nested-routes.vue')
+    tree.insert(
+      'nested-routes/(route-groups)/a',
+      'nested-routes/(route-groups)/a.vue'
+    )
+    tree.insert(
+      'nested-routes/(route-groups)/b',
+      'nested-routes/(route-groups)/b.vue'
+    )
+
+    const resolver = generateRouteResolver(
+      tree,
+      DEFAULT_OPTIONS,
+      importsMap,
+      new Map()
+    )
+
+    expect(resolver).toMatchInlineSnapshot(`
+      "
+      const __route_0 = normalizeRouteRecord({
+        name: '/nested-routes',
+        path: new MatcherPatternPathStatic('/nested-routes'),
+        components: {
+          'default': () => import('nested-routes.vue')
+        },
+      })
+      const __route_1 = normalizeRouteRecord({
+        name: '/nested-routes/(route-groups)/a',
+        path: new MatcherPatternPathStatic('/nested-routes/a'),
+        components: {
+          'default': () => import('nested-routes/(route-groups)/a.vue')
+        },
+        parent: __route_0,
+      })
+      const __route_2 = normalizeRouteRecord({
+        name: '/nested-routes/(route-groups)/b',
+        path: new MatcherPatternPathStatic('/nested-routes/b'),
+        components: {
+          'default': () => import('nested-routes/(route-groups)/b.vue')
+        },
+        parent: __route_0,
+      })
+
+      export const resolver = createFixedResolver([
+        __route_1,  // /nested-routes/a
+        __route_2,  // /nested-routes/b
+        __route_0,  // /nested-routes
+      ])
+      "
+    `)
+  })
+
   describe('route prioritization in resolver', () => {
     function getRouteOrderFromResolver(tree: PrefixTree): string[] {
       const resolver = generateRouteResolver(
