@@ -592,7 +592,8 @@ describe('generateParamParserCustomType', () => {
       ],
     ])
 
-    expect(generateParamParsersTypesDeclarations(paramParsers)).toMatchInlineSnapshot(`
+    expect(generateParamParsersTypesDeclarations(paramParsers))
+      .toMatchInlineSnapshot(`
       "type Param_userId = ReturnType<NonNullable<typeof import('./parsers/user-id').parser['get']>>
       type Param_dateWithDashes = ReturnType<NonNullable<typeof import('./parsers/date-with-dashes').parser['get']>>"
     `)
@@ -605,7 +606,9 @@ describe('generateParamParserCustomType', () => {
       isSplat: false,
       parser: 'user-id', // Route uses original kebab-case name
     }
-    expect(generateParamParserOptions(param, importsMap, paramParsers)).toBe('PARAM_PARSER__userId') // Generated variable is camelCase
+    expect(generateParamParserOptions(param, importsMap, paramParsers)).toBe(
+      'PARAM_PARSER__userId'
+    ) // Generated variable is camelCase
 
     expect(importsMap.toString()).toMatchInlineSnapshot(`
       "import { parser as PARAM_PARSER__userId } from '/path/to/parsers/user-id'
