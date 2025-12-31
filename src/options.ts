@@ -5,6 +5,7 @@ import { resolve } from 'pathe'
 import { EditableTreeNode } from './core/extendRoutes'
 import { type ParseSegmentOptions } from './core/treeNodeValue'
 import { type _Awaitable } from './utils'
+import { DEFAULT_AUTO_HMR_OPTIONS, type AutoHmrOptions } from './auto-hmr'
 
 /**
  * Options for a routes folder.
@@ -216,6 +217,11 @@ export interface Options {
   watch?: boolean
 
   /**
+   * Whether to enable auto HMR for Vue Router.
+   */
+  autoHmr?: AutoHmrOptions
+
+  /**
    * Experimental options. **Warning**: these can change or be removed at any time, even it patch releases. Keep an eye
    * on the Changelog.
    */
@@ -266,6 +272,7 @@ export const DEFAULT_OPTIONS = {
   },
   watch: !process.env.CI,
   experimental: {},
+  autoHmr: DEFAULT_AUTO_HMR_OPTIONS,
 } satisfies Options
 
 export interface ServerContext {

@@ -21,6 +21,7 @@ import { createViteContext } from './core/vite'
 import { join } from 'pathe'
 import { appendExtensionListToPattern } from './core/utils'
 import { createAutoExportPlugin } from './data-loaders/auto-exports'
+import { createAutoHmrPlugin } from './auto-hmr'
 
 export type * from './types'
 
@@ -166,6 +167,12 @@ export default createUnplugin<Options | undefined>((opt = {}, _meta) => {
         root: options.root,
       })
     )
+  }
+
+  // If the autoHmr configuration item is not configured or only filter is set,
+  // it will also be regarded as enabled.
+  if (options.autoHmr?.enabled ?? true) {
+    plugins.push(createAutoHmrPlugin(options.autoHmr))
   }
 
   return plugins
