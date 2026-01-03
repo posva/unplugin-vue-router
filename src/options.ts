@@ -9,7 +9,11 @@ import { type _Awaitable } from './utils'
 /**
  * Options for a routes folder.
  */
-export interface RoutesFolderOption {
+export interface RoutesFolderOption<
+  TFilePatterns extends string[] = string[],
+  TExclude extends string[] = string[],
+  TExtensions extends string[] = string[],
+> {
   /**
    * Folder to scan files that should be used for routes. **Cannot be a glob**, use the `path`, `filePatterns`, and
    * `exclude` options to filter out files. This section will **be removed** from the resulting path.
@@ -51,13 +55,13 @@ export interface RoutesFolderOption {
    * Allows to override the global `filePattern` option for this folder. It can also extend the global values by passing
    * a function that returns an array.
    */
-  filePatterns?: _OverridableOption<string[], string | string[]>
+  filePatterns?: _OverridableOption<string[], TFilePatterns, string | string[]>
 
   /**
    * Allows to override the global `exclude` option for this folder. It can
    * also extend the global values by passing a function that returns an array.
    */
-  exclude?: _OverridableOption<string[], string | string[]>
+  exclude?: _OverridableOption<string[], TExclude, string | string[]>
 
   /**
    * Allows to override the global `extensions` option for this folder. It can
@@ -66,7 +70,7 @@ export interface RoutesFolderOption {
    * `.page.vue` allows to suffix all pages with `.page.vue` and remove it from
    * the route name.
    */
-  extensions?: _OverridableOption<string[]>
+  extensions?: _OverridableOption<string[], TExtensions, string[]>
 }
 
 /**
@@ -83,9 +87,9 @@ export interface RoutesFolderOptionResolved extends RoutesFolderOption {
   extensions: string[]
 }
 
-export type _OverridableOption<T, AllowedTypes = T> =
+export type _OverridableOption<T, Existing, AllowedTypes = T> =
   | AllowedTypes
-  | ((existing: T) => T)
+  | ((existing: Existing) => T)
 
 /**
  * Resolves an overridable option by calling the function with the existing value if it's a function, otherwise
@@ -103,19 +107,33 @@ export function resolveOverridableOption<T>(
     : (value ?? defaultValue)
 }
 
-export type _RoutesFolder = string | RoutesFolderOption
-export type RoutesFolder = _RoutesFolder[] | _RoutesFolder
+export type _RoutesFolder<
+  TFilePatterns extends string[],
+  TExclude extends string[],
+  TExtensions extends string[],
+> = string | RoutesFolderOption<TFilePatterns, TExclude, TExtensions>
+export type RoutesFolder<
+  TFilePatterns extends string[] = string[],
+  TExclude extends string[] = string[],
+  TExtensions extends string[] = string[],
+> =
+  | _RoutesFolder<TFilePatterns, TExclude, TExtensions>[]
+  | _RoutesFolder<TFilePatterns, TExclude, TExtensions>
 
 /**
  * unplugin-vue-router plugin options.
  */
-export interface Options {
+export interface Options<
+  TFilePatterns extends string[] = string[],
+  TExclude extends string[] = string[],
+  TExtensions extends string[] = string[],
+> {
   /**
    * Extensions of files to be considered as pages. Cannot be empty. This allows to strip a
    * bigger part of the filename e.g. `index.page.vue` -> `index` if an extension of `.page.vue` is provided.
    * @default `['.vue']`
    */
-  extensions?: string[]
+  extensions?: TExtensions
 
   /**
    * Folder(s) to scan for files and generate routes. Can also be an array if you want to add multiple
@@ -124,7 +142,7 @@ export interface Options {
    *
    * @default `"src/pages"`
    */
-  routesFolder?: RoutesFolder
+  routesFolder?: RoutesFolder<TFilePatterns, TExclude, TExtensions>
 
   /**
    * Array of `picomatch` globs to ignore. Note the globs are relative to the cwd, so avoid writing
@@ -132,7 +150,7 @@ export interface Options {
    * `['src/pages/ignored/**']` or use `['**​/ignored']` to match every folder named `ignored`.
    * @default `[]`
    */
-  exclude?: string[] | string
+  exclude?: TExclude
 
   /**
    * Pattern to match files in the `routesFolder`. Defaults to `*\/*` plus a
@@ -142,7 +160,7 @@ export interface Options {
    *
    * @default `['*\/*']`
    */
-  filePatterns?: string[] | string
+  filePatterns?: TFilePatterns
 
   /**
    * Method to generate the name of a route. It's recommended to keep the default value to guarantee a consistent,
