@@ -148,8 +148,8 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
       unplugin-auto-import:
-        specifier: ^20.3.0
-        version: 20.3.0(@vueuse/core@12.5.0(typescript@5.9.3))
+        specifier: ^21.0.0
+        version: 21.0.0(@vueuse/core@12.5.0(typescript@5.9.3))
       unplugin-vue-markdown:
         specifier: ^29.2.0
         version: 29.2.0(vite@7.3.0(@types/node@24.10.4)(jiti@2.6.1)(lightningcss@1.29.3)(terser@5.44.1)(yaml@2.8.2))
@@ -5835,6 +5835,7 @@ packages:
   tar@7.5.2:
     resolution: {integrity: sha512-7NyxrTE4Anh8km8iEy7o0QYPs+0JKBTj5ZaqHg6B39erLg0qYXN3BijtShwbsNSvQ+LN75+KV+C4QR/f6Gwnpg==}
     engines: {node: '>=18'}
+    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exhorbitant rates) by contacting i@izs.me
 
   terser-webpack-plugin@5.3.16:
     resolution: {integrity: sha512-h9oBFCWrq78NyWWVcSwZarJkZ01c2AyGrzs1crmHZO3QUg9D61Wu4NPjBy69n7JqylFF5y+CsUZYmYEIZ3mR+Q==}
@@ -6050,9 +6051,9 @@ packages:
     resolution: {integrity: sha512-pjy2bYhSsufwWlKwPc+l3cN7+wuJlK6uz0YdJEOlQDbl6jo/YlPi4mb8agUkVC8BF7V8NuzeyPNqRksA3hztKQ==}
     engines: {node: '>= 0.8'}
 
-  unplugin-auto-import@20.3.0:
-    resolution: {integrity: sha512-RcSEQiVv7g0mLMMXibYVKk8mpteKxvyffGuDKqZZiFr7Oq3PB1HwgHdK5O7H4AzbhzHoVKG0NnMnsk/1HIVYzQ==}
-    engines: {node: '>=14'}
+  unplugin-auto-import@21.0.0:
+    resolution: {integrity: sha512-vWuC8SwqJmxZFYwPojhOhOXDb5xFhNNcEVb9K/RFkyk/3VnfaOjzitWN7v+8DEKpMjSsY2AEGXNgt6I0yQrhRQ==}
+    engines: {node: '>=20.19.0'}
     peerDependencies:
       '@nuxt/kit': ^4.0.0
       '@vueuse/core': '*'
@@ -13182,7 +13183,7 @@ snapshots:
 
   unpipe@1.0.0: {}
 
-  unplugin-auto-import@20.3.0(@vueuse/core@12.5.0(typescript@5.9.3)):
+  unplugin-auto-import@21.0.0(@vueuse/core@12.5.0(typescript@5.9.3)):
     dependencies:
       local-pkg: 1.1.2
       magic-string: 0.30.21
